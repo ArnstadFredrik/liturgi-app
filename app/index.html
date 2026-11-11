@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liturgi – gudstjenesteplanlegger</title>
+<link rel="stylesheet" href="styles.css">
+<script src="vendor/docx.js"></script>
+<script src="vendor/pptxgen.bundle.js"></script>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <h1>Liturgi</h1>
+    <div class="sidegroup">
+      <div class="sidehead">Gudstjenester</div>
+      <ul id="service-list"></ul>
+      <button id="btn-new-service" class="wide">+ Ny gudstjeneste</button>
+    </div>
+    <div class="sidegroup">
+      <div class="sidehead">Maler</div>
+      <ul id="template-list"></ul>
+      <button id="btn-new-template" class="wide">+ Ny lokal mal</button>
+    </div>
+    <div class="sidefoot">
+      <label class="chk"><input type="checkbox" id="opt-instr" checked> Vis instruksjoner</label>
+      <label class="chk"><input type="checkbox" id="opt-roles" checked> Vis roller (L / M / ML / A)</label>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div id="welcome">
+      <h2>Liturgi</h2>
+      <p>Lag gudstjenester fra malen «Hovedgudstjenesten» eller din lokale grunnordning,
+         velg salmer, bytt ledd og alternativer, og eksporter til PDF, Word eller PowerPoint.</p>
+      <p><button id="btn-start">Opprett gudstjeneste</button></p>
+    </div>
+
+    <div id="editor" hidden>
+      <header id="ed-head">
+        <input id="ed-name" placeholder="Navn på gudstjenesten">
+        <input id="ed-date" type="date">
+        <div id="ed-actions">
+          <button id="btn-save" title="Lagre">💾 Lagre</button>
+          <button id="btn-savetpl" title="Lagre som lokal mal">Lagre som mal</button>
+          <button id="btn-pdf">PDF</button>
+          <button id="btn-docx">Word</button>
+          <button id="btn-pptx">PowerPoint</button>
+          <button id="btn-close">✕</button>
+        </div>
+      </header>
+      <div id="ed-meta">
+        <span id="ed-tplname"></span>
+      </div>
+      <div id="sections"></div>
+      <div id="add-area"></div>
+    </div>
+  </main>
+</div>
+
+<div id="modal-back" hidden>
+  <div id="modal">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div id="modal-actions">
+      <button id="modal-cancel">Avbryt</button>
+      <button id="modal-ok" class="primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

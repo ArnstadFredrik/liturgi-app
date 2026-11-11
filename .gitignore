@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+
+# Build output artifacts (SvelteKit specific)
+.svelte-kit/
+build/
+dist/
+
+# env
+
+.env
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+tmp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
