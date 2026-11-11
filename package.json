@@ -27,7 +27,6 @@
     "directories": {
       "output": "dist"
     },
-    "releaseType": "release",
     "fileAssociations": [
       {
         "ext": "liturgi",
@@ -45,6 +44,10 @@
           ]
         }
       ]
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
     }
   },
   "devDependencies": {
