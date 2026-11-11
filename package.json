@@ -1,7 +1,7 @@
 {
   "name": "liturgi-app",
   "private": true,
-  "version": "1.0.2",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/ArnstadFredrik/liturgi-app.git"
