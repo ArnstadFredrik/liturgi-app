@@ -3,7 +3,10 @@
 	import { prompt, confirmBox, chooseSectionsModal } from '$lib/modal.svelte.js';
 	import { exportWord, exportPptx, exportPdf, nlDate } from '$lib/export.js';
 	import { toast } from 'svelte-sonner';
+	import { saveCurrentToFile, saveCurrent, saveAsTemplateOnDisk } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
+
+	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
 	const o = $derived(app.current);
 
@@ -76,12 +79,15 @@
 	}
 
 	function onSave() {
-		persist();
-		toast.success('Lagret');
+		saveCurrent();
 	}
 
 	function onSaveTpl() {
-		prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplate(name), o.name + ' (grunnordning)');
+		if (isElectron) {
+			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplateOnDisk(name), o.name + ' (grunnordning)');
+		} else {
+			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplate(name), o.name + ' (grunnordning)');
+		}
 	}
 
 	async function doWord() {
@@ -125,6 +131,7 @@
 		{/if}
 		<div id="ed-actions">
 			<button onclick={onSave} title="Lagre">💾 Lagre</button>
+			<button onclick={saveCurrentToFile} title="Lagre som ny fil på disk">Lagre som …</button>
 			{#if app.kind === 'service'}
 				<button onclick={onSaveTpl} title="Lagre som lokal mal">Lagre som mal</button>
 			{/if}

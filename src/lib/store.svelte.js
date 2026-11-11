@@ -3,6 +3,8 @@ import { BUILTIN_TEMPLATES } from './data.js';
 const LS_KEY = 'liturgi-store-v1';
 const THEME_KEY = 'liturgi-theme';
 
+const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
+
 export const uid = () => 'i' + Math.random().toString(36).slice(2, 9);
 
 export const app = $state({
@@ -15,6 +17,8 @@ export const app = $state({
 	showRoles: true,
 	theme: 'dark', // 'light' | 'dark'
 	contextMenu: null, // {x, y, items: [{label, action, danger?} | 'sep']}
+	recentServices: [], // Electron: siste gudstjenestefiler på disk
+	servicesDir: '', // Electron: stien til tjenestemappen
 	modal: null
 });
 
@@ -104,13 +108,36 @@ export function newBlankTemplate(name) {
 
 /* ---------- lagring ---------- */
 
+/** Electron: lokale maler som skal migreres fra localStorage til disk ved oppstart. */
+export let pendingLocalTemplates = [];
+
 export function loadStore() {
+	if (isElectron) {
+		// maler: innebygde + lokale fra ~/.config/Liturgi/maler (lastes async av fileio)
+		// gamle lokale maler i localStorage migreres til maler-mappen én gang
+		try {
+			const s = JSON.parse(localStorage.getItem(LS_KEY) ?? '{}');
+			const builtinNames = new Set(BUILTIN_TEMPLATES.map((bt) => bt.name));
+			pendingLocalTemplates = (s.templates ?? []).filter(
+				(t) => !t.builtinKey && !builtinNames.has(t.name)
+			);
+		} catch { pendingLocalTemplates = []; }
+		app.templates = BUILTIN_TEMPLATES.map((bt) => {
+			const copy = JSON.parse(JSON.stringify(bt));
+			for (const sec of copy.sections) for (const it of sec.items) migrateItem(it);
+			return copy;
+		});
+		app.services = [];
+		persist();
+		return;
+	}
 	try {
 		const raw = localStorage.getItem(LS_KEY);
 		if (raw) {
 			const s = JSON.parse(raw);
 			app.templates = s.templates ?? [];
-			app.services = s.services ?? [];
+			// Electron: gudstjenester bor som filer på disk, ikke i localStorage
+			if (!isElectron) app.services = s.services ?? [];
 		}
 	} catch {
 		app.templates = [];
@@ -155,9 +182,10 @@ export function loadStore() {
 }
 
 export function persist() {
+	// Electron: maler bor på disk (~/.config/Liturgi/maler), gudstjenester som filer
 	localStorage.setItem(
 		LS_KEY,
-		JSON.stringify({ templates: app.templates, services: app.services })
+		JSON.stringify(isElectron ? {} : { templates: app.templates, services: app.services })
 	);
 	app.dirty = false;
 }
@@ -221,6 +249,13 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	s.name = name || tpl.name;
 	s.date = date;
 	applyKirkeaar(s, kirkeaar, tekster);
+	if (isElectron) {
+		// gudstjenester lagres som fil — ligger i minnet til «Lagre»
+		app.current = s;
+		app.kind = 'service';
+		app.dirty = true;
+		return s;
+	}
 	app.services.push(s);
 	persist();
 	openService(s.id);

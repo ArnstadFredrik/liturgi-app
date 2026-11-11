@@ -177,6 +177,13 @@ textarea {
 .ctx-item.danger { color: var(--danger); }
 .ctx-sep { height: 1px; background: var(--border); margin: 4px 6px; }
 
+.list li.empty {
+	color: var(--muted);
+	font-style: italic;
+	padding: 6px 10px;
+	font-size: 12px;
+}
+
 /* ---------- TOC-side ---------- */
 #toc-side {
 	width: 175px; min-width: 175px;
