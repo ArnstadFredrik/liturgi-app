@@ -1,0 +1,88 @@
+name: Bygg og publiser Mac-app
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    runs-on: macos-14 # Apple Silicon
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      sha256: ${{ steps.sha.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Sett versjon fra taggen
+        id: ver
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Bygg SvelteKit + Electron
+        run: npm run build && npx electron-builder --mac --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Regn ut sjekksum
+        id: sha
+        run: |
+          DMG="dist/Liturgi-${{ steps.ver.outputs.version }}-arm64.dmg"
+          test -f "$DMG" || { ls -la dist; exit 1; }
+          echo "sha256=$(shasum -a 256 "$DMG" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+  update-tap:
+    runs-on: ubuntu-latest
+    needs: build-mac
+    steps:
+      - name: Hent homebrew-tap
+        uses: actions/checkout@v4
+        with:
+          repository: ArnstadFredrik/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Skriv cask
+        run: |
+          VERSION="${{ needs.build-mac.outputs.version }}"
+          SHA="${{ needs.build-mac.outputs.sha256 }}"
+          cat > Casks/liturgi.rb <<EOF
+          cask "liturgi" do
+            version "$VERSION"
+            sha256 "$SHA"
+
+            url "https://github.com/ArnstadFredrik/liturgi-app/releases/download/v#{version}/Liturgi-#{version}-arm64.dmg"
+            name "Liturgi"
+            desc "Gudstjenesteplanlegger for den norske kirke"
+            homepage "https://github.com/ArnstadFredrik/liturgi-app"
+
+            app "Liturgi.app"
+
+            # Appen er ikke signert hos Apple; fjern karantenen slik at den
+            # åpner uten «høyreklikk → Åpne» / Systemvalg-godkjenning.
+            postflight do
+              system "/usr/bin/xattr", "-dr", "com.apple.quarantine", "#{staged_path}/Liturgi.app"
+            end
+          end
+          EOF
+
+      - name: Push oppdatering
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/liturgi.rb
+          git diff --cached --quiet && echo "Ingen endringer" && exit 0
+          git commit -m "liturgi ${{ needs.build-mac.outputs.version }}"
+          git push

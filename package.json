@@ -2,6 +2,10 @@
   "name": "liturgi-app",
   "private": true,
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArnstadFredrik/liturgi-app.git"
+  },
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
