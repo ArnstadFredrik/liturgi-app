@@ -27,6 +27,7 @@
     "directories": {
       "output": "dist"
     },
+    "releaseType": "release",
     "fileAssociations": [
       {
         "ext": "liturgi",
