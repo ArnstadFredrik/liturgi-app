@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-mac:
-    runs-on: macos-14 # Apple Silicon
+    runs-on: macos-latest # Apple Silicon
     outputs:
       version: ${{ steps.ver.outputs.version }}
       sha256: ${{ steps.sha.outputs.sha256 }}
