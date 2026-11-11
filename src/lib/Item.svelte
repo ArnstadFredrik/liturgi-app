@@ -1,6 +1,8 @@
 <script>
 	import { app, markDirty, uid } from '$lib/store.svelte.js';
 	import { chooseOneModal } from '$lib/modal.svelte.js';
+	import { bibSokModal } from '$lib/modal.svelte.js';
+	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import EditableText from './EditableText.svelte';
 
@@ -49,10 +51,37 @@
 			'sep',
 			{ label: 'Legg til del over', action: () => nyttLedd(0) },
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
+			{ label: 'Hent innhold fra hovedgudstjenesten …', action: () => hentFraBibliotek('innhold') },
+			{ label: 'Hent ledd fra hovedgudstjenesten …', action: () => hentFraBibliotek('ledd') },
 			'sep',
 			{ label: it.enabled ? 'Fjern fra gudstjenesten' : 'Ta med i gudstjenesten', action: toggle },
 			{ label: 'Slett leddet', action: del, danger: true }
 		]);
+	}
+
+	/** Hent fra hovedgudstjenesten (sqlite-biblioteket).
+	 *  mode 'innhold': ett valgt alternativ erstatter leddets innhold.
+	 *  mode 'ledd': hele leddet med alle alternativer erstatter dette leddet. */
+	function hentFraBibliotek(mode) {
+		// søkeforslag: heading uten nummerering
+		const def = it.heading.replace(/^[*\d–\-\s]+/, '').trim();
+		bibSokModal(def, mode, (gruppe, alt) => {
+			if (!gruppe) return;
+			const alts = gruppe.rader.map((r) => ({ label: r.label, text: r.text }));
+			if (mode === 'innhold' && alt) {
+				it.text = alt.text;
+				it.alts = [];
+				it.selAlt = null;
+			} else {
+				it.heading = gruppe.ledd;
+				it.text = '';
+				it.alts = alts.length > 1 ? alts : [];
+				it.selAlt = alts.length > 1 ? 0 : null;
+				if (alts.length === 1) it.text = alts[0].text;
+			}
+			markDirty();
+			toast.success('Hentet «' + gruppe.ledd + '» fra ' + gruppe.kilde);
+		});
 	}
 </script>
 

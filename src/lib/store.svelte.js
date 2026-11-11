@@ -122,11 +122,7 @@ export function loadStore() {
 				(t) => !t.builtinKey && !builtinNames.has(t.name)
 			);
 		} catch { pendingLocalTemplates = []; }
-		app.templates = BUILTIN_TEMPLATES.map((bt) => {
-			const copy = JSON.parse(JSON.stringify(bt));
-			for (const sec of copy.sections) for (const it of sec.items) migrateItem(it);
-			return copy;
-		});
+		app.templates = []; // maler lastes fra disk (maler/originaler + maler/brukermaler)
 		app.services = [];
 		persist();
 		return;
@@ -279,7 +275,8 @@ export function applyKirkeaar(svc, k, tekster) {
 	for (const sec of svc.sections) {
 		for (const it of sec.items) {
 			const h = (it.heading || '').toLowerCase();
-			if (h.includes('dagens bønn') && k.prayer) {
+			const erIngress = h.includes('ingress');
+			if (h.includes('dagens bønn') && !erIngress && k.prayer) {
 				const bønn = 'L | La oss alle be.\n' + formaterBønn(k.prayer);
 				if (it.text?.includes('[Dagens bønn]')) {
 					const innhold = formaterBønn(k.prayer);
@@ -287,9 +284,12 @@ export function applyKirkeaar(svc, k, tekster) {
 					// unngå dobbel avsluttende Amen fra malen
 					if (/amen\.?$/i.test(innhold)) it.text = it.text.replace(/\n*M \| Amen\.\s*$/, '');
 				} else if ((it.alts ?? []).length) {
-					// lokal(e) alternativ(er) beholdes – kirkeårsbønnen skjøtes inn forrest
-					if (!it.alts.some((a) => a.label === 'Dagens bønn (kirkeåret)')) {
+					// lokal(e) alternativ(er) beholdes – kirkeårsbønnen settes inn/oppdateres forrest
+					const idx = it.alts.findIndex((a) => a.label === 'Dagens bønn (kirkeåret)');
+					if (idx === -1) {
 						it.alts.unshift({ label: 'Dagens bønn (kirkeåret)', text: bønn });
+					} else {
+						it.alts[idx] = { label: 'Dagens bønn (kirkeåret)', text: bønn };
 					}
 					it.selAlt = it.alts.findIndex((a) => a.label === 'Dagens bønn (kirkeåret)');
 				} else if (it.text) {
@@ -303,12 +303,12 @@ export function applyKirkeaar(svc, k, tekster) {
 				} else {
 					it.text = bønn;
 				}
-			} else if (h.includes('første lesning') && k.L1) {
+			} else if (h.includes('første lesning') && !erIngress && k.L1) {
 				fyllLesning(it, k.L1, tekster?.L1);
 				it.instr = (it.instr ? it.instr + ' ' : '') + 'Tekstrekke ' + k.series;
-			} else if (h.includes('andre lesning') && k.L2) {
+			} else if (h.includes('andre lesning') && !erIngress && k.L2) {
 				fyllLesning(it, k.L2, tekster?.L2);
-			} else if (h.includes('evangelium') && k.E) {
+			} else if (h.includes('evangelium') && !erIngress && k.E) {
 				fyllLesning(it, k.E, tekster?.E, true);
 			}
 		}
@@ -317,14 +317,24 @@ export function applyKirkeaar(svc, k, tekster) {
 
 /** Fyll en lesning med referanse og (hvis hentet) selve teksten fra bibel.no. */
 function fyllLesning(it, ref, tekst, evangelium = false) {
+	// teksten innledes/avsluttes som i ordningen; referansen settes som fotnote
+	const intro = evangelium
+		? 'L/ML | Det hellige evangelium står skrevet hos ' + ref + ':'
+		: 'ML | Det står skrevet i/hos ' + ref + ':';
+	const outro = evangelium
+		? 'L/ML | Slik lyder det hellige evangelium.'
+		: 'ML | Slik lyder Herrens ord.';
+	const fotnote = tekst ? '\nFOTNOTE | ' + ref : '';
 	if (tekst) {
-		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text;
+		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text + fotnote;
 		if (it.text?.includes(evangelium ? '[Evangelietekst]' : '[Lesningstekst]')) {
+			// malen har plassholder med egen innledning/avslutning – behold den
 			it.text = it.text
 				.replace(evangelium ? '[Evangelietekst]' : '[Lesningstekst]', innhold)
-				.replace('…', tekst.ref);
+				.replace('…', ref);
 		} else {
-			it.text = innhold;
+			// frittstående ledd (f.eks. B&G): bygg med innledning/avslutning
+			it.text = intro + '\n' + innhold + '\n' + outro;
 		}
 	} else {
 		// kun referanse

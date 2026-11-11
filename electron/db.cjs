@@ -24,6 +24,14 @@ function openDb() {
 			date TEXT NOT NULL DEFAULT '',
 			last_opened INTEGER NOT NULL DEFAULT 0
 		);
+		CREATE TABLE IF NOT EXISTS bibliotek (
+			kilde     TEXT NOT NULL,
+			seksjon   TEXT NOT NULL DEFAULT '',
+			ledd      TEXT NOT NULL,
+			alt_label TEXT NOT NULL DEFAULT '',
+			tekst     TEXT NOT NULL DEFAULT '',
+			PRIMARY KEY (kilde, ledd, alt_label)
+		);
 	`);
 	return db;
 }
@@ -56,4 +64,44 @@ function recRemove(p) {
 	openDb().prepare('DELETE FROM recent_services WHERE path = ?').run(p);
 }
 
-module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove };
+/* ---------- bibliotek: oppslagsregister over hovedgudstjenesten ---------- */
+
+function bibSync(source, entries) {
+	const db = openDb();
+	db.prepare('DELETE FROM bibliotek WHERE kilde = ?').run(source);
+	const ins = db.prepare(
+		'INSERT INTO bibliotek (kilde, seksjon, ledd, alt_label, tekst) VALUES (?, ?, ?, ?, ?)'
+	);
+	db.transaction(() => {
+		for (const e of entries) ins.run(source, e.seksjon, e.ledd, e.alt_label ?? '', e.tekst ?? '');
+	})();
+}
+
+function bibSearch(q, limit = 30) {
+	// Fuzzy: hent alle rader (registeret er lite) og score i JS.
+	// Hvert søkeord telles hvis det er prefiks av et ord i ledd/seksjon —
+	// ord i HVA SOM HELST rekkefølge («hellig sanctus» finner «Sanctus»).
+	const rows = openDb()
+		.prepare('SELECT kilde, seksjon, ledd, alt_label, tekst FROM bibliotek')
+		.all();
+	const words = (q ?? '').toLowerCase().split(/[\s,]+/).filter((w) => w.length >= 2);
+	if (!words.length) {
+		return rows
+			.sort((a, b) => a.seksjon.localeCompare(b.seksjon, 'nb') || a.ledd.localeCompare(b.ledd, 'nb'))
+			.slice(0, limit);
+	}
+	const scored = [];
+	for (const r of rows) {
+		const hay = (r.ledd + ' ' + r.seksjon).toLowerCase();
+		let score = 0;
+		for (const w of words) if (hay.includes(w)) score++;
+		if (score > 0) scored.push({ row: r, score });
+	}
+	scored.sort((a, b) => b.score - a.score
+		|| a.row.seksjon.localeCompare(b.row.seksjon, 'nb')
+		|| a.row.ledd.localeCompare(b.row.ledd, 'nb')
+		|| a.row.alt_label.localeCompare(b.row.alt_label, 'nb'));
+	return scored.slice(0, limit).map((s) => s.row);
+}
+
+module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibSync, bibSearch };

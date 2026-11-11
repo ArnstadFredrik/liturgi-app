@@ -47,7 +47,6 @@
 						<span class="nm" onclick={() => openServiceFile(s.path)} title={s.path}>
 							{s.name}{#if s.date}&nbsp;<span class="dt">{s.date}</span>{/if}
 						</span>
-						<button class="del" title="Flytt til papirkurven" onclick={() => confirmBox('Slett', `Flytte «${s.name}» til papirkurven?`, () => deleteServiceFile(s.path))}>🗑</button>
 					</li>
 				{:else}
 					<li class="empty">Ingen lagrede gudstjenester ennå</li>
@@ -70,8 +69,8 @@
 		<ul class="list">
 			{#each app.templates as t (t.id)}
 				<li class:active={app.current === t}>
-					<span class="nm" onclick={() => openTemplate(t.id)}>{t.name}</span>
-					{#if isElectron && t.filePath}
+					<span class="nm" onclick={() => openTemplate(t.id)} title={t.name}>{t.name}</span>
+					{#if isElectron && t.filePath && !t.builtinKey}
 						<button class="del" title="Flytt til papirkurven" onclick={() => confirmBox('Slett', `Flytte malen «${t.name}» til papirkurven?`, () => deleteTemplateFile(t.filePath))}>🗑</button>
 					{:else if !isElectron}
 						<button class="del" title="Slett" onclick={() => confirmBox('Slett', `Slette malen «${t.name}»?`, () => deleteTemplate(t.id))}>🗑</button>

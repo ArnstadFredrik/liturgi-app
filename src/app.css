@@ -62,12 +62,11 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 .list { list-style: none; margin: 0; padding: 0; }
 .list li {
 	padding: 7px 10px; border-radius: 6px; cursor: pointer;
-	display: flex; justify-content: space-between; align-items: center; gap: 6px;
-	white-space: nowrap; overflow: hidden;
+	display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;
 }
 .list li:hover { background: var(--panel2); }
 .list li.active { background: var(--accent-dim); }
-.list li .nm { overflow: hidden; text-overflow: ellipsis; }
+.list li .nm { overflow-wrap: anywhere; word-break: break-word; }
 .list li .dt { color: var(--muted); font-size: 11px; }
 .list li .del { opacity: 0; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 13px; }
 .list li:hover .del { opacity: 1; }
@@ -92,7 +91,8 @@ button.wide { width: 100%; }
 	position: sticky; top: 0; z-index: 10;
 	background: var(--bg); padding: 14px 0; border-bottom: 1px solid var(--border);
 }
-#ed-name { flex: 1; background: none; border: none; color: var(--text); font-size: 20px; font-weight: 600; outline: none; min-width: 120px; }
+#ed-name { flex: 1; background: none; border: none; color: var(--text); font-size: 20px; font-weight: 600; outline: none; min-width: 280px; }
+#ed-head { flex-wrap: wrap; }
 input[type='date'] { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px; color-scheme: dark; }
 #ed-actions { display: flex; gap: 6px; }
 #ed-meta { color: var(--muted); font-size: 12px; padding: 8px 0; }
@@ -177,6 +177,56 @@ textarea {
 .ctx-item.danger { color: var(--danger); }
 .ctx-sep { height: 1px; background: var(--border); margin: 4px 6px; }
 
+/* bibliotek-søk i modal */
+.m-bib-q { display: flex; flex-direction: column; gap: 4px; }
+.m-bib-list {
+	display: flex; flex-direction: column; gap: 4px;
+	max-height: 45vh; overflow-y: auto; padding: 2px;
+}
+.m-bib-cols {
+	display: grid; grid-template-columns: 3fr 7fr; gap: 10px;
+	min-height: 200px;
+}
+#modal:has(.m-bib-cols) {
+	width: min(1100px, 92vw);
+	max-width: 1100px;
+}
+.m-bib-cols .m-bib-list { max-height: 55vh; gap: 8px; }
+.m-bib-altliste { border-left: 1px solid var(--border); padding-left: 10px; }
+.m-bib-alt-row {
+	display: flex; flex-direction: column; gap: 2px;
+	padding: 8px 10px; border-radius: 8px; cursor: pointer;
+	background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+	text-align: left; font-size: 13px;
+}
+.m-bib-alt-row:hover { border-color: var(--accent); }
+.m-bib-alt-row .m-bib-alt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.m-bib-gruppe {
+	display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left;
+	padding: 9px 11px; border-radius: 8px; cursor: pointer;
+	background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+	font-size: 13px;
+}
+.m-bib-gruppe:hover { border-color: var(--accent); }
+.m-bib-gruppe.sel { border-color: var(--accent); background: var(--accent-dim); box-shadow: inset 3px 0 0 var(--accent); }
+.m-bib-seksjon { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.m-bib-ledd { font-weight: 600; font-size: 13px; }
+.m-bib-antall { font-size: 11px; color: var(--muted); }
+.m-bib-alt-row.sel { border-color: var(--accent); background: var(--accent-dim); box-shadow: inset 3px 0 0 var(--accent); }
+.m-bib-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.m-bib-ledd { font-weight: 600; }
+.m-bil-rader { display: flex; flex-direction: column; gap: 2px; }
+.m-bib-alt { color: var(--muted); font-size: 12px; }
+.m-bib-lit {
+	color: var(--text); font-size: 13px; line-height: 1.45;
+	max-height: 9em; overflow-y: auto;
+	white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.m-bib-lit .role { color: var(--role); font-weight: 700; }
+.lit-text .fotnote, .alt-text .fotnote, .m-bib-lit .fotnote {
+	display: block; font-size: 0.8em; font-style: italic; color: var(--muted);
+}
+
 .list li.empty {
 	color: var(--muted);
 	font-style: italic;
@@ -205,6 +255,12 @@ textarea {
 #modal h3 { margin: 0; }
 #modal label { display: flex; flex-direction: column; gap: 4px; }
 #modal select, #modal input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px; font-size: 14px; width: 100%; }
+#ed-meta .link-btn, .link-btn {
+	background: none; border: none; color: var(--accent);
+	cursor: pointer; font-size: 12px; padding: 0; text-decoration: underline;
+}
+.m-kirkeaar-liste { max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+#modal input[type='checkbox'] { width: auto; }
 #modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .m-chk { display: flex; gap: 16px; padding: 2px 0; }
 .m-alts { display: flex; flex-direction: column; gap: 10px; }

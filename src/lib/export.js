@@ -3,31 +3,42 @@ import PptxGenJS from 'pptxgenjs';
 
 const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
+const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;
 
-/** Del tekst i segmenter [{text, red}] – rollemerke (f.eks. «L |») og {{r}}-markører røde. */
+/** Del tekst i segmenter [{text, red, small}] – rollemerke (f.eks. «L |») og
+ *  {{r}}-markører røde; «FOTNOTE | »-linjer små/urskrift. */
 function roleSegments(text) {
 	const out = [];
 	let red = false;
-	const push = (t, r) => {
+	let small = false;
+	const push = (t, r, s) => {
 		if (t === '') return;
 		const last = out.at(-1);
-		if (last && !!last.red === !!r) last.text += t;
-		else out.push({ text: t, red: r });
+		if (last && !!last.red === !!r && !!last.small === !!s) last.text += t;
+		else out.push({ text: t, red: r, small: !!s });
 	};
 	const lines = (text ?? '').split('\n');
 	lines.forEach((line, li) => {
-		if (li > 0) push('\n', red);
-		const m = line.match(ROLE_RE);
+		if (li > 0) push('\n', red, small);
 		let rest = line;
+		const fn = line.match(FOTNOTE_RE);
+		if (fn) {
+			small = true;
+			rest = fn[1];
+		} else {
+			small = false;
+		}
+		const m = rest.match(ROLE_RE);
 		if (m) {
-			push(m[1] + ' |', true);
+			push(m[1] + ' |', true, small);
 			rest = m[3] ?? '';
 		}
 		for (const part of rest.split(/(\{\{\/?r\}\})/)) {
 			if (part === '{{r}}') { red = true; continue; }
 			if (part === '{{/r}}') { red = false; continue; }
-			push(part, red);
+			push(part, red, small);
 		}
+		small = false;
 	});
 	if (out.length) out[out.length - 1].text = out[out.length - 1].text.replace(/\n$/, '');
 	return out.filter((s) => s.text !== '');
@@ -110,9 +121,10 @@ export async function exportWord(svc, showInstr) {
 		paras.push(new Paragraph({
 			children: roleSegments(p.text).map((s) =>
 				new TextRun({
-					text: s.text, italics: !!p.muted,
-					color: s.red ? ROLE_COLOR : p.muted ? '555555' : undefined,
-					bold: !!s.red
+					text: s.text, italics: !!p.muted || !!s.small,
+					size: s.small ? 16 : undefined, // halvparten av 24 halvpunkter
+					color: s.red ? ROLE_COLOR : p.muted ? '555555' : s.small ? '777777' : undefined,
+					bold: !!s.red && !s.small
 				})),
 			spacing: { after: 120 }
 		}));

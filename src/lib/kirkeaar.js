@@ -26,6 +26,32 @@ export function lookupKirkeaar(dateISO) {
 	}
 }
 
+/** Alle kirkeårsdager for kirkeåret som dato-en ligger i (for manuell valg). */
+export function kirkeaarDager(dateISO) {
+	try {
+		const startYear = church.calculateStartYear(dateISO);
+		if (startYear == null) return [];
+		return church.churchYear({ year: startYear }).map((d) => {
+			const cr = d.readings?.currentReadings;
+			const text = cr?.text || {};
+			return {
+				date: d.day?.slice(0, 10) ?? '',
+				name: d.name,
+				color: d.liturgical_color?.name ?? '',
+				periodInfo: d.periodInfo ?? '',
+				series: cr?.name ?? '',
+				prayer: (d.prayer || '').trim(),
+				L1: text.L1 ?? '',
+				L2: text.L2 ?? '',
+				E: text.E ?? '',
+				day: { id: d.id, years: d.years }
+			};
+		});
+	} catch {
+		return [];
+	}
+}
+
 /**
  * Hent selve bibeltekstene fra bibel.no for en kirkeårsdag.
  * URL-mønster: /nettbibelen/kirkearets-tekster/nb-2024/{startår}/{dag-id}

@@ -30,11 +30,14 @@ Data lagres utenfor appen og overlever oppdateringer:
 
 - **Maler**: «Ordning for hovedgudstjeneste (bokmål, 2020)» og «Gudstjenestemal Bakke og Gylland 2025» er innebygd. Lag nye lokale maler («+ Ny lokal mal») eller lagre en gudstjeneste som grunnordning med «Lagre som mal».
 - **Gudstjenester**: opprett fra valgt mal med navn og dato; lagres som filer, åpnes fra listen over de siste fem.
+- **Kirkeårsdag**: velges automatisk fra datoen, eller manuelt («☀️ … · ✏️ endre») fra alle kirkeårsdager – både i redigeringsvisning og i «Ny gudstjeneste». Endres datoen, spør appen om innholdet (dagens bønn + bibeltekster) skal oppdateres.
+- **Dagens bønn**: kirkeårsbønnen hentes inn i leddet «Dagens bønn» – som plassholderfylling, nytt alternativ eller eget ledd, avhengig av malen.
+- **Bibeltekster**: «Første lesning», «Andre lesning» og «Evangelium» fylles med referanse og tekst fra bibel.no, innledes/avsluttes som i ordningen («Det står skrevet i/hos …» / «Slik lyder Herrens ord.») og får referansen som fotnote. Ingress-ledd røres ikke.
+- **Bibliotek**: hent enkeltalternativer («Hent innhold …») eller hele ledd («Hent ledd …») fra hovedgudstjenesten – innholdet kopieres inn i filen, så den forblir delbar.
 - **Ledd**: flytt med drag-and-drop (drag i leddhodet) eller høyreklikk-meny (flytt, legg til over/under, fjern, slett). Tekst, instruksjoner og overskrifter redigeres ved klikk.
 - **Alternativer**: ledd med flere alternativer; velg med «Bytt alternativ», rediger fritt.
 - **Salmer**: salmeledd har felt for nummer og tittel, og salmetekst kan legges inn.
-- **Kirkeåret**: dagens bønn og bibeltekster hentes fra kirkeåret (church-year + bibel.no).
-- **Eksport**: PDF (utskriftsvisning), Word (.docx) og PowerPoint (.pptx) – røde roller og liturgidesign i alle formater.
+- **Eksport**: PDF (utskriftsvisning), Word (.docx) og PowerPoint (.pptx) – røde roller og liturgidesign i alle formater; fotnoter renders i alle tre.
 - **Filer**: «Lagre som …», «Åpne fil …» og dobbeltklikk på `.liturgi`-filer i Finder.
 
 ## Struktur

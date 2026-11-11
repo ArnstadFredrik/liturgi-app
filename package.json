@@ -33,6 +33,12 @@
         "name": "Liturgi-fil",
         "description": "Gudstjeneste lagret i Liturgi-appen",
         "role": "Editor"
+      },
+      {
+        "ext": "limal",
+        "name": "Liturgi-mal",
+        "description": "Gudstjenestemal lagret i Liturgi-appen",
+        "role": "Editor"
       }
     ],
     "mac": {

@@ -1,8 +1,10 @@
 <script>
 	import { app, persist, markDirty, saveAsTemplate, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
-	import { prompt, confirmBox, chooseSectionsModal } from '$lib/modal.svelte.js';
+	import { prompt, confirmBox, chooseSectionsModal, valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { exportWord, exportPptx, exportPdf, nlDate } from '$lib/export.js';
 	import { toast } from 'svelte-sonner';
+	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
+	import { applyKirkeaar } from '$lib/store.svelte.js';
 	import { saveCurrentToFile, saveCurrent, saveAsTemplateOnDisk } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
 
@@ -82,6 +84,47 @@
 		saveCurrent();
 	}
 
+	/** Sjekk ved datoenesring: gi beskjed hvis kirkeårsdagen endres. */
+	function onDatoEndret() {
+		markDirty();
+		const k = lookupKirkeaar(o.date);
+		if (!k || k.name === o.kirkeaar?.name) return;
+		valgModal(
+			'Kirkeårsdagen er endret',
+			`Datoen peker nå på «${k.name}», men gudstjenesten har innhold fra «${o.kirkeaar?.name ?? 'ingen dag'}». Vil du oppdatere dagens bønn og bibeltekstene?`,
+			'Oppdater', 'Behold innholdet',
+			() => oppdaterInnhold(k)
+		);
+	}
+
+	async function oppdaterInnhold(k) {
+		try {
+			const tekster = await hentTekster(k.day);
+			applyKirkeaar(o, k, tekster);
+			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
+			markDirty();
+			toast.success('Gudstjenesten er oppdatert til «' + k.name + '»');
+		} catch (e) {
+			toast.error('Klarte ikke oppdatere: ' + (e?.message ?? e));
+		}
+	}
+
+	/** Manuelt kirkeårsdag-valg fra redigeringsvisningen. */
+	function velgKirkeaarManuelt() {
+		kirkeaarListeModal(o.date, (k) => {
+			if (!k) return;
+			if (k.name === o.kirkeaar?.name) return;
+			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
+			markDirty();
+			valgModal(
+				'Kirkeårsdag endret manuelt',
+				`Gudstjenesten peker nå på «${k.name}». Vil du oppdatere dagens bønn og bibeltekstene?`,
+				'Oppdater', 'Behold innholdet',
+				() => oppdaterInnhold(k)
+			);
+		});
+	}
+
 	function onSaveTpl() {
 		if (isElectron) {
 			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplateOnDisk(name), o.name + ' (grunnordning)');
@@ -123,11 +166,21 @@
 	}
 </script>
 
+<svelte:window
+	onkeydown={(e) => {
+		// ⌘S / Ctrl+S lagrer
+		if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+			e.preventDefault();
+			onSave();
+		}
+	}}
+/>
+
 <div id="editor">
 	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
 		{#if app.kind === 'service'}
-			<input type="date" bind:value={o.date} onchange={markDirty} />
+			<input type="date" bind:value={o.date} onchange={onDatoEndret} />
 		{/if}
 		<div id="ed-actions">
 			<button onclick={onSave} title="Lagre">💾 Lagre</button>
@@ -145,6 +198,7 @@
 		{#if app.kind === 'service'}
 			Basert på mal: {o.templateName}
 			{#if o.kirkeaar}&nbsp;· ☀️ {o.kirkeaar.name}{#if o.kirkeaar.color}&nbsp;({o.kirkeaar.color}){/if}{/if}
+			&nbsp;<button class="link-btn" onclick={velgKirkeaarManuelt} title="Velg kirkeårsdag manuelt">✏️ endre</button>
 		{:else}
 			Lokal mal (grunnordning)
 		{/if}

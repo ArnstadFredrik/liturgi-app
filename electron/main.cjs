@@ -42,7 +42,7 @@ ipcMain.handle('liturgi:open-file', async () => {
 			title: 'Åpne liturgi',
 			defaultPath: app.getPath('documents'),
 			filters: [
-				{ name: 'Liturgi-fil', extensions: ['liturgi', 'json'] }
+				{ name: 'Liturgi-filer', extensions: ['liturgi', 'limal', 'json'] }
 			],
 			properties: ['openFile']
 		});
@@ -54,32 +54,39 @@ ipcMain.handle('liturgi:open-file', async () => {
 });
 
 // Lokale maler lagres som .liturgi-filer i ~/.config/Liturgi/maler
+// Lokale maler lagres som .liturgi-filer i ~/.config/Liturgi/maler/
+//   - originaler/    : innebygde originalmaler (gjenopprettes hvis mangler)
+//   - brukermaler/   : maler laget i appen
+const TPL_SUBDIRS = ['originaler', 'brukermaler'];
 let tplFolder = null;
-function templatesDir() {
+function templatesDir(sub = 'brukermaler') {
 	if (!tplFolder) {
 		tplFolder = path.join(os.homedir(), '.config', 'Liturgi', 'maler');
-		try { fs.mkdirSync(tplFolder, { recursive: true }); } catch {}
 	}
-	return tplFolder;
+	const d = path.join(tplFolder, sub);
+	try { fs.mkdirSync(d, { recursive: true }); } catch {}
+	return d;
+}
+
+function readTplMeta(p) {
+	try {
+		const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+		const data = d?.liturgiFormat ? d.data : d;
+		if (!data?.sections) return null;
+		return { path: p, name: data.name ?? path.basename(p, '.liturgi'), mtime: fs.statSync(p).mtimeMs };
+	} catch { return null; }
 }
 
 ipcMain.handle('tpl:list', async () => {
 	try {
-		const dir = templatesDir();
-		const files = fs.readdirSync(dir).filter((f) => f.toLowerCase().endsWith('.liturgi'));
-		const list = files
-			.map((f) => {
-				const p = path.join(dir, f);
-				try {
-					const d = JSON.parse(fs.readFileSync(p, 'utf8'));
-					const data = d?.liturgiFormat ? d.data : d;
-					if (!data?.sections) return null;
-					return { path: p, name: data.name ?? path.basename(p, '.liturgi'), mtime: fs.statSync(p).mtimeMs };
-				} catch { return null; }
-			})
+		const dirs = {};
+		for (const sub of TPL_SUBDIRS) dirs[sub] = templatesDir(sub);
+		const readDir = (dir) => fs.readdirSync(dir)
+			.filter((f) => /\.(liturgi|limal)$/i.test(f))
+			.map((f) => readTplMeta(path.join(dir, f)))
 			.filter(Boolean)
 			.sort((a, b) => a.name.localeCompare(b.name, 'nb'));
-		return { ok: true, list, dir };
+		return { ok: true, dirs, originaler: readDir(dirs.originaler), brukermaler: readDir(dirs.brukermaler) };
 	} catch (err) {
 		return { ok: false, error: String(err?.message ?? err) };
 	}
@@ -110,13 +117,15 @@ ipcMain.handle('tpl:delete', async (_e, { path: p }) => {
 	}
 });
 
-const { dbGet, dbSet, recList, recTouch, recRemove } = require('./db.cjs');
+const { dbGet, dbSet, recList, recTouch, recRemove, bibSync, bibSearch } = require('./db.cjs');
 
 ipcMain.handle('db:get', (_e, key) => { try { return { ok: true, value: dbGet(key) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('db:set', (_e, { key, value }) => { try { dbSet(key, value); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:list', () => { try { return { ok: true, list: recList() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:touch', (_e, { path: p, name, date }) => { try { recTouch(p, name, date); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:remove', (_e, { path: p }) => { try { recRemove(p); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:sync', (_e, { source, entries }) => { try { bibSync(source, entries); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:search', (_e, { q }) => { try { return { ok: true, rows: bibSearch(q) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 
 // Gudstjenester lagres som .liturgi-filer i ~/Documents/Liturgi
 let svcFolder = null;
@@ -187,27 +196,6 @@ ipcMain.handle('svc:save-as', async (_e, { defaultName, json }) => {
 	}
 });
 
-ipcMain.handle('svc:import', async (_e, { json }) => {
-	try {
-		// les data for filnavn, skriv til tjenestemappen med unikt navn
-		const d = JSON.parse(json);
-		const data = d?.liturgiFormat ? d.data : d;
-		if (!data?.sections) return { ok: false, error: 'Ugyldig fil' };
-		const parts = [];
-		if (data.date) parts.push(data.date);
-		parts.push((data.name || 'gudstjeneste').replace(/[\\/:*?"<>|]+/g, '').trim() || 'gudstjeneste');
-		if (data.kirkeaar?.name) parts.push(data.kirkeaar.name);
-		let base = parts.join(' - ').replace(/\s+/g, ' ').trim() || 'gudstjeneste';
-		let p = path.join(servicesDir(), base + '.liturgi');
-		let n = 2;
-		while (fs.existsSync(p)) { p = path.join(servicesDir(), `${base} (${n}).liturgi`); n++; }
-		fs.writeFileSync(p, json, 'utf8');
-		return { ok: true, filePath: p };
-	} catch (err) {
-		return { ok: false, error: String(err?.message ?? err) };
-	}
-});
-
 ipcMain.handle('svc:delete', async (_e, { path: p }) => {
 	try {
 		// flytt til papirkurven via skall-kommando (sikrere enn unlink)
@@ -221,7 +209,7 @@ ipcMain.handle('svc:delete', async (_e, { path: p }) => {
 	}
 });
 
-// Dobbeltklikk på .liturgi-filer i Finder: macOS sender open-file.
+// Dobbeltklikk på .liturgi/.limal-filer i Finder: macOS sender open-file.
 // Kan komme FØR appen/vinduet er klar — legg i kø og lever når siden er lastet.
 // NB: hvis appen startes med filen som argument (ny prosess), ligger den i process.argv
 // og open-file utløses aldri — fang den opp eksplisitt.
@@ -229,9 +217,9 @@ let pendingOpenPath = null;
 
 function queueFileArg(p) {
 	if (!p) return false;
-	if (!/\.(liturgi|json)$/i.test(p)) return false;
+	if (!/\.(liturgi|limal|json)$/i.test(p)) return false;
 	const json = readLiturgiFile(p);
-	if (json != null) { pendingOpenPath = json; return true; }
+	if (json != null) { pendingOpenPath = JSON.stringify({ json, filePath: p }); return true; }
 	return false;
 }
 // finn fil-argument blant argv (starter på indeks 2; flagg som --remote-debugging-port tar verdi)
@@ -245,12 +233,14 @@ app.on('open-file', (_e, filePath) => {
 	try {
 		const json = readLiturgiFile(filePath);
 		if (!json) return;
+		// send både innhold og sti — filen åpnes der den ligger, ikke kopieres
+		const payload = JSON.stringify({ json, filePath });
 		const wins = BrowserWindow.getAllWindows();
 		if (wins.length && rendererReady) {
-			wins[0].webContents.send('liturgi:open-path', json);
+			wins[0].webContents.send('liturgi:open-path', payload);
 			wins[0].show();
 		} else {
-			pendingOpenPath = json;
+			pendingOpenPath = payload;
 		}
 	} catch (err) {
 		console.error('open-file feilet:', err);
