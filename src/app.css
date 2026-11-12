@@ -86,13 +86,22 @@ button.wide { width: 100%; }
 #welcome { max-width: 520px; margin: 80px auto; text-align: center; color: var(--muted); }
 #welcome h2 { color: var(--text); }
 .w-sondag { margin-top: 40px; text-align: left; border-top: 1px solid var(--border); padding-top: 20px; }
-.w-sondag h3 { color: var(--text); }
-.w-sondag h4 { color: var(--accent); margin: 18px 0 6px; }
-.w-kirkeaar { margin: 4px 0 0; }
+.w-sondag h3 { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; color: var(--text); margin: 0 0 4px; }
+.w-sondag .w-kirkeaar { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 0 0 16px; }
+.w-sondag h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 18px 0 6px; }
 .w-muted { color: var(--muted); font-size: 0.9em; }
 .w-sondag details { margin: 8px 0; }
 .w-sondag summary { cursor: pointer; color: var(--text); }
 .w-sondag details[open] summary { margin-bottom: 8px; }
+.w-maler { margin-top: 40px; text-align: left; border-top: 1px solid var(--border); padding-top: 20px; }
+.w-maler h3 { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; color: var(--text); margin: 0 0 10px; }
+.w-mal { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; }
+.w-mal:hover { background: var(--panel2); }
+.w-mal-nm { flex: 1; color: var(--text); overflow-wrap: anywhere; cursor: pointer; }
+.w-mal-nm:hover { text-decoration: underline; }
+.w-mal-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+.w-mal-del { color: var(--danger); }
+.w-mal-handlinger { display: flex; gap: 6px; margin-top: 10px; }
 #editor { padding: 0 24px 60px; max-width: 900px; margin: 0 auto; }
 #ed-head {
 	display: flex; gap: 10px; align-items: center;

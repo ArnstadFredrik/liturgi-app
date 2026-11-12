@@ -84,18 +84,70 @@ export async function saveCurrent() {
 		if (app.kind === 'service') {
 			await saveCurrentToDisk();
 		} else if (app.kind === 'template') {
-			const o = app.current;
-			if (o.filePath) {
-				const r = await window.liturgi.writeTemplate(o.filePath, currentJson());
-				if (r.ok) { app.dirty = false; toast.success('Malen er lagret'); }
-				else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
-			} else {
-				toast.info('Innebygde maler lagres med «Lagre som mal»');
-			}
+			await saveCurrentTemplate();
 		}
 	} else {
 		persist();
 		toast.success('Lagret');
+	}
+}
+
+/** Er dette en originalmal (i maler/originaler, seedet av appen)? */
+export function erOriginalMal(t) {
+	return !!t?.filePath && t.filePath.includes('/originaler/') && t.builtinKey?.startsWith('original-');
+}
+
+/** Sammenlign maldata med unntak av valgt alternativ (selAlt), filsti og id. */
+function malLikBortsettFraValg(a, b) {
+	const strip = (x) => JSON.stringify(
+		{ name: x.name, sections: x.sections },
+		(k, v) => (k === 'selAlt' || k === 'filePath' || k === 'id' ? undefined : v)
+	);
+	return strip(a) === strip(b);
+}
+
+/** Lagre en mal. Originalmalen skrives kun hvis bare alternativvalg er endret;
+ *  ellers opprettes en kopi som brukermal, så originalene forblir originaler. */
+async function saveCurrentTemplate() {
+	const o = app.current;
+	if (!o.filePath) {
+		toast.info('Innebygde maler lagres med «Lagre som mal»');
+		return;
+	}
+	if (erOriginalMal(o)) {
+		const rd = await window.liturgi.readTemplate(o.filePath);
+		const originalData = rd.ok ? parseLiturgi(rd.json) : null;
+		if (!originalData || !malLikBortsettFraValg(originalData, o)) {
+			await lagreOriginalSomBrukerKopi(o);
+			return;
+		}
+	}
+	const r = await window.liturgi.writeTemplate(o.filePath, currentJson());
+	if (r.ok) { app.dirty = false; toast.success('Malen er lagret'); }
+	else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
+}
+
+/** Kopi av en originalmal med brukerens endringer, lagres i maler/brukermaler. */
+async function lagreOriginalSomBrukerKopi(o) {
+	try {
+		const list = await window.liturgi.listTemplates();
+		const data = JSON.parse(JSON.stringify(o));
+		delete data.builtinKey;
+		data.id = uid();
+		data.name = o.name + ' (kopi)';
+		const safe = safeNavn(data.name);
+		const taken = new Set([...list.originaler, ...list.brukermaler].map((x) => x.path));
+		let p = `${list.dirs.brukermaler}/${safe}.limal`, n = 2;
+		while (taken.has(p)) { p = `${list.dirs.brukermaler}/${safe} (${n}).limal`; n++; }
+		const r = await window.liturgi.writeTemplate(p, currentJson());
+		if (!r.ok) { toast.error('Klarte ikke lagre kopien: ' + (r.error ?? 'ukjent feil')); return; }
+		data.filePath = r.filePath;
+		app.templates.push(data);
+		app.current = data;
+		app.dirty = false;
+		toast.success('Originalen er uendret – endringene er lagret som brukermalen «' + data.name + '»');
+	} catch (err) {
+		toast.error('Klarte ikke lagre kopien: ' + (err?.message ?? err));
 	}
 }
 
