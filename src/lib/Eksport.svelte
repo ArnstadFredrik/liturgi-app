@@ -74,6 +74,7 @@
 		if (o?.eksportInnst?.[aktiv]?.[k] !== undefined) return o.eksportInnst[aktiv][k];
 		if (k === 'kolonner') return aktiv === 'Menighet' ? 2 : 1;
 		if (k === 'storrelse') return 'A5';
+		if (k === 'bibel') return aktiv === 'Menighet' ? 'ref' : 'full';
 		return def;
 	}
 
@@ -186,7 +187,7 @@
 			let kopi = klonMedValg(o, profil);
 			if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
 			const res = await exportWord(kopi, o.visInstr ?? true, base + '.docx', {
-				storrelse: getInnst('storrelse', 'A4'),
+				storrelse: getInnst('storrelse', 'A5'),
 				kolonner: getInnst('kolonner', 1)
 			}, isElectron);
 			if (res) {
@@ -209,7 +210,7 @@
 			let kopi = klonMedValg(o, profil);
 			if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
 			const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
-				storrelse: getInnst('storrelse', 'A4'),
+				storrelse: getInnst('storrelse', 'A5'),
 				kolonner: getInnst('kolonner', 1)
 			});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
