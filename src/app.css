@@ -88,9 +88,10 @@ button.wide { width: 100%; }
 .m-type-btn.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
 /* åpne gudstjenester-seksjonen */
 .åpne-gruppe { padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
-.åpne-gruppe li.active { background: rgba(76, 175, 80, 0.18); }
+/* shadcn-accent-tonet markering av aktiv gudstjeneste (passer lys og mørk) */
+.åpne-gruppe li.active { background: var(--accent-dim); box-shadow: inset 3px 0 0 0 var(--accent); }
 .åpne-gruppe li.active .nm { color: var(--text); }
-.dirty-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; }
+.dirty-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--role, #c0392b); margin-right: 6px; }
 .list li.dirty .nm { font-style: italic; }
 /* temaknapp (ikon) nederst i menyen */
 .sidefoot-ikoner { display: flex; justify-content: flex-end; margin-top: 4px; }
@@ -147,6 +148,7 @@ button.wide { width: 100%; }
 .eks-tilbake { font-size: 15px; padding: 2px 10px; margin-right: 8px; }
 .eks-lagre { float: right; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
 .eksport-standard-btn { margin-top: 6px; font-size: 12px; }
+.eksport-skiller { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 /* ledd fjernet fra gudstjenesten: nedtonet og låst i eksportlisten */
 .eksport-rad.deaktivert { opacity: 0.45; }
 .eksport-rad.deaktivert .eksport-rad-nm { text-decoration: line-through; }

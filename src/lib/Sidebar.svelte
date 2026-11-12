@@ -46,9 +46,9 @@
 			<div class="sidehead">Åpne gudstjenester</div>
 			<ul class="list">
 				{#each åpne as e (e.åpenId)}
-					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={app.current?.__åpenId === e.åpenId && app.dirty}>
+					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={e.obj?.__dirty}>
 						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
-							{#if app.current?.__åpenId === e.åpenId && app.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
+							{#if e.obj?.__dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{navn(e)}
 						</span>
 					</li>
