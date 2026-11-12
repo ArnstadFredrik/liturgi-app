@@ -8,6 +8,11 @@ const os = require('os');
 const path = require('path');
 
 // ---------- fil-dialoger: lagre/åpne liturgi-filer (.liturgi, json-innhold) ----------
+ipcMain.on('app:dirty', (e, v) => {
+	const win = BrowserWindow.fromWebContents(e.sender);
+	if (win) win.__dirty = v;
+});
+
 ipcMain.handle('liturgi:save-file', async (_e, payload) => {
 	try {
 		const { defaultName = 'gudstjeneste.liturgi', json, testPath, filters: velgFilters } = payload ?? {};
@@ -341,6 +346,25 @@ function createWindow(port) {
 			return { action: 'deny' };
 		}
 		return { action: 'allow' };
+	});
+	// avsluttingsbekreftelse ved ulagrede endringer
+	win.on('close', async (e) => {
+		if (win.__forceClose || !win.__dirty) return;
+		e.preventDefault();
+		const { response } = await dialog.showMessageBox(win, {
+			type: 'warning',
+			message: 'Du har ulagrede endringer',
+			detail: 'Vil du lagre gudstjenesten/malen før appen avsluttes?',
+			buttons: ['Lagre', 'Lukk uten å lagre', 'Avbryt'],
+			defaultId: 0,
+			cancelId: 2
+		});
+		if (response === 0) {
+			win.webContents.send('app:save-then-close');
+		} else if (response === 1) {
+			win.__forceClose = true;
+			win.close();
+		}
 	});
 	return win;
 }

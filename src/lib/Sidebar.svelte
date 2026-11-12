@@ -2,6 +2,7 @@
 	import { app, openService, deleteService, sortedServices, createService, toggleTheme } from '$lib/store.svelte.js';
 	import { newServiceModal } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk } from '$lib/fileio.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const MAX_RECENT = 5;
@@ -14,6 +15,19 @@
 	});
 
 	const recent = $derived(app.recentServices.slice(0, MAX_RECENT));
+	const åpne = $derived(app.åpneTjenester);
+
+	/** Vis navnet fra objektet (følger omdøping). */
+	function navn(e) {
+		return e.obj?.name || e.name || 'Uten navn';
+	}
+
+	function åpneNy(e) {
+		if (app.current === e.obj) return;
+		app.current = e.obj;
+		app.kind = 'service';
+		app.visning = 'hjem';
+	}
 
 	function newService() {
 		if (!app.templates.length) return;
@@ -25,8 +39,23 @@
 
 <aside id="sidebar">
 	<h1>Liturgi</h1>
+	{#if åpne.length}
+		<div class="sidegroup åpne-gruppe">
+			<div class="sidehead">Åpne gudstjenester</div>
+			<ul class="list">
+				{#each åpne as e (e.path ?? e.obj?.id ?? e.name)}
+					<li class:active={app.current === e.obj} class:dirty={app.current === e.obj && app.dirty}>
+						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
+							{#if app.current === e.obj && app.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
+							{navn(e)}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</div>
+	{/if}
 	<div class="sidegroup">
-		<div class="sidehead">Gudstjenester{#if isElectron}&nbsp;· siste {MAX_RECENT}{/if}</div>
+		<div class="sidehead">Sist brukt{#if isElectron}&nbsp;· siste {MAX_RECENT}{/if}</div>
 		<ul class="list">
 			{#if isElectron}
 				{#each recent as s (s.path)}
@@ -49,19 +78,19 @@
 				{/each}
 			{/if}
 		</ul>
-		<button class="wide" onclick={newService}>+ Ny gudstjeneste</button>
+		<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudstjeneste</button>
 	</div>
 	<div class="sidefoot">
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
-			🗂 Maler
+			{@html mdi('book-open-variant')} Maler
 		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'bibliotek' ? 'hjem' : 'bibliotek'; }}>
-			📚 Bibliotek
+			{@html mdi('library')} Bibliotek
 		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
-			⚙️ Innstillinger
+			{@html mdi('cog')} Innstillinger
 		</button>
-		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">📂 Åpne fil …</button>
+		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">{@html mdi('folder-open-outline')} Åpne fil …</button>
 		<label class="chk"><input type="checkbox" bind:checked={app.showInstr} /> Vis instruksjoner</label>
 		<label class="chk"><input type="checkbox" bind:checked={app.showRoles} /> Vis roller (L / M / ML / A)</label>
 		<button class="wide" onclick={() => toggleTheme()}>

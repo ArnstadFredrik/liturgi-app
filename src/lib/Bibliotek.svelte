@@ -96,22 +96,26 @@
 
 	const forhvisning = $derived(litHtml(skjema.tekst || ''));
 
-	/** Pakk markert tekst i {{r}}…{{/r}} (rolle-farge), eller sett inn et tomt par ved markøren. */
+	/** Pakk markert tekst i {{r}}…{{/r}} (rolle-farge), eller sett inn et tomt par ved markøren.
+	 *  Markeres flere linjer settes @r foran hver linje (hele linjen som rolle). */
 	function settInnRmarker() {
 		const ta = document.getElementById('biblio-tekst');
 		if (!ta) return;
 		const start = ta.selectionStart ?? ta.value.length;
 		const slutt = ta.selectionEnd ?? start;
 		const før = ta.value.slice(0, start);
-	 const merket = ta.value.slice(start, slutt);
+		const merket = ta.value.slice(start, slutt);
 		const etter = ta.value.slice(slutt);
-		// allerede pakket inn? fjern markørene i stedet
-		if (før.endsWith('{{r}}') && merket.includes('{{/r}}')) {
-			const ny = før.slice(0, -5) + merket.replace('{{/r}}', '') + etter;
+		if (merket.includes('\n')) {
+			const ny = før + merket.split('\n').map((l) => (l.trim() && !l.trim().startsWith('@r') ? '@r ' + l : l)).join('\n') + etter;
 			skjema.tekst = ny;
 			return;
 		}
-		skjema.tekst = før + '{{r}}' + (merket || '') + '{{/r}}' + etter;
+		if (før.endsWith('{{r}}') && merket.includes('{{/r}}')) {
+			skjema.tekst = før.slice(0, -5) + merket.replace('{{/r}}', '') + etter;
+		} else {
+			skjema.tekst = før + '{{r}}' + (merket || '') + '{{/r}}' + etter;
+		}
 		settMarkør(ta, start + 5 + merket.length);
 	}
 
@@ -184,22 +188,22 @@
 								{#each [...new Set(brukerrader.map((r) => r.mappe).filter(Boolean))] as m (m)}<option value={m} />{/each}
 							</datalist>
 						</label>
+						<label class="biblio-felt"><span>Ledd</span>
+							<input bind:value={skjema.ledd} placeholder="Navnet på leddet" spellcheck="false" />
+						</label>
 						<div class="biblio-rad2">
-							<label class="biblio-felt"><span>Ledd</span>
-								<input bind:value={skjema.ledd} placeholder="Navnet på leddet" spellcheck="false" />
-							</label>
 							<label class="biblio-felt"><span>Alternativ</span>
 								<input bind:value={skjema.alt_label} placeholder="Valgfri etikett" spellcheck="false" />
 							</label>
+							<label class="biblio-felt"><span>Tagger (kommaseparert)</span>
+								<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
+							</label>
 						</div>
-						<label class="biblio-felt"><span>Tagger (kommaseparert)</span>
-							<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
-						</label>
 						<label class="biblio-felt"><span>Tekst</span>
 							<div class="biblio-verktøy" role="toolbar" aria-label="Tekstverktøy">
 								<button type="button" class="biblio-rolle-btn" onclick={settInnRmarker}
-									title="Pakk markert tekst i {'{{r}}…{{/r}}'} (rollefarge)">{'{{r}}'}</button>
-								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt · {'{{r}}rolle{{/r}}'} i rødt</span>
+									title={'Rolle på markert tekst ({{r}}…{{/r}}) eller @r for hele linjer'}>Rolle</button>
+								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt · {'{{r}}…{{/r}}'} for rollefarge, @r for hele linjer</span>
 							</div>
 							<textarea id="biblio-tekst" bind:value={skjema.tekst} rows="12" spellcheck="false"
 								placeholder={'L | La oss alle be.\\n\\n**Tema:** *advent*\\n- Bønnopunkt ett\\n- Bønnopunkt to'}></textarea>

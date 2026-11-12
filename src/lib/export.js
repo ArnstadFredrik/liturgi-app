@@ -29,6 +29,18 @@ function roleSegments(text) {
 			rest = fn[1];
 		} else {
 			small = false;
+			// @r — hele linjen som rolle (rød, uten merket)
+			const rl = rest.match(/^@r ?\|? ?(.+)$/);
+			if (rl) {
+				for (const md of rl[1].split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/)) {
+					if (!md) continue;
+					const b = md.startsWith('**') && md.endsWith('**');
+					const it = !b && md.startsWith('*') && md.endsWith('*');
+					push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, true, false, b, it);
+				}
+				small = false;
+				return;
+			}
 			// markdown blokk-nivå
 			const hd = rest.match(/^#{1,2} ?(.+)$/);
 			if (hd) {

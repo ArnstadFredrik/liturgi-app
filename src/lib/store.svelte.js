@@ -19,7 +19,8 @@ export const app = $state({
 	contextMenu: null, // {x, y, items: [{label, action, danger?} | 'sep']}
 	recentServices: [], // Electron: siste gudstjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
-	visning: 'hjem', // 'hjem' | 'maler'
+	åpneTjenester: [], // åpne denne økten: {obj, name, path}
+	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	modal: null
 });
 
@@ -189,6 +190,12 @@ export function persist() {
 
 export function markDirty() {
 	app.dirty = true;
+	window.liturgi?.setDirty?.(true);
+}
+
+/** Hold hovedprosessen oppdatert om dirty-flagget (avsluttingsbekreftelse). */
+export function syncDirty() {
+	window.liturgi?.setDirty?.(!!app.dirty);
 }
 
 /* ---------- CRUD ---------- */
@@ -252,6 +259,10 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 		app.current = s;
 		app.kind = 'service';
 		app.dirty = true;
+		window.liturgi?.setDirty?.(true);
+		if (!app.åpneTjenester.some((x) => x.obj === s)) {
+			app.åpneTjenester.push({ obj: s, name: s.name, path: null });
+		}
 		return s;
 	}
 	app.services.push(s);

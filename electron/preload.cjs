@@ -29,6 +29,8 @@ contextBridge.exposeInMainWorld('liturgi', {
 	bibUserUpdate: (id, r) => ipcRenderer.invoke('bib:user:update', { id, r }),
 	bibUserDelete: (id) => ipcRenderer.invoke('bib:user:delete', { id }),
 	bibSearch: (q) => ipcRenderer.invoke('bib:search', { q }),
+	setDirty: (v) => ipcRenderer.send('app:dirty', !!v),
+	onSaveThenClose: (cb) => ipcRenderer.on('app:save-then-close', () => cb()),
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),
 	readTemplate: (p) => ipcRenderer.invoke('tpl:read', { path: p }),

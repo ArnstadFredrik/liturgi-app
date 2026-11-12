@@ -7,8 +7,17 @@
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import { app, loadStore } from '$lib/store.svelte.js';
+	import { saveCurrent } from '$lib/fileio.svelte.js';
 
 	loadStore();
+
+	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)
+	if (typeof window !== 'undefined' && window.liturgi?.onSaveThenClose) {
+		window.liturgi.onSaveThenClose(async () => {
+			await saveCurrent();
+			window.close();
+		});
+	}
 
 	function gotoSec(i) {
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;

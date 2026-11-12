@@ -1,10 +1,11 @@
-/** Render liturgitext til HTML: rollemerker ({{r}}…{{/r}}) i rødt,
- *  «FOTNOTE | »-linjer som små urskrifts-fotnoter, og enkel markdown
+/** Render liturgitext til HTML: rollemerker ({{r}}…{{/r}}) i rødt, «@r |»- eller «@r»-linjer
+ *  (hele linjen som rolle), «FOTNOTE | »-linjer som små urskrifts-fotnoter, og enkel markdown
  *  (**fet**, *urskrift*, «# overskrift», «- punktliste»). */
 export function litHtml(text) {
 	let out = (text ?? '')
 		.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 		.replace(/^(FOTNOTE \| ?)(.*)$/gm, (m, p, t) => '<span class="fotnote">' + mdInline(t) + '</span>')
+		.replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '<span class="role">' + mdInline(t) + '</span>')
 		.replace(/\{\{r\}\}([\s\S]*?)\{\{\/r\}\}/g, (m, t) => '<span class="role">' + mdInline(t) + '</span>');
 	// blokk-nivå: overskrifter og punktliste (linjenivå, unngå å røre eksisterende spans)
 	out = out

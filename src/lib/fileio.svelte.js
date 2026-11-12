@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, closeEditor } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, closeEditor, syncDirty } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -37,7 +37,11 @@ export async function saveCurrentToDisk() {
 		if (r.ok) {
 			o.filePath = r.filePath;
 			app.dirty = false;
+			syncDirty();
 			toast.success('Lagret: ' + r.filePath.split('/').pop());
+			// oppdater «åpne gudstjenester»-oppføringen med den nye stien
+			const e = app.åpneTjenester.find((x) => x.obj === o);
+			if (e) { e.path = r.filePath; e.name = o.name ?? ''; }
 			await touchRecent(o);
 			await refreshRecentServices();
 		} else if (!r.canceled) {
@@ -124,7 +128,7 @@ async function saveCurrentTemplate() {
 		}
 	}
 	const r = await window.liturgi.writeTemplate(o.filePath, currentJson());
-	if (r.ok) { app.dirty = false; toast.success('Malen er lagret'); }
+	if (r.ok) { app.dirty = false; syncDirty(); toast.success('Malen er lagret'); }
 	else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
 }
 
@@ -146,6 +150,7 @@ async function lagreOriginalSomBrukerKopi(o) {
 		app.templates.push(data);
 		app.current = data;
 		app.dirty = false;
+		syncDirty();
 		toast.success('Originalen er uendret – endringene er lagret som brukermalen «' + data.name + '»');
 	} catch (err) {
 		toast.error('Klarte ikke lagre kopien: ' + (err?.message ?? err));
@@ -197,6 +202,14 @@ function åpneIFil(data, filePath) {
 	app.current = data;
 	app.kind = 'service';
 	app.dirty = false;
+	syncDirty();
+	// registrer som «åpne gudstjeneste» (denne økten)
+	if (!app.åpneTjenester.some((x) => x.path === filePath)) {
+		app.åpneTjenester.push({ obj: data, name: data.name ?? '', path: filePath });
+	} else {
+		const e = app.åpneTjenester.find((x) => x.path === filePath);
+		if (e) { e.obj = data; e.name = data.name ?? ''; }
+	}
 	touchRecent(data).then(() => refreshRecentServices());
 }
 
@@ -588,6 +601,7 @@ export function lukkRedigering() {
 		closeEditor();
 	}, () => {
 		app.dirty = false;
+		syncDirty();
 		closeEditor();
 	});
 }
