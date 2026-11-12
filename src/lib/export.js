@@ -328,6 +328,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			parts.forEach((part, pi) => {
 				if (pi > 0) nylinje();
 				if (!part) return;
+				// ikke skriv i en oppbrukt kolonne: hopp til neste kolonne/side først
+				if (x0() + indent + w - cx < size * 0.6) nylinje();
 				const wrapped = doc.splitTextToSize(part, Math.max(w - (cx - x0() - indent), 20));
 				wrapped.forEach((l, wi) => {
 					if (wi > 0) nylinje();
@@ -346,15 +348,15 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	y += 4;
 
 	for (const sec of svc.sections) {
-		y += 3; // margin før overskriften
-		nySideHvisNodvendig(10);
+		y += 5; // god margin før overskriften
+		nySideHvisNodvendig(12);
 		skrivLinjer(sec.title, { bold: true, size: 13, sans: true });
 		y += 3.5;
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { y += 2; nySideHvisNodvendig(9); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, sans: true }); y += 1.8; }
+			if (head) { y += 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, sans: true }); y += 1.8; }
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
