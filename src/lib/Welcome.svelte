@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { newServiceModal } from '$lib/modal.svelte.js';
-	import { createService, formaterBønn } from '$lib/store.svelte.js';
+	import { createService } from '$lib/store.svelte.js';
 	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
 	import { litHtml } from '$lib/lit.js';
 
@@ -17,10 +17,16 @@
 	];
 
 	function visTekst(ref, tekst, evang) {
-		// bare bibelteksten — ingen liturgisk innledning/avslutning på hjemskjermen
+		// bare bibelteksten med referanse — ingen liturgisk innledning/avslutning på hjemskjermen
 		if (!tekst) return litHtml('*Klarte ikke hente teksten.*');
 		const innhold = (tekst.title ? '**' + tekst.title + '**\n' : '') + tekst.text;
 		return litHtml(innhold);
+	}
+
+	/** Dagens bønn som ren tekst — uten L/M-rollene som brukes i gudstjenestene. */
+	function visBønn(prayer) {
+		return (prayer || '').split('\n').filter((l) => l.trim())
+			.map((l) => '<p>' + litHtml(l.trim()) + '</p>').join('');
 	}
 
 	function kommendeSoendag() {
@@ -58,12 +64,7 @@
 </script>
 
 <div id="welcome">
-	<h2>Liturgi</h2>
-	<p>
-		Lag gudstjenester fra malen «Hovedgudstjenesten» eller din lokale grunnordning,
-		velg salmer, bytt ledd og alternativer, og eksporter til PDF, Word eller PowerPoint.
-	</p>
-	<p><button class="wide" onclick={() => newServiceModal(createService)}>Opprett gudstjeneste</button></p>
+	<h2>Liturgiverktøyet</h2>
 
 	{#if laster}
 		<p class="w-muted">Henter kommende søndag …</p>
@@ -73,7 +74,7 @@
 			<p class="w-kirkeaar">☀️ <strong>{kk.name}</strong>{kk.color ? ' · ' + kk.color : ''}{kk.series ? ' · ' + kk.series : ''}</p>
 			{#if kk.prayer}
 				<h4>Dagens bønn</h4>
-				<div class="lit-text">{@html litHtml(formaterBønn(kk.prayer))}</div>
+				<div class="lit-text w-bønn">{@html visBønn(kk.prayer)}</div>
 			{/if}
 			<h4>Bibeltekster</h4>
 			{#each lesninger as L}
@@ -82,6 +83,7 @@
 						<summary>{L.tittel} · {kk[L.key]}</summary>
 						{#if tekster?.[L.key]}
 							<div class="lit-text">{@html visTekst(kk[L.key], tekster[L.key], L.evang)}</div>
+							{#if kk[L.key]}<p class="w-ref">{kk[L.key]}</p>{/if}
 						{:else}
 							<p class="w-muted">Klarte ikke hente teksten fra bibel.no.</p>
 						{/if}

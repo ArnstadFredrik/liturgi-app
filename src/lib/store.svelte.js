@@ -345,10 +345,10 @@ export function applyKirkeaar(svc, k, tekster) {
 function fyllLesning(it, ref, tekst, evangelium = false) {
 	// teksten innledes/avsluttes som i ordningen; referansen settes som fotnote
 	const intro = evangelium
-		? 'L/ML | Det hellige evangelium står skrevet hos ' + ref + ':'
-		: 'ML | Det står skrevet i/hos ' + ref + ':';
+		? 'L | Det står skrevet i evangeliet etter ' + ref + ':'
+		: 'ML | Det står skrevet i ' + ref + ':';
 	const outro = evangelium
-		? 'L/ML | Slik lyder det hellige evangelium.'
+		? 'L | Slik lyder det hellige evangelium.'
 		: 'ML | Slik lyder Herrens ord.';
 	const fotnote = tekst ? '\nFOTNOTE | ' + ref : '';
 	if (tekst) {
