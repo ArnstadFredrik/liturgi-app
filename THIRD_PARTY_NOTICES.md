@@ -35,8 +35,3 @@ hver beholder sin egen lisens/opphavsrett.
 - npm-pakken `church-year` (ArnstadFredrik/kirkeaar), egen lisens i
   det repoet.
 
-## Liturgitekster / salmer
-
-- Tekster fra Norsk Salmebok (NLO) og liturgier fra Norsk Liturgiråd
-  har opphavsrett og copysitingsordning (https://liturgi.no).
-- Ikke redistribuer slike tekster som en del av appen uten avtale.

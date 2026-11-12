@@ -1,6 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber, AlignmentType } from 'docx';
 import PptxGenJS from 'pptxgenjs';
 import { jsPDF } from 'jspdf';
+import { leddTekst } from './lit.js';
 
 const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
@@ -156,9 +157,12 @@ export function buildOutline(svc, showInstr) {
 			} else if (it.alts && it.alts.length) {
 				if (it.selAlt == null) out.push({ text: '[Velg alternativ]', muted: true });
 				else {
+					if (it.introAlts?.length) out.push({ text: it.introAlts[it.selIntro ?? 0]?.text ?? '' });
+					if (it.text) out.push({ text: it.text });
 					const a = it.alts[it.selAlt];
 					if (a.label) out.push({ text: a.label, muted: true });
 					out.push({ text: a.text });
+					if (it.avslutningAlts?.length) out.push({ text: it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '' });
 				}
 			} else if (it.text) {
 				out.push({ text: it.text });
@@ -319,7 +323,11 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				continue;
 			}
 			let lines = [];
-			if (it.alts && it.alts.length) {
+			if (it.type !== 'salme') {
+				// innledning + valgt alternativ + avslutning (som i Word/PDF)
+				const t = leddTekst(it);
+				if (t) lines.push(t);
+			} else if (it.alts && it.alts.length) {
 				if (it.selAlt != null) lines.push(it.alts[it.selAlt].text);
 			} else if (it.text) {
 				lines.push(it.text);
@@ -445,8 +453,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// @r — hele linjen som rolle
 			let tekst = '';
 			if (it.type === 'salme') tekst = it.text ?? '';
-			else if (it.alts?.length) tekst = it.selAlt != null ? it.alts[it.selAlt].text : '[Velg alternativ]';
-			else tekst = it.text ?? '';
+			else if (it.selAlt == null && it.alts?.length) tekst = '[Velg alternativ]';
+			else tekst = leddTekst(it);
 			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
