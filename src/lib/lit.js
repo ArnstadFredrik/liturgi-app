@@ -5,13 +5,16 @@ export function litHtml(text) {
 	let out = (text ?? '')
 		.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 		.replace(/^(FOTNOTE \| ?)(.*)$/gm, (m, p, t) => '<span class="fotnote">' + mdInline(t) + '</span>')
+		// rene rolleprefiks-linjer: «L |», «ML |», «L/ML |», «KA/L |» osv. → rolle merket rødt, resten inline
+		.replace(/^(L\/ML|ML\/L|L\/M|KA\/L|L|ML|M|A|KA|K)(\s*\| ?)/gm, '<span class="role">$1 |</span> ')
 		.replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '<span class="role">' + mdInline(t) + '</span>')
 		.replace(/\{\{r\}\}([\s\S]*?)\{\{\/r\}\}/g, (m, t) => '<span class="role">' + mdInline(t) + '</span>');
-	// blokk-nivå: overskrifter og punktliste (linjenivå, unngå å røre eksisterende spans)
+	// blokk-nivå: overskrifter og punktliste (linjenivå, unngå å røre eksisterende spans) — før <br>
 	out = out
 		.replace(/^## ?(.+)$/gm, (m, t) => '<span class="md-h md-h2">' + mdInline(t) + '</span>')
 		.replace(/^# ?(.+)$/gm, (m, t) => '<span class="md-h">' + mdInline(t) + '</span>')
-		.replace(/^- (.+)$/gm, (m, t) => '<span class="md-li"><span class="md-bullet">•</span>' + mdInline(t) + '</span>');
+		.replace(/^- (.+)$/gm, (m, t) => '<span class="md-li"><span class="md-bullet">•</span>' + mdInline(t) + '</span>')
+		.replace(/\n/g, '<br>');
 	return mdInlineOutsideTags(out);
 }
 
