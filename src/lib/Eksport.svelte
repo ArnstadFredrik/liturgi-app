@@ -155,7 +155,8 @@
 		return kopi;
 	}
 
-	/** Kun bibelreferansen for lesningene (Word/PDF). */
+	/** Kun bibelreferansen for lesningene (Word/PDF). Rører bare lesninger som
+	 *  faktisk har bibelreferanse (FOTNOTE eller «står skrevet i/hos»-innledning). */
 	function kunReferanse(svc) {
 		const kopi = JSON.parse(JSON.stringify(svc));
 		for (const sec of kopi.sections ?? []) {
@@ -164,6 +165,8 @@
 				const tekst = (it.alts?.length ? it.alts[it.selAlt ?? 0]?.text : it.text) || '';
 				const fn = tekst.match(/^FOTNOTE \| ?(.*)$/m);
 				const intro = tekst.match(/står skrevet (?:i|hos) ([^:\n]+):/);
+				// ingen bibelreferanse (f.eks. «8 Skriftlesning» i gravferdsordningen) → la teksten være
+				if (!fn && !intro) continue;
 				const ref = fn?.[1] ?? intro?.[1] ?? '';
 				if (it.alts?.length) { if (it.selAlt != null) it.alts[it.selAlt].text = ref; }
 				else it.text = ref;
