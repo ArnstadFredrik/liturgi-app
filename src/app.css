@@ -250,6 +250,8 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 .item-tools button:hover { color: var(--text); background: var(--panel2); }
 .item-body { margin-top: 6px; }
 .instr { color: var(--role); font-style: italic; font-size: 13px; margin-bottom: 6px; cursor: text; }
+.etikett { font-weight: 700; color: var(--role); font-size: 13px; cursor: text; min-width: 60px; }
+.etikett .et-empty { font-weight: 400; }
 .lit-text { white-space: pre-wrap; line-height: 1.6; font-size: 14.5px; cursor: text; }
 .lit-text .role, .alt-text .role, .instr .role { color: var(--role); font-weight: 700; }
 body.hide-roles .lit-text .role, .lit-text.plain .role { color: inherit; font-weight: inherit; }

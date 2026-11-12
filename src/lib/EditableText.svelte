@@ -3,12 +3,12 @@
 	import { markDirty } from '$lib/store.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 
-	let { value = $bindable(''), kind = 'lit' } = $props(); // kind: 'lit' | 'instr'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]' } = $props(); // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	let ta = $state(null);
 
-	const cls = $derived(kind === 'instr' ? 'instr' : 'lit-text');
+	const cls = $derived(kind === 'instr' ? 'instr' : kind === 'etikett' ? 'etikett' : 'lit-text');
 
 	function start() {
 		editing = true;
@@ -70,7 +70,7 @@
 			bind:this={ta}
 			bind:value={value}
 			spellcheck="false"
-			rows={Math.max(3, (value || '').split('\n').length + 1)}
+			rows={kind === 'etikett' ? 1 : Math.max(3, (value || '').split('\n').length + 1)}
 			onchange={markDirty}
 			onkeydown={(e) => { if (e.key === 'Escape') done(); }}
 		></textarea>
@@ -78,9 +78,9 @@
 {:else}
 	<div class={cls} onclick={start}>
 		{#if value}
-			{@html litHtml(value)}
+			{@html kind === 'etikett' ? value : litHtml(value)}
 		{:else}
-			<span class="et-empty">[Klikk for å skrive]</span>
+			<span class="et-empty">{plassholder}</span>
 		{/if}
 	</div>
 {/if}

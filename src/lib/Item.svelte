@@ -131,7 +131,11 @@
 							<input type="radio" name="alt-{it.id}" checked={it.selAlt === ai}
 								onchange={() => { it.selAlt = ai; markDirty(); }} />
 							<span class="alt-col">
-								<span class="alt-label">{a.label}{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
+								{#if app.kind === 'template'}
+									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
+								{:else}
+									<span class="alt-label">{a.label}{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
+								{/if}
 								<EditableText bind:value={a.text} kind="lit" />
 							</span>
 						</label>
