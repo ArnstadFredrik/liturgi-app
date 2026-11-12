@@ -99,9 +99,9 @@ export async function saveCurrent() {
 	}
 }
 
-/** Er dette en originalmal (i maler/originaler, seedet av appen)? */
+/** Er dette en originalmal (ligger i maler/originaler)? */
 export function erOriginalMal(t) {
-	return !!t?.filePath && t.filePath.includes('/originaler/') && t.builtinKey?.startsWith('original-');
+	return !!t?.filePath && t.filePath.includes('/originaler/');
 }
 
 /** Sammenlign maldata med unntak av valgt alternativ (selAlt), filsti og id. */
@@ -377,8 +377,8 @@ export async function loadTemplatesFromDisk() {
 		const eksisterende = new Set([...list.originaler, ...list.brukermaler].map((x) => x.name));
 		for (const bt of BUILTIN_TEMPLATES) {
 			if (eksisterende.has(bt.name)) continue;
-			// «Ordning for hovedgudtjeneste» er original; alle andre innebygde i brukermaler
-			const sub = bt.name.toLowerCase().includes('ordning for hovedgudstjeneste') ? 'originaler' : 'brukermaler';
+			// «Ordning for hovedgudstjeneste» og gravferdsordningen er originaler; alle andre innebygde i brukermaler
+			const sub = /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
 			const data = JSON.parse(JSON.stringify(bt));
 			for (const sec of data.sections) for (const it of sec.items) autoMarkMigrate(it);
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(bt.name).toLowerCase().replace(/\s+/g, '-');

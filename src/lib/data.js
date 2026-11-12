@@ -1555,5 +1555,591 @@ export const BUILTIN_TEMPLATES = [
 				]
 			}
 		]
-	}
+	},
+{
+	"id": "gravferd-2003",
+	"builtinKey": "gravferd-2003",
+	"kind": "template",
+	"name": "Ordning for gravferd (bokmål, 2003)",
+	"description": "Ordning for gravferd fra kirke eller krematorium — vedtatt av Kirkemøtet 2002, med alle alternativer og skriftlesningstekstgrupper.",
+	"sections": [
+		{
+			"title": "Gravferd fra kirke eller krematorium",
+			"items": [
+				{
+					"id": "gf-1",
+					"type": "instruks",
+					"heading": "1 Klokkeringing",
+					"text": "",
+					"instr": "Mens det ringes sammen, tar liturgen plass i koret.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-2",
+					"type": "instruks",
+					"heading": "2 Preludium",
+					"text": "",
+					"instr": "Som preludium kan det fremføres egnet instrumentalmusikk, korsang eller solosang. Preludiet kan være forspill til første salme.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-3",
+					"type": "salme",
+					"heading": "3 Salme",
+					"text": "",
+					"instr": "Denne salmen kan eventuelt flyttes til etter ledd 4.",
+					"alts": [],
+					"optional": true,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-4",
+					"type": "tekst",
+					"heading": "4 Inngangsord",
+					"text": "{{r}}L |{{/r}} Nåde være med dere og fred fra Gud vår Far og Herren Jesus Kristus.\nVi er samlet her for å ta avskjed med (navnet nevnes).\n*Sammen vil vi overgi ham/henne i Guds hender [og følge ham/henne til det siste hvilestedet].*\n\nSå høyt har Gud elsket verden at han gav sin Sønn, den enbårne, for at hver den som tror på ham, ikke skal gå fortapt, men ha evig liv.\nJoh 3,16",
+					"instr": "*Teksten i klammer kan utelates ved kremasjon.*\nDeretter kan liturgen fortsette med et av følgende skriftord:",
+					"alts": [
+						{
+							"label": "Skriftord A — Matt 11,28",
+							"text": "Jesus sier: Kom til meg, alle dere som strever og bærer tunge byrder, og jeg vil gi dere hvile.\nMatt 11,28"
+						},
+						{
+							"label": "Skriftord B — Sal 50,15",
+							"text": "Gud sier i sitt ord: Kall på meg på nødens dag, så vil jeg utfri deg, og du skal gi meg ære.\nSal 50,15"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-5",
+					"type": "tekst",
+					"heading": "5 Inngangsbønn",
+					"text": "{{r}}L |{{/r}} La oss be.",
+					"instr": "",
+					"alts": [
+						{
+							"label": "A — Sal 130,1-8",
+							"text": "Fra dypet roper jeg til deg, Herre. Herre, hør min røst!\nVend øret til mitt rop om nåde.\nDersom du, Herre, vil gjemme på synder, Herre, hvem kan da bli stående?\nMen hos deg er tilgivelse, så vi skal frykte deg.\nJeg setter mitt håp til Herren, jeg lengter, jeg venter på hans ord.\nMin sjel på Herren, mer enn vektere på morgenen, vektere på morgenen.\nVent på Herren, Israel!\nFor hos Herren er miskunn og kraft til å løse ut.\nHan skal løse Israel ut fra alle deres synder.\nSal 130,1-8"
+						},
+						{
+							"label": "B — Sal 90,1-4.12",
+							"text": "Herre, du har vært en bolig for oss i slekt etter slekt. Før fjellene ble født, før jorden og verden ble til, ja, fra evighet og til evighet er du, Gud.\nDu lar mennesket bli til støv igjen og sier: «Menneskebarn, vend tilbake!»\nFor tusen år er i dine øyne som dagen i går da den fór forbi, eller som en nattevakt.\nLær oss å telle våre dager, så vi kan få visdom i hjertet!\nSalme 90,1-4.12"
+						},
+						{
+							"label": "C — Sal 22,2-3.20",
+							"text": "Min Gud, min Gud, hvorfor har du forlatt meg? Hvorfor er du så langt borte når jeg trenger hjelp og skriker ut min nød?\nMin Gud, jeg roper om dagen, men du svarer ikke, jeg roper om natten og får ikke ro.\nMen du, Herre, vær ikke langt borte, min styrke, skynd deg og hjelp meg!\nSal 22,2-3.20"
+						},
+						{
+							"label": "D",
+							"text": "Hellige Gud, himmelske Far, du råder over liv og død. Når vi skilles fra en av våre kjære, styrk oss da i troen, så vi også ved graven kan håpe på deg.\nHerre Jesus Kristus, du trofaste Frelser, som gikk gjennom død og grav for oss: Bli hos oss i vår siste nød og gi oss engang å samles i din Fars hus med deg og alle dine.\nHellige Ånd, du vår trøster i liv og død, fyll alle sørgende med din trøst. Fri oss fra åndelig død, dra alle til deg og gi oss å ha vår skatt i himmelen."
+						},
+						{
+							"label": "E",
+							"text": "Herre vår Gud, hos deg er livets kilde. I ditt lys ser vi lys.\nI deg er det vi lever, rører oss og er til.\nBevar oss i liv og død i din kjærlighet, ved din Sønn Jesus Kristus, vår Herre."
+						},
+						{
+							"label": "F",
+							"text": "Gode Gud, du som ser oss og kjenner oss, kom oss nær med din trøst."
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-6",
+					"type": "tekst",
+					"heading": "6 Minneord",
+					"text": "",
+					"instr": "Et kort minneord holdes av liturgen eller av en representant for de pårørende. Det bør inneholde noen biografiske momenter med særlig vekt på hva avdødes liv har betydd for dem som stod ham/henne nær, og for andre livssammenhenger han/hun har stått i.\nHer kan følge korte hilsninger, pålegging av blomster og/eller krans og eventuelt andre minnehandlinger, som opplesning, musikk, lystenning o. a.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-7",
+					"type": "salme",
+					"heading": "7 Salme eller musikkinnslag",
+					"text": "",
+					"instr": "Eventuelt musikkinnslag kan være vokalt eller instrumentalt.",
+					"alts": [],
+					"optional": true,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-8",
+					"type": "tekst",
+					"heading": "8 Skriftlesning",
+					"text": "{{r}}L |{{/r}} La oss høre hva Guds ord vitner om livet og døden, og dommen og vårt håp i Jesus Kristus.\n\n(Her følger tre lesninger — se tekstgruppene til slutt i ordningen. Tekstene velges slik at de dekker de innholdsmomenter som er nevnt foran. Menigheten sitter under lesningen. Tekstene kan leses av liturgen eller av en eller flere andre.)\n\nSkriftlesningen avsluttes med:\n{{r}}L |{{/r}} Slik lyder Herrens ord.",
+					"instr": "",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-9",
+					"type": "salme",
+					"heading": "9 Salme",
+					"text": "",
+					"instr": "Hvis ledd 7 er en salme, kan ledd 9 gå ut.",
+					"alts": [],
+					"optional": true,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-10",
+					"type": "tekst",
+					"heading": "10 Tale",
+					"text": "",
+					"instr": "Kort tale over et av de oppleste skriftordene eller over en annen høvelig tekst.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-11",
+					"type": "tekst",
+					"heading": "11 Bønn",
+					"text": "{{r}}L |{{/r}} La oss be.",
+					"instr": "",
+					"alts": [
+						{
+							"label": "A",
+							"text": "{{r}}L |{{/r}} Evige Gud, vår tilflukt i sorgens tid, vær nær med din fred. Styrk oss i troen. Gi oss fremtid og håp. Vi takker deg for (navnet nevnes) og det du gav oss gjennom hans/hennes liv.\n*Barmhjertige Gud, vi overgir ham/henne i dine hender. Du som har skapt oss i ditt bilde og gitt oss Jesus Kristus som vår Frelser, reis oss opp på oppstandelsens dag til evig liv hos deg.*"
+						},
+						{
+							"label": "B",
+							"text": "{{r}}L |{{/r}} Jesus Kristus, du som lovet å være med oss alle dager inntil verdens slutt, vær du vår styrke og trøst, vårt lys og vår veiviser. La oss alle en gang ved troen på deg få del i oppstandelsens glede."
+						},
+						{
+							"label": "C",
+							"text": "{{r}}L |{{/r}} Evige Gud, himmelske Far, du har i din Sønn, Jesus Kristus, gitt oss seier over døden. Vi ber deg, led oss ved din Hellige Ånd, så vi aldri kommer bort fra deg, men lever vårt liv i troen på din Sønn og engang når fram til det evige liv i ditt rike, ved Jesus Kristus, vår Herre."
+						},
+						{
+							"label": "D",
+							"text": "{{r}}L |{{/r}} Herre Jesus Kristus, du som bar alle våre synder, vi takker deg for din kjærlighet som er sterkere enn døden. Gi oss del i frelsen du vant ved din død og oppstandelse, og før oss med din mektige hånd gjennom liv, død og dom inn til din evige glede."
+						},
+						{
+							"label": "E",
+							"text": "{{r}}L |{{/r}} Himmelske Far, vi takker deg for det du gav gjennom (navnet nevnes) som nå er gått bort. Styrk og trøst alle som sitter i sorg og savn. Vi overgir oss i din sterke hånd. Hjelp oss å leve i samfunn med deg, så vi engang kan fare herifra i fred, ved Jesus Kristus, din Sønn, vår Herre."
+						},
+						{
+							"label": "F — bønn etter situasjonen",
+							"text": "En bønn som er skrevet med tanke på den situasjonen de pårørende og lokalsamfunnet har opplevd i forbindelse med dødsfallet."
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-12",
+					"type": "tekst",
+					"heading": "12 I dine hender",
+					"text": "{{r}}A |{{/r}} I dine hender, Herre Gud, overgir jeg min ånd. Du forløser meg, Herre, du trofaste Gud.\n\nI dine hender, Herre Gud, overgir jeg min ånd. Ære være Faderen og Sønnen og Den hellige ånd. I dine hender, Herre Gud, overgir jeg min ånd.",
+					"instr": "Dette leddet kan også synges som vekselsang, se Norsk salmebok 2013 nr 941.1 og 2. Her kan også følge Simeons lovsang (Luk 2,29-32), enten lest eller sunget, se Norsk salmebok 2013 nr 908 og 909.",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-13",
+					"type": "tekst",
+					"heading": "13 Fader vår",
+					"text": "{{r}}L |{{/r}} La oss sammen be Fader vår.",
+					"instr": "",
+					"alts": [
+						{
+							"label": "Vekselsang",
+							"text": "{{r}}A |{{/r}} Vår Far i himmelen!\n{{r}}A |{{/r}} La navnet ditt helliges.\n{{r}}A |{{/r}} La riket ditt komme.\n{{r}}A |{{/r}} La viljen din skje på jorden slik som i himmelen.\n{{r}}A |{{/r}} Gi oss i dag vårt daglige brød,\n{{r}}A |{{/r}} og tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\n{{r}}A |{{/r}} Og la oss ikke komme i fristelse, men frels oss fra det onde.\n{{r}}A |{{/r}} For riket er ditt, og makten og æren i evighet.\n{{r}}A |{{/r}} Amen."
+						},
+						{
+							"label": "Lest",
+							"text": "{{r}}A |{{/r}} Fader vår, du som er i himmelen!\nLa ditt navn holdes hellig.\nLa ditt rike komme.\nLa din vilje skje på jorden som i himmelen.\nGi oss i dag vårt daglige brød.\nForlat oss var skyld, som vi og forlater våre skyldnere.\nLed oss ikke inn i fristelse, men frels oss fra det onde.\nFor riket er ditt, og makten og æren i evighet.\nAmen."
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-14",
+					"type": "salme",
+					"heading": "14 Salme",
+					"text": "",
+					"instr": "",
+					"alts": [],
+					"optional": false,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-15",
+					"type": "instruks",
+					"heading": "15 Postludium",
+					"text": "",
+					"instr": "Før postludiet kan det fremføres et musikkinnslag, vokalt eller instrumentalt. Under postludiet bæres kisten ut.",
+					"alts": [],
+					"optional": true
+				}
+			]
+		},
+		{
+			"title": "Jordpåkastelse — ved graven",
+			"items": [
+				{
+					"id": "gf-16",
+					"type": "instruks",
+					"heading": "Jordpåkastelse — ved graven",
+					"text": "",
+					"instr": "Før ledd 16 Salme plasseres kisten på senkeapparatet eller på planker o.l. over graven og blir stående der inntil ledd 19 Senkning finner sted.\nHvor det er praksis, kan kisten senkes helt ned i graven med en gang før salmen (ledd 16) synges.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-17",
+					"type": "salme",
+					"heading": "16 Salme",
+					"text": "",
+					"instr": "",
+					"alts": [],
+					"optional": false,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-18",
+					"type": "tekst",
+					"heading": "17 Skriftlesning",
+					"text": "",
+					"instr": "En av følgende tekster, som ikke er brukt tidligere i gravferden:",
+					"alts": [
+						{
+							"label": "Sal 68,21",
+							"text": "Vår Gud er en Gud som frelser, hos Gud Herren er det utgang fra døden.\nSal 68,21"
+						},
+						{
+							"label": "Åp 1,17b-18",
+							"text": "Jesus Kristus sier: Frykt ikke!\nJeg er den første og den siste og den levende. Jeg var død, men se, jeg lever i all evighet, og jeg har nøklene til døden og dødsriket. Åp 1,17b-18"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-19",
+					"type": "tekst",
+					"heading": "18 Bønn ved gravstedet",
+					"text": "",
+					"instr": "I denne bønnen kan liturgen utfylle (navnet nevnes) etter anledningen — for eksempel fullt navn, fornavn, vår kjære, vår venn o.l.",
+					"alts": [
+						{
+							"label": "A",
+							"text": "Herre Jesus Kristus, la denne grav være et håpets sted, i troen på deg som stod opp fra de døde."
+						},
+						{
+							"label": "B",
+							"text": "Herre Jesus Kristus, du som selv ble lagt i en grav, gi oss å følge deg i oppstandelsen fra de døde."
+						},
+						{
+							"label": "C",
+							"text": "Herre Jesus Kristus, la (navnet nevnes) få hvile i fred under korsets tegn til oppstandelsens morgen. Hjelp oss i liv og død å sette vårt håp til deg."
+						},
+						{
+							"label": "D",
+							"text": "Herre Jesus Kristus, du som selv ble lagt i en grav, la dette stedet være et fredens sted, hvor (navnet nevnes) får hvile under korsets tegn til dagen da du kaller alle frem fra gravene. Hjelp oss i liv og død å sette vårt håp til deg."
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-20",
+					"type": "instruks",
+					"heading": "19 Senkning",
+					"text": "",
+					"instr": "Som hovedregel senkes kisten helt ned.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-21",
+					"type": "tekst",
+					"heading": "20 Jordpåkastelse",
+					"text": "{{r}}P |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn.\n\nDeretter kaster liturgen tre ganger jord på kisten og sier:\nFørste gang: Av jord er du kommet.\nAndre gang: Til jord skal du bli.\nTredje gang: Av jorden skal du igjen oppstå.",
+					"instr": "",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-22",
+					"type": "tekst",
+					"heading": "21 Skriftord og velsignelse",
+					"text": "",
+					"instr": "",
+					"alts": [
+						{
+							"label": "A — Joh 11,25-26",
+							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nJoh 11,25-26"
+						},
+						{
+							"label": "B — 1 Pet 1,3",
+							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\n1 Pet 1,3"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-23",
+					"type": "tekst",
+					"heading": "21 Velsignelse (fortsettelse)",
+					"text": "{{r}}P |{{/r}} vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠",
+					"instr": "",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-24",
+					"type": "salme",
+					"heading": "22 Salme",
+					"text": "",
+					"instr": "",
+					"alts": [],
+					"optional": false,
+					"salmeNr": "",
+					"salmeTittel": ""
+				}
+			]
+		},
+		{
+			"title": "Jordpåkastelse — i krematorium",
+			"items": [
+				{
+					"id": "gf-25",
+					"type": "instruks",
+					"heading": "Jordpåkastelse — i krematorium",
+					"text": "",
+					"instr": "Gravferdshandlingen ovenfor (ledd 1–13) avsluttes med jordpåkastelse (ledd 19–23). Rent unntaksvis kan denne ordningen følges også i kirke/kapell, se Alminnelige bestemmelser punkt 8.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-26",
+					"type": "instruks",
+					"heading": "19 Senkning (krematorium)",
+					"text": "",
+					"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
+					"alts": [],
+					"optional": true
+				},
+				{
+					"id": "gf-27",
+					"type": "tekst",
+					"heading": "20 Jordpåkastelse (krematorium)",
+					"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn.\n\nDeretter kaster liturgen tre ganger jord på kisten og sier:\nFørste gang: Av jord er du kommet.\nAndre gang: Til jord skal du bli.\nTredje gang: Av jorden skal du igjen oppstå.",
+					"instr": "",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-28",
+					"type": "tekst",
+					"heading": "21 Skriftord og velsignelse (krematorium)",
+					"text": "",
+					"instr": "",
+					"alts": [
+						{
+							"label": "A — Joh 11,25-26",
+							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nJoh 11,25-26"
+						},
+						{
+							"label": "B — 1 Pet 1,3",
+							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\n1 Pet 1,3"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-29",
+					"type": "tekst",
+					"heading": "21 Velsignelse (fortsettelse, krematorium)",
+					"text": "{{r}}L |{{/r}} vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠",
+					"instr": "",
+					"alts": [],
+					"optional": false
+				},
+				{
+					"id": "gf-30",
+					"type": "salme",
+					"heading": "22 Salme (krematorium)",
+					"text": "",
+					"instr": "",
+					"alts": [],
+					"optional": false,
+					"salmeNr": "",
+					"salmeTittel": ""
+				},
+				{
+					"id": "gf-31",
+					"type": "instruks",
+					"heading": "23 Postludium (krematorium)",
+					"text": "",
+					"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
+					"alts": [],
+					"optional": true
+				}
+			]
+		},
+		{
+			"title": "Skriftlesninger",
+			"items": [
+				{
+					"id": "gf-tg-tekstgruppe-i",
+					"type": "tekst",
+					"heading": "Tekstgruppe I",
+					"text": "",
+					"instr": "Her følger tekstene i tekstgruppe i — velges til ledd 8 Skriftlesning eller 17 Skriftlesning.",
+					"alts": [
+						{
+							"label": "A — Job 19,25-27a.[27b]",
+							"text": "Jeg vet at min gjenløser lever. Som den siste skal han stå fram i støvet.\nNår huden er revet av meg og kjøttet er borte, skal jeg se Gud.\nMine øyne ser, det er jeg som får se ham, ikke en fremmed.\nJob 19,25-27a.[27b]"
+						},
+						{
+							"label": "B — Sal 23",
+							"text": "Herren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile. Han gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt.\nFor du er med meg.\nDin kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender.\nDu salver mitt hode med olje. Mitt beger flyter over.\nBare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nSalme 23"
+						},
+						{
+							"label": "C — Sal 42,2-6",
+							"text": "Som hjorten lengter etter bekker med vann, lengter min sjel etter deg, min Gud.\nMin sjel tørster etter Gud, etter den levende Gud.\nNår skal jeg få komme fram for Guds ansikt?\nTårer er mitt brød dag og natt.\nHele dagen spør de meg: «Hvor er din Gud?»\nDette minnes jeg, min lengsel veller fram:\nTil Guds hus vandret jeg i festskaren med jubelrop og lovsang\n– en pilegrimsskare i fest.\nHvorfor er du tynget av sorg, min sjel, hvorfor er du urolig?\nJeg vil vente på Gud!\nEnda en gang skal jeg prise ham, min Frelser og min Gud.\nSalme 42,2-6"
+						},
+						{
+							"label": "D — Sal 73,23-26",
+							"text": "Men jeg blir alltid hos deg, du har grepet min høyre hånd.\nDu leder meg med ditt råd,\nog siden tar du imot meg i herlighet.\nHvem har jeg ellers i himmelen?\nNår jeg er hos deg, har jeg ikke glede i noe på jorden.\nOm kropp og hjerte forgår,\ner Gud for evig mitt hjertes klippe og min del.\nSalme 73,23-26"
+						},
+						{
+							"label": "E — Sal 103,13-17",
+							"text": "Som en far er barmhjertig mot sine barn,\ner Herren barmhjertig mot dem som frykter ham.\nFor han vet hvordan vi er skapt, han husker at vi er støv.\nDagene mennesket får, er som gress, det blomstrer som blomsten på marken.\nNår vinden farer over den, er den borte, stedet den stod på, vet ikke lenger av den.\nMen Herrens miskunn er fra evighet til evighet over dem som frykter ham.\nSalme 103,13-17"
+						},
+						{
+							"label": "F — Sal 121",
+							"text": "Jeg løfter mine øyne mot fjellene. Hvor skal min hjelp komme fra?\nMin hjelp kommer fra Herren,\nhimmelens og jordens skaper.\nHan vil ikke la din fot vakle, din vokter vil ikke blunde!\nSe, han blunder ikke og sover ikke, Israels vokter.\nHerren er din vokter, Herren er din skygge ved din høyre hånd.\nSolen skal ikke skade deg om dagen heller ikke månen om natten.\nHerren skal bevare deg fra alt ondt. Han skal bevare ditt liv.\nHerren skal bevare din utgang og din inngang fra nå og til evig tid.\nSalme 121"
+						},
+						{
+							"label": "G — Sal 139,1-12.23-24",
+							"text": "Herre, du ransaker meg og du vet – du vet om jeg sitter eller står,\npå lang avstand kjenner du mine tanker.\nOm jeg går eller ligger, ser du det, du kjenner alle mine veier.\nFør jeg har et ord på tungen, Herre, kjenner du det fullt ut.\nBakfra og forfra omgir du meg, du har lagt din hånd på meg.\nDet er et under jeg ikke forstår,\ndet er så høyt at jeg ikke kan fatte det. Hvor skulle jeg gå fra din pust,\nhvor kunne jeg flykte fra ditt ansikt?\nStiger jeg opp til himmelen, er du der, legger jeg meg i dødsriket, er du der.\nTar jeg soloppgangens vinger og slår meg ned der havet ender, da fører din hånd meg også der, din høyre hånd holder meg fast.\nJeg kan si: «La mørket skjule meg og lyset omkring meg bli natt»,\nmen mørket er ikke mørkt for deg, natten er lys som dagen,\nmørket er som lyset.\nRansak meg, Gud, og kjenn mitt hjerte, prøv meg og kjenn mine tanker!\nSe om jeg følger avguders vei,\nog led meg på evighetens vei!\nSalme 139,1-12.23-24"
+						},
+						{
+							"label": "H — Fork 3,1-2.4.6a.11a.14a",
+							"text": "Alt har sin tid, det er en tid for alt som skjer under himmelen:\nen tid for å fødes, en tid for å dø,\nen tid for å plante, en tid for å rykke opp, en tid for å gråte, en tid for å le,\nen tid for å sørge, en tid for å danse; en tid for å lete, en tid for å miste.\nAlt skapte han vakkert, hver ting til sin tid.\nJa, alle tider har han lagt i menneskenes hjerte.\nJeg skjønte at alt Gud gjør, står gjennom alle tider.\nIngen kan legge noe til, og ingen kan trekke noe fra.\nFork 3,1-2.4.6a.11a.14a"
+						},
+						{
+							"label": "I — Jes 49,14-16a",
+							"text": "Sion sier: «Herren har forlatt meg, Herren har glemt meg.»\nKan en kvinne glemme sitt diende barn, en omsorgsfull mor det barnet hun bar?\nSelv om de skulle glemme,\nskal ikke jeg glemme deg.\nSe, jeg har tegnet deg i mine hender.\nJes 49,14-16a"
+						},
+						{
+							"label": "J — Klag 3,22-26",
+							"text": "Herren er nådig, vi går ikke til grunne.\nHans barmhjertighet tar ikke slutt,\nden er ny hver morgen.\nDin trofasthet er stor.\nJeg sier: Herren er min del, jeg setter mitt håp til ham.\nHerren er god mot dem\nsom venter på ham og søker ham.\nDet er godt å være stille\nog vente på hjelp fra Herren.\nKlag 3,22-26"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-tg-tekstgruppe-ii",
+					"type": "tekst",
+					"heading": "Tekstgruppe II",
+					"text": "",
+					"instr": "Her følger tekstene i tekstgruppe ii — velges til ledd 8 Skriftlesning eller 17 Skriftlesning.",
+					"alts": [
+						{
+							"label": "A — Rom 6,3-5",
+							"text": "Eller vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans.\nRom 6,3-5"
+						},
+						{
+							"label": "B — Rom 8,31b-35.38-39",
+							"text": "Er Gud for oss, hvem er da mot oss? Han som ikke sparte sin egen Sønn, men gav ham for oss alle, kan han gjøre noe annet enn å gi oss alt sammen med ham? Hvem kan anklage dem Gud har utvalgt? Gud er den som frikjenner. Hvem kan da fordømme? Kristus Jesus er den som døde, ja, mer enn det, han sto opp og sitter ved Guds høyre hånd, og han ber for oss. Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd?\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nRom 8,31b-35.38-39"
+						},
+						{
+							"label": "C — Rom 14,7-12",
+							"text": "For ingen av oss lever for seg selv, og ingen dør for seg selv. Om vi lever, så lever vi for Herren, og om vi dør, så dør vi for Herren. Enten vi da lever eller dør, hører vi Herren til.\nDet var derfor Kristus døde og ble levende igjen, for at han skulle være Herre over både levende og døde. Men du, hvorfor dømmer du din bror, eller hvorfor ser du ned på din bror? Vi skal alle fram for Guds domstol, for det står skrevet:\nSå sant jeg lever, sier Herren, for meg skal hvert kne bøye seg,\nog hver tunge skal bekjenne Gud.\nSå skal altså hver enkelt av oss avlegge sitt eget regnskap for Gud.\nRom 14,7-12"
+						},
+						{
+							"label": "D — 1 Kor 13,8-13",
+							"text": "Kjærligheten tar aldri slutt. Profetgavene skal bli borte,\ntungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer, skal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre:\ntro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\n1 Kor 13,8-13"
+						},
+						{
+							"label": "E — 1 Kor 15,53-57",
+							"text": "For det forgjengelige må bli kledd i uforgjengelighet, og det dødelige må bli kledd i udødelighet. Og når dette forgjengelige er kledd i uforgjengelighet og dette dødelige er kledd i udødelighet, da oppfylles det som står skrevet: Døden er oppslukt, seieren vunnet. Død, hvor er din brodd? Død, hvor er din seier? Dødens brodd er synden, og syndens kraft er loven. Men Gud være takk som gir oss seier ved vår Herre Jesus Kristus!\n1 Kor 15,53-57"
+						},
+						{
+							"label": "F — 1 Tess 5,8-11a",
+							"text": "Men vi som hører dagen til, skal være edru, kledd med tro og kjærlighet som brynje og med håpet om frelse som hjelm. For Gud har ikke bestemt oss til vrede, men til å vinne frelse ved vår Herre Jesus Kristus. Han døde for oss for at vi skal leve sammen med ham enten vi våker eller sover. Derfor må dere oppmuntre og oppbygge hverandre.\n1 Tess 5,8-11a"
+						},
+						{
+							"label": "G — Åp 21,1-5a",
+							"text": "Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa:\n«Se, Guds bolig er hos menneskene.\nHan skal bo hos dem,\nog de skal være hans folk,\nog Gud selv skal være hos dem.\nHan skal tørke bort hver tåre fra deres øyne,\nog døden skal ikke være mer,\nheller ikke sorg eller skrik eller smerte.\nFor det som en gang var, er borte.»\nHan som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nÅp 21,1-5a"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-tg-tekstgruppe-iii",
+					"type": "tekst",
+					"heading": "Tekstgruppe III",
+					"text": "",
+					"instr": "Her følger tekstene i tekstgruppe iii — velges til ledd 8 Skriftlesning eller 17 Skriftlesning.",
+					"alts": [
+						{
+							"label": "A — Matt 5,3-10",
+							"text": "Salige er de som er fattige i ånden, for himmelriket er deres.\nSalige er de som sørger, for de skal trøstes.\nSalige er de ydmyke, for de skal arve jorden.\nSalige er de som hungrer og tørster etter rettferdigheten, for de skal mettes.\nSalige er de barmhjertige, for de skal få barmhjertighet.\nSalige er de rene av hjertet, for de skal se Gud.\nSalige er de som skaper fred, for de skal kalles Guds barn.\nSalige er de som blir forfulgt for rettferdighets skyld, for himmelriket er deres.\nMatt 5,3-10"
+						},
+						{
+							"label": "B — Matt 28,1-10",
+							"text": "Da sabbaten var over og det begynte å lysne den første dag i uken, kom Maria Magdalena og den andre Maria for å se til graven. Med ett ble det et kraftig jordskjelv, for en Herrens engel steg ned fra himmelen, gikk fram og rullet steinen til side og satte seg på den. Han var som et lyn å se til, og drakten var hvit som snø. Vaktene skalv av redsel da de så ham, og de ble liggende som døde.\nMen engelen tok til orde og sa til kvinnene: «Frykt ikke! Jeg vet at dere leter etter Jesus, den korsfestede. Han er ikke her, han er stått opp, slik som han sa. Kom og se stedet hvor han lå! Skynd dere av sted og si til disiplene hans: «Han er stått opp fra de døde, og han går i forveien for dere til Galilea; der skal dere få se ham.» – Nå har jeg sagt dere det.»\nDa skyndte de seg bort fra graven, redde, men jublende glade, og de løp for å fortelle det til disiplene. Og se, Jesus kom mot dem og sa: «Vær hilset!» De gikk fram og omfavnet føttene hans og tilbad ham. Jesus sa til dem: «Frykt ikke! Gå og si til mine brødre at de skal dra til Galilea. Der skal de se meg.»\nMatt 28,1-10"
+						},
+						{
+							"label": "C — Mark 10,13-16",
+							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nMark 10,13-16"
+						},
+						{
+							"label": "D — Luk 12,35-38",
+							"text": "Jesus sier: Spenn beltet om livet og hold lampene tent! Vær lik tjenere som venter sin herre hjem fra bryllupsfest og står klar til å lukke opp for ham så snart han kommer og banker på. Lykkelige er de tjenere som herren finner våkne når han kommer! Sannelig, jeg sier dere: Han skal binde opp kjortelen, la dem gå til bords og selv gå fram og tjene dem. Ja, lykkelige er de som han finner våkne, selv om han ikke kommer før i andre eller tredje nattevakt.\nLuk 12,35-38"
+						},
+						{
+							"label": "E — Joh 5,24-27",
+							"text": "Jesus sier: Sannelig, sannelig, jeg sier dere: Den som hører mitt ord og tror på ham som har sendt meg, har evig liv og kommer ikke for dommen, men er gått over fra døden til livet.\nSannelig, sannelig, jeg sier dere: Den time kommer, ja, den er nå, da de døde skal høre Guds Sønns røst, og de som hører, skal leve. For slik Far har liv i seg selv, har han også gitt Sønnen å ha liv i seg selv, og han har gitt ham myndighet til å holde dom, fordi han er Menneskesønnen.\nJoh 5,24-27"
+						},
+						{
+							"label": "F — Joh 6,37-40",
+							"text": "Jesus sier: Alle de som Far gir meg, kommer til meg, og den som kommer til meg, vil jeg aldri støte bort. For jeg er ikke kommet ned fra himmelen for å gjøre det jeg selv vil, men det han vil, han som har sendt meg. Og det han vil, han som har sendt meg, er at jeg ikke skal miste noen av alle dem han har gitt meg, men reise dem opp på den siste dag. For dette er min Fars vilje, at hver den som ser Sønnen og tror på ham, skal ha evig liv, og jeg skal reise ham opp på den siste dag.\nJoh 6,37-40"
+						},
+						{
+							"label": "G — Joh 10,14.28-29",
+							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nJoh 10,14.28-29"
+						},
+						{
+							"label": "H — Joh 14,1-6",
+							"text": "«La ikke hjertet bli grepet av angst. Tro på Gud og tro på meg! I min Fars hus er det mange rom. Var det ikke slik, hadde jeg da sagt dere at jeg går og vil gjøre i stand et sted for dere? Og når jeg har gått og gjort i stand et sted for dere, vil jeg komme tilbake og ta dere til meg, så dere skal være der jeg er. Og dit jeg går, vet dere veien.»\nTomas sier til ham: «Herre, vi vet ikke hvor du går. Hvordan kan vi da vite veien?» Jesus sier: «Jeg er veien, sannheten og livet. Ingen kommer til Far uten ved meg.»\nJoh 14,1-6"
+						}
+					],
+					"optional": false
+				},
+				{
+					"id": "gf-tg-barn",
+					"type": "tekst",
+					"heading": "Lesninger ved barns gravferd",
+					"text": "",
+					"instr": "Ved barns gravferd brukes f.eks. disse lesningene, innledet slik:\n{{r}}L |{{/r}} La oss høre hvordan Jesus åpner Guds rike for barna.\nDe tre tekstene leses i sammenheng. Ved gravferd for spedbarn eller barn som er døde før fødsel, kan en velge andre tekster enn de ovenstående, f.eks. Salme 39,5-8 eller Salme 139,1-6.13-18, eller tekster som særlig uttrykker lidelsen, smerten og det uforståelige.",
+					"alts": [
+						{
+							"label": "Mark 10,13-16",
+							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nMark 10,13-16"
+						},
+						{
+							"label": "Joh 10,14.28-29",
+							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nJoh 10,14.28-29"
+						},
+						{
+							"label": "Åp 21,1-5a",
+							"text": "Herrens apostel sier: Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa: «Se, Guds bolig er hos menneskene. Han skal bo hos dem, og de skal være hans folk, og Gud selv skal være hos dem. Han skal være deres Gud.\nHan skal tørke bort hver tåre fra deres øyne, og døden skal ikke være mer, heller ikke sorg eller skrik eller smerte. For det som en gang var, er borte.» Han som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nÅp 21,1-5a"
+						}
+					],
+					"optional": false
+				}
+			]
+		}
+	]
+}
 ];
