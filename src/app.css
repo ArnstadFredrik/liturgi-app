@@ -84,6 +84,8 @@ button.wide { width: 100%; }
 #sidebar button.wide svg { display: inline-block; vertical-align: -3px; margin-right: 7px; opacity: 0.85; }
 /* åpne gudstjenester-seksjonen */
 .åpne-gruppe { padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.åpne-gruppe li.active { background: rgba(76, 175, 80, 0.18); }
+.åpne-gruppe li.active .nm { color: var(--text); }
 .dirty-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; }
 .list li.dirty .nm { font-style: italic; }
 /* temaknapp (ikon) nederst i menyen */
@@ -157,7 +159,7 @@ button.wide { width: 100%; }
 .eksport-handling { margin-top: 24px; display: flex; align-items: center; gap: 12px; flex-direction: column; }
 .eksport-handling button { width: 100%; }
 .eksport-handling .maler-ingress { display: none; }
-#eksport-hoyre { flex: 0 0 320px; display: flex; flex-direction: column; gap: 12px; }
+#eksport-hoyre { flex: 0 0 320px; display: flex; flex-direction: column; gap: 12px; position: sticky; top: 16px; align-self: flex-start; max-height: calc(100vh - 40px); overflow-y: auto; }
 #eksport-hoyre .eksport-profiler { margin: 0 0 8px; }
 .eksport-innstillinger { display: none; }
 .eksport-innst-gruppe { display: flex; flex-direction: column; gap: 5px; }

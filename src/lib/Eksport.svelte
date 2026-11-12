@@ -71,7 +71,10 @@
 	}
 
 	function getInnst(k, def) {
-		return profInnst()[k] ?? def;
+		if (o?.eksportInnst?.[aktiv]?.[k] !== undefined) return o.eksportInnst[aktiv][k];
+		if (k === 'kolonner') return aktiv === 'Menighet' ? 2 : 1;
+		if (k === 'storrelse') return 'A5';
+		return def;
 	}
 
 	/** Er leddet med i den aktive profilen? */
@@ -249,9 +252,6 @@
 
 		<div class="eksport-kolonner">
 			<div class="eksport-liste">
-				<label class="eksport-chk" style="margin-bottom:8px">
-					<input type="checkbox" bind:checked={visInnhold} /> Vis leddinnhold
-				</label>
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon">{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
@@ -271,6 +271,10 @@
 			</div>
 
 			<div id="eksport-hoyre">
+				<div class="biblio-kort">
+					<div class="biblio-kort-hode"><span class="sidehead">Visning</span></div>
+					<label class="eksport-chk"><input type="checkbox" bind:checked={visInnhold} /> Vis leddinnhold</label>
+				</div>
 				<div class="biblio-kort">
 					<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
 					<div class="eksport-profiler">
@@ -297,8 +301,8 @@
 					</div>
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Sidestørrelse (Word/PDF)</span>
-						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
-						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
+						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
+						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
 					</div>
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Kolonner (Word/PDF)</span>

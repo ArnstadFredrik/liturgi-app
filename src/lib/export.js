@@ -322,17 +322,27 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { nySideHvisNodvendig(6); skrivLinjer(head, { bold: true, size: 11, red: true }); }
-			if ((showInstr ?? true) && it.instr) skrivLinjer(it.instr, { red: true, italics: true, size: 9.5 });
+			if (head) { nySideHvisNodvendig(6); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, red: true }); }
+			if ((showInstr ?? true) && it.instr) skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 });
+			// @r — hele linjen som rolle
 			let tekst = '';
 			if (it.type === 'salme') tekst = it.text ?? '';
 			else if (it.alts?.length) tekst = it.selAlt != null ? it.alts[it.selAlt].text : '[Velg alternativ]';
 			else tekst = it.text ?? '';
-			// fjern markdown-merker i PDF (rollemerker og rød farge håndteres allerede)
-			tekst = (tekst || '')
-				.replace(/\*\*([^*]+)\*\*/g, '$1')
-				.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2');
-			if (tekst) skrivLinjer(tekst, {});
+			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '{{r}}' + t + '{{/r}}');
+			// {{r}}…{{/r}} → segmenter med rød tekst
+			for (const seg of tekst.split(/(\{\{r\}\}[\s\S]*?\{\{\/r\}\})/)) {
+				if (!seg) continue;
+				if (seg.startsWith('{{r}}')) {
+					const t = seg.slice(5, -6).replace(/\n/g, ' ');
+					if (t.trim()) skrivLinjer(t, { red: true });
+				} else {
+					const t = (seg || '')
+						.replace(/\*\*([^*]+)\*\*/g, '$1')
+						.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2');
+					if (t.trim()) skrivLinjer(t, {});
+				}
+			}
 			y += 3;
 		}
 	}

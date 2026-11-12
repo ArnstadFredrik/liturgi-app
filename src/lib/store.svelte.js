@@ -270,8 +270,8 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 		app.kind = 'service';
 		app.dirty = true;
 		window.liturgi?.setDirty?.(true);
-		if (!app.åpneTjenester.some((x) => x.obj === s)) {
-			app.åpneTjenester.push({ obj: s, name: s.name, path: null });
+		if (!app.åpneTjenester.some((x) => x.obj === app.current)) {
+			app.åpneTjenester.push({ obj: app.current, name: s.name, path: null });
 		}
 		return s;
 	}
