@@ -292,8 +292,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const x0 = () => margin + col * (colW + colGap);
 
 	const skrivLinjer = (text, opts = {}) => {
-		const { red = false, gray = false, bold = false, italics = false, size = 10.5, indent = 0 } = opts;
-		doc.setFont('times', bold && italics ? 'bolditalic' : bold ? 'bold' : italics ? 'italic' : 'normal');
+		const { red = false, gray = false, bold = false, italics = false, size = 10.5, indent = 0, sans = false } = opts;
+		doc.setFont(sans ? 'helvetica' : 'times', bold && italics ? 'bolditalic' : bold ? 'bold' : italics ? 'italic' : 'normal');
 		doc.setFontSize(size);
 		doc.setTextColor(...(red ? RED : gray ? GRAY : [20, 20, 20]));
 		const w = colW - indent;
@@ -303,7 +303,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			for (const l of wrapped) {
 				nySideHvisNodvendig(5);
 				doc.text(l, x0() + indent, y + 4);
-				y += size * 0.52 + 1.3;
+				y += size * 0.48 + 1.1;
 			}
 		}
 	};
@@ -317,7 +317,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		const nylinje = () => {
 			nySideHvisNodvendig(5);
 			cx = x0() + indent;
-			y += baseSize * 0.52 + 1.3;
+			y += baseSize * 0.48 + 1.1;
 		};
 		for (const seg of segs) {
 			const size = seg.small ? baseSize - 1.5 : baseSize;
@@ -339,21 +339,22 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	};
 
 	// tittelside-informasjon
-	skrivLinjer(svc.name, { bold: true, size: 16, red: true });
+	skrivLinjer(svc.name, { bold: true, size: 16, sans: true });
 	if (svc.date || svc.kirkeaar?.name) {
 		skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: 10 });
 	}
 	y += 4;
 
 	for (const sec of svc.sections) {
-		nySideHvisNodvendig(8);
-		skrivLinjer(sec.title, { bold: true, size: 13, red: true });
+		y += 3; // margin før overskriften
+		nySideHvisNodvendig(10);
+		skrivLinjer(sec.title, { bold: true, size: 13, sans: true });
 		y += 3.5;
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { nySideHvisNodvendig(8); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, red: true }); y += 1.8; }
+			if (head) { y += 2; nySideHvisNodvendig(9); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, sans: true }); y += 1.8; }
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
