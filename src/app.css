@@ -154,8 +154,12 @@ button.wide { width: 100%; }
 .eksport-rad-nm { flex: 1; color: var(--text); }
 .eksport-rad:not(.med) .eksport-rad-nm { color: var(--muted); text-decoration: line-through; }
 .eksport-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
-.eksport-handling { margin-top: 24px; display: flex; align-items: center; gap: 12px; }
-.eksport-innstillinger { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.eksport-handling { margin-top: 24px; display: flex; align-items: center; gap: 12px; flex-direction: column; }
+.eksport-handling button { width: 100%; }
+.eksport-handling .maler-ingress { display: none; }
+#eksport-hoyre { flex: 0 0 320px; display: flex; flex-direction: column; gap: 12px; }
+#eksport-hoyre .eksport-profiler { margin: 0 0 8px; }
+.eksport-innstillinger { display: none; }
 .eksport-innst-gruppe { display: flex; flex-direction: column; gap: 5px; }
 .eksport-innst-gruppe .sidehead { margin-bottom: 2px; }
 .eksport-chk { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text); cursor: pointer; }

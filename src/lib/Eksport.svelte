@@ -1,6 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName } from '$lib/export.js';
+	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import { toast } from 'svelte-sonner';
 
@@ -97,13 +98,13 @@
 	}
 
 	function lagEgenProfil() {
-		const navn = nyProfilNavn.trim();
-		if (!navn) return;
-		if (profiler.some((p) => p.toLowerCase() === navn.toLowerCase())) { alert('Det finnes allerede en profil med det navnet'); return; }
-		egneProfiler.push(navn);
-		if (isElectron) window.liturgi.dbSet('eksportProfiler', [...egneProfiler]);
-		nyProfilNavn = '';
-		byttProfil(navn);
+		prompt('Ny profil', 'Navn på profilen', (navn) => {
+			if (!navn?.trim()) return;
+			if (profiler.some((p) => p.toLowerCase() === navn.toLowerCase())) { alert('Det finnes allerede en profil med det navnet'); return; }
+			egneProfiler.push(navn);
+			if (isElectron) window.liturgi.dbSet('eksportProfiler', [...egneProfiler]);
+			byttProfil(navn);
+		});
 	}
 
 	function slettEgenProfil(p) {
@@ -243,47 +244,8 @@
 		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
 	{:else}
 		<p class="eksport-ingress">
-			<strong>{o.name}</strong>{o.date ? ` · ${datoTekst}` : ''} — velg profil, juster leddene som skal med, og eksportér.
+			<strong>{o.name}</strong>{o.date ? ` · ${datoTekst}` : ''} — velg profil til høyre, juster leddene som skal med, og eksportér.
 		</p>
-
-		<div class="eksport-profiler">
-			{#each profiler as p (p)}
-				<button class="eksport-profil" class:sel={aktiv === p} onclick={() => byttProfil(p)}>{p}</button>
-				{#if !INNBYGGET.includes(p)}
-					<button class="eksport-profil-slett" title="Slett profilen" onclick={() => slettEgenProfil(p)}>×</button>
-				{/if}
-			{/each}
-		</div>
-		<div class="eksport-nyprofil">
-			<input bind:value={nyProfilNavn} placeholder="Nytt profilnavn …" spellcheck="false" onkeydown={(e) => e.key === 'Enter' && lagEgenProfil()} />
-			<button onclick={lagEgenProfil}>+ Legg til profil</button>
-		</div>
-
-		<div class="eksport-innstillinger">
-			<div class="eksport-innst-gruppe">
-				<span class="sidehead">Format</span>
-				<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
-				<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
-				<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
-				{#if formater.pptx}
-					<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene (PowerPoint)</label>
-				{/if}
-			</div>
-			<div class="eksport-innst-gruppe">
-				<span class="sidehead">Sidestørrelse (Word/PDF)</span>
-				<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
-				<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
-				<span class="sidehead" style="margin-top:10px">Kolonner (Word/PDF)</span>
-				<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> Én kolonne</label>
-				<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> To kolonner</label>
-			</div>
-			<div class="eksport-innst-gruppe">
-				<span class="sidehead">Bibellesninger</span>
-				<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'ref') === 'ref'} onchange={() => setInnst('bibel', 'ref')} /> Kun bibelreferansen (Word/PDF)</label>
-				<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'full') === 'full'} onchange={() => setInnst('bibel', 'full')} /> Med hele bibelteksten (Word/PDF)</label>
-				<p class="maler-ingress" style="margin-top:6px">PowerPoint har alltid hele bibelteksten.</p>
-			</div>
-		</div>
 
 		<div class="eksport-kolonner">
 			<div class="eksport-liste">
@@ -307,13 +269,59 @@
 					{/each}
 				{/each}
 			</div>
-		</div>
 
-		<div class="eksport-handling">
-			<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
-				{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
-			</button>
-			<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+			<div id="eksport-hoyre">
+				<div class="biblio-kort">
+					<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
+					<div class="eksport-profiler">
+						{#each profiler as p (p)}
+							<button class="eksport-profil" class:sel={aktiv === p} onclick={() => byttProfil(p)}>{p}</button>
+							{#if !INNBYGGET.includes(p)}
+								<button class="eksport-profil-slett" title="Slett profilen" onclick={() => slettEgenProfil(p)}>×</button>
+							{/if}
+						{/each}
+					</div>
+					<button class="wide" onclick={lagEgenProfil}>+ Ny profil</button>
+				</div>
+
+				<div class="biblio-kort">
+					<div class="biblio-kort-hode"><span class="sidehead">Innstillinger for «{aktiv}»</span></div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Format</span>
+						<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
+						<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
+						<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
+						{#if formater.pptx}
+							<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene (PowerPoint)</label>
+						{/if}
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Sidestørrelse (Word/PDF)</span>
+						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
+						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A4') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Kolonner (Word/PDF)</span>
+						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> Én kolonne</label>
+						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> To kolonner</label>
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Bibellesninger</span>
+						<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'ref') === 'ref'} onchange={() => setInnst('bibel', 'ref')} /> Kun bibelreferansen</label>
+						<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'full') === 'full'} onchange={() => setInnst('bibel', 'full')} /> Med hele bibelteksten</label>
+						<p class="maler-ingress" style="margin:0">PowerPoint har alltid hele bibelteksten.</p>
+					</div>
+				</div>
+
+				<div class="biblio-kort">
+					<div class="eksport-handling">
+						<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
+							{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
+						</button>
+						<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	{/if}
 </div>
