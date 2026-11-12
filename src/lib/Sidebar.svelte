@@ -45,10 +45,10 @@
 		<div class="sidegroup åpne-gruppe">
 			<div class="sidehead">Åpne gudstjenester</div>
 			<ul class="list">
-				{#each åpne as e (e.path ?? e.obj?.id ?? e.name)}
-					<li class:active={app.current === e.obj} class:dirty={app.current === e.obj && app.dirty}>
+				{#each åpne as e (e.åpenId)}
+					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={app.current?.__åpenId === e.åpenId && app.dirty}>
 						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
-							{#if app.current === e.obj && app.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
+							{#if app.current?.__åpenId === e.åpenId && app.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{navn(e)}
 						</span>
 					</li>

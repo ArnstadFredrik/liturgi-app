@@ -266,12 +266,13 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	applyKirkeaar(s, kirkeaar, tekster);
 	if (isElectron) {
 		// gudstjenester lagres som fil — ligger i minnet til «Lagre»
+		if (!s.__åpenId) Object.defineProperty(s, '__åpenId', { value: uid(), enumerable: false });
 		app.current = s;
 		app.kind = 'service';
 		app.dirty = true;
 		window.liturgi?.setDirty?.(true);
-		if (!app.åpneTjenester.some((x) => x.obj === app.current)) {
-			app.åpneTjenester.push({ obj: app.current, name: s.name, path: null });
+		if (!app.åpneTjenester.some((x) => x.åpenId === s.__åpenId)) {
+			app.åpneTjenester.push({ obj: app.current, name: s.name, path: null, åpenId: s.__åpenId });
 		}
 		return s;
 	}

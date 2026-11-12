@@ -221,6 +221,8 @@ function åpneNy(obj) {
 
 function åpneIFil(data, filePath) {
 	dokumentValg(data);
+	// stabil nøkkel for «åpne gudstjenester»-markering (ikke-enumerert: lagres ikke i filen)
+	if (!data.__åpenId) Object.defineProperty(data, '__åpenId', { value: uid(), enumerable: false });
 	data.filePath = filePath;
 	data.kind = 'service';
 	app.current = data;
@@ -230,10 +232,10 @@ function åpneIFil(data, filePath) {
 	syncDirty();
 	// registrer som «åpne gudstjeneste» (denne økten)
 	if (!app.åpneTjenester.some((x) => x.path === filePath)) {
-		app.åpneTjenester.push({ obj: data, name: data.name ?? '', path: filePath });
+		app.åpneTjenester.push({ obj: data, name: data.name ?? '', path: filePath, åpenId: data.__åpenId });
 	} else {
 		const e = app.åpneTjenester.find((x) => x.path === filePath);
-		if (e) { e.obj = data; e.name = data.name ?? ''; }
+		if (e) { e.obj = data; e.name = data.name ?? ''; e.åpenId = data.__åpenId; }
 	}
 	touchRecent(data).then(() => refreshRecentServices());
 }
