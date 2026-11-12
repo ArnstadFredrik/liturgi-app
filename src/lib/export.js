@@ -353,15 +353,20 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			parts.forEach((part, pi) => {
 				if (pi > 0) nylinje();
 				if (!part) return;
-				// fullfør alltid linjen når restbredden er for liten (ellers wraps teksten i ~20 pt-blobs)
-				const rest = w - (cx - x0() - indent);
-				if (rest < doc.getTextWidth('XX')) nylinje();
-				const wrapped = doc.splitTextToSize(part, w - (cx - x0() - indent));
-				wrapped.forEach((l, wi) => {
-					if (wi > 0) nylinje();
+				// wrap ÉN linje om gangen: hvis linja bryter, om-wrapp resten ved full
+				// kolonnebredde på neste linje (ellers forblir alle linjene korte)
+				let rest = part;
+				while (rest) {
+					const restBredde = w - (cx - x0() - indent);
+					if (restBredde < doc.getTextWidth('XX')) nylinje();
+					const wrapped = doc.splitTextToSize(rest, w - (cx - x0() - indent));
+					const l = wrapped[0];
+					if (!l) { nylinje(); continue; }
 					doc.text(l, cx, y + 4);
 					cx += doc.getTextWidth(l);
-				});
+					rest = rest.slice(l.length).replace(/^ +/, '');
+					if (rest) nylinje();
+				}
 			});
 		}
 	};
