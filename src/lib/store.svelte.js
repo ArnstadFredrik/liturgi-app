@@ -24,17 +24,22 @@ export const app = $state({
 	modal: null
 });
 
-/** Sett tema på <html> og lagre valget. */
+/** Sett tema på <html> og lagre valget (lokalStorage + database i Electron). */
 export function setTheme(t) {
 	app.theme = t;
 	document.documentElement.dataset.theme = t;
 	localStorage.setItem(THEME_KEY, t);
+	window.liturgi?.dbSet?.('tema', t);
 }
 
 export function initTheme() {
 	const saved = localStorage.getItem(THEME_KEY);
 	const t = saved ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 	setTheme(t);
+	// brukerens lagrede tema i databasen vinner over lokalStorage/gjett
+	window.liturgi?.dbGet?.('tema')?.then?.((r) => {
+		if (r?.ok && (r.value === 'dark' || r.value === 'light') && r.value !== app.theme) setTheme(r.value);
+	});
 }
 
 export function toggleTheme() {

@@ -4,6 +4,7 @@
 	import Welcome from '$lib/Welcome.svelte';
 	import Maler from '$lib/Maler.svelte';
 	import Bibliotek from '$lib/Bibliotek.svelte';
+	import Eksport from '$lib/Eksport.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import { app, loadStore } from '$lib/store.svelte.js';
@@ -28,12 +29,16 @@
 <div id="app">
 	<Sidebar />
 	<main id="main">
-		{#if app.current}
+		{#if app.visning === 'eksport' && app.current}
+			<Eksport />
+		{:else if app.current}
 			<Editor />
 		{:else if app.visning === 'maler'}
 			<Maler />
 		{:else if app.visning === 'bibliotek'}
 			<Bibliotek />
+		{:else if app.visning === 'eksport'}
+			<Eksport />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
 		{:else}

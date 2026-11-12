@@ -134,7 +134,7 @@ export function buildOutline(svc, showInstr) {
 	return out;
 }
 
-export async function exportWord(svc, showInstr) {
+export async function exportWord(svc, showInstr, filnavn) {
 	const outline = buildOutline(svc, showInstr);
 	const level = { h1: HeadingLevel.HEADING_1, h2: HeadingLevel.HEADING_2, h3: HeadingLevel.HEADING_3 };
 	const paras = [];
@@ -145,7 +145,7 @@ export async function exportWord(svc, showInstr) {
 				heading: level[p.heading],
 				children: [new TextRun({
 					text: p.text ?? '', italics: !!p.muted,
-					color: p.muted ? '555555' : ROLE_COLOR,
+					color: ROLE_COLOR,
 					bold: true
 				})]
 			}));
@@ -156,7 +156,7 @@ export async function exportWord(svc, showInstr) {
 				new TextRun({
 					text: s.text, italics: !!p.muted || !!s.small || !!s.italics,
 					size: s.small ? 16 : undefined, // halvparten av 24 halvpunkter
-					color: s.red ? ROLE_COLOR : p.muted ? '555555' : s.small ? '777777' : undefined,
+					color: s.red || p.muted ? ROLE_COLOR : s.small ? '777777' : undefined,
 					bold: !!s.bold || (!!s.red && !s.small)
 				})),
 			spacing: { after: 120 }
@@ -164,7 +164,7 @@ export async function exportWord(svc, showInstr) {
 	}
 	const doc = new Document({ sections: [{ properties: {}, children: paras }] });
 	const blob = await Packer.toBlob(doc);
-	download(blob, safeName(svc.name) + '.docx');
+	download(blob, filnavn ?? safeName(svc.name) + '.docx');
 }
 
 function splitChunks(t, n) {

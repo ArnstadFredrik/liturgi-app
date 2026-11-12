@@ -622,11 +622,16 @@ export function lukkRedigering() {
 		} else {
 			persist();
 		}
-		closeEditor();
+		// lukk = fjern fra «åpne gudstjenester»
+	const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
+	if (i !== -1) app.åpneTjenester.splice(i, 1);
+	closeEditor();
 	}, () => {
 		if (app.current) app.current.__dirty = false;
 		app.dirty = false;
 		syncDirty();
+		const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
+		if (i !== -1) app.åpneTjenester.splice(i, 1);
 		closeEditor();
 	});
 }
