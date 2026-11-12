@@ -15,7 +15,7 @@
 
 	async function eksporterMal(t) {
 		try {
-			await exportWord(t, app.showInstr);
+			await exportWord(t, t.visInstr ?? true);
 		} catch (e) {
 			alert('Klarte ikke eksportere: ' + e.message);
 		}

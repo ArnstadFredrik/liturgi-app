@@ -27,6 +27,8 @@
 		app.current = e.obj;
 		app.kind = 'service';
 		app.visning = 'hjem';
+		app.dirty = !!e.obj.__dirty;
+		window.liturgi?.setDirty?.(!!e.obj.__dirty);
 	}
 
 	function newService() {
@@ -59,7 +61,7 @@
 		<ul class="list">
 			{#if isElectron}
 				{#each recent as s (s.path)}
-					<li class:active={app.current?.filePath === s.path}>
+					<li>
 						<span class="nm" onclick={() => openServiceFile(s.path)} title={s.path}>
 							{s.name}{#if s.date}&nbsp;<span class="dt">{s.date}</span>{/if}
 						</span>
@@ -81,6 +83,9 @@
 		<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudstjeneste</button>
 	</div>
 	<div class="sidefoot">
+		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = 'hjem'; }}>
+			{@html mdi('home')} Hjem
+		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
 			{@html mdi('book-open-variant')} Maler
 		</button>
@@ -91,10 +96,10 @@
 			{@html mdi('cog')} Innstillinger
 		</button>
 		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">{@html mdi('folder-open-outline')} Åpne fil …</button>
-		<label class="chk"><input type="checkbox" bind:checked={app.showInstr} /> Vis instruksjoner</label>
-		<label class="chk"><input type="checkbox" bind:checked={app.showRoles} /> Vis roller (L / M / ML / A)</label>
-		<button class="wide" onclick={() => toggleTheme()}>
-			{app.theme === 'dark' ? '☀️ Lyst utseende' : '🌙 Mørkt utseende'}
-		</button>
+		<div class="sidefoot-ikoner">
+			<button class="ikon-btn" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
+				{@html mdi('theme-light-dark', 18)}
+			</button>
+		</div>
 	</div>
 </aside>

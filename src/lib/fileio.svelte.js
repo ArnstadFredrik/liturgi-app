@@ -36,6 +36,7 @@ export async function saveCurrentToDisk() {
 		}
 		if (r.ok) {
 			o.filePath = r.filePath;
+			o.__dirty = false;
 			app.dirty = false;
 			syncDirty();
 			toast.success('Lagret: ' + r.filePath.split('/').pop());
@@ -61,6 +62,7 @@ export async function saveCurrentToFile() {
 		const r = await window.liturgi.saveServiceAs(fileNameFor(o), json);
 		if (r.ok) {
 			o.filePath = r.filePath;
+			o.__dirty = false;
 			app.dirty = false;
 			toast.success('Lagret til ' + r.filePath);
 			await touchRecent(o);
@@ -174,10 +176,16 @@ async function touchRecent(o) {
 	try { await window.liturgi.touchRecent(o.filePath, o.name ?? '', o.date ?? ''); } catch {}
 }
 
-/** Åpne en gudstjenestefil fra disken — der den ligger, uten å kopieres. */
+/** Åpne en gudstjenestefil fra disken — der den ligger, uten å kopieres.
+ *  Flere kan være åpne samtidig; bytte skjer via «Åpne gudstjenester» i sidefeltet. */
 export async function openServiceFile(p) {
 	try {
-		if (app.dirty && !confirm('Du har ulagrede endringer. Åpne likevel?')) return;
+		// allerede åpen? bare veksle til den
+		const eksisterende = app.åpneTjenester.find((x) => x.path === p);
+		if (eksisterende) {
+			åpneNy(eksisterende.obj);
+			return;
+		}
 		const r = await window.liturgi.readService(p);
 		if (!r.ok) { toast.error('Klarte ikke åpne: ' + (r.error ?? 'ukjent feil')); return; }
 		const data = parseLiturgi(r.json);
@@ -196,11 +204,28 @@ export function openFromData(rawOrData, filePath) {
 	return true;
 }
 
+/** Sett visningsvalg på dokumentet (per gudstjeneste/mal). */
+function dokumentValg(data) {
+	data.visInstr = data.visInstr ?? true;
+	data.visRoles = data.visRoles ?? true;
+}
+
+/** Bytt til en allerede åpen gudstjeneste. */
+function åpneNy(obj) {
+	app.current = obj;
+	app.kind = 'service';
+	app.visning = 'hjem';
+	app.dirty = !!obj.__dirty;
+	syncDirty();
+}
+
 function åpneIFil(data, filePath) {
+	dokumentValg(data);
 	data.filePath = filePath;
 	data.kind = 'service';
 	app.current = data;
 	app.kind = 'service';
+	app.visning = 'hjem';
 	app.dirty = false;
 	syncDirty();
 	// registrer som «åpne gudstjeneste» (denne økten)
@@ -228,7 +253,6 @@ function parseLiturgi(raw) {
 export function listenForFinderOpen() {
 	if (!isElectron) return;
 	window.liturgi.onOpenFile((payload) => {
-		if (app.dirty && !confirm('Du har ulagrede endringer. Åpne filen likevel?')) return;
 		// payload = {json, filePath} — filen åpnes der den ligger, uten å kopieres
 		let data = payload;
 		if (typeof payload === 'string') {
@@ -600,6 +624,7 @@ export function lukkRedigering() {
 		}
 		closeEditor();
 	}, () => {
+		if (app.current) app.current.__dirty = false;
 		app.dirty = false;
 		syncDirty();
 		closeEditor();

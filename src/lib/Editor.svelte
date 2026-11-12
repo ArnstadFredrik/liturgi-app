@@ -135,7 +135,7 @@
 
 	async function doWord() {
 		try {
-			await exportWord(o, app.showInstr);
+			await exportWord(o, o.visInstr ?? true);
 			toast.success('Word-fil eksportert');
 		} catch (e) {
 			toast.error('Klarte ikke eksportere Word: ' + e.message);
@@ -176,7 +176,7 @@
 	}}
 />
 
-<div id="editor">
+<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)}>
 	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
 		{#if app.kind === 'service'}

@@ -17,26 +17,42 @@
 	];
 
 	function visTekst(ref, tekst, evang) {
-		if (!tekst) return litHtml('ML | ' + ref);
-		const intro = evang
-			? 'L/ML | Det hellige evangelium står skrevet hos ' + ref + ':'
-			: 'ML | Det står skrevet i/hos ' + ref + ':';
-		const outro = evang
-			? 'L/ML | Slik lyder det hellige evangelium.'
-			: 'ML | Slik lyder Herrens ord.';
-		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text + '\nFOTNOTE | ' + ref;
-		return litHtml(intro + '\n' + innhold + '\n' + outro);
+		// bare bibelteksten — ingen liturgisk innledning/avslutning på hjemskjermen
+		if (!tekst) return litHtml('*Klarte ikke hente teksten.*');
+		const innhold = (tekst.title ? '**' + tekst.title + '**\n' : '') + tekst.text;
+		return litHtml(innhold);
 	}
 
-	onMount(async () => {
-		// kommende søndag
+	function kommendeSoendag() {
 		const d = new Date();
 		const dag = d.getDay();
 		const diff = (7 - dag) % 7 || 7;
 		d.setDate(d.getDate() + diff);
-		dato = d.toISOString().slice(0, 10);
+		return d.toISOString().slice(0, 10);
+	}
+
+	const CACHE_KEY = 'liturgi-soendag-cache';
+
+	onMount(async () => {
+		dato = kommendeSoendag();
+		// cachet visning hvis datoen fortsatt er kommende søndag
+		try {
+			const c = JSON.parse(localStorage.getItem(CACHE_KEY) ?? 'null');
+			if (c?.dato === dato && c.kk && c.tekster) {
+				kk = c.kk;
+				tekster = c.tekster;
+				laster = false;
+			}
+		} catch { /* cachet data ugyldig — hent på nytt */ }
+		// oppdater i bakgrunnen (kirkeårsoppslag er lokalt, tekster fra bibel.no)
 		kk = lookupKirkeaar(dato);
-		if (kk?.day) tekster = await hentTekster(kk.day);
+		if (kk?.day) {
+			const t = await hentTekster(kk.day);
+			if (t) {
+				tekster = t;
+				try { localStorage.setItem(CACHE_KEY, JSON.stringify({ dato, kk, tekster: t })); } catch { /* full lagring */ }
+			}
+		}
 		laster = false;
 	});
 </script>

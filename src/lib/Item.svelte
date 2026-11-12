@@ -45,6 +45,7 @@
 
 	function context(e) {
 		e.preventDefault();
+		const o = app.current;
 		openContextMenu(e.clientX, e.clientY, [
 			{ label: 'Flytt opp', action: () => move(-1), disabled: ii === 0 },
 			{ label: 'Flytt ned', action: () => move(1), disabled: ii === items.length - 1 },
@@ -53,6 +54,9 @@
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
+			'sep',
+			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
+			{ label: (o?.visRoles ?? true) ? '✓ Vis roller' : 'Vis roller', action: () => { if (o) { o.visRoles = !(o.visRoles ?? true); markDirty(); } } },
 			'sep',
 			{ label: it.enabled ? 'Fjern fra gudstjenesten' : 'Ta med i gudstjenesten', action: toggle },
 			{ label: 'Slett leddet', action: del, danger: true }
@@ -95,7 +99,7 @@
 		>{it.heading}</span>
 	</div>
 	<div class="item-body">
-		{#if app.showInstr && it.instr}
+		{#if (app.current?.visInstr ?? true) && it.instr}
 			<div class="instr-wrap">
 				<span class="item-eyebrow">instr</span>
 				<EditableText bind:value={it.instr} kind="instr" />

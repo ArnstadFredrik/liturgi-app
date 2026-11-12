@@ -190,6 +190,7 @@ export function persist() {
 
 export function markDirty() {
 	app.dirty = true;
+	if (app.current) app.current.__dirty = true;
 	window.liturgi?.setDirty?.(true);
 }
 
@@ -210,6 +211,8 @@ export function openService(id) {
 export function openTemplate(id) {
 	const t = app.templates.find((x) => x.id === id);
 	if (!t) return;
+	t.visInstr = t.visInstr ?? true;
+	t.visRoles = t.visRoles ?? true;
 	app.current = t;
 	app.kind = 'template';
 }
@@ -251,6 +254,8 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	const tpl = app.templates.find((t) => t.id === tplId);
 	if (!tpl) return null;
 	const s = newServiceFromTemplate(tpl, include);
+	s.visInstr = true;
+	s.visRoles = true;
 	s.name = name || tpl.name;
 	s.date = date;
 	applyKirkeaar(s, kirkeaar, tekster);
