@@ -1,5 +1,5 @@
 <script>
-	import { app, openService, deleteService, sortedServices, toggleTheme } from '$lib/store.svelte.js';
+	import { app, openService, deleteService, sortedServices, createService, toggleTheme } from '$lib/store.svelte.js';
 	import { newServiceModal } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk } from '$lib/fileio.svelte.js';
 
@@ -53,7 +53,10 @@
 	</div>
 	<div class="sidefoot">
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
-			🗂 Maler {app.visning === 'maler' ? '(vises)' : ''}
+			🗂 Maler
+		</button>
+		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
+			⚙️ Innstillinger
 		</button>
 		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">📂 Åpne fil …</button>
 		<label class="chk"><input type="checkbox" bind:checked={app.showInstr} /> Vis instruksjoner</label>

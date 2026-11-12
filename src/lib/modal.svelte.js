@@ -18,6 +18,17 @@ export function confirmBox(title, message, ok) {
 	showModal({ type: 'confirm', title, message, ok });
 }
 
+/** Bekreftelse ved lukking med ulagrede endringer: Avbryt / Lagre / Lukk uten å lagre. */
+export function lukkModal(onLagre, onForkast) {
+	showModal({
+		type: 'lukk',
+		title: 'Ulagrede endringer',
+		message: 'Du har endringer som ikke er lagret. Vil du lagre før du lukker?',
+		ok: onLagre,
+		onForkast
+	});
+}
+
 export function newServiceModal(ok) {
 	showModal({ type: 'newService', ok });
 }

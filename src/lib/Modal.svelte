@@ -155,6 +155,7 @@
 		const forrige = m;
 		if (m.type === 'prompt') m.ok(name.trim());
 		else if (m.type === 'confirm' || m.type === 'valg') m.ok();
+		else if (m.type === 'lukk') { m.ok(); return; } // onLagre lukker selv (kan bli avbrutt av lagre-dialog)
 		else if (m.type === 'newService') {
 			const opprett = () => {
 				m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
@@ -309,6 +310,8 @@
 				{/if}
 			{:else if m.type === 'valg'}
 				<p>{m.message}</p>
+			{:else if m.type === 'lukk'}
+				<p>{m.message}</p>
 			{:else if m.type === 'kirkeaarListe'}
 				<p class="m-kirkeaar muted">Velg kirkeårsdag for {m.dato}:</p>
 				<input bind:value={kFilter} oninput={() => {}} placeholder='Filtrer, f.eks. «advent» …' spellcheck="false" />
@@ -324,8 +327,11 @@
 			{/if}
 			<div id="modal-actions">
 				<button onclick={() => { const f = m.onAvbryt; closeModal(); f?.(); }}>{m.cancelLabel ?? 'Avbryt'}</button>
+				{#if m.type === 'lukk'}
+					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
+				{/if}
 				<button class="primary" onclick={ok} disabled={m.type === 'bib' && bibValgt === -1 || m.type === 'kirkeaarListe' && kValgt == null}>
-					{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'newService' ? 'Opprett' : 'Hent inn')}
+					{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' ? 'Opprett' : 'Hent inn')}
 				</button>
 			</div>
 		</div>

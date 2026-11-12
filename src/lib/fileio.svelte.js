@@ -1,6 +1,6 @@
 import { app, persist, uid, openService, openTemplate, closeEditor } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
-import { prompt } from './modal.svelte.js';
+import { prompt, lukkModal, closeModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
 
 const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -394,6 +394,38 @@ export async function bibSearch(q) {
 	return r.ok ? r.rows : [];
 }
 
+/** Regenerer SQLite-biblioteket manuelt fra originalmalene (Innstillinger). */
+export async function regenererBibliotek() {
+	if (!isElectron) return false;
+	try {
+		const list = await window.liturgi.listTemplates();
+		if (!list.ok) throw new Error(list.error ?? 'ukjent feil');
+		let n = 0;
+		for (const meta of list.originaler) {
+			const rd = await window.liturgi.readTemplate(meta.path);
+			if (!rd.ok) continue;
+			const data = parseLiturgi(rd.json);
+			if (!data) continue;
+			const entries = [];
+			for (const sec of data.sections) {
+				for (const it of sec.items) {
+					const alts = it.alts?.length
+						? it.alts.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: a.text }))
+						: [{ alt_label: '', tekst: it.text }];
+					for (const a of alts) entries.push({ seksjon: sec.title, ledd: it.heading, alt_label: a.alt_label, tekst: a.tekst });
+				}
+			}
+			await window.liturgi.bibSync(data.name, entries);
+			n += entries.length;
+		}
+		toast.success('Biblioteket er gjenoppbygd (' + n + ' rader)');
+		return true;
+	} catch (err) {
+		toast.error('Klarte ikke regenerere biblioteket: ' + (err?.message ?? err));
+		return false;
+	}
+}
+
 function safeNavn(n) {
 	return (n || 'mal').replace(/[\\/:*?"<>|]+/g, '').trim() || 'mal';
 }
@@ -500,6 +532,29 @@ export function importerMalFil(json, filePath) {
 			toast.error('Klarte ikke importere malen: ' + (err?.message ?? err));
 		}
 	}, forslag);
+}
+
+/** Lukk redigering: uten ulagrede endringer lukkes det direkte,
+ *  ellers vises Avbryt / Lagre / Lukk uten å lagre. */
+export function lukkRedigering() {
+	if (!app.current) return;
+	if (!app.dirty) { closeEditor(); return; }
+	lukkModal(async () => {
+		closeModal();
+		const o = app.current;
+		const haddeFilsti = !!o?.filePath;
+		if (isElectron) {
+			await saveCurrent();
+			// lagre-dialog avbrutt → forbli i redigeringen
+			if (!haddeFilsti && !app.current?.filePath) return;
+		} else {
+			persist();
+		}
+		closeEditor();
+	}, () => {
+		app.dirty = false;
+		closeEditor();
+	});
 }
 
 /** Slett en lokal malfil (kun Electron) — flyttes til papirkurven. */

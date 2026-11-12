@@ -5,7 +5,7 @@
 	import { toast } from 'svelte-sonner';
 	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
 	import { applyKirkeaar } from '$lib/store.svelte.js';
-	import { saveCurrentToFile, saveCurrent, saveAsTemplateOnDisk } from '$lib/fileio.svelte.js';
+	import { saveCurrentToFile, saveCurrent, saveAsTemplateOnDisk, lukkRedigering } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -191,7 +191,7 @@
 			<button onclick={exportPdf}>PDF</button>
 			<button onclick={doWord}>Word</button>
 			<button onclick={doPptx}>PowerPoint</button>
-			<button onclick={() => confirmBox('Lukk', 'Lukke redigeringen?', closeEditor)}>✕</button>
+			<button onclick={lukkRedigering} title="Lukk">✕</button>
 		</div>
 	</header>
 	<div id="ed-meta">
