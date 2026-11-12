@@ -24,6 +24,10 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// bibliotek: oppslagsregister over hovedgudstjenesten (sqlite)
 	bibSync: (source, entries) => ipcRenderer.invoke('bib:sync', { source, entries }),
 	bibCounts: () => ipcRenderer.invoke('bib:counts'),
+	bibUserList: () => ipcRenderer.invoke('bib:user:list'),
+	bibUserAdd: (r) => ipcRenderer.invoke('bib:user:add', r),
+	bibUserUpdate: (id, r) => ipcRenderer.invoke('bib:user:update', { id, r }),
+	bibUserDelete: (id) => ipcRenderer.invoke('bib:user:delete', { id }),
 	bibSearch: (q) => ipcRenderer.invoke('bib:search', { q }),
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),

@@ -117,7 +117,7 @@ ipcMain.handle('tpl:delete', async (_e, { path: p }) => {
 	}
 });
 
-const { dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch } = require('./db.cjs');
+const { dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete } = require('./db.cjs');
 
 ipcMain.handle('db:get', (_e, key) => { try { return { ok: true, value: dbGet(key) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('db:set', (_e, { key, value }) => { try { dbSet(key, value); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
@@ -125,6 +125,10 @@ ipcMain.handle('rec:list', () => { try { return { ok: true, list: recList() }; }
 ipcMain.handle('rec:touch', (_e, { path: p, name, date }) => { try { recTouch(p, name, date); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:remove', (_e, { path: p }) => { try { recRemove(p); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:counts', () => { try { return { ok: true, counts: bibCounts() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:user:list', () => { try { return { ok: true, rows: bibUserList() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:user:add', (_e, r) => { try { return { ok: true, id: bibUserAdd(r) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:user:update', (_e, { id, r }) => { try { bibUserUpdate(id, r); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('bib:user:delete', (_e, { id }) => { try { bibUserDelete(id); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:sync', (_e, { source, entries }) => { try { bibSync(source, entries); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:search', (_e, { q }) => { try { return { ok: true, rows: bibSearch(q) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 

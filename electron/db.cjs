@@ -32,6 +32,15 @@ function openDb() {
 			tekst     TEXT NOT NULL DEFAULT '',
 			PRIMARY KEY (kilde, ledd, alt_label)
 		);
+		CREATE TABLE IF NOT EXISTS bibliotek_bruker (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			mappe TEXT NOT NULL DEFAULT '',
+			ledd TEXT NOT NULL,
+			alt_label TEXT NOT NULL DEFAULT '',
+			tekst TEXT NOT NULL DEFAULT '',
+			tags TEXT NOT NULL DEFAULT '',
+			opprettet TEXT NOT NULL DEFAULT ''
+		);
 	`);
 	return db;
 }
@@ -72,6 +81,31 @@ function bibCounts() {
 	return Object.fromEntries(rows.map((r) => [r.kilde, r.n]));
 }
 
+/* ---------- bibliotek_bruker: brukeropprettet innhold (røres ikke av regenerering) ---------- */
+
+function bibUserList() {
+	return openDb()
+		.prepare('SELECT id, mappe, ledd, alt_label, tekst, tags, opprettet FROM bibliotek_bruker ORDER BY mappe, ledd, id')
+		.all();
+}
+
+function bibUserAdd(r) {
+	const info = openDb()
+		.prepare('INSERT INTO bibliotek_bruker (mappe, ledd, alt_label, tekst, tags, opprettet) VALUES (?, ?, ?, ?, ?, ?)')
+		.run(r.mappe ?? '', r.ledd ?? '', r.alt_label ?? '', r.tekst ?? '', r.tags ?? '', new Date().toISOString());
+	return info.lastInsertRowid;
+}
+
+function bibUserUpdate(id, r) {
+	openDb()
+		.prepare('UPDATE bibliotek_bruker SET mappe = ?, ledd = ?, alt_label = ?, tekst = ?, tags = ? WHERE id = ?')
+		.run(r.mappe ?? '', r.ledd ?? '', r.alt_label ?? '', r.tekst ?? '', r.tags ?? '', id);
+}
+
+function bibUserDelete(id) {
+	openDb().prepare('DELETE FROM bibliotek_bruker WHERE id = ?').run(id);
+}
+
 function bibSync(source, entries) {
 	const db = openDb();
 	db.prepare('DELETE FROM bibliotek WHERE kilde = ?').run(source);
@@ -110,4 +144,4 @@ function bibSearch(q, limit = 30) {
 	return scored.slice(0, limit).map((s) => s.row);
 }
 
-module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch };
+module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete };

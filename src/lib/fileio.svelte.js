@@ -394,6 +394,41 @@ export async function bibSearch(q) {
 	return r.ok ? r.rows : [];
 }
 
+/* ---------- bibliotek_bruker: eget innhold i biblioteket ---------- */
+
+export async function bibUserList() {
+	if (!isElectron) return [];
+	const r = await window.liturgi.bibUserList();
+	return r.ok ? r.rows : [];
+}
+
+export async function bibUserAdd(r) {
+	const res = await window.liturgi.bibUserAdd(r);
+	if (!res.ok) toast.error('Klarte ikke lagre: ' + (res.error ?? 'ukjent feil'));
+	return res.ok ? res.id : null;
+}
+
+export async function bibUserUpdate(id, r) {
+	const res = await window.liturgi.bibUserUpdate(id, r);
+	if (!res.ok) toast.error('Klarte ikke lagre: ' + (res.error ?? 'ukjent feil'));
+	return res.ok;
+}
+
+export async function bibUserDelete(id) {
+	const res = await window.liturgi.bibUserDelete(id);
+	if (!res.ok) toast.error('Klarte ikke slette: ' + (res.error ?? 'ukjent feil'));
+	return res.ok;
+}
+
+/** Eksporter alle brukeropprettede bibliotek-rader til en JSON-fil. */
+export async function eksporterBibliotek(rows) {
+	const json = JSON.stringify({ bibliotekEksport: 1, eksportert: new Date().toISOString(), rader: rows }, null, '	');
+	const r = await window.liturgi.saveFile({ defaultName: 'bibliotek-eksport.json', json });
+	if (r.ok) toast.success('Eksportert: ' + r.filePath.split('/').pop());
+	else if (!r.canceled) toast.error('Klarte ikke eksportere: ' + (r.error ?? 'ukjent feil'));
+	return r.ok;
+}
+
 /** Regenerer SQLite-biblioteket manuelt fra originalmalene (Innstillinger). */
 export async function regenererBibliotek() {
 	if (!isElectron) return false;

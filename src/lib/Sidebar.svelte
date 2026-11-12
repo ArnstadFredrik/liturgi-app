@@ -55,6 +55,9 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
 			🗂 Maler
 		</button>
+		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'bibliotek' ? 'hjem' : 'bibliotek'; }}>
+			📚 Bibliotek
+		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			⚙️ Innstillinger
 		</button>
