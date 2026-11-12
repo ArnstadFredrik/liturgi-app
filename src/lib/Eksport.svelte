@@ -258,16 +258,20 @@
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon">{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
-						<div class="eksport-rad" class:med={erMed(si, ii, it)}>
-							<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(si, ii, e.currentTarget.checked)} />
+						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}>
+							{#if it.enabled === false}
+								<span class="eksport-fjernet-tag" title="Fjernet fra gudstjenesten i kontekstmenyen — kommer ikke med i eksport">fjernet</span>
+							{:else}
+								<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(si, ii, e.currentTarget.checked)} />
+							{/if}
 							<div class="eksport-rad-tekst">
 								<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
-								{#if visInnhold}
+								{#if visInnhold && it.enabled !== false}
 									<div class="eksport-innhold lit-text">{@html litHtml((it.alts?.length ? it.alts[it.selAlt ?? 0]?.text : it.text) || '*Ingen innhold*')}</div>
 								{/if}
 							</div>
-							{#if it.type === 'salme'}<span class="eksport-tag">salme</span>{/if}
-							{#if erLesning(it) && aktiv === 'Menighet'}<span class="eksport-tag">lesning</span>{/if}
+							{#if it.type === 'salme' && it.enabled !== false}<span class="eksport-tag">salme</span>{/if}
+							{#if it.enabled !== false && erLesning(it) && aktiv === 'Menighet'}<span class="eksport-tag">lesning</span>{/if}
 						</div>
 					{/each}
 				{/each}

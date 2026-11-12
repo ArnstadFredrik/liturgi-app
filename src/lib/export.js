@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Header, PageNumber, AlignmentType } from 'docx';
 import PptxGenJS from 'pptxgenjs';
 import { jsPDF } from 'jspdf';
 
@@ -178,6 +178,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 				page: { size: { ...storrelse, orientation: 'portrait' }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } },
 				column: kolonner
 			},
+			headers: { default: new Header({ children: [new Paragraph({ children: [new TextRun({ children: ['Side ', PageNumber.CURRENT, ' av ', PageNumber.TOTAL_PAGES], size: 16, color: '888888' })], alignment: AlignmentType.CENTER })] }) },
 			children: paras
 		}]
 	});
@@ -302,7 +303,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			for (const l of wrapped) {
 				nySideHvisNodvendig(5);
 				doc.text(l, x0() + indent, y + 4);
-				y += size * 0.48 + 1.1;
+				y += size * 0.52 + 1.3;
 			}
 		}
 	};
@@ -316,7 +317,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		const nylinje = () => {
 			nySideHvisNodvendig(5);
 			cx = x0() + indent;
-			y += baseSize * 0.48 + 1.1;
+			y += baseSize * 0.52 + 1.3;
 		};
 		for (const seg of segs) {
 			const size = seg.small ? baseSize - 1.5 : baseSize;
@@ -347,13 +348,13 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	for (const sec of svc.sections) {
 		nySideHvisNodvendig(8);
 		skrivLinjer(sec.title, { bold: true, size: 13, red: true });
-		y += 1;
+		y += 3.5;
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { nySideHvisNodvendig(6); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, red: true }); }
-			if ((showInstr ?? true) && it.instr) skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 });
+			if (head) { nySideHvisNodvendig(8); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, red: true }); y += 1.8; }
+			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
 			if (it.type === 'salme') tekst = it.text ?? '';
@@ -365,6 +366,15 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			skrivSegmenter(roleSegments(tekst));
 			y += 3;
 		}
+	}
+	// sidetall «side/total» i bunnen av hver side (etter at alt innhold er tegnet)
+	const totalt = doc.getNumberOfPages();
+	for (let i = 1; i <= totalt; i++) {
+		doc.setPage(i);
+		doc.setFont('times', 'normal');
+		doc.setFontSize(9);
+		doc.setTextColor(136, 136, 136);
+		doc.text(`${i}/${totalt}`, mm.w / 2, mm.h - 6, { align: 'center' });
 	}
 	const uri = doc.output('datauristring');
 	return { base64: String(uri).split(',')[1] ?? '', doc };
