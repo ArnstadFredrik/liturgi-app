@@ -18,9 +18,10 @@ export function litHtml(text) {
 	return mdInlineOutsideTags(out);
 }
 
-/** Inline-markdown i ren tekst: fet og urskrift. */
+/** Inline-markdown i ren tekst: fet, urskrift og hevet versnummer ^{N}. */
 function mdInline(t) {
 	return t
+		.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>')
 		.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
 		.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
 }

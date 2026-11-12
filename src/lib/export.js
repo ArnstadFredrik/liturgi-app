@@ -38,11 +38,25 @@ function roleSegments(text) {
 	const out = [];
 	let red = false;
 	let small = false;
-	const push = (t, r, s, bo, it) => {
+	const push = (t, r, s, bo, it, sp) => {
 		if (t === '') return;
 		const last = out.at(-1);
-		if (last && !!last.red === !!r && !!last.small === !!s && !!last.bold === !!bo && !!last.italics === !!it) last.text += t;
-		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it });
+		if (last && !!last.red === !!r && !!last.small === !!s && !!last.bold === !!bo && !!last.italics === !!it && !!last.sup === !!sp) last.text += t;
+		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it, sup: !!sp });
+	};
+	/** Del tekst på ^{N}-versnummer og inline-markdown; sup-fragmenter merkes med sup. */
+	const pushInline = (part, r, s, bo) => {
+		for (const sp of part.split(/(\^\{[^}]+\})/)) {
+			if (!sp) continue;
+			const erSup = sp.startsWith('^{') && sp.endsWith('}');
+			const inner = erSup ? sp.slice(2, -1) : sp;
+			for (const md of inner.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/)) {
+				if (!md) continue;
+				const b = md.startsWith('**') && md.endsWith('**');
+				const it = !b && md.startsWith('*') && md.endsWith('*');
+				push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, r, s, b || bo, it, erSup);
+			}
+		}
 	};
 	const lines = (text ?? '').split('\n');
 	lines.forEach((line, li) => {
@@ -89,13 +103,8 @@ function roleSegments(text) {
 		for (const part of rest.split(/(\{\{\/?r\}\})/)) {
 			if (part === '{{r}}') { red = true; continue; }
 			if (part === '{{/r}}') { red = false; continue; }
-			// inline markdown: **fet** og *urskrift*
-			for (const md of part.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/)) {
-				if (!md) continue;
-				const b = md.startsWith('**') && md.endsWith('**');
-				const it = !b && md.startsWith('*') && md.endsWith('*');
-				push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, red, small, b || extraBold, it);
-			}
+			// inline markdown: **fet** og *urskrift* + hevede versnummer ^{N}
+			pushInline(part, red, small, extraBold);
 		}
 		small = false;
 	});
@@ -188,6 +197,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 				new TextRun({
 					text: s.text, italics: !!p.muted || !!s.small || !!s.italics,
 					size: s.small ? 16 : undefined, // halvparten av 24 halvpunkter
+					superScript: !!s.sup,
 					color: s.red || p.muted ? ROLE_COLOR : s.small ? '777777' : undefined,
 					bold: !!s.bold || (!!s.red && !s.small)
 				})),
@@ -235,14 +245,15 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		const parts = typeof segs === 'string'
 			? [{ text: segs, options: { fontSize: big ? 40 : 24, bold: big, color: 'E8E8EC' } }]
 			: segs.map((seg) => ({
-				text: seg.text,
-				options: {
-					fontSize: big ? 40 : 24,
-					bold: big || !!seg.red || !!seg.bold,
-					italics: !!seg.italics || !!seg.small,
-					color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: true
-				}
-			}));
+					text: seg.text,
+					options: {
+						fontSize: big ? 40 : 24,
+						bold: big || !!seg.red || !!seg.bold,
+						italics: !!seg.italics || !!seg.small,
+						superscript: !!seg.sup,
+						color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: true
+					}
+				}));
 		s.addText(parts, {
 			x: 0.6, y: 0.6, w: 8.8, h: 4.2, fontFace: 'Arial',
 			align: 'left', valign: 'top', lineSpacingMultiple: 1.15,
@@ -353,19 +364,27 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			parts.forEach((part, pi) => {
 				if (pi > 0) nylinje();
 				if (!part) return;
-				// wrap ÉN linje om gangen: hvis linja bryter, om-wrapp resten ved full
-				// kolonnebredde på neste linje (ellers forblir alle linjene korte)
-				let rest = part;
-				while (rest) {
-					const restBredde = w - (cx - x0() - indent);
-					if (restBredde < doc.getTextWidth('XX')) nylinje();
-					const wrapped = doc.splitTextToSize(rest, w - (cx - x0() - indent));
-					const l = wrapped[0];
-					if (!l) { nylinje(); continue; }
-					doc.text(l, cx, y + 4);
-					cx += doc.getTextWidth(l);
-					rest = rest.slice(l.length).replace(/^ +/, '');
-					if (rest) nylinje();
+				// del på hevede versnummer ^{N} (tegnes mindre og hevet på samme linje)
+				for (const sp of part.split(/(\^\{[^}]+\})/)) {
+					if (!sp) continue;
+					const erSup = sp.startsWith('^{') && sp.endsWith('}');
+					const supSize = erSup ? Math.max(size - 2.5, 5) : size;
+					doc.setFontSize(supSize);
+					// wrap ÉN linje om gangen: hvis linja bryter, om-wrapp resten ved full
+					// kolonnebredde på neste linje (ellers forblir alle linjene korte)
+					let rest = erSup ? sp.slice(2, -1) : sp;
+					while (rest) {
+						const restBredde = w - (cx - x0() - indent);
+						if (restBredde < doc.getTextWidth('XX')) nylinje();
+						const wrapped = erSup ? [rest] : doc.splitTextToSize(rest, w - (cx - x0() - indent));
+						const l = wrapped[0];
+						if (!l) { nylinje(); continue; }
+						doc.text(l, cx, y + (erSup ? 2.2 : 4));
+						cx += doc.getTextWidth(l);
+						rest = rest.slice(l.length).replace(/^ +/, '');
+						if (rest) nylinje();
+					}
+					doc.setFontSize(size);
 				}
 			});
 		}

@@ -70,13 +70,20 @@ export async function hentTekster(day) {
 		const grab = (id) => {
 			const el = doc.querySelector(`section#${id}`);
 			if (!el) return null;
-			el.querySelectorAll('sup').forEach((sup) => {
-				sup.replaceWith(document.createTextNode(' ' + sup.textContent.trim() + ' '));
-			});
 			const ref = el.querySelector('a[href*="/les/"]')?.textContent?.trim() ?? '';
 			const title = el.querySelector('h3 span')?.textContent?.trim() ?? '';
-			const body = [...el.querySelectorAll('p')]
-				.map((p) => p.textContent.replace(/\s+/g, ' ').trim())
+			// behold struktur fra bibel.no: avsnitt (p), underskrifter (h4/h5),
+			// versnummer som hevet skrift ^{N} og kursiv (i) som *…*
+			const tmp = doc.createElement('div');
+			const body = [...el.querySelectorAll('h4, h5, p')]
+				.map((node) => {
+					tmp.innerHTML = node.innerHTML
+						.replace(/<sup[^>]*>([\s\S]*?)<\/sup>/g, (m, c) => ' ^{' + c.replace(/<[^>]+>/g, '').trim() + '} ')
+						.replace(/<i[^>]*>([\s\S]*?)<\/i>/g, (m, c) => ' *' + c.replace(/<[^>]+>/g, '').trim() + '* ');
+					const t = tmp.textContent.replace(/\s+/g, ' ').trim();
+					if (!t) return '';
+					return node.tagName !== 'P' ? '# ' + t : t;
+				})
 				.filter(Boolean)
 				.join('\n');
 			if (!body) return null;

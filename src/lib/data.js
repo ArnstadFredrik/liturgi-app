@@ -301,7 +301,7 @@ export const BUILTIN_TEMPLATES = [
 						"type": "lesning",
 						"heading": "9 Første lesning",
 						"label": "Fra Det gamle testamentet",
-						"text": "ML | Det står skrevet i …\n[Lesningstekst]\nML | Slik lyder Herrens ord."
+						"text": "ML | Det står skrevet i …\n\n[Lesningstekst]\nML | Slik lyder Herrens ord."
 					},
 					{
 						"id": "o10",
@@ -315,14 +315,14 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "11 Andre lesning",
 						"optional": true,
 						"label": "Fra Det nye testamentet utenom evangeliene",
-						"text": "ML | Det står skrevet i …\n[Lesningstekst]\nML | Slik lyder Herrens ord."
+						"text": "ML | Det står skrevet i …\n\n[Lesningstekst]\nML | Slik lyder Herrens ord."
 					},
 					{
 						"id": "o12",
 						"type": "lesning",
 						"heading": "* 12 Evangelium",
 						"instr": "Innledes med hallelujaomkved eller salmevers med hallelujaomkved (N13: 977.1-7). I fastetiden erstattes halleluja av tractus, f.eks. N13: 926, 927, 928, 932, 939.",
-						"text": "L | Det står skrevet i evangeliet etter …\n[Evangelietekst]\nL | Slik lyder det hellige evangelium."
+						"text": "L | Det står skrevet i evangeliet etter …\n\n[Evangelietekst]\nL | Slik lyder det hellige evangelium."
 					},
 					{
 						"id": "o12a",
