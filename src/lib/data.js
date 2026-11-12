@@ -755,7 +755,7 @@ export const BUILTIN_TEMPLATES = [
 		"builtinKey": "bakke-gyland-2025",
 		"kind": "template",
 		"name": "Gudstjenestemal Bakke og Gyland 2025",
-		"description": "Lokal grunnordning for Bakke og Gylland menighet",
+		"description": "Lokal grunnordning for Bakke og Gyland menighet",
 		"sections": [
 			{
 				"title": "I. Samling",
@@ -788,7 +788,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "L | Kjære menighet.\nNåde være med dere og fred fra Gud, vår Far, og Herren Jesus Kristus."
 							},
 							{
@@ -819,7 +819,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "L | La oss alle be.\nTrofaste Gud,\ndu elsker oss som en kjærlig mor og far.\nVi ber deg:\nLær oss å lytte til dine ord,\nså vi blir rike på innsikt og kjærlighet,\nved din Sønn Jesus Kristus, vår Herre,\nsom med deg og Den hellige ånd lever og råder,\nén sann Gud fra evighet til evighet.\nA | Amen"
 							},
 							{
@@ -846,7 +846,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "L | Vår Herre Jesus Kristus sier: Du skal elske Herren din Gud av hele ditt hjerte\nog av hele din sjel og av all din forstand. Dette er det største og første budet.\nMen det andre er like stort: Du skal elske din neste som deg selv.\nMatt 22:37-39\nLa oss i lys av disse ordene, bøye oss for Gud og bekjenne våre synder."
 							},
 							{
@@ -905,7 +905,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "A | Kyrie eleison. Gud Fader, miskunne deg.\nKriste eleison. Herre Krist, miskunne deg.\nKyrie eleison. Hellig Ånd, miskunne deg."
 							},
 							{
@@ -1213,7 +1213,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "ML/L | Vår Far i himmelen.\nTakk for at du skapte oss, og jorden vi bor på.\nTakk for at du kjenner og elsker oss alle.\nHjelp oss til å ta vare på hverandre\nog på alt det du har skapt.\nGud, vi ber.\nM | Menighetssvar\nML/L | Kjære Jesus.\nDu kom til jorden og ble menneske som oss.\nDu fant venner du kunne glede deg sammen med\nog gråte hos.\nTakk for evnen vår til vennskap.\nLa alle mennesker finne noen de kan stole på.\nDu har vist oss at hvert eneste menneske\ner viktig og verdifullt.\nVær hos alle som lider.\nLær oss å kjempe mot undertrykkelse og urett.\nGud, vi ber.\nM | Menighetssvar\nML/L | Gode hellige Ånd.\nDu har kalt oss til å være din kirke.\nKom til oss med dine gaver,\nså vi kan være lys og salt i verden.\nVis oss veien vi skal gå,\nog gi oss vilje og kraft til å gå den.\nGud, vi ber.\nM | Menighetssvar\nML/L | Bønnelapp på alteret...\nGud, vi ber.\nM | Menighetssvar"
 							},
 							{
@@ -1305,7 +1305,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
 							},
 							{
@@ -1411,7 +1411,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "A  synger Du Guds Lam, som bærer verdens synder,\nmiskunne deg over oss.\nDu Guds Lam, som bærer verdens synder,\nmiskunne deg over oss.\nDu Guds Lam, som bærer verdens synder,\ngi oss din fred."
 							},
 							{
@@ -1452,7 +1452,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "L | La oss takke og be.\nVi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\nAmen"
 							},
 							{
@@ -1526,7 +1526,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
-								"label": "Bakke og Gylland",
+								"label": "Bakke og Gyland",
 								"text": "L / LM  Gå i fred. Tjen Herren med glede."
 							},
 							{

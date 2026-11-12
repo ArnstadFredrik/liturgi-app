@@ -405,7 +405,7 @@ export async function loadTemplatesFromDisk() {
 		// ikke stemmer (f.eks. første oppstart eller etter oppdatert original)
 		const cnt = isElectron && window.liturgi.bibCounts ? await window.liturgi.bibCounts() : null;
 		const antall = cnt?.ok ? cnt.counts : {};
-		for (const tpl of disk.filter((t) => t.builtinKey?.startsWith('original-'))) {
+		for (const tpl of disk.filter((t) => !!t.builtinKey)) {
 			const entries = [];
 			for (const sec of tpl.sections) {
 				for (const it of sec.items) {
@@ -475,11 +475,11 @@ export async function regenererBibliotek() {
 		const list = await window.liturgi.listTemplates();
 		if (!list.ok) throw new Error(list.error ?? 'ukjent feil');
 		let n = 0;
-		for (const meta of list.originaler) {
+		for (const meta of [...list.originaler, ...list.brukermaler]) {
 			const rd = await window.liturgi.readTemplate(meta.path);
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
-			if (!data) continue;
+			if (!data || !data.builtinKey) continue; // bare innebygde maler i registeret
 			const entries = [];
 			for (const sec of data.sections) {
 				for (const it of sec.items) {
