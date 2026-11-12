@@ -2,6 +2,7 @@
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName } from '$lib/export.js';
+	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -176,21 +177,51 @@
 		return kopi;
 	}
 
-	/** Kun bibelreferansen for lesningene (Word/PDF). Rører bare lesninger som
-	 *  faktisk har bibelreferanse (FOTNOTE eller «står skrevet i/hos»-innledning). */
+	/** Kun bibelreferansen for lesningene (Word/PDF). Kjenner tre former: FOTNOTE-linjen,
+	 *  «står skrevet i/hos [ref]:»-innledningen og malenes egen konvensjon med referansen
+	 *  som siste linje (f.eks. «Sal 68,21»). Uten kjent referanse beholdes teksten. */
 	function kunReferanse(svc) {
 		const kopi = JSON.parse(JSON.stringify(svc));
+		// kirkeårets referanser til lesningene (for ledd uten referanse i teksten)
+		const k = svc?.date ? lookupKirkeaar(svc.date) : null;
+		const kkRefs = k ? { første: k.L1, andre: k.L2, evangelium: k.E } : {};
+		const finnRef = (tekst) => {
+			if (!tekst) return null;
+			const fn = tekst.match(/^FOTNOTE \| ?(.*)$/m);
+			if (fn) return fn[1].trim();
+			const intro = tekst.match(/står skrevet (?:i\/hos|i|hos) ([^:\n]+):/);
+			if (intro && /\d/.test(intro[1])) return intro[1].trim();
+			// siste linje som ligner en referanse (kort, uten rollemerk/skille/tegnsetting, med tall)
+			const linjer = tekst.split('\n').map((l) => l.trim()).filter(Boolean);
+			const siste = linjer.at(-1) ?? '';
+			if (linjer.length > 1 && /^[^|:;.!?]{1,30}$/.test(siste) && /[,0-9]/.test(siste)) return siste;
+			return null;
+		};
 		for (const sec of kopi.sections ?? []) {
 			for (const it of sec.items ?? []) {
 				if (!erLesning(it) || !it.enabled) continue;
-				const tekst = (it.alts?.length ? it.alts[it.selAlt ?? 0]?.text : it.text) || '';
-				const fn = tekst.match(/^FOTNOTE \| ?(.*)$/m);
-				const intro = tekst.match(/står skrevet (?:i|hos) ([^:\n]+):/);
-				// ingen bibelreferanse (f.eks. «8 Skriftlesning» i gravferdsordningen) → la teksten være
-				if (!fn && !intro) continue;
-				const ref = fn?.[1] ?? intro?.[1] ?? '';
-				if (it.alts?.length) { if (it.selAlt != null) it.alts[it.selAlt].text = ref; }
-				else it.text = ref;
+				// ingress-leddene er prestens forord — røres ikke
+				if ((it.heading || '').toLowerCase().includes('ingress')) continue;
+				let ref = null;
+				if (it.alts?.length) {
+					for (const alt of it.alts) {
+						ref = finnRef(alt.text);
+						if (ref) alt.text = ref;
+					}
+				} else {
+					ref = finnRef(it.text);
+					if (ref) it.text = ref;
+				}
+				// leddet har ingen referanse i teksten — slå opp kirkeårets referanse
+				// (Første/Andre lesning/Evangelium ↔ L1/L2/E), f.eks. B&G-malen
+				if (!ref) {
+					const h = (it.heading || '').toLowerCase();
+					const kkr = h.includes('evangelium') ? kkRefs?.evangelium : h.includes('andre') ? kkRefs?.andre : h.includes('første') ? kkRefs?.første : null;
+					if (kkr) {
+						if (it.alts?.length) for (const alt of it.alts) alt.text = kkr;
+						else it.text = kkr;
+					}
+				}
 			}
 		}
 		return kopi;
