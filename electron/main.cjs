@@ -13,11 +13,19 @@ ipcMain.on('app:dirty', (e, v) => {
 	if (win) win.__dirty = v;
 });
 
+// versjonsinfo til innstillingssiden: package.json-versjon + byggnummer (tidsstempel ved bygg)
+ipcMain.handle('app:info', () => {
+	const bygg = fs.existsSync(path.join(__dirname, 'byggnr.txt'))
+		? fs.readFileSync(path.join(__dirname, 'byggnr.txt'), 'utf8').trim()
+		: 'dev';
+	return { versjon: app.getVersion(), bygg };
+});
+
 // renderer har lagret og ber om å avslutte (etter «app:save-then-close»)
 ipcMain.on('app:force-close', (e) => {
 	const win = BrowserWindow.fromWebContents(e.sender);
 	if (win) win.__forceClose = true;
-	app.quit();
+	app.exit(0); // app.quit() virker ikke etter kansellert quit
 });
 
 /** Lagre eksportfil (PDF base64) — i samme mappe som gudstjenesten, ellers Dokumenter/Liturgi. */
@@ -371,25 +379,30 @@ function createWindow(port) {
 	});
 	// avsluttingsbekreftelse ved ulagrede endringer
 	let quitting = false;
-	app.on('before-quit', () => { quitting = true; });
+	app.on('before-quit', () => { quitting = true; if (process.env.LITURGI_DEBUG) console.log('[lukk] before-quit'); });
 	win.on('close', async (e) => {
 		if (win.__forceClose || !win.__dirty) return;
 		e.preventDefault();
-		const { response } = await dialog.showMessageBox(win, {
+		if (process.env.LITURGI_DEBUG) console.log('[lukk] close forhindret, dialog vises');
+		let response;
+		if (process.env.LITURGI_TEST_CLOSE === 'lukk-uten') response = 1;
+		else if (process.env.LITURGI_TEST_CLOSE === 'lagre') response = 0;
+		else ({ response } = await dialog.showMessageBox(win, {
 			type: 'warning',
 			message: 'Du har ulagrede endringer',
 			detail: 'Vil du lagre gudstjenesten/malen før appen avsluttes?',
 			buttons: ['Lagre', 'Lukk uten å lagre', 'Avbryt'],
 			defaultId: 0,
 			cancelId: 2
-		});
+		}));
+		if (process.env.LITURGI_DEBUG) console.log('[lukk] svar:', response);
 		if (response === 0) {
 			// renderer lagrer og kaller app:force-close når den er ferdig
 			win.webContents.send('app:save-then-close');
 		} else if (response === 1) {
 			win.__forceClose = true;
-			if (quitting) app.quit(); // cmd+Q: quit ble kansellert av preventDefault — gjenoppta
-			else win.close();
+			// app.quit() virker ikke etter at quit er kansellert med preventDefault — avslutt hardt
+			app.exit(0);
 		}
 	});
 	return win;

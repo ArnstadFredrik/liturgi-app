@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	setDirty: (v) => ipcRenderer.send('app:dirty', !!v),
 	onSaveThenClose: (cb) => ipcRenderer.on('app:save-then-close', () => cb()),
 	forceClose: () => ipcRenderer.send('app:force-close'),
+	appInfo: () => ipcRenderer.invoke('app:info'),
 	lagrePdf: (base64, filnavn, sti) => ipcRenderer.invoke('eksport:lagre-pdf', { base64, filnavn, sti }),
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),

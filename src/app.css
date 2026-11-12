@@ -132,7 +132,8 @@ button.wide { width: 100%; }
 .maler-tom { color: var(--muted); font-size: 0.9em; margin: 4px 0; }
 /* Innstillinger */
 #innstillinger { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }
-#innstillinger h2 { color: var(--text); margin-bottom: 8px; }
+#innstillinger h2 { color: var(--text); margin-bottom: 4px; }
+.inn-versjon { color: var(--muted); font-size: 12px; margin: 0 0 14px; }
 #innstillinger .inn-gruppe { margin: 22px 0 0; }
 #innstillinger .inn-gruppe .sidehead { margin-bottom: 6px; }
 #innstillinger ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }

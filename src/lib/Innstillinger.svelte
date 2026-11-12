@@ -7,6 +7,8 @@
 	let datamappe = '';
 	let gudstjenester = '';
 	let jobber = false;
+	let versjon = '';
+	let bygg = '';
 
 	onMount(async () => {
 		if (!isElectron) return;
@@ -15,6 +17,8 @@
 			datamappe = list.dirs.originaler.split('/maler/originaler')[0] || list.dirs.originaler;
 			gudstjenester = list.dirs.originaler.replace('/maler/originaler', '');
 		}
+		const info = await window.liturgi.appInfo?.();
+		if (info) { versjon = info.versjon; bygg = info.bygg; }
 	});
 
 	async function byggPåNytt() {
@@ -26,6 +30,9 @@
 
 <div id="innstillinger">
 	<h2>Innstillinger</h2>
+	{#if versjon}
+		<p class="inn-versjon">Versjon {versjon}{bygg ? ` · bygg ${bygg}` : ''}</p>
+	{/if}
 
 	<div class="inn-gruppe">
 		<div class="sidehead">Datamappe</div>

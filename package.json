@@ -13,7 +13,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron": "electron .",
-    "app:mac": "vite build && electron-builder --mac"
+    "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac"
   },
   "build": {
     "appId": "no.arnstad.liturgi",
