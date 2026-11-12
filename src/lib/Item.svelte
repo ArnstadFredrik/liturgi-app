@@ -51,8 +51,8 @@
 			'sep',
 			{ label: 'Legg til del over', action: () => nyttLedd(0) },
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
-			{ label: 'Hent innhold fra hovedgudstjenesten …', action: () => hentFraBibliotek('innhold') },
-			{ label: 'Hent ledd fra hovedgudstjenesten …', action: () => hentFraBibliotek('ledd') },
+			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
+			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
 			'sep',
 			{ label: it.enabled ? 'Fjern fra gudstjenesten' : 'Ta med i gudstjenesten', action: toggle },
 			{ label: 'Slett leddet', action: del, danger: true }

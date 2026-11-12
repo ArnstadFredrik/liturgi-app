@@ -124,18 +124,35 @@ function bibSearch(q, limit = 30) {
 	const rows = openDb()
 		.prepare('SELECT kilde, seksjon, ledd, alt_label, tekst FROM bibliotek')
 		.all();
+	// egne ledd fra bibliotek_bruker kommer med som kilde «Mine ledd» (+ mappe)
+	const egne = openDb()
+		.prepare('SELECT mappe, ledd, alt_label, tekst, tags FROM bibliotek_bruker')
+		.all()
+		.map((r) => ({
+			kilde: 'Mine ledd' + (r.mappe ? ' · ' + r.mappe : ''),
+			seksjon: r.mappe || 'Mine ledd',
+			ledd: r.ledd,
+			alt_label: r.alt_label,
+			tekst: r.tekst,
+			tags: r.tags
+		}));
+	const alle = [...egne, ...rows];
 	const words = (q ?? '').toLowerCase().split(/[\s,]+/).filter((w) => w.length >= 2);
+	const score = (r) => {
+		const hay = (r.ledd + ' ' + r.seksjon + ' ' + (r.tags ?? '')).toLowerCase();
+		let s = 0;
+		for (const w of words) if (hay.includes(w)) s++;
+		return s;
+	};
 	if (!words.length) {
-		return rows
+		return alle
 			.sort((a, b) => a.seksjon.localeCompare(b.seksjon, 'nb') || a.ledd.localeCompare(b.ledd, 'nb'))
 			.slice(0, limit);
 	}
 	const scored = [];
-	for (const r of rows) {
-		const hay = (r.ledd + ' ' + r.seksjon).toLowerCase();
-		let score = 0;
-		for (const w of words) if (hay.includes(w)) score++;
-		if (score > 0) scored.push({ row: r, score });
+	for (const r of alle) {
+		const s = score(r);
+		if (s > 0) scored.push({ row: r, score: s + (r.kilde.startsWith('Mine ledd') ? 0.5 : 0) });
 	}
 	scored.sort((a, b) => b.score - a.score
 		|| a.row.seksjon.localeCompare(b.row.seksjon, 'nb')

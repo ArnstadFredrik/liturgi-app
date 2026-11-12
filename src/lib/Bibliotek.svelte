@@ -96,21 +96,23 @@
 
 	const forhvisning = $derived(litHtml(skjema.tekst || ''));
 
-	/** Sett inn rollemerke (linjeprefiks) ved markøren i tekstfeltet. */
-	function settInnRolle(event, rolle) {
+	/** Pakk markert tekst i {{r}}…{{/r}} (rolle-farge), eller sett inn et tomt par ved markøren. */
+	function settInnRmarker() {
 		const ta = document.getElementById('biblio-tekst');
 		if (!ta) return;
-		const pos = ta.selectionStart ?? ta.value.length;
-		const før = ta.value.slice(0, pos);
-		const etter = ta.value.slice(ta.selectionEnd ?? pos);
-		// allerede et rollemerke på linjen? bytt det
-		const linjeStart = før.lastIndexOf('\n') + 1;
-		const linje = før.slice(linjeStart);
-		const utenRolle = linje.replace(/^(L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L)\s*\|\s?/, '');
-		const nyTekst = før.slice(0, linjeStart) + rolle + ' | ' + utenRolle + etter;
-		skjema.tekst = nyTekst;
-		settMarkør(ta, linjeStart + rolle.length + 3);
-		event?.preventDefault?.();
+		const start = ta.selectionStart ?? ta.value.length;
+		const slutt = ta.selectionEnd ?? start;
+		const før = ta.value.slice(0, start);
+	 const merket = ta.value.slice(start, slutt);
+		const etter = ta.value.slice(slutt);
+		// allerede pakket inn? fjern markørene i stedet
+		if (før.endsWith('{{r}}') && merket.includes('{{/r}}')) {
+			const ny = før.slice(0, -5) + merket.replace('{{/r}}', '') + etter;
+			skjema.tekst = ny;
+			return;
+		}
+		skjema.tekst = før + '{{r}}' + (merket || '') + '{{/r}}' + etter;
+		settMarkør(ta, start + 5 + merket.length);
 	}
 
 	function settMarkør(ta, pos) {
@@ -119,8 +121,6 @@
 			ta.setSelectionRange(pos, pos);
 		});
 	}
-
-	const ROLLER = ['L', 'ML', 'M', 'A', 'L/ML'];
 </script>
 
 <div id="biblio-side">
@@ -196,12 +196,10 @@
 							<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
 						</label>
 						<label class="biblio-felt"><span>Tekst</span>
-							<div class="biblio-verktøy" role="toolbar" aria-label="Rollemerker">
-								{#each ROLLER as rolle (rolle)}
-									<button type="button" class="biblio-rolle-btn" onclick={(e) => settInnRolle(e, rolle)}
-										title={'Sett inn ' + rolle + '-rolle på linjen'}>{rolle} |</button>
-								{/each}
-								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt</span>
+							<div class="biblio-verktøy" role="toolbar" aria-label="Tekstverktøy">
+								<button type="button" class="biblio-rolle-btn" onclick={settInnRmarker}
+									title="Pakk markert tekst i {'{{r}}…{{/r}}'} (rollefarge)">{'{{r}}'}</button>
+								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt · {'{{r}}rolle{{/r}}'} i rødt</span>
 							</div>
 							<textarea id="biblio-tekst" bind:value={skjema.tekst} rows="12" spellcheck="false"
 								placeholder={'L | La oss alle be.\\n\\n**Tema:** *advent*\\n- Bønnopunkt ett\\n- Bønnopunkt to'}></textarea>

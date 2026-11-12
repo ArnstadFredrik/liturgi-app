@@ -44,7 +44,7 @@ export function chooseOneModal(options, sel, ok) {
 /** Søk i hovedgudstjenestens bibliotek. mode: 'innhold' (ett alternativ) | 'ledd' (hele leddet).
  *  ok(m Gruppe, alt) — alt er valgt alternativ i 'innhold'-moden. */
 export function bibSokModal(def, mode, ok) {
-	showModal({ type: 'bib', title: 'Hent fra hovedgudstjenesten', def: def ?? '', mode, ok });
+	showModal({ type: 'bib', title: 'Hent fra biblioteket', def: def ?? '', mode, ok });
 }
 
 export function closeModal() {
