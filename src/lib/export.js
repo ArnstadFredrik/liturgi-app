@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Header, PageNumber, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber, AlignmentType } from 'docx';
 import PptxGenJS from 'pptxgenjs';
 import { jsPDF } from 'jspdf';
 
@@ -177,43 +177,73 @@ const blobTilBase64 = (blob) => new Promise((res) => {
 
 export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = false) {
 	const outline = buildOutline(svc, showInstr);
-	const level = { h1: HeadingLevel.HEADING_1, h2: HeadingLevel.HEADING_2, h3: HeadingLevel.HEADING_3 };
+	// layouten skal samsvare med PDF-eksporten (se buildPdfBase64):
+	// sorte fete sans-overskrifter (Arial = PDFs Helvetica), Times-brødtekst,
+	// røde rollemerker, grå små fotnoter, samme mellomrom (mm → twips: 1 mm ≈ 56,7)
+	const MM = 56.7;
+	const SANS = 'Arial';
+	const SERIF = 'Times New Roman';
+	const BLACK = '141414';
+	const GRAY = '777777';
 	const paras = [];
 	for (const p of outline) {
-		if (p.empty) { paras.push(new Paragraph({ text: '', spacing: { after: 60 } })); continue; }
+		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round(2.2 * MM) } })); continue; }
 		if (p.heading) {
+			// h1 tittel (sort Arial 16), h2 avsnitt (13, +5 mm før, +3,5 etter),
+			// h3 leddoverskrift (11, +3 mm før, +1,8 etter) — som i PDF-en
+			if (p.muted) {
+				// dato/kirkeår-linje: grå kursiv 10 pt
+				paras.push(new Paragraph({
+					children: [new TextRun({ text: p.text ?? '', italics: true, color: GRAY, size: 20, font: SANS })],
+					spacing: { after: Math.round(4 * MM) }
+				}));
+				continue;
+			}
+			const spec = p.heading === 'h1'
+				? { size: 32, before: 0, after: Math.round(4 * MM) }
+				: p.heading === 'h2'
+					? { size: 26, before: Math.round(5 * MM), after: Math.round(3.5 * MM) }
+					: { size: 22, before: Math.round(3 * MM), after: Math.round(1.8 * MM) };
 			paras.push(new Paragraph({
-				heading: level[p.heading],
-				children: [new TextRun({
-					text: p.text ?? '', italics: !!p.muted,
-					color: ROLE_COLOR,
-					bold: true
-				})]
+				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
+				children: [new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
+				spacing: { before: spec.before, after: spec.after }
 			}));
 			continue;
 		}
+		if (p.muted) {
+			// instruksjoner: røde kursiv 9,5 pt — som i PDF-en
+			paras.push(new Paragraph({
+				children: [new TextRun({ text: p.text ?? '', italics: true, color: ROLE_COLOR, size: 19, font: SERIF })],
+				spacing: { after: Math.round(1.5 * MM), line: 300 }
+			}));
+			continue;
+		}
+		// brødtekst: Times 10,5 pt, linjeavstand som PDF-en (size*0.48+1,1 mm ≈ 17,4 pt)
 		paras.push(new Paragraph({
 			children: roleSegments(p.text).map((s) =>
 				new TextRun({
-					text: s.text, italics: !!p.muted || !!s.small || !!s.italics,
-					size: s.small ? 16 : undefined, // halvparten av 24 halvpunkter
+					text: s.text, italics: !!s.italics,
+					size: s.small ? 18 : 21,
+					font: SERIF,
 					superScript: !!s.sup,
-					color: s.red || p.muted ? ROLE_COLOR : s.small ? '777777' : undefined,
+					color: s.red ? ROLE_COLOR : s.small ? GRAY : BLACK,
 					bold: !!s.bold || (!!s.red && !s.small)
 				})),
-			spacing: { after: 120 }
+			spacing: { after: Math.round(3 * MM), line: 348 }
 		}));
 	}
 	// sidestørrelse og kolonner (A4: 11906×16838, A5: 8391×11907 twips)
 	const storrelse = valg.storrelse === 'A5' ? { width: 8391, height: 11907 } : { width: 11906, height: 16838 };
 	const kolonner = valg.kolonner === 2 ? { count: 2, space: 708 } : undefined;
+	// sidetall «N/M» nederst i midten — som i PDF-en
 	const doc = new Document({
 		sections: [{
 			properties: {
 				page: { size: { ...storrelse, orientation: 'portrait' }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } },
 				column: kolonner
 			},
-			headers: { default: new Header({ children: [new Paragraph({ children: [new TextRun({ children: ['Side ', PageNumber.CURRENT, ' av ', PageNumber.TOTAL_PAGES], size: 16, color: '888888' })], alignment: AlignmentType.CENTER })] }) },
+			footers: { default: new Footer({ children: [new Paragraph({ children: [new TextRun({ children: [PageNumber.CURRENT, '/', PageNumber.TOTAL_PAGES], size: 18, color: '888888', font: SERIF })], alignment: AlignmentType.CENTER })] }) },
 			children: paras
 		}]
 	});
