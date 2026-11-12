@@ -155,6 +155,13 @@ button.wide { width: 100%; }
 .eksport-rad:not(.med) .eksport-rad-nm { color: var(--muted); text-decoration: line-through; }
 .eksport-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 .eksport-handling { margin-top: 24px; display: flex; align-items: center; gap: 12px; }
+.eksport-innstillinger { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.eksport-innst-gruppe { display: flex; flex-direction: column; gap: 5px; }
+.eksport-innst-gruppe .sidehead { margin-bottom: 2px; }
+.eksport-chk { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+.eksport-chk input[type=checkbox], .eksport-chk input[type=radio] { accent-color: var(--accent); }
+.eksport-rad-tekst { flex: 1; min-width: 0; }
+.eksport-innhold { margin-top: 6px; font-size: 0.85em; background: var(--panel2); border-radius: 6px; padding: 8px 12px; max-height: 160px; overflow-y: auto; }
 /* Bibliotek-siden */
 #biblio-side { max-width: 860px; margin: 40px auto 80px; padding: 0 24px; }
 #biblio-side h2 { color: var(--text); margin-bottom: 4px; }

@@ -59,6 +59,10 @@
 			{ label: (o?.visRoles ?? true) ? '✓ Vis roller' : 'Vis roller', action: () => { if (o) { o.visRoles = !(o.visRoles ?? true); markDirty(); } } },
 			'sep',
 			{ label: it.enabled ? 'Fjern fra gudstjenesten' : 'Ta med i gudstjenesten', action: toggle },
+			'sep',
+			{ label: 'Eksportér …', action: () => { app.visning = 'eksport'; } },
+			{ label: 'Eksportér aktiv profil', action: () => { app.visning = 'eksport'; window.__eksportKunAktiv = true; } },
+			'sep',
 			{ label: 'Slett leddet', action: del, danger: true }
 		]);
 	}

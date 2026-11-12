@@ -13,6 +13,21 @@ ipcMain.on('app:dirty', (e, v) => {
 	if (win) win.__dirty = v;
 });
 
+/** Lagre eksportfil (PDF base64) — i samme mappe som gudstjenesten, ellers Dokumenter/Liturgi. */
+ipcMain.handle('eksport:lagre-pdf', (_e, { base64, filnavn, sti }) => {
+	try {
+		const dir = sti
+			? path.dirname(sti)
+			: path.join(app.getPath('documents'), 'Liturgi');
+		fs.mkdirSync(dir, { recursive: true });
+		const p = path.join(dir, filnavn);
+		fs.writeFileSync(p, Buffer.from(base64, 'base64'));
+		return { ok: true, filePath: p };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
 ipcMain.handle('liturgi:save-file', async (_e, payload) => {
 	try {
 		const { defaultName = 'gudstjeneste.liturgi', json, testPath, filters: velgFilters } = payload ?? {};

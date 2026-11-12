@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, saveAsTemplate, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { prompt, confirmBox, chooseSectionsModal, valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
-	import { exportWord, exportPptx, exportPdf, nlDate } from '$lib/export.js';
+	import { nlDate } from '$lib/export.js';
 	import { toast } from 'svelte-sonner';
 	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
 	import { applyKirkeaar } from '$lib/store.svelte.js';
@@ -133,21 +133,8 @@
 		}
 	}
 
-	async function doWord() {
-		try {
-			await exportWord(o, o.visInstr ?? true);
-			toast.success('Word-fil eksportert');
-		} catch (e) {
-			toast.error('Klarte ikke eksportere Word: ' + e.message);
-		}
-	}
-	async function doPptx() {
-		try {
-			await exportPptx(o);
-			toast.success('PowerPoint eksportert');
-		} catch (e) {
-			toast.error('Klarte ikke eksportere PowerPoint: ' + e.message);
-		}
+	function tilEksport() {
+		app.visning = 'eksport';
 	}
 
 	function hentFraMal() {
@@ -187,10 +174,8 @@
 			<button onclick={saveCurrentToFile} title="Lagre som ny fil på disk">Lagre som …</button>
 			{#if app.kind === 'service'}
 				<button onclick={onSaveTpl} title="Lagre som lokal mal">Lagre som mal</button>
+				<button onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">Eksport …</button>
 			{/if}
-			<button onclick={exportPdf}>PDF</button>
-			<button onclick={doWord}>Word</button>
-			<button onclick={doPptx}>PowerPoint</button>
 			<button onclick={lukkRedigering} title="Lukk">✕</button>
 		</div>
 	</header>

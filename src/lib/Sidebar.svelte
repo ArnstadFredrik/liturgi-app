@@ -92,9 +92,6 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'bibliotek' ? 'hjem' : 'bibliotek'; }}>
 			{@html mdi('library')} Bibliotek
 		</button>
-		<button class="wide" onclick={() => { app.visning = app.visning === 'eksport' ? 'hjem' : 'eksport'; }} disabled={app.kind !== 'service'} title={app.kind !== 'service' ? 'Åpne en gudstjeneste først' : 'Eksport med profiler'}>
-			{@html mdi('file-export')} Eksport
-		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			{@html mdi('cog')} Innstillinger
 		</button>
