@@ -139,7 +139,8 @@ button.wide { width: 100%; }
 #innstillinger li { margin: 4px 0; }
 #innstillinger code { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.85em; }
 #innstillinger button { margin-top: 8px; }
-/* Eksport-siden */
+/* eksport-siden */
+.eks-tilbake { font-size: 15px; padding: 2px 10px; margin-right: 8px; }
 #eksport-side { max-width: 860px; margin: 40px auto 80px; padding: 0 24px; }
 #eksport-side h2 { color: var(--text); margin-bottom: 4px; }
 .eksport-ingress { color: var(--muted); margin-top: 0; }

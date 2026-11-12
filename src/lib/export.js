@@ -307,6 +307,36 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		}
 	};
 
+	/** Skriv segmenter fra roleSegments() flytende på linjen: røde rollemerker og
+	 *  {{r}}-segmenter inline, ikke på egne linjer. */
+	const skrivSegmenter = (segs, opts = {}) => {
+		const { size: baseSize = 10.5, indent = 0 } = opts;
+		const w = colW - indent;
+		let cx = x0() + indent;
+		const nylinje = () => {
+			nySideHvisNodvendig(5);
+			cx = x0() + indent;
+			y += baseSize * 0.48 + 1.1;
+		};
+		for (const seg of segs) {
+			const size = seg.small ? baseSize - 1.5 : baseSize;
+			doc.setFont('times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
+			doc.setFontSize(size);
+			doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
+			const parts = seg.text.split('\n');
+			parts.forEach((part, pi) => {
+				if (pi > 0) nylinje();
+				if (!part) return;
+				const wrapped = doc.splitTextToSize(part, Math.max(w - (cx - x0() - indent), 20));
+				wrapped.forEach((l, wi) => {
+					if (wi > 0) nylinje();
+					doc.text(l, cx, y + 4);
+					cx += doc.getTextWidth(l);
+				});
+			});
+		}
+	};
+
 	// tittelside-informasjon
 	skrivLinjer(svc.name, { bold: true, size: 16, red: true });
 	if (svc.date || svc.kirkeaar?.name) {
@@ -329,20 +359,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (it.type === 'salme') tekst = it.text ?? '';
 			else if (it.alts?.length) tekst = it.selAlt != null ? it.alts[it.selAlt].text : '[Velg alternativ]';
 			else tekst = it.text ?? '';
-			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '{{r}}' + t + '{{/r}}');
-			// {{r}}…{{/r}} → segmenter med rød tekst
-			for (const seg of tekst.split(/(\{\{r\}\}[\s\S]*?\{\{\/r\}\})/)) {
-				if (!seg) continue;
-				if (seg.startsWith('{{r}}')) {
-					const t = seg.slice(5, -6).replace(/\n/g, ' ');
-					if (t.trim()) skrivLinjer(t, { red: true });
-				} else {
-					const t = (seg || '')
-						.replace(/\*\*([^*]+)\*\*/g, '$1')
-						.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2');
-					if (t.trim()) skrivLinjer(t, {});
-				}
-			}
+			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
+			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
+			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
+			skrivSegmenter(roleSegments(tekst));
 			y += 3;
 		}
 	}

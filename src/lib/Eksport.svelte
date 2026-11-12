@@ -145,6 +145,9 @@
 		const kopi = JSON.parse(JSON.stringify(svc));
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
+				const original = svc.sections?.[si]?.items?.[ii];
+				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
+				if (original && original.enabled === false) { it.enabled = false; return; }
 				const v = valg[profil]?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
 			});
@@ -242,7 +245,7 @@
 </script>
 
 <div id="eksport-side">
-	<h2>Eksport</h2>
+	<h2><button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button> Eksport</h2>
 	{#if !o || app.kind !== 'service'}
 		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
 	{:else}

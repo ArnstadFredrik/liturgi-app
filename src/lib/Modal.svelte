@@ -11,6 +11,7 @@
 	let medDåp = $state(true);
 	let medNattverd = $state(true);
 	let nyType = $state('gudstjeneste'); // 'gudstjeneste' | 'gravferd'
+	let jordpaa = $state('graven'); // gravferd: 'graven' | 'krematorium'
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
@@ -58,6 +59,7 @@
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
 				nyType = 'gudstjeneste';
+				jordpaa = 'graven';
 				name = '';
 				date = nextSundayISO();
 				// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
@@ -178,7 +180,14 @@
 		else if (m.type === 'lukk') { m.ok(); return; } // onLagre lukker selv (kan bli avbrutt av lagre-dialog)
 		else if (m.type === 'newService') {
 			const opprett = () => {
-				if (nyType === 'gravferd') m.ok(name.trim(), date, tplId, { dåp: false, nattverd: false }, null, null);
+				if (nyType === 'gravferd') {
+					m.ok(name.trim(), date, tplId, { dåp: false, nattverd: false }, null, null);
+					// bare den valgte jordpåkastelsesdelen skal være med
+					const cur = app.current;
+					if (cur) cur.sections = cur.sections.filter((s) =>
+						!s.title.includes('Jordpåkastelse') ||
+						(jordpaa === 'graven' ? s.title.includes('graven') : s.title.includes('krematorium')));
+				}
 				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
 			};
@@ -259,7 +268,12 @@
 					<label class="chk"><input type="checkbox" bind:checked={medNattverd} /> Med nattverd</label>
 				</div>
 				{:else}
-					<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg.</p>
+					<div class="m-chk">
+						<span class="m-jordpaa-label">Jordpåkastelse:</span>
+						<label class="chk"><input type="radio" bind:group={jordpaa} value="graven" /> Ved graven</label>
+						<label class="chk"><input type="radio" bind:group={jordpaa} value="krematorium" /> I krematorium</label>
+					</div>
+					<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
 				{/if}
 			{:else if m.type === 'choose'}
 				<p>Velg deler som skal hentes inn fra malen:</p>
