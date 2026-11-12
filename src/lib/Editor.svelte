@@ -1,5 +1,6 @@
 <script>
 	import { app, persist, markDirty, saveAsTemplate, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 	import { prompt, confirmBox, chooseSectionsModal, valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { toast } from 'svelte-sonner';
@@ -170,7 +171,7 @@
 			<input type="date" bind:value={o.date} onchange={onDatoEndret} />
 		{/if}
 		<div id="ed-actions">
-			<button onclick={onSave} title="Lagre">💾 Lagre</button>
+			<button onclick={onSave} title="Lagre">{@html mdi('content-save')} Lagre</button>
 			<button onclick={saveCurrentToFile} title="Lagre som ny fil på disk">Lagre som …</button>
 			{#if app.kind === 'service'}
 				<button onclick={onSaveTpl} title="Lagre som lokal mal">Lagre som mal</button>
@@ -182,8 +183,8 @@
 	<div id="ed-meta">
 		{#if app.kind === 'service'}
 			Basert på mal: {o.templateName}
+			&nbsp;<button class="link-btn" onclick={velgKirkeaarManuelt} title="Velg kirkeårsdag manuelt">{@html mdi('calendar-edit')} {o.kirkeaar ? 'endre kirkeårsdag' : 'velg kirkeårsdag'}</button>
 			{#if o.kirkeaar}&nbsp;· ☀️ {o.kirkeaar.name}{#if o.kirkeaar.color}&nbsp;({o.kirkeaar.color}){/if}{/if}
-			&nbsp;<button class="link-btn" onclick={velgKirkeaarManuelt} title="Velg kirkeårsdag manuelt">✏️ endre</button>
 		{:else}
 			Lokal mal (grunnordning)
 		{/if}

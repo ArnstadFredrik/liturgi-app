@@ -1,8 +1,10 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
+	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName } from '$lib/export.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
+	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -16,19 +18,28 @@
 	let valg = $state({});           // per profil per dokument: { nokkel: bool }
 	let visInnhold = $state(false);
 	let formater = $state({ word: true, pptx: false, pdf: false });
+	let appFormater = $state({ word: true, pptx: false, pdf: false }); // app-standard (DB)
 	let tomSlide = $state(false);
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
 
 	$effect(() => {
+		// app-standard for formater (DB), brukes når dokumentet ikke har egne valg
 		if (isElectron) {
+			window.liturgi.dbGet('eksportFormater').then((r) => {
+				if (r?.ok && r.value && typeof r.value === 'object') appFormater = r.value;
+			});
 			window.liturgi.dbGet('eksportProfiler').then((r) => {
 				if (r?.ok && Array.isArray(r.value)) egneProfiler = r.value;
 			});
 		}
 		if (o) {
 			tomSlide = o.eksportTomSlide ?? false;
-			formater = { word: true, pptx: o.eksportPptx ?? false, pdf: o.eksportPdf ?? false };
+			// dokumentets egne formater-valg, ellers app-standard
+			const egne = o.eksportFormater;
+			formater = egne ?? { ...appFormater };
+			// lagrede leddvalg per profil (persistert i .liturgi-filen)
+			if (o.eksportValg) valg = JSON.parse(JSON.stringify(o.eksportValg));
 		}
 		// hurtigeksport fra høyremenyen
 		if (typeof window !== 'undefined' && window.__eksportKunAktiv) {
@@ -119,8 +130,15 @@
 
 	function settFormater(k, v) {
 		formater = { ...formater, [k]: v };
-		if (o) { o.eksportPptx = formater.pptx; o.eksportPdf = formater.pdf; }
+		if (o) { o.eksportFormater = { ...formater }; }
 		markDirty();
+	}
+
+	/** Lagre gjeldende formatvalg som app-standard (gjelder nye dokumenter). */
+	function lagreStandardFormater() {
+		appFormater = { ...formater };
+		if (isElectron) window.liturgi.dbSet('eksportFormater', { ...formater });
+		toast.success('Formatvalgene er lagret som app-standard');
 	}
 
 	function settTomSlide(v) {
@@ -144,12 +162,14 @@
 	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
 	function klonMedValg(svc, profil) {
 		const kopi = JSON.parse(JSON.stringify(svc));
+		// lagrede valg i filen går foran øktens midlertidige valg
+		const lagret = valg[profil] ?? o?.eksportValg?.[profil];
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
 				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
 				if (original && original.enabled === false) { it.enabled = false; return; }
-				const v = valg[profil]?.[nokkel(si, ii)];
+				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
 			});
 		});
@@ -249,7 +269,11 @@
 </script>
 
 <div id="eksport-side">
-	<h2><button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button> Eksport</h2>
+	<h2>
+		<button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button>
+		Eksport
+		<button class="eks-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
+	</h2>
 	{#if !o || app.kind !== 'service'}
 		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
 	{:else}
@@ -306,6 +330,7 @@
 						<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
 						<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
 						<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
+						<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
 						{#if formater.pptx}
 							<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene (PowerPoint)</label>
 						{/if}

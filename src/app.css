@@ -145,6 +145,8 @@ button.wide { width: 100%; }
 #innstillinger button { margin-top: 8px; }
 /* eksport-siden */
 .eks-tilbake { font-size: 15px; padding: 2px 10px; margin-right: 8px; }
+.eks-lagre { float: right; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.eksport-standard-btn { margin-top: 6px; font-size: 12px; }
 /* ledd fjernet fra gudstjenesten: nedtonet og låst i eksportlisten */
 .eksport-rad.deaktivert { opacity: 0.45; }
 .eksport-rad.deaktivert .eksport-rad-nm { text-decoration: line-through; }
