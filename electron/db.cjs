@@ -66,6 +66,12 @@ function recRemove(p) {
 
 /* ---------- bibliotek: oppslagsregister over hovedgudstjenesten ---------- */
 
+/** Antall rader i biblioteket per kilde (for rask gyldighetssjekk ved oppstart). */
+function bibCounts() {
+	const rows = openDb().prepare('SELECT kilde, COUNT(*) AS n FROM bibliotek GROUP BY kilde').all();
+	return Object.fromEntries(rows.map((r) => [r.kilde, r.n]));
+}
+
 function bibSync(source, entries) {
 	const db = openDb();
 	db.prepare('DELETE FROM bibliotek WHERE kilde = ?').run(source);
@@ -104,4 +110,4 @@ function bibSearch(q, limit = 30) {
 	return scored.slice(0, limit).map((s) => s.row);
 }
 
-module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibSync, bibSearch };
+module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch };

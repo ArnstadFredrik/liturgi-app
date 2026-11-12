@@ -311,7 +311,10 @@ export async function loadTemplatesFromDisk() {
 			disk.push(data);
 		}
 		app.templates = disk;
-		// synkroniser originalene inn i SQLite-biblioteket (oppslagsregister)
+		// synkroniser originalene inn i SQLite-biblioteket – kun hvis antall rader
+		// ikke stemmer (f.eks. første oppstart eller etter oppdatert original)
+		const cnt = isElectron && window.liturgi.bibCounts ? await window.liturgi.bibCounts() : null;
+		const antall = cnt?.ok ? cnt.counts : {};
 		for (const tpl of disk.filter((t) => t.builtinKey?.startsWith('original-'))) {
 			const entries = [];
 			for (const sec of tpl.sections) {
@@ -324,6 +327,8 @@ export async function loadTemplatesFromDisk() {
 					}
 				}
 			}
+			// stikkprøve: radantallet må stemme, ellers bygges biblioteket på nytt
+			if ((antall[tpl.name] ?? 0) === entries.length) continue;
 			await window.liturgi.bibSync(tpl.name, entries);
 		}
 	} catch (err) {

@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	removeRecent: (p) => ipcRenderer.invoke('rec:remove', { path: p }),
 	// bibliotek: oppslagsregister over hovedgudstjenesten (sqlite)
 	bibSync: (source, entries) => ipcRenderer.invoke('bib:sync', { source, entries }),
+	bibCounts: () => ipcRenderer.invoke('bib:counts'),
 	bibSearch: (q) => ipcRenderer.invoke('bib:search', { q }),
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),

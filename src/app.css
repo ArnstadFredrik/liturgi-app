@@ -85,6 +85,14 @@ button.wide { width: 100%; }
 /* ---------- Welcome / editor ---------- */
 #welcome { max-width: 520px; margin: 80px auto; text-align: center; color: var(--muted); }
 #welcome h2 { color: var(--text); }
+.w-sondag { margin-top: 40px; text-align: left; border-top: 1px solid var(--border); padding-top: 20px; }
+.w-sondag h3 { color: var(--text); }
+.w-sondag h4 { color: var(--accent); margin: 18px 0 6px; }
+.w-kirkeaar { margin: 4px 0 0; }
+.w-muted { color: var(--muted); font-size: 0.9em; }
+.w-sondag details { margin: 8px 0; }
+.w-sondag summary { cursor: pointer; color: var(--text); }
+.w-sondag details[open] summary { margin-bottom: 8px; }
 #editor { padding: 0 24px 60px; max-width: 900px; margin: 0 auto; }
 #ed-head {
 	display: flex; gap: 10px; align-items: center;

@@ -259,7 +259,7 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 }
 
 /** Gi bønnen fra kirkeåret rollemerker: L | foran, M | på avsluttende Amen. */
-function formaterBønn(prayer) {
+export function formaterBønn(prayer) {
 	const lines = (prayer || '').split('\n').map((s) => s.trim()).filter(Boolean);
 	if (!lines.length) return '';
 	lines[0] = 'L | ' + lines[0];
