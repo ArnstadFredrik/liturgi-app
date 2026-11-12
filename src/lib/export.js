@@ -6,6 +6,31 @@ const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;
 
+/** Flett sammen harde linjeskift som bare er linjebryting (limt inn fra Word/e-post)
+ *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
+ *  Ekte avsnittskift (tom linje) beholdes. Linjer som ender med setningsslutt punktum,
+ *  utropstegn, spørsmålstegn eller kolon blir også avsnittskift. */
+function flytAvsnitt(text) {
+	if (!text) return text;
+	const linjer = text.split('\n');
+	const out = [];
+	let buf = '';
+	const sluttTegn = /[.:!?»"]\s*$/;
+	const flush = () => { if (buf.trim()) out.push(buf.trim()); buf = ''; };
+	linjer.forEach((linje, i) => {
+		const t = linje.trim();
+		if (!t) { flush(); out.push(''); return; }   // tom linje = avsnittskift
+		if (!buf) buf = t;
+		else if (/^[-–—•*]/.test(t)) { flush(); out.push(''); buf = t; }  // punktoppstillinger starter ny linje
+		else buf += ' ' + t;
+		const neste = (linjer[i + 1] ?? '').trim();
+		// avslutt avsnittet på setningsslutt eller før neste linje ser ut som ny setning/rolle/overskrift
+		if (sluttTegn.test(t) || /^[-–—•]/.test(neste) || /^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste)) flush();
+	});
+	flush();
+	return out.join('\n');
+}
+
 /** Del tekst i segmenter [{text, red, small, bold, italics}] – rollemerke (f.eks. «L |»),
  *  {{r}}-markører røde, «FOTNOTE | »-linjer små/urskrift, og enkel markdown
  *  (**fet**, *urskrift*, «# overskrift», «- punkt»). */
@@ -367,7 +392,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
-			skrivSegmenter(roleSegments(tekst));
+			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
+			skrivSegmenter(roleSegments(flytAvsnitt(tekst)));
 			y += 3;
 		}
 	}
