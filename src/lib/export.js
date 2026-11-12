@@ -5,38 +5,59 @@ const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;
 
-/** Del tekst i segmenter [{text, red, small}] – rollemerke (f.eks. «L |») og
- *  {{r}}-markører røde; «FOTNOTE | »-linjer små/urskrift. */
+/** Del tekst i segmenter [{text, red, small, bold, italics}] – rollemerke (f.eks. «L |»),
+ *  {{r}}-markører røde, «FOTNOTE | »-linjer små/urskrift, og enkel markdown
+ *  (**fet**, *urskrift*, «# overskrift», «- punkt»). */
 function roleSegments(text) {
 	const out = [];
 	let red = false;
 	let small = false;
-	const push = (t, r, s) => {
+	const push = (t, r, s, bo, it) => {
 		if (t === '') return;
 		const last = out.at(-1);
-		if (last && !!last.red === !!r && !!last.small === !!s) last.text += t;
-		else out.push({ text: t, red: r, small: !!s });
+		if (last && !!last.red === !!r && !!last.small === !!s && !!last.bold === !!bo && !!last.italics === !!it) last.text += t;
+		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it });
 	};
 	const lines = (text ?? '').split('\n');
 	lines.forEach((line, li) => {
-		if (li > 0) push('\n', red, small);
+		if (li > 0) push('\n', red, small, false, false);
 		let rest = line;
+		let extraBold = false;
 		const fn = line.match(FOTNOTE_RE);
 		if (fn) {
 			small = true;
 			rest = fn[1];
 		} else {
 			small = false;
+			// markdown blokk-nivå
+			const hd = rest.match(/^#{1,2} ?(.+)$/);
+			if (hd) {
+				extraBold = true;
+				push(hd[1].replace(/\*\*([^*]+)\*\*/g, '$1').replace(/(^|[^*])\*([^*]+)\*/g, '$1$2'), red, false, true, false);
+				small = false;
+				return;
+			}
+			const li2 = rest.match(/^- (.+)$/);
+			if (li2) {
+				push('• ', red, false, false, false);
+				rest = li2[1];
+			}
 		}
 		const m = rest.match(ROLE_RE);
 		if (m) {
-			push(m[1] + ' |', true, small);
+			push(m[1] + ' |', true, small, false, false);
 			rest = m[3] ?? '';
 		}
 		for (const part of rest.split(/(\{\{\/?r\}\})/)) {
 			if (part === '{{r}}') { red = true; continue; }
 			if (part === '{{/r}}') { red = false; continue; }
-			push(part, red, small);
+			// inline markdown: **fet** og *urskrift*
+			for (const md of part.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/)) {
+				if (!md) continue;
+				const b = md.startsWith('**') && md.endsWith('**');
+				const it = !b && md.startsWith('*') && md.endsWith('*');
+				push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, red, small, b || extraBold, it);
+			}
 		}
 		small = false;
 	});
@@ -121,10 +142,10 @@ export async function exportWord(svc, showInstr) {
 		paras.push(new Paragraph({
 			children: roleSegments(p.text).map((s) =>
 				new TextRun({
-					text: s.text, italics: !!p.muted || !!s.small,
+					text: s.text, italics: !!p.muted || !!s.small || !!s.italics,
 					size: s.small ? 16 : undefined, // halvparten av 24 halvpunkter
 					color: s.red ? ROLE_COLOR : p.muted ? '555555' : s.small ? '777777' : undefined,
-					bold: !!s.red && !s.small
+					bold: !!s.bold || (!!s.red && !s.small)
 				})),
 			spacing: { after: 120 }
 		}));
@@ -158,8 +179,10 @@ export async function exportPptx(svc) {
 			: segs.map((seg) => ({
 				text: seg.text,
 				options: {
-					fontSize: big ? 40 : 28, bold: big || !!seg.red,
-					color: seg.red ? 'FF6B5E' : 'E8E8EC', breakLine: true
+					fontSize: big ? 40 : 28,
+					bold: big || !!seg.red || !!seg.bold,
+					italics: !!seg.italics || !!seg.small,
+					color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: true
 				}
 			}));
 		s.addText(parts, {

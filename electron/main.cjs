@@ -10,7 +10,15 @@ const path = require('path');
 // ---------- fil-dialoger: lagre/åpne liturgi-filer (.liturgi, json-innhold) ----------
 ipcMain.handle('liturgi:save-file', async (_e, payload) => {
 	try {
-		const { defaultName = 'gudstjeneste.liturgi', json, testPath } = payload ?? {};
+		const { defaultName = 'gudstjeneste.liturgi', json, testPath, filters: velgFilters } = payload ?? {};
+		// JSON-eksporter (.json) må ikke foreslås som .liturgi-fil
+		const filters = velgFilters
+			?? (/\.json$/i.test(defaultName)
+				? [{ name: 'JSON', extensions: ['json'] }]
+				: [
+					{ name: 'Liturgi-fil', extensions: ['liturgi'] },
+					{ name: 'JSON', extensions: ['json'] }
+				]);
 		let filePath;
 		if (testPath) {
 			// direkte-skriv (brukes av automatisert testing)
@@ -20,10 +28,7 @@ ipcMain.handle('liturgi:save-file', async (_e, payload) => {
 			const { canceled, filePath: chosen } = await dialog.showSaveDialog(win, {
 				title: 'Lagre liturgi',
 				defaultPath: path.join(app.getPath('documents'), defaultName),
-				filters: [
-					{ name: 'Liturgi-fil', extensions: ['liturgi'] },
-					{ name: 'JSON', extensions: ['json'] }
-				]
+				filters
 			});
 			if (canceled || !chosen) return { ok: false, canceled: true };
 			filePath = chosen;

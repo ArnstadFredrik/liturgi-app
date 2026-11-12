@@ -95,6 +95,32 @@
 	}
 
 	const forhvisning = $derived(litHtml(skjema.tekst || ''));
+
+	/** Sett inn rollemerke (linjeprefiks) ved markøren i tekstfeltet. */
+	function settInnRolle(event, rolle) {
+		const ta = document.getElementById('biblio-tekst');
+		if (!ta) return;
+		const pos = ta.selectionStart ?? ta.value.length;
+		const før = ta.value.slice(0, pos);
+		const etter = ta.value.slice(ta.selectionEnd ?? pos);
+		// allerede et rollemerke på linjen? bytt det
+		const linjeStart = før.lastIndexOf('\n') + 1;
+		const linje = før.slice(linjeStart);
+		const utenRolle = linje.replace(/^(L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L)\s*\|\s?/, '');
+		const nyTekst = før.slice(0, linjeStart) + rolle + ' | ' + utenRolle + etter;
+		skjema.tekst = nyTekst;
+		settMarkør(ta, linjeStart + rolle.length + 3);
+		event?.preventDefault?.();
+	}
+
+	function settMarkør(ta, pos) {
+		requestAnimationFrame(() => {
+			ta.focus();
+			ta.setSelectionRange(pos, pos);
+		});
+	}
+
+	const ROLLER = ['L', 'ML', 'M', 'A', 'L/ML'];
 </script>
 
 <div id="biblio-side">
@@ -148,45 +174,65 @@
 
 			<div id="biblio-detalj">
 				{#if rediger}
-					<div class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</div>
-					<label class="biblio-felt"><span>Mappe</span>
-						<input bind:value={skjema.mappe} placeholder="F.eks. «Forbønner» eller «Bakke og Gyland»" spellcheck="false" list="biblio-mapper" />
-						<datalist id="biblio-mapper">
-							{#each [...new Set(brukerrader.map((r) => r.mappe).filter(Boolean))] as m (m)}<option value={m} />{/each}
-						</datalist>
-					</label>
-					<label class="biblio-felt"><span>Ledd</span>
-						<input bind:value={skjema.ledd} placeholder="Navnet på leddet, f.eks. «Forbønn»" spellcheck="false" />
-					</label>
-					<label class="biblio-felt"><span>Alternativ</span>
-						<input bind:value={skjema.alt_label} placeholder="Valgfri etikett, f.eks. «Alternativ A»" spellcheck="false" />
-					</label>
-					<label class="biblio-felt"><span>Tagger (kommaseparert)</span>
-						<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
-					</label>
-					<label class="biblio-felt"><span>Tekst</span>
-						<textarea bind:value={skjema.tekst} rows="10" spellcheck="false"></textarea>
-					</label>
-					{#if skjema.tekst}
-						<div class="sidehead">Forhåndsvisning</div>
-						<div class="lit-text biblio-forhvisning">{@html forhvisning}</div>
-					{/if}
-					<div class="w-mal-handlinger">
-						<button onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
-						<button onclick={() => { rediger = false; }}>Avbryt</button>
+					<div class="biblio-kort">
+						<div class="biblio-kort-hode">
+							<span class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</span>
+						</div>
+						<label class="biblio-felt"><span>Mappe</span>
+							<input bind:value={skjema.mappe} placeholder="F.eks. «Forbønner» eller «Bakke og Gyland»" spellcheck="false" list="biblio-mapper" />
+							<datalist id="biblio-mapper">
+								{#each [...new Set(brukerrader.map((r) => r.mappe).filter(Boolean))] as m (m)}<option value={m} />{/each}
+							</datalist>
+						</label>
+						<div class="biblio-rad2">
+							<label class="biblio-felt"><span>Ledd</span>
+								<input bind:value={skjema.ledd} placeholder="Navnet på leddet" spellcheck="false" />
+							</label>
+							<label class="biblio-felt"><span>Alternativ</span>
+								<input bind:value={skjema.alt_label} placeholder="Valgfri etikett" spellcheck="false" />
+							</label>
+						</div>
+						<label class="biblio-felt"><span>Tagger (kommaseparert)</span>
+							<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
+						</label>
+						<label class="biblio-felt"><span>Tekst</span>
+							<div class="biblio-verktøy" role="toolbar" aria-label="Rollemerker">
+								{#each ROLLER as rolle (rolle)}
+									<button type="button" class="biblio-rolle-btn" onclick={(e) => settInnRolle(e, rolle)}
+										title={'Sett inn ' + rolle + '-rolle på linjen'}>{rolle} |</button>
+								{/each}
+								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt</span>
+							</div>
+							<textarea id="biblio-tekst" bind:value={skjema.tekst} rows="12" spellcheck="false"
+								placeholder={'L | La oss alle be.\\n\\n**Tema:** *advent*\\n- Bønnopunkt ett\\n- Bønnopunkt to'}></textarea>
+						</label>
+						{#if skjema.tekst}
+							<div class="sidehead">Forhåndsvisning</div>
+							<div class="lit-text biblio-forhvisning">{@html forhvisning}</div>
+						{/if}
+						<div class="w-mal-handlinger">
+							<button class="primary" onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
+							<button onclick={() => { rediger = false; }}>Avbryt</button>
+						</div>
 					</div>
 				{:else if valgt}
-					<div class="sidehead">{valgt.ledd}{valgt.alt_label ? ' · ' + valgt.alt_label : ''}</div>
-					<p class="maler-ingress">
-						🗂 {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' + valgt.tags : ''}
-					</p>
-					<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>
-					<div class="w-mal-handlinger">
-						<button onclick={redigerValgt}>Endre</button>
-						<button class="w-mal-del" onclick={() => slett(valgt)}>Slett</button>
+					<div class="biblio-kort">
+						<div class="biblio-kort-hode">
+							<div>
+								<div class="biblio-tittel">{valgt.ledd}{valgt.alt_label ? ' · ' + valgt.alt_label : ''}</div>
+								<p class="maler-ingress">🗂 {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' + valgt.tags : ''}</p>
+							</div>
+						</div>
+						<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>
+						<div class="w-mal-handlinger">
+							<button onclick={redigerValgt}>Endre</button>
+							<button class="w-mal-del" onclick={() => slett(valgt)}>Slett</button>
+						</div>
 					</div>
 				{:else}
-					<p class="maler-ingress">Velg et ledd i listen, eller lag et nytt.</p>
+					<div class="biblio-kort biblio-tom">
+						<p class="maler-ingress">Velg et ledd i listen, eller lag et nytt.</p>
+					</div>
 				{/if}
 			</div>
 		</div>

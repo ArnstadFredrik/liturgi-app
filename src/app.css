@@ -132,9 +132,36 @@ button.wide { width: 100%; }
 .biblio-rad.sel { background: var(--accent-dim); border-color: var(--accent); }
 .biblio-rad.statisk { cursor: default; opacity: 0.85; }
 .biblio-felt { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
-.biblio-felt input, .biblio-felt textarea { font-size: 13px; }
+
 .biblio-forhvisning { border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; background: var(--panel2); }
 #biblio-detalj .sidehead { margin-top: 4px; }
+/* kort og romslige felt (shadcn-inspirert) */
+.biblio-kort { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.biblio-kort-hode { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.biblio-tittel { font-weight: 700; font-size: 15.5px; color: var(--text); }
+.biblio-kort.biblio-tom { align-items: center; padding: 40px 18px; text-align: center; }
+.biblio-felt > span { font-size: 12px; font-weight: 500; }
+.biblio-felt input, .biblio-felt textarea {
+	width: 100%; background: var(--panel2); color: var(--text);
+	border: 1px solid var(--border); border-radius: 8px;
+	padding: 9px 12px; font-size: 13.5px; line-height: 1.5;
+	transition: border-color 120ms ease;
+}
+.biblio-felt input:hover, .biblio-felt textarea:hover { border-color: var(--accent); }
+.biblio-felt input:focus, .biblio-felt textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.biblio-felt textarea { resize: vertical; min-height: 220px; }
+.biblio-rad2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+.biblio-verktøy { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+.biblio-rolle-btn { padding: 3px 9px; font-size: 12px; border-radius: 6px; color: var(--accent); border-color: var(--border); }
+.biblio-rolle-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+.biblio-md-hint { font-size: 11px; color: var(--muted); margin-left: 6px; }
+/* markdown i liturgivisning */
+.md-h { display: block; font-weight: 700; font-size: 1.15em; margin: 0.5em 0 0.25em; }
+.md-h.md-h2 { font-size: 1.05em; }
+.md-li { display: block; padding-left: 1.1em; text-indent: -1.1em; }
+.md-bullet { margin-right: 0.45em; color: var(--accent); }
+.lit-text strong { font-weight: 700; }
+.lit-text em { font-style: italic; }
 #editor { padding: 0 24px 60px; max-width: 900px; margin: 0 auto; }
 #ed-head {
 	display: flex; gap: 10px; align-items: center;
