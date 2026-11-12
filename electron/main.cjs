@@ -13,6 +13,13 @@ ipcMain.on('app:dirty', (e, v) => {
 	if (win) win.__dirty = v;
 });
 
+// renderer har lagret og ber om å avslutte (etter «app:save-then-close»)
+ipcMain.on('app:force-close', (e) => {
+	const win = BrowserWindow.fromWebContents(e.sender);
+	if (win) win.__forceClose = true;
+	app.quit();
+});
+
 /** Lagre eksportfil (PDF base64) — i samme mappe som gudstjenesten, ellers Dokumenter/Liturgi. */
 ipcMain.handle('eksport:lagre-pdf', (_e, { base64, filnavn, sti }) => {
 	try {
@@ -363,6 +370,8 @@ function createWindow(port) {
 		return { action: 'allow' };
 	});
 	// avsluttingsbekreftelse ved ulagrede endringer
+	let quitting = false;
+	app.on('before-quit', () => { quitting = true; });
 	win.on('close', async (e) => {
 		if (win.__forceClose || !win.__dirty) return;
 		e.preventDefault();
@@ -375,10 +384,12 @@ function createWindow(port) {
 			cancelId: 2
 		});
 		if (response === 0) {
+			// renderer lagrer og kaller app:force-close når den er ferdig
 			win.webContents.send('app:save-then-close');
 		} else if (response === 1) {
 			win.__forceClose = true;
-			win.close();
+			if (quitting) app.quit(); // cmd+Q: quit ble kansellert av preventDefault — gjenoppta
+			else win.close();
 		}
 	});
 	return win;
@@ -399,5 +410,6 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') app.quit();
+	// enkeltvindus-app: avslutt hele appen når vinduet lukkes (også på macOS)
+	app.quit();
 });

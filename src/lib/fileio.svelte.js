@@ -278,6 +278,24 @@ export function listenForFinderOpen() {
 	});
 }
 
+/** Avslutning med ulagrede endringer: lagre alt som er åpent, og si fra til main at appen kan avsluttes. */
+export function listenForSaveThenClose() {
+	if (!isElectron) return;
+	window.liturgi.onSaveThenClose(async () => {
+		try {
+			// lagre alle åpne dokumenter med endringer (inkludert «lagre som …» for ulagrede)
+			for (const e of app.åpneTjenester) {
+				if (!e.obj?.__dirty) continue;
+				app.current = e.obj;
+				app.kind = e.obj.kind ?? 'service';
+				await saveCurrentToFile();
+			}
+		} finally {
+			window.liturgi.forceClose();
+		}
+	});
+}
+
 /** Åpne via dialog («Åpne fil …») — filen åpnes der den ligger. */
 export async function openFileToStore() {
 	let json, filePath = null;
@@ -652,3 +670,5 @@ export async function deleteTemplateFile(p) {
 
 // aktiver Finder-lytten når modulen lastes (kun i Electron)
 listenForFinderOpen();
+// lytt etter «lagre og lukk» fra avsluttingsdialogen (kun i Electron)
+listenForSaveThenClose();
