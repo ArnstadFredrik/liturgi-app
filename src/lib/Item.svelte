@@ -13,6 +13,8 @@
 	const o = $derived(app.current);
 	const items = $derived(o.sections[si].items);
 	const showSalmeTekst = $derived(it.showSalmeTekst ?? false);
+	const introAltsLen = $derived(it.introAlts?.length ?? 0);
+	const avslAltsLen = $derived(it.avslutningAlts?.length ?? 0);
 
 	function velgAlt() {
 		chooseOneModal(it.alts, it.selAlt ?? 0, (idx) => { it.selAlt = idx; markDirty(); });
@@ -124,7 +126,36 @@
 				<EditableText bind:value={it.text} kind="lit" />
 			{/if}
 		{:else if it.alts && it.alts.length}
+			{#if introAltsLen}
+				<div class="alt-gruppe-tittel">Innledning</div>
+				{#if app.kind === 'template'}
+					<div class="alts">
+						{#each it.introAlts as a, ai (ai)}
+							<label class="alt" class:sel={it.selIntro === ai}>
+								<input type="radio" name="intro-{it.id}" checked={it.selIntro === ai}
+									onchange={() => { it.selIntro = ai; markDirty(); }} />
+								<span class="alt-col">
+									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selIntro === ai}&nbsp;· standard i malen{/if}</span>
+									<EditableText bind:value={a.text} kind="lit" />
+								</span>
+							</label>
+						{/each}
+					</div>
+				{:else}
+					<div class="alt-cur">
+						<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" />
+						{#if introAltsLen > 1}<button class="alt-btn" onclick={() => { it.selIntro = ((it.selIntro ?? 0) + 1) % introAltsLen; markDirty(); }}>
+							Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
+						</button>{/if}
+					</div>
+				{/if}
+			{/if}
 			{#if app.kind === 'template'}
+				{#if it.text && it.text.trim()}
+					<div class="alt-gruppe-tittel">Fast innledning</div>
+					<EditableText bind:value={it.text} kind="lit" />
+				{/if}
+				<div class="alt-gruppe-tittel">Alternativer</div>
 				<div class="alts">
 					{#each it.alts as a, ai (ai)}
 						<label class="alt" class:sel={it.selAlt === ai}>
@@ -149,6 +180,30 @@
 						Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
 					</button>
 				</div>
+			{/if}
+			{#if avslAltsLen}
+				<div class="alt-gruppe-tittel">Avslutning</div>
+				{#if app.kind === 'template'}
+					<div class="alts">
+						{#each it.avslutningAlts as a, ai (ai)}
+							<label class="alt" class:sel={it.selAvsl === ai}>
+								<input type="radio" name="avsl-{it.id}" checked={it.selAvsl === ai}
+									onchange={() => { it.selAvsl = ai; markDirty(); }} />
+								<span class="alt-col">
+									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAvsl === ai}&nbsp;· standard i malen{/if}</span>
+									<EditableText bind:value={a.text} kind="lit" />
+								</span>
+							</label>
+						{/each}
+					</div>
+				{:else}
+					<div class="alt-cur">
+						<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" />
+						{#if avslAltsLen > 1}<button class="alt-btn" onclick={() => { it.selAvsl = ((it.selAvsl ?? 0) + 1) % avslAltsLen; markDirty(); }}>
+							Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
+						</button>{/if}
+					</div>
+				{/if}
 			{/if}
 			{#if app.kind === 'template' && it.selAlt == null}
 				<div class="instr">Velg et alternativ ⬆</div>

@@ -1,3 +1,18 @@
+/** Komponert tekst for et ledd: fast innledning/valgt innledning + kropp (valgt alternativ)
+ *  + valgt avslutning. Konvensjon: hvis leddet har alts OG text, er text en fast innledning. */
+export function leddTekst(it) {
+	const deler = [];
+	if (it.introAlts?.length) deler.push(it.introAlts[it.selIntro ?? 0]?.text ?? '');
+	if (it.alts?.length) {
+		if (it.text && it.text.trim()) deler.push(it.text);   // fast innledning
+		deler.push(it.alts[it.selAlt ?? 0]?.text ?? '');
+	} else {
+		deler.push(it.text ?? '');
+	}
+	if (it.avslutningAlts?.length) deler.push(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '');
+	return deler.filter((s) => s && s.trim()).join('\n\n');
+}
+
 /** Render liturgitext til HTML: rollemerker ({{r}}…{{/r}}) i rødt, «@r |»- eller «@r»-linjer
  *  (hele linjen som rolle), «FOTNOTE | »-linjer som små urskrifts-fotnoter, og enkel markdown
  *  (**fet**, *urskrift*, «# overskrift», «- punktliste»). */

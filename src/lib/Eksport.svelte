@@ -4,7 +4,7 @@
 	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
-	import { litHtml } from '$lib/lit.js';
+	import { litHtml, leddTekst } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -326,7 +326,7 @@
 							<div class="eksport-rad-tekst">
 								<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
 								{#if visInnhold && it.enabled !== false}
-									<div class="eksport-innhold lit-text">{@html litHtml((it.alts?.length ? it.alts[it.selAlt ?? 0]?.text : it.text) || '*Ingen innhold*')}</div>
+									<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it) || '*Ingen innhold*')}</div>
 								{/if}
 							</div>
 							{#if it.type === 'salme' && it.enabled !== false}<span class="eksport-tag">salme</span>{/if}
