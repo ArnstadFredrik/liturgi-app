@@ -352,7 +352,11 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	let y = margin;
 
 	const nySideHvisNodvendig = (h) => {
-		if (y + h > mm.h - margin) { doc.addPage(); y = margin; col = 0; return true; }
+		if (y + h > mm.h - margin) {
+			// to kolonner: fyll venstre kolonne først, deretter høyre, før ny side
+			if (kolonner === 2 && col === 0) { col = 1; y = margin; return true; }
+			doc.addPage(); y = margin; col = 0; return true;
+		}
 		return false;
 	};
 	const x0 = () => margin + col * (colW + colGap);
