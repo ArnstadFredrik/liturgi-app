@@ -19,6 +19,7 @@ export const app = $state({
 	contextMenu: null, // {x, y, items: [{label, action, danger?} | 'sep']}
 	recentServices: [], // Electron: siste gudstjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
+	visning: 'hjem', // 'hjem' | 'maler'
 	modal: null
 });
 
@@ -209,6 +210,7 @@ export function openTemplate(id) {
 export function closeEditor() {
 	app.current = null;
 	app.kind = null;
+	app.visning = 'hjem';
 }
 
 export function deleteService(id) {

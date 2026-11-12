@@ -1,7 +1,7 @@
 <script>
-	import { app, openService, openTemplate, deleteService, deleteTemplate, sortedServices, persist, uid, createService, toggleTheme } from '$lib/store.svelte.js';
-	import { prompt, confirmBox, newServiceModal } from '$lib/modal.svelte.js';
-	import { openFileToStore, openServiceFile, refreshRecentServices, deleteServiceFile, loadTemplatesFromDisk, deleteTemplateFile, newTemplateOnDisk } from '$lib/fileio.svelte.js';
+	import { app, openService, deleteService, sortedServices, toggleTheme } from '$lib/store.svelte.js';
+	import { newServiceModal } from '$lib/modal.svelte.js';
+	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk } from '$lib/fileio.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const MAX_RECENT = 5;
@@ -14,19 +14,6 @@
 	});
 
 	const recent = $derived(app.recentServices.slice(0, MAX_RECENT));
-
-	function newTemplate() {
-		prompt('Ny lokal mal', 'Navn på malen', async (name) => {
-			if (isElectron) {
-				await newTemplateOnDisk(name);
-			} else {
-				const t = { id: uid(), kind: 'template', name: name || 'Ny grunnordning', sections: [{ title: 'I. Samling', items: [] }] };
-				app.templates.push(t);
-				persist();
-				openTemplate(t.id);
-			}
-		});
-	}
 
 	function newService() {
 		if (!app.templates.length) return;
@@ -64,23 +51,10 @@
 		</ul>
 		<button class="wide" onclick={newService}>+ Ny gudstjeneste</button>
 	</div>
-	<div class="sidegroup">
-		<div class="sidehead">Maler</div>
-		<ul class="list">
-			{#each app.templates as t (t.id)}
-				<li class:active={app.current === t}>
-					<span class="nm" onclick={() => openTemplate(t.id)} title={t.name}>{t.name}</span>
-					{#if isElectron && t.filePath && !t.builtinKey}
-						<button class="del" title="Flytt til papirkurven" onclick={() => confirmBox('Slett', `Flytte malen «${t.name}» til papirkurven?`, () => deleteTemplateFile(t.filePath))}>🗑</button>
-					{:else if !isElectron}
-						<button class="del" title="Slett" onclick={() => confirmBox('Slett', `Slette malen «${t.name}»?`, () => deleteTemplate(t.id))}>🗑</button>
-					{/if}
-				</li>
-			{/each}
-		</ul>
-		<button class="wide" onclick={newTemplate}>+ Ny lokal mal</button>
-	</div>
 	<div class="sidefoot">
+		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
+			🗂 Maler {app.visning === 'maler' ? '(vises)' : ''}
+		</button>
 		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">📂 Åpne fil …</button>
 		<label class="chk"><input type="checkbox" bind:checked={app.showInstr} /> Vis instruksjoner</label>
 		<label class="chk"><input type="checkbox" bind:checked={app.showRoles} /> Vis roller (L / M / ML / A)</label>

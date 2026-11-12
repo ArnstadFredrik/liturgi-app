@@ -1,5 +1,6 @@
 import { app, persist, uid, openService, openTemplate, closeEditor } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
+import { prompt } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
 
 const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -225,12 +226,8 @@ export function listenForFinderOpen() {
 			if (!parsed) { toast.error('Filen ser ikke ut som en liturgi-fil'); return; }
 			const erMal = /\.limal$/i.test(payload.filePath) || parsed.kind === 'template';
 			if (erMal) {
-				parsed.filePath = payload.filePath;
-				parsed.kind = 'template';
-				app.current = parsed;
-				app.kind = 'template';
-				app.dirty = false;
-				toast.success('Åpnet malen «' + (parsed.name ?? '') + '»');
+				// .limal-filer åpnes for import (navn kan endres, kopieres til brukermaler)
+				importerMalFil(payload.json, payload.filePath);
 			} else if (openFromData(parsed, payload.filePath)) {
 				toast.success('Åpnet: ' + payload.filePath.split('/').pop());
 			}
@@ -262,6 +259,8 @@ export async function openFileToStore() {
 	if (!data) { toast.error('Filen ser ikke ut som en liturgi-fil'); return; }
 	if (isElectron && filePath && (data.kind ?? 'service') !== 'template') {
 		if (openFromData(data, filePath)) toast.success('Åpnet «' + (data.name ?? 'gudstjeneste') + '»');
+	} else if ((data.kind ?? 'service') === 'template') {
+		importerMalFil(json, filePath);
 	} else {
 		importJsonIntoStore(data);
 	}
@@ -459,6 +458,48 @@ export async function newTemplateOnDisk(name) {
 	} catch (err) {
 		toast.error('Klarte ikke opprette malen: ' + (err?.message ?? err));
 	}
+}
+
+/** Importér en malfil (.limal/.liturgi) — spør om navn, sjekk navnekonflikt, kopier til brukermaler. */
+export function importerMalFil(json, filePath) {
+	const data = parseLiturgi(json);
+	if (!data || (data.kind ?? 'template') !== 'template') {
+		toast.error('Filen er ikke en mal');
+		return;
+	}
+	const forslag = data.name
+		|| (filePath ? filePath.split('/').pop().replace(/\.limal$/i, '') : '')
+		|| 'Importert mal';
+	prompt('Importér mal', 'Navn på malen', async (name) => {
+		try {
+			const list = await window.liturgi.listTemplates();
+			// navnekonflikt mot eksisterende brukermaler → nummereres automatisk
+			const eksisterende = new Set(
+				app.templates.filter((t) => !erOriginalMal(t)).map((t) => t.name.toLowerCase())
+			);
+			let navn = (name || forslag).trim() || forslag;
+			let n = 2;
+			while (eksisterende.has(navn.toLowerCase())) { navn = `${navn} (${n})`; n++; }
+			data.name = navn;
+			data.kind = 'template';
+			data.id = uid();
+			delete data.builtinKey;
+			data.filePath = null;
+			const safe = safeNavn(navn);
+			const taken = new Set([...list.originaler, ...list.brukermaler].map((x) => x.path));
+			let p = `${list.dirs.brukermaler}/${safe}.limal`;
+			n = 2;
+			while (taken.has(p)) { p = `${list.dirs.brukermaler}/${safe} (${n}).limal`; n++; }
+			const w = await window.liturgi.writeTemplate(p, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
+			if (!w.ok) { toast.error('Klarte ikke importere malen: ' + (w.error ?? 'ukjent feil')); return; }
+			data.filePath = w.filePath;
+			await loadTemplatesFromDisk();
+			openTemplate(data.id);
+			toast.success('Malen «' + navn + '» er importert');
+		} catch (err) {
+			toast.error('Klarte ikke importere malen: ' + (err?.message ?? err));
+		}
+	}, forslag);
 }
 
 /** Slett en lokal malfil (kun Electron) — flyttes til papirkurven. */

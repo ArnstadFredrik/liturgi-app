@@ -102,6 +102,13 @@ button.wide { width: 100%; }
 .w-mal-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 .w-mal-del { color: var(--danger); }
 .w-mal-handlinger { display: flex; gap: 6px; margin-top: 10px; }
+/* Maler-undersiden */
+#maler-side { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }
+#maler-side h2 { color: var(--text); margin-bottom: 4px; }
+.maler-ingress { color: var(--muted); font-size: 0.9em; margin-top: 0; }
+.malgruppe { margin: 22px 0 0; display: flex; flex-direction: column; gap: 4px; }
+.malgruppe .sidehead { margin-bottom: 4px; }
+.maler-tom { color: var(--muted); font-size: 0.9em; margin: 4px 0; }
 #editor { padding: 0 24px 60px; max-width: 900px; margin: 0 auto; }
 #ed-head {
 	display: flex; gap: 10px; align-items: center;
