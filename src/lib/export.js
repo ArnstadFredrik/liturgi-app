@@ -328,9 +328,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			parts.forEach((part, pi) => {
 				if (pi > 0) nylinje();
 				if (!part) return;
-				// ikke skriv i en oppbrukt kolonne: hopp til neste kolonne/side først
-				if (x0() + indent + w - cx < size * 0.6) nylinje();
-				const wrapped = doc.splitTextToSize(part, Math.max(w - (cx - x0() - indent), 20));
+				// fullfør alltid linjen når restbredden er for liten (ellers wraps teksten i ~20 pt-blobs)
+				const rest = w - (cx - x0() - indent);
+				if (rest < doc.getTextWidth('XX')) nylinje();
+				const wrapped = doc.splitTextToSize(part, w - (cx - x0() - indent));
 				wrapped.forEach((l, wi) => {
 					if (wi > 0) nylinje();
 					doc.text(l, cx, y + 4);
