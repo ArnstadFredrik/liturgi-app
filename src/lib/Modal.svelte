@@ -10,6 +10,22 @@
 	let tplId = $state('');
 	let medDåp = $state(true);
 	let medNattverd = $state(true);
+	let nyType = $state('gudstjeneste'); // 'gudstjeneste' | 'gravferd'
+
+	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
+	function malType(t) {
+		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
+	}
+
+	const malerForType = $derived(app.templates.filter((t) => malType(t) === nyType));
+
+	// sørg for at valgt mal passer typen når type byttes
+	$effect(() => {
+		if (m?.type === 'newService') {
+			const t = app.templates.find((x) => x.id === tplId);
+			if (!t || malType(t) !== nyType) tplId = malerForType[0]?.id ?? '';
+		}
+	});
 	let valgte = $state([]);
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
@@ -32,6 +48,7 @@
 		if (m?.type === 'newService') {
 			if (m.preserve) {
 				// tilbake etter manuell kirkeårsdag-valg: gjenopprett feltene
+				nyType = m.preserve.type ?? 'gudstjeneste';
 				name = m.preserve.name;
 				date = m.preserve.date;
 				tplId = m.preserve.tplId;
@@ -40,8 +57,10 @@
 				manuellK = m.preserve.kirkeaar;
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
+				nyType = 'gudstjeneste';
 				name = '';
 				date = nextSundayISO();
+				// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
 				tplId = app.templates[0]?.id ?? '';
 				medDåp = true;
 				medNattverd = true;
@@ -98,7 +117,7 @@
 	// (manuelt valgt dag har forrang inntil den nullstilles)
 	let teksterReq = 0;
 	$effect(() => {
-		if (m?.type === 'newService' && date && !manuellK) autoKirkeaar();
+		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudstjeneste') autoKirkeaar();
 	});
 
 	function autoKirkeaar() {
@@ -119,13 +138,14 @@
 		// husk newService-modalens tilstand og ok-callback, så vi kan komme tilbake
 		const forrige = {
 			ok: m.ok,
+			type: nyType,
 			name, date, tplId, dåp: medDåp, nattverd: medNattverd,
 			kirkeaar, tekster, teksterStatus
 		};
 		const tilbakeTilNyService = () => {
 			showModal({
 				type: 'newService', ok: forrige.ok,
-				preserve: { name: forrige.name, date: forrige.date, tplId: forrige.tplId,
+				preserve: { type: forrige.type, name: forrige.name, date: forrige.date, tplId: forrige.tplId,
 					dåp: forrige.dåp, nattverd: forrige.nattverd, kirkeaar: manuellK }
 			});
 		};
@@ -158,11 +178,12 @@
 		else if (m.type === 'lukk') { m.ok(); return; } // onLagre lukker selv (kan bli avbrutt av lagre-dialog)
 		else if (m.type === 'newService') {
 			const opprett = () => {
-				m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
+				if (nyType === 'gravferd') m.ok(name.trim(), date, tplId, { dåp: false, nattverd: false }, null, null);
+				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
 			};
 			// vent på at tekstepplaget er ferdig (maks 6 s) før opprettelse
-			if (kirkeaar && teksterStatus === 'laster') {
+			if (nyType === 'gudstjeneste' && kirkeaar && teksterStatus === 'laster') {
 				const t0 = Date.now();
 				const vent = () => {
 					if (teksterStatus !== 'laster' || Date.now() - t0 > 6000) opprett();
@@ -199,10 +220,14 @@
 					<input bind:value={name} onkeydown={onKey} />
 				</label>
 			{:else if m.type === 'newService'}
+				<div class="m-type">
+					<button type="button" class="m-type-btn" class:sel={nyType === 'gudstjeneste'} onclick={() => { nyType = 'gudstjeneste'; }}>Gudstjeneste</button>
+					<button type="button" class="m-type-btn" class:sel={nyType === 'gravferd'} onclick={() => { nyType = 'gravferd'; }}>Gravferd</button>
+				</div>
 				<label>
 					Mal
 					<select bind:value={tplId}>
-						{#each app.templates as t (t.id)}
+						{#each malerForType as t (t.id)}
 							<option value={t.id}>{t.name}</option>
 						{/each}
 					</select>
@@ -215,6 +240,7 @@
 					Dato
 					<input type="date" bind:value={date} />
 				</label>
+				{#if nyType === 'gudstjeneste'}
 				{#if kirkeaar}
 					<p class="m-kirkeaar">☀️ {kirkeaar.name}{#if kirkeaar.color}&nbsp;· {kirkeaar.color}{/if}
 						<button class="link-btn" onclick={manuellKirkeaar}>endre …</button>
@@ -232,6 +258,9 @@
 					<label class="chk"><input type="checkbox" bind:checked={medDåp} /> Med dåp</label>
 					<label class="chk"><input type="checkbox" bind:checked={medNattverd} /> Med nattverd</label>
 				</div>
+				{:else}
+					<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg.</p>
+				{/if}
 			{:else if m.type === 'choose'}
 				<p>Velg deler som skal hentes inn fra malen:</p>
 				<div class="m-chk">

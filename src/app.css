@@ -82,6 +82,10 @@ button.wide { width: 100%; }
 .sidefoot { margin-top: auto; font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; padding: 0 4px; }
 /* ikoner i sidefeltknapper */
 #sidebar button.wide svg { display: inline-block; vertical-align: -3px; margin-right: 7px; opacity: 0.85; }
+/* type-veksler i ny-gudstjeneste-modalen */
+.m-type { display: flex; gap: 6px; margin-bottom: 4px; }
+.m-type-btn { flex: 1; border-radius: 8px; }
+.m-type-btn.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
 /* åpne gudstjenester-seksjonen */
 .åpne-gruppe { padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .åpne-gruppe li.active { background: rgba(76, 175, 80, 0.18); }

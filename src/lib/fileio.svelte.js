@@ -517,6 +517,7 @@ export async function saveAsTemplateOnDisk(name) {
 	if (!o) return;
 	const t = {
 		id: uid(), kind: 'template', name: name || o.name,
+		liturgiType: o.liturgiType ?? 'gudstjeneste',
 		sections: JSON.parse(JSON.stringify(o.sections)).map((sec) => ({
 			title: sec.title,
 			items: sec.items.map((x) => ({

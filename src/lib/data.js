@@ -1560,6 +1560,7 @@ export const BUILTIN_TEMPLATES = [
 	"id": "gravferd-2003",
 	"builtinKey": "gravferd-2003",
 	"kind": "template",
+	"liturgiType": "gravferd",
 	"name": "Ordning for gravferd (bokmål, 2003)",
 	"description": "Ordning for gravferd fra kirke eller krematorium — vedtatt av Kirkemøtet 2002, med alle alternativer og skriftlesningstekstgrupper.",
 	"sections": [

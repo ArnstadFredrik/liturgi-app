@@ -74,6 +74,7 @@ function migrateItem(it) {
 export function newServiceFromTemplate(tpl, include) {
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
+		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec.title, include))
@@ -243,6 +244,7 @@ export function deleteTemplate(id) {
 export function saveAsTemplate(name) {
 	const t = {
 		id: uid(), kind: 'template', name: name || app.current.name,
+		liturgiType: app.current.liturgiType ?? 'gudstjeneste',
 		sections: JSON.parse(JSON.stringify(app.current.sections)).map((sec) => ({
 			title: sec.title,
 			items: sec.items.map((x) => ({
