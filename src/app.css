@@ -160,7 +160,8 @@ button.wide { width: 100%; }
 .eksport-innhold-rad { margin: -4px 0 6px 40px; padding: 4px 12px 6px; border-left: 2px solid var(--border); }
 .eksport-innhold-rad.ut { opacity: 0.4; }
 .eksport-innhold-rad.ut .eksport-innhold { text-decoration: line-through; text-decoration-color: var(--muted); }
-/* kompakt visning: knapp etter tittelen som viser/veksler om innholdet er med */
+/* kompakt visning: knappene (innhold/bibelreferanse) står samlet til høyre i kortet, utenfor tittelen */
+.eksport-rad-knapper { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: 0 0 auto; }
 .eksport-innhold-indi { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; padding: 2px 7px; color: var(--accent); vertical-align: middle; font-size: 10px; }
 .eksport-innhold-indi:hover { border-color: var(--accent); }
 .eksport-innhold-indi.av { color: var(--muted); opacity: 0.6; }
