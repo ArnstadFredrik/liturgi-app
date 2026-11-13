@@ -368,20 +368,25 @@
 							{#if it.enabled !== false}
 								<div class="eksport-rad-tekst">
 									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
+									{#if !visInnhold && (leddTekst(it) || '').trim()}
+										<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
+											title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
+											onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
+											{@html mdi('text')}
+										</button>
+									{/if}
 								</div>
 							{/if}
-							</div>
-							{#if visInnhold && it.enabled !== false && (leddTekst(it) || '').trim()}
-							<div class="eksport-innhold-rad" class:ut={it.enabled === false || !visTekstDel(si, ii)}>
-								{#if it.enabled !== false}
-									<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
-										<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
-										{@html mdi('text')}
-									</label>
-								{/if}
+						</div>
+						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && (leddTekst(it) || '').trim()}
+							<div class="eksport-innhold-rad" class:ut={!visTekstDel(si, ii)}>
+								<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
+									<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
+									{@html mdi('text')}
+								</label>
 								<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it))}</div>
 							</div>
-							{/if}
+						{/if}
 					{/each}
 				{/each}
 			</div>

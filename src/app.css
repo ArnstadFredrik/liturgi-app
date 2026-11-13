@@ -160,6 +160,10 @@ button.wide { width: 100%; }
 .eksport-innhold-rad { margin: -4px 0 6px 40px; padding: 4px 12px 6px; border-left: 2px solid var(--border); }
 .eksport-innhold-rad.ut { opacity: 0.4; }
 .eksport-innhold-rad.ut .eksport-innhold { text-decoration: line-through; text-decoration-color: var(--muted); }
+/* kompakt visning: lite indikatorikon etter tittelen som viser/veksler om innholdet er med */
+.eksport-innhold-indi { display: inline-flex; align-items: center; background: none; border: none; cursor: pointer; padding: 0 2px; color: var(--accent); vertical-align: middle; }
+.eksport-innhold-indi.av { color: var(--muted); opacity: 0.55; }
+.eksport-innhold-indi svg { width: 13px; height: 13px; }
 .alt-gruppe-tittel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
 /* to-kolonne alternativvelger: liste til venstre, forhåndsvisning til høyre */
 .m-velg-to-kolonner { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 14px; align-items: start; max-height: 55vh; }
