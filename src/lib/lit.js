@@ -48,3 +48,44 @@ function mdInlineOutsideTags(html) {
 		.map((seg) => seg.startsWith('<span') ? seg : mdInline(seg))
 		.join('');
 }
+
+/* ---------- riktekst-redigering (contenteditable) ---------- */
+
+function escapeHtml(s) {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const ROLLE_PREFIKS_RE = /^(L\/ML|ML\/L|L\/M|KA\/L|L|ML|M|A|KA|K)(\s*\| ?)/;
+
+/** Render én markdown-linje til redigerings-HTML: div.et-linje med data-prefiks slik at
+ *  serialiseringen kan gjenopprette markørene. Linjeprefikser vises som chips, ikke som rå tekst. */
+export function litLinjeHtml(linje) {
+	let m;
+	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return linjeEditHtml('bibelref', 'BIBELREF | ', 'Bibelref', m[2]);
+	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return linjeEditHtml('fotnote', 'FOTNOTE | ', 'Notis', m[2]);
+	if ((m = /^@r ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('@r', (m[0].slice(0, m[0].length - m[1].length)), '@r', m[1]);
+	if ((m = new RegExp(ROLLE_PREFIKS_RE.source + '(.*)$').exec(linje))) return linjeEditHtml('rolle', m[1] + m[2], m[1], m[3]);
+	if ((m = /^(## ?)(.*)$/.exec(linje))) return linjeEditHtml('h2', m[1], '', m[2]);
+	if ((m = /^(# ?)(.*)$/.exec(linje))) return linjeEditHtml('h1', m[1], '', m[2]);
+	if ((m = /^(- ?)(.*)$/.exec(linje))) return linjeEditHtml('liste', m[1], '•', m[2]);
+	return linjeEditHtml('tekst', '', '', linje);
+}
+
+function linjeEditHtml(type, prefiks, chip, innhold) {
+	const klasse = { bibelref: 'fotnote', fotnote: 'fotnote', '@r': 'rline', h1: 'md-h', h2: 'md-h md-h2', liste: 'md-li', rolle: '', tekst: '' }[type];
+	const chipHtml = chip ? `<span class="chip">${escapeHtml(chip)}</span>` : '';
+	const indre = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
+	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}">${chipHtml}${indre}</div>`;
+}
+
+/** Inline-markdown for riktekst-visning (fluktet): {{r}}-spans + fet/urskrift/hevet. */
+function inlineEditHtml(t) {
+	let s = escapeHtml(t);
+	s = s.replace(/\{\{r\}\}([\s\S]*?)\{\{\/r\}\}/g, (m, x) => '<span class="role">' + mdInline(x) + '</span>');
+	return mdInline(s);
+}
+
+/** Hele teksten som redigerings-HTML (én div per linje). */
+export function litEditHtml(text) {
+	return (text ?? '').split('\n').map((l) => litLinjeHtml(l)).join('');
+}

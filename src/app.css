@@ -496,3 +496,12 @@ textarea {
 .et-tool:hover { border-color: var(--accent); color: var(--text); }
 .et-tool.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
 .et-skiller { width: 1px; height: 16px; background: var(--border); margin: 0 3px; }
+
+/* riktekst-redigering (contenteditable): én div per linje, linjeprefikser som chips */
+.et-rik { min-height: 60px; outline: none; }
+.et-rik:empty::before { content: '[Klikk for å skrive]'; color: var(--muted); pointer-events: none; }
+.et-rik .et-linje { min-height: 1.35em; }
+.et-rik .rline { color: var(--role); }
+.et-rik .chip { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); vertical-align: 1px; margin-right: 4px; user-select: none; }
+.et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }
+.et-rik .et-linje[data-type='bibelref'] .chip, .et-rik .et-linje[data-type='fotnote'] .chip { color: var(--muted); }
