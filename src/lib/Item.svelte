@@ -165,21 +165,12 @@
 			{:else if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
 				<EditableText bind:value={it.text} kind="lit" />
-				<div class="alts">
-					{#each it.alts as a, ai (ai)}
-						<label class="alt" class:sel={it.selAlt === ai}>
-							<input type="radio" name="alt-{it.id}" checked={it.selAlt === ai}
-								onchange={() => { it.selAlt = ai; markDirty(); }} />
-							<span class="alt-col">
-								{#if app.kind === 'template'}
-									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
-								{:else}
-									<span class="alt-label">{a.label}{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
-								{/if}
-								<EditableText bind:value={a.text} kind="lit" />
-							</span>
-						</label>
-					{/each}
+				{@const sel = it.alts[it.selAlt ?? 0]}
+				<div class="alt-cur">
+					<EditableText bind:value={sel.text} kind="lit" />
+					<button class="alt-btn" onclick={() => velgAlt()}>
+						Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
+					</button>
 				</div>
 			{:else}
 				{@const sel = it.alts[it.selAlt ?? 0]}
