@@ -150,6 +150,9 @@ button.wide { width: 100%; }
 .eksport-standard-btn { margin-top: 6px; font-size: 12px; }
 .eksport-skiller { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 .alt-gruppe-tittel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
+/* malredigering: «ta med i gudstjenesten»-bryter i leddhodet */
+.ta-med { margin-left: auto; font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
+.ta-med input { cursor: pointer; }
 /* ledd fjernet fra gudstjenesten: nedtonet og låst i eksportlisten */
 .eksport-rad.deaktivert { opacity: 0.45; }
 .eksport-rad.deaktivert .eksport-rad-nm { text-decoration: line-through; }

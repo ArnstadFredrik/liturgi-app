@@ -103,6 +103,12 @@
 		<span class="item-title" contenteditable="plaintext-only" spellcheck="false"
 			onblur={(e) => { if (e.target.textContent !== it.heading) { it.heading = e.target.textContent; markDirty(); } }}
 		>{it.heading}</span>
+		{#if app.kind === 'template'}
+			<label class="ta-med" title="Skal leddet være med når en gudstjeneste opprettes fra malen?">
+				<input type="checkbox" checked={it.enabled !== false} onchange={(e) => { it.enabled = e.currentTarget.checked; markDirty(); }} />
+				ta med
+			</label>
+		{/if}
 	</div>
 	<div class="item-body">
 		{#if (app.current?.visInstr ?? true) && it.instr}
