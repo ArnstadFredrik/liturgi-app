@@ -97,6 +97,32 @@
 		return standard(it);
 	}
 
+	/** Skal leddets overskrift være med? (default ja, lagres med «:h»-nøkkel) */
+	function visHode(si, ii) {
+		const v = valg[aktiv]?.[nokkel(si, ii) + ':h'];
+		if (v !== undefined) return v;
+		const lagret = o?.eksportValg?.[aktiv]?.[nokkel(si, ii) + ':h'];
+		return lagret !== undefined ? lagret : true;
+	}
+
+	/** Skal leddets innhold være med? (default ja, lagres med «:t»-nøkkel) */
+	function visTekstDel(si, ii) {
+		const v = valg[aktiv]?.[nokkel(si, ii) + ':t'];
+		if (v !== undefined) return v;
+		const lagret = o?.eksportValg?.[aktiv]?.[nokkel(si, ii) + ':t'];
+		return lagret !== undefined ? lagret : true;
+	}
+
+	function settDel(si, ii, del, v) {
+		if (!valg[aktiv]) valg[aktiv] = {};
+		valg[aktiv][nokkel(si, ii) + del] = v;
+		if (o) {
+			o.eksportValg = o.eksportValg ?? {};
+			o.eksportValg[aktiv] = { ...valg[aktiv] };
+		}
+		markDirty();
+	}
+
 	function sett(si, ii, m) {
 		if (!valg[aktiv]) valg[aktiv] = {};
 		valg[aktiv][nokkel(si, ii)] = m;
@@ -165,13 +191,18 @@
 		const kopi = JSON.parse(JSON.stringify(svc));
 		// lagrede valg i filen går foran øktens midlertidige valg
 		const lagret = valg[profil] ?? o?.eksportValg?.[profil];
+		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
+		kopi.__visTittel = getInnst('tittel', true);
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
-				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
+				// «Fjern fra gudtjenesten» i kontekstmenyen gjelder også for eksport
 				if (original && original.enabled === false) { it.enabled = false; return; }
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
+				// per-ledd valg: overskrift og/eller innhold med i eksporten
+				it.__visOverskrift = lagret?.[nokkel(si, ii) + ':h'] !== undefined ? lagret[nokkel(si, ii) + ':h'] : true;
+				it.__visInnhold = lagret?.[nokkel(si, ii) + ':t'] !== undefined ? lagret[nokkel(si, ii) + ':t'] : true;
 			});
 		});
 		return kopi;
@@ -316,6 +347,15 @@
 
 		<div class="eksport-kolonner">
 			<div class="eksport-liste">
+				{#if o.kind === 'service'}
+					<div class="sidehead eksport-seksjon">Tittel</div>
+					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
+						<input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} title="Gudtjenestenavn og dato med i eksporten" />
+						<div class="eksport-rad-tekst">
+							<span class="eksport-rad-nm">{o.name}{o.date ? ' · ' + datoTekst : ''}</span>
+						</div>
+					</div>
+				{/if}
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon">{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
@@ -331,8 +371,12 @@
 									<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it) || '*Ingen innhold*')}</div>
 								{/if}
 							</div>
-							{#if it.type === 'salme' && it.enabled !== false}<span class="eksport-tag">salme</span>{/if}
-							{#if it.enabled !== false && erLesning(it) && aktiv === 'Menighet'}<span class="eksport-tag">lesning</span>{/if}
+							{#if it.enabled !== false}
+								<span class="eksport-del-bokser" title="Velg om overskriften og/eller innholdet skal være med">
+									<label class="eksport-del"><input type="checkbox" checked={visHode(si, ii)} onchange={(e) => settDel(si, ii, ':h', e.currentTarget.checked)} /> O</label>
+									<label class="eksport-del"><input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} /> I</label>
+								</span>
+							{/if}
 						</div>
 					{/each}
 				{/each}

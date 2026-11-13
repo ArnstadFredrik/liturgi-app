@@ -137,9 +137,11 @@ export function nlDate(d) {
 /** Flat oversikt for eksport: [{heading, text, instr, empty}] */
 export function buildOutline(svc, showInstr) {
 	const out = [];
-	out.push({ heading: 'h1', text: svc.name });
-	if (svc.date) out.push({ heading: 'h3', text: nlDate(svc.date), muted: true });
-	if (svc.kirkeaar?.name) out.push({ heading: 'h3', text: svc.kirkeaar.name, muted: true });
+	if (svc.__visTittel !== false) {
+		out.push({ heading: 'h1', text: svc.name });
+		if (svc.date) out.push({ heading: 'h3', text: nlDate(svc.date), muted: true });
+		if (svc.kirkeaar?.name) out.push({ heading: 'h3', text: svc.kirkeaar.name, muted: true });
+	}
 
 	for (const sec of svc.sections) {
 		out.push({ heading: 'h2', text: sec.title });
@@ -149,7 +151,8 @@ export function buildOutline(svc, showInstr) {
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) {
 				head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
 			}
-			if (head) out.push({ heading: 'h3', text: head });
+			if (head && it.__visOverskrift !== false) out.push({ heading: 'h3', text: head });
+			if (it.__visInnhold === false) continue;
 			if (showInstr && it.instr) out.push({ text: it.instr, muted: true });
 			if (it.type === 'salme') {
 				if (!it.salmeNr && !it.salmeTittel && !it.text) out.push({ text: '[Salme: settes inn]', muted: true });
@@ -439,8 +442,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		}
 	};
 
-	// tittelside-informasjon (kan slås av for menighetsprogram — valg.tittel)
-	if (valg.tittel !== false) {
+	// tittelside-informasjon (kan slås av — «Navn og dato»-raden i eksportmodulen)
+	if (svc.__visTittel !== false && valg.tittel !== false) {
 		skrivLinjer(svc.name, { bold: true, size: S(16), sans: true });
 		if (svc.date || svc.kirkeaar?.name) {
 			skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
@@ -457,7 +460,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { y += hefte ? 1.5 : 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11), sans: true }); y += 1.8; }
+			if (head && it.__visOverskrift !== false) { y += hefte ? 1.5 : 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11), sans: true }); y += 1.8; }
+			if (it.__visInnhold === false) continue;
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
