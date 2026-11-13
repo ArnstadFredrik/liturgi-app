@@ -66,13 +66,14 @@ export function instantiate(it) {
 
 /* konverter automatiske rolleprefikser (L |, ML | …) til eksplisitte {{r}}-markører */
 export function autoMark(t) {
-	return (t ?? '').replace(/^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)/gm, '{{r}}$1$2{{/r}}');
+	// rolleprefikser («L | tekst») er førsteklasses syntaks i riktekst-editoren
+	// (redigerbar chip) — pakkes ikke lenger automatisk inn i {{r}}…{{/r}}
+	return t ?? '';
 }
 
 function migrateItem(it) {
-	it.text = autoMark(it.text);
-	it.instr = autoMark(it.instr);
-	if (it.alts) for (const a of it.alts) a.text = autoMark(a.text);
+	// rolleprefikser («L | tekst») er førsteklasses syntaks i riktekst-editoren
+	// (redigerbar chip) — pakkes ikke lenger automatisk inn i {{r}}…{{/r}}
 }
 
 export function newServiceFromTemplate(tpl, include) {
@@ -311,8 +312,8 @@ export function applyKirkeaar(svc, k, tekster) {
 				if (it.text?.includes('[Dagens bønn]')) {
 					const innhold = formaterBønn(k.prayer);
 					it.text = it.text.replace('[Dagens bønn]', innhold);
-					// unngå dobbel avsluttende Amen fra malen
-					if (/amen\.?$/i.test(innhold)) it.text = it.text.replace(/\n*M \| Amen\.\s*$/, '');
+					// unngå dobbel avsluttende Amen fra malen (tåler både ren og {{r}}-pakket form)
+					if (/amen\.?$/i.test(innhold)) it.text = it.text.replace(/\n*(?:\{\{r\}\})?M \| Amen\.?(?:\{\{\/r\}\})?\s*$/, '');
 				} else if ((it.alts ?? []).length) {
 					// lokal(e) alternativ(er) beholdes – kirkeårsbønnen settes inn/oppdateres forrest
 					const idx = it.alts.findIndex((a) => a.label === 'Dagens bønn (kirkeåret)');

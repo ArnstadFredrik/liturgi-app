@@ -1705,7 +1705,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-4",
 					"type": "tekst",
 					"heading": "4 Inngangsord",
-					"text": "{{r}}L |{{/r}} Nåde være med dere og fred fra Gud vår Far og Herren Jesus Kristus.\nVi er samlet her for å ta avskjed med (navnet nevnes).\n*Sammen vil vi overgi ham/henne i Guds hender [og følge ham/henne til det siste hvilestedet].*",
+					"text": "L | Nåde være med dere og fred fra Gud vår Far og Herren Jesus Kristus.\nVi er samlet her for å ta avskjed med (navnet nevnes).\n*Sammen vil vi overgi ham/henne i Guds hender [og følge ham/henne til det siste hvilestedet].*",
 					"instr": "*Teksten i klammer kan utelates ved kremasjon.* Deretter kan liturgen fortsette med et av skriftordene.",
 					"alts": [
 						{
@@ -1728,7 +1728,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-5",
 					"type": "tekst",
 					"heading": "5 Inngangsbønn",
-					"text": "{{r}}L |{{/r}} La oss be.",
+					"text": "L | La oss be.",
 					"instr": "",
 					"alts": [
 						{
@@ -1782,7 +1782,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-8",
 					"type": "tekst",
 					"heading": "8 Skriftlesning",
-					"text": "{{r}}L |{{/r}} La oss høre hva Guds ord vitner om livet og døden, og dommen og vårt håp i Jesus Kristus.\n\n(Her følger tre lesninger — se tekstgruppene til slutt i ordningen. Tekstene velges slik at de dekker de innholdsmomenter som er nevnt foran. Menigheten sitter under lesningen. Tekstene kan leses av liturgen eller av en eller flere andre.)\n\nSkriftlesningen avsluttes med:\n{{r}}L |{{/r}} Slik lyder Herrens ord.",
+					"text": "L | La oss høre hva Guds ord vitner om livet og døden, og dommen og vårt håp i Jesus Kristus.\n\n(Her følger tre lesninger — se tekstgruppene til slutt i ordningen. Tekstene velges slik at de dekker de innholdsmomenter som er nevnt foran. Menigheten sitter under lesningen. Tekstene kan leses av liturgen eller av en eller flere andre.)\n\nSkriftlesningen avsluttes med:\nL | Slik lyder Herrens ord.",
 					"instr": "",
 					"alts": [],
 					"optional": false
@@ -1927,7 +1927,7 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "Lesninger ved barns gravferd",
 					"text": "",
-					"instr": "Ved barns gravferd brukes f.eks. disse lesningene, innledet slik:\n{{r}}L |{{/r}} La oss høre hvordan Jesus åpner Guds rike for barna.\nDe tre tekstene leses i sammenheng. Ved gravferd for spedbarn eller barn som er døde før fødsel, kan en velge andre tekster enn de ovenstående, f.eks. Salme 39,5-8 eller Salme 139,1-6.13-18, eller tekster som særlig uttrykker lidelsen, smerten og det uforståelige.",
+					"instr": "Ved barns gravferd brukes f.eks. disse lesningene, innledet slik:\nL | La oss høre hvordan Jesus åpner Guds rike for barna.\nDe tre tekstene leses i sammenheng. Ved gravferd for spedbarn eller barn som er døde før fødsel, kan en velge andre tekster enn de ovenstående, f.eks. Salme 39,5-8 eller Salme 139,1-6.13-18, eller tekster som særlig uttrykker lidelsen, smerten og det uforståelige.",
 					"alts": [
 						{
 							"label": "Mark 10,13-16",
@@ -1973,28 +1973,28 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-11",
 					"type": "tekst",
 					"heading": "11 Bønn",
-					"text": "{{r}}L |{{/r}} La oss be.",
+					"text": "L | La oss be.",
 					"instr": "",
 					"alts": [
 						{
 							"label": "A",
-							"text": "{{r}}L |{{/r}} Evige Gud, vår tilflukt i sorgens tid, vær nær med din fred. Styrk oss i troen. Gi oss fremtid og håp. Vi takker deg for (navnet nevnes) og det du gav oss gjennom hans/hennes liv.\n*Barmhjertige Gud, vi overgir ham/henne i dine hender. Du som har skapt oss i ditt bilde og gitt oss Jesus Kristus som vår Frelser, reis oss opp på oppstandelsens dag til evig liv hos deg.*"
+							"text": "L | Evige Gud, vår tilflukt i sorgens tid, vær nær med din fred. Styrk oss i troen. Gi oss fremtid og håp. Vi takker deg for (navnet nevnes) og det du gav oss gjennom hans/hennes liv.\n*Barmhjertige Gud, vi overgir ham/henne i dine hender. Du som har skapt oss i ditt bilde og gitt oss Jesus Kristus som vår Frelser, reis oss opp på oppstandelsens dag til evig liv hos deg.*"
 						},
 						{
 							"label": "B",
-							"text": "{{r}}L |{{/r}} Jesus Kristus, du som lovet å være med oss alle dager inntil verdens slutt, vær du vår styrke og trøst, vårt lys og vår veiviser. La oss alle en gang ved troen på deg få del i oppstandelsens glede."
+							"text": "L | Jesus Kristus, du som lovet å være med oss alle dager inntil verdens slutt, vær du vår styrke og trøst, vårt lys og vår veiviser. La oss alle en gang ved troen på deg få del i oppstandelsens glede."
 						},
 						{
 							"label": "C",
-							"text": "{{r}}L |{{/r}} Evige Gud, himmelske Far, du har i din Sønn, Jesus Kristus, gitt oss seier over døden. Vi ber deg, led oss ved din Hellige Ånd, så vi aldri kommer bort fra deg, men lever vårt liv i troen på din Sønn og engang når fram til det evige liv i ditt rike, ved Jesus Kristus, vår Herre."
+							"text": "L | Evige Gud, himmelske Far, du har i din Sønn, Jesus Kristus, gitt oss seier over døden. Vi ber deg, led oss ved din Hellige Ånd, så vi aldri kommer bort fra deg, men lever vårt liv i troen på din Sønn og engang når fram til det evige liv i ditt rike, ved Jesus Kristus, vår Herre."
 						},
 						{
 							"label": "D",
-							"text": "{{r}}L |{{/r}} Herre Jesus Kristus, du som bar alle våre synder, vi takker deg for din kjærlighet som er sterkere enn døden. Gi oss del i frelsen du vant ved din død og oppstandelse, og før oss med din mektige hånd gjennom liv, død og dom inn til din evige glede."
+							"text": "L | Herre Jesus Kristus, du som bar alle våre synder, vi takker deg for din kjærlighet som er sterkere enn døden. Gi oss del i frelsen du vant ved din død og oppstandelse, og før oss med din mektige hånd gjennom liv, død og dom inn til din evige glede."
 						},
 						{
 							"label": "E",
-							"text": "{{r}}L |{{/r}} Himmelske Far, vi takker deg for det du gav gjennom (navnet nevnes) som nå er gått bort. Styrk og trøst alle som sitter i sorg og savn. Vi overgir oss i din sterke hånd. Hjelp oss å leve i samfunn med deg, så vi engang kan fare herifra i fred, ved Jesus Kristus, din Sønn, vår Herre."
+							"text": "L | Himmelske Far, vi takker deg for det du gav gjennom (navnet nevnes) som nå er gått bort. Styrk og trøst alle som sitter i sorg og savn. Vi overgir oss i din sterke hånd. Hjelp oss å leve i samfunn med deg, så vi engang kan fare herifra i fred, ved Jesus Kristus, din Sønn, vår Herre."
 						},
 						{
 							"label": "F — bønn etter situasjonen",
@@ -2007,7 +2007,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-12",
 					"type": "tekst",
 					"heading": "12 I dine hender",
-					"text": "{{r}}A |{{/r}} I dine hender, Herre Gud, overgir jeg min ånd. Du forløser meg, Herre, du trofaste Gud.\n\nI dine hender, Herre Gud, overgir jeg min ånd. Ære være Faderen og Sønnen og Den hellige ånd. I dine hender, Herre Gud, overgir jeg min ånd.",
+					"text": "A | I dine hender, Herre Gud, overgir jeg min ånd. Du forløser meg, Herre, du trofaste Gud.\n\nI dine hender, Herre Gud, overgir jeg min ånd. Ære være Faderen og Sønnen og Den hellige ånd. I dine hender, Herre Gud, overgir jeg min ånd.",
 					"instr": "Dette leddet kan også synges som vekselsang, se Norsk salmebok 2013 nr 941.1 og 2. Her kan også følge Simeons lovsang (Luk 2,29-32), enten lest eller sunget, se Norsk salmebok 2013 nr 908 og 909.",
 					"alts": [],
 					"optional": false
@@ -2016,16 +2016,16 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-13",
 					"type": "tekst",
 					"heading": "13 Fader vår",
-					"text": "{{r}}L |{{/r}} La oss sammen be Fader vår.",
+					"text": "L | La oss sammen be Fader vår.",
 					"instr": "",
 					"alts": [
 						{
 							"label": "Vekselsang",
-							"text": "{{r}}A |{{/r}} Vår Far i himmelen!\n{{r}}A |{{/r}} La navnet ditt helliges.\n{{r}}A |{{/r}} La riket ditt komme.\n{{r}}A |{{/r}} La viljen din skje på jorden slik som i himmelen.\n{{r}}A |{{/r}} Gi oss i dag vårt daglige brød,\n{{r}}A |{{/r}} og tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\n{{r}}A |{{/r}} Og la oss ikke komme i fristelse, men frels oss fra det onde.\n{{r}}A |{{/r}} For riket er ditt, og makten og æren i evighet.\n{{r}}A |{{/r}} Amen."
+							"text": "A | Vår Far i himmelen!\nA | La navnet ditt helliges.\nA | La riket ditt komme.\nA | La viljen din skje på jorden slik som i himmelen.\nA | Gi oss i dag vårt daglige brød,\nA | og tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\nA | Og la oss ikke komme i fristelse, men frels oss fra det onde.\nA | For riket er ditt, og makten og æren i evighet.\nA | Amen."
 						},
 						{
 							"label": "Lest",
-							"text": "{{r}}A |{{/r}} Fader vår, du som er i himmelen!\nLa ditt navn holdes hellig.\nLa ditt rike komme.\nLa din vilje skje på jorden som i himmelen.\nGi oss i dag vårt daglige brød.\nForlat oss var skyld, som vi og forlater våre skyldnere.\nLed oss ikke inn i fristelse, men frels oss fra det onde.\nFor riket er ditt, og makten og æren i evighet.\nAmen."
+							"text": "A | Fader vår, du som er i himmelen!\nLa ditt navn holdes hellig.\nLa ditt rike komme.\nLa din vilje skje på jorden som i himmelen.\nGi oss i dag vårt daglige brød.\nForlat oss var skyld, som vi og forlater våre skyldnere.\nLed oss ikke inn i fristelse, men frels oss fra det onde.\nFor riket er ditt, og makten og æren i evighet.\nAmen."
 						}
 					],
 					"optional": false
@@ -2146,11 +2146,11 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Joh 11,25-26",
-							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
+							"text": "L | Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
 						},
 						{
 							"label": "B — 1 Pet 1,3",
-							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
+							"text": "L | Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
 						}
 					],
 					"optional": false,
@@ -2199,7 +2199,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "gf-27",
 					"type": "tekst",
 					"heading": "20 Jordpåkastelse (krematorium)",
-					"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn.\n\nDeretter kaster liturgen tre ganger jord på kisten og sier:\nFørste gang: Av jord er du kommet.\nAndre gang: Til jord skal du bli.\nTredje gang: Av jorden skal du igjen oppstå.",
+					"text": "L | I Faderens og Sønnens og Den Hellige Ånds navn.\n\nDeretter kaster liturgen tre ganger jord på kisten og sier:\nFørste gang: Av jord er du kommet.\nAndre gang: Til jord skal du bli.\nTredje gang: Av jorden skal du igjen oppstå.",
 					"instr": "",
 					"alts": [],
 					"optional": false
@@ -2213,18 +2213,18 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Joh 11,25-26",
-							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
+							"text": "L | Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
 						},
 						{
 							"label": "B — 1 Pet 1,3",
-							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
+							"text": "L | Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
 						}
 					],
 					"optional": false,
 					"avslutningAlts": [
 						{
 							"label": "Velsignelse",
-							"text": "{{r}}L |{{/r}} vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠"
+							"text": "L | vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠"
 						}
 					]
 				},
