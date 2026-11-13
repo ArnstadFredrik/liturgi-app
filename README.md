@@ -54,15 +54,6 @@ Data lagres utenfor appen og overlever oppdateringer:
     src/lib/Editor.svelte      – redigering av gudstjeneste/mal
     src/lib/Item.svelte        – ett liturgiledd (tekst, alternativer, salme)
 
-## Utevilging (release)
-
-1. Lag en fine-grained PAT med skriverettighet til `ArnstadFredrik/homebrew-tap` og legg den som repo-secret `HOMEBREW_TAP_TOKEN`.
-2. Push en tag:
-
-        git tag v1.0.1 && git push origin v1.0.1
-
-3. GitHub Actions (`.github/workflows/release-mac.yml`) bygger DMG-en, publiserer release og oppdaterer `Casks/liturgi.rb` i homebrew-tap automatisk.
-
 ## Merk
 
 - `app/`-mappen i prosjektroten er den gamle vanilla-JS-versjonen (referanse; kan slettes).
