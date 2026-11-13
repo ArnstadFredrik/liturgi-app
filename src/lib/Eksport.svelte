@@ -258,12 +258,13 @@
 			} else n++;
 		}
 		if (formater.pdf && isElectron) {
-			let kopi = klonMedValg(o, profil);
-			if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
-			const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
-				storrelse: getInnst('storrelse', 'A5'),
-				kolonner: getInnst('kolonner', 1)
-			});
+					let kopi = klonMedValg(o, profil);
+					if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
+					const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
+						storrelse: getInnst('storrelse', 'A5'),
+						kolonner: getInnst('kolonner', 1),
+						hefte: getInnst('hefte', aktiv === 'Menighet')
+					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 			if (r.ok) { toast.success('PDF: ' + r.filePath); n++; }
 			else toast.error('Klarte ikke lagre PDF: ' + (r.error ?? 'ukjent feil'));
@@ -376,6 +377,10 @@
 						<span class="sidehead">Kolonner (Word/PDF)</span>
 						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> Én kolonne</label>
 						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> To kolonner</label>
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Heftemodus (kun PDF)</span>
+						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
 					</div>
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Bibellesninger</span>
