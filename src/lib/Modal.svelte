@@ -92,11 +92,38 @@
 	let kFilter = $state('');
 	let kValgt = $state(null);
 	let kDager = $state([]);
+	/** Fuzzy-søk: alle søketermene må treffe navnet (subsequence, rekkefølge bevart)
+	 *  eller datoen (token-likelihood, f.eks. «24-12», «15.11», «advent 24»). */
 	const filtrerteDager = $derived.by(() => {
 		const q = kFilter.trim().toLowerCase();
 		if (!q) return kDager;
-		return kDager.filter((d) => (d.name + ' ' + d.date).toLowerCase().includes(q));
+		return kDager.filter((d) => q.split(/\s+/).every((term) => subseq(term, d.name.toLowerCase()) || datoTreff(term, d.date)));
 	});
+	/** Subsequence-match: tegnene i q forekommer i rekkefølge i s. */
+	function subseq(q, s) {
+		let i = 0;
+		for (const c of s) { if (c === q[i]) i++; if (i >= q.length) return true; }
+		return q.length === 0;
+	}
+	/** Dato-treff: godtar «2026-12-24», «12-24», «24-12», «24.12», «24/12» (dd og mm bytter plass). */
+	function datoTreff(term, dato) {
+		if (!dato) return false;
+		const norm = term.replace(/\./g, '-').replace(/\//g, '-');
+		if (dato.includes(norm)) return true;
+		const p = norm.split('-').filter(Boolean);
+		if (p.length === 2 && p.every((x) => /^\d{1,2}$/.test(x))) {
+			const [a, b] = p;
+			const aa = a.padStart(2, '0'), bb = b.padStart(2, '0');
+			return dato.includes(`-${bb}-${aa}`); // «24-12» → -12-24 (dd-mm)
+		}
+		return false;
+	}
+	/** Datoendring i modalen: hent dager for nytt kirkeår, behold filteret. */
+	function endreDato(nyDato) {
+		if (!nyDato) return;
+		kDager = kirkeaarDager(nyDato);
+		kValgt = null;
+	}
 	async function bibSok(q) {
 		if (!window.liturgi?.bibSearch) { bibGrupper = []; return; }
 		const sek = ++bibReq;
@@ -356,16 +383,21 @@
 			{:else if m.type === 'lukk'}
 				<p>{m.message}</p>
 			{:else if m.type === 'kirkeaarListe'}
-				<p class="m-kirkeaar muted">Velg kirkeårsdag for {m.dato}:</p>
-				<input bind:value={kFilter} oninput={() => {}} placeholder='Filtrer, f.eks. «advent» …' spellcheck="false" />
+				<p class="m-kirkeaar muted">Velg kirkeårsdag</p>
+				<label>
+					Dato
+					<input type="date" value={m.dato} onchange={(e) => endreDato(e.currentTarget.value)} />
+				</label>
+				<input bind:value={kFilter} placeholder='Søk, f.eks. «advent», «påske», «24-12» …' spellcheck="false" />
 				<div class="m-bib-list m-kirkeaar-liste">
 					{#each filtrerteDager as d, di (d.day.id + d.date)}
 						<button type="button" class="m-bib-gruppe" class:sel={kValgt === di}
 							onclick={() => (kValgt = di)}>
-							<span class="m-bib-ledd">{d.date} · {d.name}</span>
-							{#if d.color}<span class="m-bib-antall">{d.color}{#if d.series}&nbsp;· {d.series}{/if}</span>{/if}
+							<span class="m-bib-ledd">{d.name}</span>
+							<span class="m-bib-antall">{d.date}{#if d.color}&nbsp;· {d.color}{/if}{#if d.series}&nbsp;· {d.series}{/if}</span>
 						</button>
 					{/each}
+					{#if !filtrerteDager.length}<p class="m-kirkeaar muted">Ingen treff.</p>{/if}
 				</div>
 			{/if}
 			<div id="modal-actions">
