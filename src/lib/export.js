@@ -439,10 +439,12 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		}
 	};
 
-	// tittelside-informasjon
-	skrivLinjer(svc.name, { bold: true, size: S(16), sans: true });
-	if (svc.date || svc.kirkeaar?.name) {
-		skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
+	// tittelside-informasjon (kan slås av for menighetsprogram — valg.tittel)
+	if (valg.tittel !== false) {
+		skrivLinjer(svc.name, { bold: true, size: S(16), sans: true });
+		if (svc.date || svc.kirkeaar?.name) {
+			skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
+		}
 	}
 	y += hefte ? 2.5 : 4;
 
