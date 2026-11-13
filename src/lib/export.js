@@ -343,15 +343,21 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	download(blob, safeName(svc.name) + '.pptx');
 }
 
-/** Bygg PDF (base64) med jsPDF — sidestørrelse og kolonner som Word. */
+/** Bygg PDF (base64) med jsPDF — sidestørrelse og kolonner som Word.
+ *  valg.hefte: kompakt 4-siders modus (menighetsprogram som brettes) — mindre skrift,
+ *  strammere mellomrom og smalere marg. */
 export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const a5 = valg.storrelse === 'A5';
+	const hefte = !!valg.hefte;
 	const mm = { w: a5 ? 148 : 210, h: a5 ? 210 : 297 };
 	const doc = new jsPDF({ unit: 'mm', format: [mm.w, mm.h] });
-	const margin = 15;
+	const margin = hefte ? 10 : 15;
 	const kolonner = valg.kolonner === 2 ? 2 : 1;
-	const colGap = 6;
+	const colGap = hefte ? 4 : 6;
 	const colW = (mm.w - margin * 2 - colGap * (kolonner - 1)) / kolonner;
+	// skriftskala: hefte 0,85× — brødtekst ~9 pt, overskrifter proporsjonalt mindre
+	const skala = hefte ? 0.85 : 1;
+	const S = (n) => Math.round(n * skala * 10) / 10;
 
 	const ROLE = [31, 112, 77];   // ikke brukt direkte; rød = #C0392B
 	const RED = [192, 57, 43];
@@ -434,23 +440,23 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	};
 
 	// tittelside-informasjon
-	skrivLinjer(svc.name, { bold: true, size: 16, sans: true });
+	skrivLinjer(svc.name, { bold: true, size: S(16), sans: true });
 	if (svc.date || svc.kirkeaar?.name) {
-		skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: 10 });
+		skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
 	}
-	y += 4;
+	y += hefte ? 2.5 : 4;
 
 	for (const sec of svc.sections) {
-		y += 5; // god margin før overskriften
+		y += hefte ? 3 : 5; // god margin før overskriften
 		nySideHvisNodvendig(12);
-		skrivLinjer(sec.title, { bold: true, size: 13, sans: true });
-		y += 3.5;
+		skrivLinjer(sec.title, { bold: true, size: S(13), sans: true });
+		y += hefte ? 2 : 3.5;
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head) { y += 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: 11, sans: true }); y += 1.8; }
-			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: 9.5 }); y += 1.5; }
+			if (head) { y += hefte ? 1.5 : 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11), sans: true }); y += 1.8; }
+			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
 			if (it.type === 'salme') tekst = it.text ?? '';
@@ -461,7 +467,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
 			skrivSegmenter(roleSegments(flytAvsnitt(tekst)));
-			y += 3;
+			y += hefte ? 1.8 : 3;
 		}
 	}
 	// sidetall «side/total» i bunnen av hver side (etter at alt innhold er tegnet)
