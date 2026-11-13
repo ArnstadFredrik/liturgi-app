@@ -372,7 +372,8 @@
 										<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
 											title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
 											onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
-											{@html mdi('text')}
+											{@html mdi('table-of-contents')}
+											<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
 										</button>
 									{/if}
 								</div>
