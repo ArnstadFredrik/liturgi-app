@@ -263,7 +263,8 @@
 					const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
 						storrelse: getInnst('storrelse', 'A5'),
 						kolonner: getInnst('kolonner', 1),
-						hefte: getInnst('hefte', aktiv === 'Menighet')
+						hefte: getInnst('hefte', aktiv === 'Menighet'),
+						tittel: getInnst('tittel', true)
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 			if (r.ok) { toast.success('PDF: ' + r.filePath); n++; }
@@ -381,6 +382,7 @@
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Heftemodus (kun PDF)</span>
 						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
+						<label class="eksport-chk"><input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} /> Navn og dato med i eksporten</label>
 					</div>
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Bibellesninger</span>
