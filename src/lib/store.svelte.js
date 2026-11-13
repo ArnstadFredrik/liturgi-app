@@ -54,7 +54,7 @@ export function instantiate(it) {
 		heading: it.heading ?? '', optional: !!it.optional,
 		text: autoMark(it.text ?? ''), instr: autoMark(it.instr ?? ''),
 		alts: (it.alts ?? []).map((a) => ({ label: a.label ?? '', text: autoMark(a.text ?? '') })),
-		selAlt: it.selAlt ?? ((it.alts ?? []).length ? 0 : null), enabled: true,
+		selAlt: it.selAlt ?? ((it.alts ?? []).length ? 0 : null), enabled: it.enabled !== false,
 		introAlts: (it.introAlts ?? []).map((a) => ({ label: a.label ?? '', text: autoMark(a.text ?? '') })),
 		selIntro: it.selIntro ?? ((it.introAlts ?? []).length ? 0 : null),
 		avslutningAlts: (it.avslutningAlts ?? []).map((a) => ({ label: a.label ?? '', text: autoMark(a.text ?? '') })),

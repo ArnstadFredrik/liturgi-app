@@ -12,7 +12,8 @@ export const BUILTIN_TEMPLATES = [
 					"type": "instruks",
 					"heading": "1 Forberedelse",
 					"optional": true,
-					"text": "Kirkerommet er åpent en stund før gudstjenesten, med anledning til stillhet, lystenning og bønn.\nKlokkeringing\nHer eller etter ledd 3 Hilsen kan det være kort informasjon om dagens gudstjeneste ved medliturg eller liturg. Informasjonen avsluttes med:\nML | La oss være stille for Gud.\nKort stillhet. Tre klokkeslag."
+					"text": "Kirkerommet er åpent en stund før gudstjenesten, med anledning til stillhet, lystenning og bønn.\nKlokkeringing\nHer eller etter ledd 3 Hilsen kan det være kort informasjon om dagens gudstjeneste ved medliturg eller liturg. Informasjonen avsluttes med:\nML | La oss være stille for Gud.\nKort stillhet. Tre klokkeslag.",
+					"enabled": false
 				},
 				{
 					"id": "s2",
@@ -372,7 +373,8 @@ export const BUILTIN_TEMPLATES = [
 					"id": "o16",
 					"type": "kunngjoring",
 					"heading": "16 Kunngjøringer",
-					"optional": true
+					"optional": true,
+					"enabled": false
 				},
 				{
 					"id": "o17",
@@ -492,7 +494,8 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "19 Takkoffer",
 					"instr": "Kan samles inn her, under ledd 20 eller under ledd 27.",
-					"text": "L | Evige Gud, din er jorden og det som fyller den. Alt vi eier tilhører deg. Av ditt eget gir vi deg tilbake.\nA/L | Ta imot oss og våre gaver i Jesu navn. Amen."
+					"text": "L | Evige Gud, din er jorden og det som fyller den. Alt vi eier tilhører deg. Av ditt eget gir vi deg tilbake.\nA/L | Ta imot oss og våre gaver i Jesu navn. Amen.",
+					"enabled": false
 				}
 			]
 		},
@@ -829,7 +832,8 @@ export const BUILTIN_TEMPLATES = [
 					"text": "",
 					"instr": "Klokkeringing\n\nInformasjon om dagens gudstjeneste\n\nTre klokkeslag",
 					"alts": [],
-					"optional": true
+					"optional": true,
+					"enabled": false
 				},
 				{
 					"id": "l-2",
@@ -1031,7 +1035,8 @@ export const BUILTIN_TEMPLATES = [
 					"text": "",
 					"instr": "Dåp i hovedgudtjenesten skjer normalt her. Forbered dåpsvann, dåpslys og verger.",
 					"alts": [],
-					"optional": false
+					"optional": false,
+					"enabled": false
 				},
 				{
 					"id": "l-11",
@@ -1069,7 +1074,8 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [],
 					"optional": false,
 					"salmeNr": "",
-					"salmeTittel": ""
+					"salmeTittel": "",
+					"enabled": false
 				},
 				{
 					"id": "l-15",
@@ -1163,7 +1169,8 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [],
 					"optional": false,
 					"salmeNr": "",
-					"salmeTittel": ""
+					"salmeTittel": "",
+					"enabled": false
 				}
 			]
 		},
@@ -1291,7 +1298,8 @@ export const BUILTIN_TEMPLATES = [
 					"text": "",
 					"instr": "",
 					"alts": [],
-					"optional": true
+					"optional": true,
+					"enabled": false
 				},
 				{
 					"id": "l-36",
@@ -1355,7 +1363,8 @@ export const BUILTIN_TEMPLATES = [
 					"text": "L | Vi skal samle inn takkeofferet, det går i dag til ...\nTakkeoffer, det spilles instrumentalmusikk underveis\nL | Evige Gud, din er jorden og det som fyller den.\nAlt vi eier tilhører deg. Av ditt eget gir vi deg tilbake.\nA / L  Ta imot oss og våre gaver i Jesu navn. Amen.",
 					"instr": "",
 					"alts": [],
-					"optional": true
+					"optional": true,
+					"enabled": false
 				},
 				{
 					"id": "l-40",
@@ -1364,7 +1373,8 @@ export const BUILTIN_TEMPLATES = [
 					"text": "I dag går takkeofferet til ...\nVippsnummer: 62 89 89  (Gyland)\nVippsnummer: 60 66 45  (Bakke)",
 					"instr": "",
 					"alts": [],
-					"optional": true
+					"optional": true,
+					"enabled": false
 				}
 			]
 		},
@@ -1380,7 +1390,8 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [],
 					"optional": false,
 					"salmeNr": "",
-					"salmeTittel": ""
+					"salmeTittel": "",
+					"enabled": false
 				},
 				{
 					"id": "l-42",
