@@ -246,7 +246,7 @@
 
 {#if m}
 	<div id="modal-back">
-		<div id="modal" role="dialog">
+		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' ? 'bred' : ''} role="dialog">
 			<h3>{m.title}</h3>
 			{#if m.type === 'confirm'}
 				<p>{m.message}</p>
@@ -310,17 +310,19 @@
 					{/each}
 				</div>
 			{:else if m.type === 'chooseOne'}
-				<p>Velg alternativ:</p>
-				<div class="m-alts">
-					{#each m.options as o, ai (ai)}
-						<label class="m-alt" class:sel={valgtAlt === ai}>
-							<input type="radio" name="m-alt" value={ai} bind:group={valgtAlt} />
-							<span class="m-alt-col">
-								<span class="alt-label">{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</span>
-								<span class="m-alt-text">{@html litHtml(o.text)}</span>
-							</span>
-						</label>
-					{/each}
+				<div class="m-velg-to-kolonner">
+					<div class="m-velg-liste">
+						<p class="muted m-velg-hint">Velg alternativ:</p>
+						{#each m.options as o, ai (ai)}
+							<button type="button" class="m-velg-rad" class:sel={valgtAlt === ai}
+								onclick={() => (valgtAlt = ai)}>
+								{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}
+							</button>
+						{/each}
+					</div>
+					<div class="m-velg-visning lit-text">
+						{@html litHtml(m.options[valgtAlt]?.text || '')}
+					</div>
 				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">
