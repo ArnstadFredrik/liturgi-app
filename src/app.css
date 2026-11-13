@@ -489,3 +489,10 @@ textarea {
 	textarea { display: none; }
 	.sec-title { border-bottom: 1.5pt solid #b03226; }
 }
+
+/* verktøylinje i redigering: ikonknapper med av/på-tilstand */
+.et-tools { display: flex; align-items: center; gap: 4px; }
+.et-tool { display: inline-flex; align-items: center; justify-content: center; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; color: var(--muted); }
+.et-tool:hover { border-color: var(--accent); color: var(--text); }
+.et-tool.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+.et-skiller { width: 1px; height: 16px; background: var(--border); margin: 0 3px; }
