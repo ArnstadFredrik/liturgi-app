@@ -200,7 +200,7 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "Bibelord",
 					"optional": true,
-					"text": "{{r}}L |{{/r}} La oss høre hvor vennlig Jesus tar imot barna og åpner Guds rike for oss:\nKlokker/dåpsfølge | De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem. Mark 10,13-16"
+					"text": "{{r}}L |{{/r}} La oss høre hvor vennlig Jesus tar imot barna og åpner Guds rike for oss:\n{{r}}Klokker/dåpsfølge |{{/r}} De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nBIBELREF | Mark 10,13-16"
 				},
 				{
 					"id": "h-l-dap4",
@@ -220,7 +220,7 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "Dåpsbefalingen",
 					"optional": true,
-					"text": "{{r}}L |{{/r}} La oss høre vår Herre Jesu Kristi ord om dåpen og troen:\nKlokker/dåpsfølge | Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende. Matt 28,18-20"
+					"text": "{{r}}L |{{/r}} La oss høre vår Herre Jesu Kristi ord om dåpen og troen:\n{{r}}Klokker/dåpsfølge |{{/r}} Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende.\nBIBELREF | Matt 28,18-20"
 				},
 				{
 					"id": "h-l-dap7",
@@ -351,7 +351,14 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "* 14 Trosbekjennelse CREDO",
 					"instr": "Innledes med ML/L | La oss bekjenne vår hellige tro. Kan utelates ved dåp.",
-					"alts": [
+										"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML/L |{{/r}} La oss bekjenne vår hellige tro"
+						}
+					],
+					"selIntro": 0,
+"alts": [
 						{
 							"label": "Den apostoliske trosbekjennelse",
 							"text": "{{r}}A |{{/r}} Jeg tror på Gud Fader, den allmektige, himmelens og jordens skaper.\nJeg tror på Jesus Kristus,\nGuds enbårne Sønn, vår Herre,\nsom ble unnfanget ved Den hellige ånd, født av jomfru Maria,\npint under Pontius Pilatus, korsfestet, død og begravet, fór ned til dødsriket,\nstod opp fra de døde tredje dag, fór opp til himmelen,\nsitter ved Guds, den allmektige Faders høyre hånd, skal derfra komme igjen\nfor å dømme levende og døde.\nJeg tror på Den hellige ånd, en hellig, allmenn kirke, de helliges samfunn, syndenes forlatelse, legemets oppstandelse\nog det evige liv.\nAmen."
@@ -513,7 +520,7 @@ export const BUILTIN_TEMPLATES = [
 					"type": "tekst",
 					"heading": "Prefasjonsdialog",
 					"optional": false,
-					"text": "L synger eller sier | Herren være med dere.\nM reiser seg og synger | Og med deg være Herren.\n{{r}}L |{{/r}} Løft deres hjerter.\n{{r}}M |{{/r}} Vi løfter våre hjerter til Herren.\n{{r}}L |{{/r}} La oss takke Herren vår Gud.\n{{r}}M |{{/r}} Det er verdig og rett.",
+					"text": "{{r}}L |{{/r}} synger eller sier: Herren være med dere.\n{{r}}M |{{/r}} reiser seg og synger: Og med deg være Herren.\n{{r}}L |{{/r}} Løft deres hjerter.\n{{r}}M |{{/r}} Vi løfter våre hjerter til Herren.\n{{r}}L |{{/r}} La oss takke Herren vår Gud.\n{{r}}M |{{/r}} Det er verdig og rett.",
 					"alts": [],
 					"selAlt": null
 				},
@@ -564,7 +571,7 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "Allmenn serie 1, 2, fest- og fasteserien",
-							"text": "A synger | Hellig, hellig, hellig, er Herren Sebaot. All jorden er full\nav din herlighet. Hosianna i det høyeste. Velsignet være han som kommer i Herrens navn. Hosianna i det høyeste."
+							"text": "{{r}}A |{{/r}} synger: Hellig, hellig, hellig, er Herren Sebaot. All jorden er full\nav din herlighet. Hosianna i det høyeste. Velsignet være han som kommer i Herrens navn. Hosianna i det høyeste."
 						},
 						{
 							"label": "Allmenn serie 3",
@@ -1060,7 +1067,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "l-13",
 					"type": "tekst",
 					"heading": "Dåp: Bibelord",
-					"text": "{{r}}L |{{/r}} La oss høre hvor vennlig Jesus tar imot barna og åpner Guds rike for oss:\nKlokker / dåpsfølge  De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem. Mark 10,13-16",
+					"text": "{{r}}L |{{/r}} La oss høre hvor vennlig Jesus tar imot barna og åpner Guds rike for oss:\nKlokker / dåpsfølge  De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nBIBELREF | Mark 10,13-16",
 					"instr": "",
 					"alts": [],
 					"optional": false
@@ -1081,7 +1088,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "l-15",
 					"type": "tekst",
 					"heading": "Dåp: Dåpsbefalingen",
-					"text": "{{r}}L |{{/r}} La oss høre vår Herre Jesu Kristi ord om dåpen og troen:\nKlokker / dåpsfølge  Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende. Matt 28,18-20",
+					"text": "{{r}}L |{{/r}} La oss høre vår Herre Jesu Kristi ord om dåpen og troen:\nKlokker / dåpsfølge  Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende.\nBIBELREF | Matt 28,18-20",
 					"instr": "",
 					"alts": [],
 					"optional": false
@@ -1267,7 +1274,14 @@ export const BUILTIN_TEMPLATES = [
 					"heading": "Trosbekjennelse Credo",
 					"text": "",
 					"instr": "",
-					"alts": [
+										"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML/L |{{/r}} La oss bekjenne vår hellige tro"
+						}
+					],
+					"selIntro": 0,
+"alts": [
 						{
 							"label": "Den apostoliske trosbekjennelse",
 							"text": "{{r}}A |{{/r}} Jeg tror på Gud Fader, den allmektige, himmelens og jordens skaper.\nJeg tror på Jesus Kristus,\nGuds enbårne Sønn, vår Herre,\nsom ble unnfanget ved Den hellige ånd, født av jomfru Maria,\npint under Pontius Pilatus, korsfestet, død og begravet, fór ned til dødsriket,\nstod opp fra de døde tredje dag, fór opp til himmelen,\nsitter ved Guds, den allmektige Faders høyre hånd, skal derfra komme igjen\nfor å dømme levende og døde.\nJeg tror på Den hellige ånd, en hellig, allmenn kirke, de helliges samfunn, syndenes forlatelse, legemets oppstandelse\nog det evige liv.\nAmen."
@@ -1370,7 +1384,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "l-40",
 					"type": "instruks",
 					"heading": "Takkeofferet i dag",
-					"text": "I dag går takkeofferet til ...\nVippsnummer: 62 89 89  (Gyland)\nVippsnummer: 60 66 45  (Bakke)",
+					"text": "{{r}}A/L |{{/r}} I dag går takkeofferet til ...\nVippsnummer: 62 89 89  (Gyland)\nVippsnummer: 60 66 45  (Bakke)",
 					"instr": "",
 					"alts": [],
 					"optional": true,
@@ -1555,10 +1569,17 @@ export const BUILTIN_TEMPLATES = [
 					"heading": "Måltidets avslutning",
 					"text": "",
 					"instr": "",
-					"alts": [
+										"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}L/ML |{{/r}} La oss takke og be"
+						}
+					],
+					"selIntro": 0,
+"alts": [
 						{
 							"label": "Bakke og Gyland",
-							"text": "{{r}}L |{{/r}} La oss takke og be.\nVi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\nAmen"
+							"text": "Vi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\nAmen"
 						},
 						{
 							"label": "Takkebønn 1 (kan synges)",
