@@ -1,20 +1,33 @@
 <script>
 	import { tick } from 'svelte';
 	import { markDirty } from '$lib/store.svelte.js';
-	import { litHtml } from '$lib/lit.js';
+	import { litHtml, litEditHtml, litLinjeHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
 	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]' } = $props(); // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
-	let ta = $state(null);
-	let sel = $state({ s: 0, e: 0 }); // sist kjente utvalg — styrer knappenes av/på
+	let ta = $state(null);          // textarea (kildevisning)
+	let rikel = $state(null);       // contenteditable (riktekst)
+	let kilde = $state(false);      // vis markdown-kilde i stedet for riktekst
+	let html = $state('');
+	let sistSer = '';               // sist serialiserte verdi (hindrer re-render ved egen skriving)
+	let sel = $state({ s: 0, e: 0 });
+	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false });
 
 	const cls = $derived(kind === 'instr' ? 'instr' : kind === 'etikett' ? 'etikett' : 'lit-text');
+	const etikett = $derived(kind === 'etikett');
 
 	function start() {
 		editing = true;
-		tick(() => { if (ta) { ta.focus(); ta.selectionStart = ta.value.length; } oppdaterSel(); });
+		sistSer = value;
+		html = litEditHtml(value);
+		tick(() => {
+			const el = kilde || etikett ? ta : rikel;
+			el?.focus();
+			if (el && el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length);
+			oppdaterTilstand();
+		});
 	}
 
 	function done() {
@@ -22,12 +35,124 @@
 		markDirty();
 	}
 
-	function oppdaterSel() {
-		if (!ta) return;
-		sel = { s: ta.selectionStart, e: ta.selectionEnd };
+	/* ---------- tilstand for knappene ---------- */
+
+	function oppdaterTilstand() {
+		if (kilde || etikett) {
+			if (ta) sel = { s: ta.selectionStart ?? 0, e: ta.selectionEnd ?? 0 };
+			return;
+		}
+		if (!rikel) return;
+		const s = window.getSelection();
+		const node = s?.anchorNode;
+		if (!node || !rikel.contains(node)) return;
+		const el = node.nodeType === 3 ? node.parentElement : node;
+		rikPaa = {
+			rolle: !!el?.closest('span.role'),
+			bold: document.queryCommandState('bold'),
+			italic: document.queryCommandState('italic'),
+			sup: document.queryCommandState('superscript'),
+			bibelref: el?.closest('.et-linje')?.dataset.type === 'bibelref',
+			fotnote: el?.closest('.et-linje')?.dataset.type === 'fotnote'
+		};
 	}
 
-	/** Omslutter paret (open … close) det valgte? Returnerer [start, slutt] på hele spannet. */
+	$effect(() => {
+		if (!editing) return;
+		document.addEventListener('selectionchange', oppdaterTilstand);
+		return () => document.removeEventListener('selectionchange', oppdaterTilstand);
+	});
+
+	// ekstrene verdiendringer (fyllLesning osv.) → re-render riktekst
+	$effect(() => {
+		if (value !== sistSer) {
+			sistSer = value;
+			if (editing && !kilde && !etikett) html = litEditHtml(value);
+		}
+	});
+
+	/* ---------- serialisering: DOM → markdown ---------- */
+
+	function mdFraNode(n) {
+		if (n.nodeType === 3) return n.textContent;
+		if (n.nodeType !== 1) return '';
+		if (n.tagName === 'BR') return '\n';
+		const cl = n.classList;
+		if (cl.contains('chip')) return '';
+		const indre = [...n.childNodes].map(mdFraNode).join('');
+		const tag = n.tagName;
+		if (tag === 'B' || tag === 'STRONG') return '**' + indre + '**';
+		if (tag === 'I' || tag === 'EM') return '*' + indre + '*';
+		if (tag === 'SUP') return '^{' + indre + '}';
+		if (tag === 'SPAN' && cl.contains('role')) return '{{r}}' + indre + '{{/r}}';
+		if (tag === 'DIV') return (n.dataset.prefiks ?? '') + indre + '\n';
+		return indre;
+	}
+
+	function serialiser() {
+		if (!rikel) return null;
+		return [...rikel.childNodes].map(mdFraNode).join('')
+			.replace(/\n{2,}/g, '\n\n').replace(/^\n+/, '').replace(/\n+$/, '');
+	}
+
+	function rikOppdatert() {
+		const ny = serialiser();
+		if (ny == null) return;
+		sistSer = ny;
+		value = ny;
+		markDirty();
+	}
+
+	/* ---------- riktekst-knapper ---------- */
+
+	function rikPar(id) {
+		const s = window.getSelection();
+		if (!s || s.rangeCount === 0) return;
+		if (id === 'bold') { document.execCommand('bold'); }
+		else if (id === 'italic') { document.execCommand('italic'); }
+		else if (id === 'sup') { document.execCommand('superscript'); }
+		else if (id === 'rolle') {
+			if (rikPaa.rolle) {
+				const span = (s.anchorNode.nodeType === 3 ? s.anchorNode.parentElement : s.anchorNode)?.closest('span.role');
+				if (span) {
+					const forelder = span.parentNode;
+					while (span.firstChild) forelder.insertBefore(span.firstChild, span);
+					span.remove();
+				}
+			} else {
+				if (s.isCollapsed) return;
+				const r = s.getRangeAt(0);
+				const span = document.createElement('span');
+				span.className = 'role';
+				span.appendChild(r.extractContents());
+				r.insertNode(span);
+				s.removeAllRanges();
+				const ny = document.createRange();
+				ny.selectNodeContents(span);
+				s.addRange(ny);
+			}
+		}
+		rikOppdatert();
+		oppdaterTilstand();
+	}
+
+	function rikLinje(prefiks, type) {
+		const node = window.getSelection()?.anchorNode;
+		const linje = (node?.nodeType === 3 ? node.parentElement : node)?.closest('.et-linje');
+		if (!linje) return;
+		const av = linje.dataset.type === type;
+		const indreMd = [...linje.childNodes]
+			.filter((n) => !(n.nodeType === 1 && n.classList.contains('chip')))
+			.map(mdFraNode).join('');
+		const nyPrefiks = av ? '' : prefiks;
+		const fullLinje = nyPrefiks + indreMd;
+		linje.outerHTML = litLinjeHtml(fullLinje);
+		rikOppdatert();
+		oppdaterTilstand();
+	}
+
+	/* ---------- kildevisning (textarea, markdown) ---------- */
+
 	function parOmslutter(v, s, e, open, close) {
 		let o = v.lastIndexOf(open, s);
 		while (o !== -1) {
@@ -46,22 +171,18 @@
 		sup: { open: '^{', close: '}' }
 	};
 
-	/** Er markert tekst omgitt av paret? (bold må sjekkes før italic — * er del av **) */
 	function parAktiv(id) {
 		if (!ta) return false;
 		const v = ta.value, { s, e } = sel;
 		if (id === 'italic') {
-			// ikke aktiver italic hvis bold-omsluttet
 			if (parOmslutter(v, s, e, PAR.bold.open, PAR.bold.close)) return false;
 			const o = parOmslutter(v, s, e, '*', '*');
 			if (!o) return false;
-			// unngå at '*' fra '**' teller
 			return v[o[0] + 1] !== '*' && v[o[1] - 2] !== '*';
 		}
 		return !!parOmslutter(v, s, e, PAR[id].open, PAR[id].close);
 	}
 
-	/** Valgt linje(r) har linjeprefikset? */
 	function linjeAktiv(prefiks) {
 		if (!ta) return false;
 		const v = ta.value, { s, e } = sel;
@@ -81,7 +202,6 @@
 		markDirty();
 	}
 
-	/** Veksle par-markør rundt valgt tekst (utvid til hele spannet hvis delvis valgt). */
 	function vekslePar(id) {
 		if (!ta) return;
 		const p = PAR[id];
@@ -102,11 +222,10 @@
 	function omOmsluttetItalic(v, s, e) {
 		const o = parOmslutter(v, s, e, '*', '*');
 		if (!o) return null;
-		if (v[o[0] + 1] === '*' || v[o[1] - 2] === '*') return null; // del av **
+		if (v[o[0] + 1] === '*' || v[o[1] - 2] === '*') return null;
 		return o;
 	}
 
-	/** Veksle linjeprefiks (BIBELREF/FOTNOTE) på alle markerte linjer. */
 	function veksleLinje(prefiks) {
 		if (!ta) return;
 		const v = ta.value;
@@ -117,7 +236,6 @@
 		const andre = ['BIBELREF | ', 'FOTNOTE | '].filter((p) => p !== prefiks);
 		const alle = linjer.every((l) => l.startsWith(prefiks));
 		const nyBlokk = linjer.map((l) => {
-			// fjern eventuell annen linjemarkør først (BIBELREF og FOTNOTE utelukker hverandre)
 			let ren = l;
 			for (const p of andre) if (ren.startsWith(p)) ren = ren.slice(p.length);
 			return alle ? ren.slice(prefiks.length).replace(/^ /, '') : (ren.startsWith(prefiks) ? ren : prefiks + ren);
@@ -126,38 +244,83 @@
 		settVerdi(ny, ls, ls + nyBlokk.length);
 	}
 
-	// behold gamle funksjonsnavn som tynne omslag (brukes evt. andre steder)
-	function markRole() { vekslePar('rolle'); }
+	function byttModus(tilKilde) {
+		if (tilKilde === kilde) return;
+		if (!tilKilde) {
+			sistSer = value;
+			html = litEditHtml(value);
+		}
+		kilde = tilKilde;
+		tick(() => {
+			const el = kilde ? ta : rikel;
+			el?.focus();
+			oppdaterTilstand();
+		});
+	}
+
+	function knapp(id) {
+		if (etikett) return;
+		if (kilde) {
+			if (id === 'bibelref') veksleLinje('BIBELREF | ');
+			else if (id === 'fotnote') veksleLinje('FOTNOTE | ');
+			else vekslePar(id);
+		} else {
+			if (id === 'bibelref') rikLinje('BIBELREF | ', 'bibelref');
+			else if (id === 'fotnote') rikLinje('FOTNOTE | ', 'fotnote');
+			else rikPar(id);
+		}
+	}
+
+	function paa(id) {
+		if (kilde) {
+			if (id === 'bibelref') return linjeAktiv('BIBELREF | ');
+			if (id === 'fotnote') return linjeAktiv('FOTNOTE | ');
+			return parAktiv(id);
+		}
+		return rikPaa[id];
+	}
 
 </script>
 
 {#if editing}
 	<div class="et-edit">
 		<div class="et-tools">
-			{#if kind !== 'etikett'}
-				<button class="et-tool" class:paa={parAktiv('rolle')} onmousedown={(e) => e.preventDefault()} onclick={() => vekslePar('rolle')} title={'Merk valgt tekst som rolle ({{r}} … {{/r}})'}>{@html mdi('account-voice', 15)}</button>
-				<button class="et-tool" class:paa={parAktiv('bold')} onmousedown={(e) => e.preventDefault()} onclick={() => vekslePar('bold')} title="Fet (**tekst**)">{@html mdi('format-bold', 15)}</button>
-				<button class="et-tool" class:paa={parAktiv('italic')} onmousedown={(e) => e.preventDefault()} onclick={() => vekslePar('italic')} title="Utskrift (*tekst*)">{@html mdi('format-italic', 15)}</button>
-				<button class="et-tool" class:paa={parAktiv('sup')} onmousedown={(e) => e.preventDefault()} onclick={() => vekslePar('sup')} title={'Hevet versnummer (^{12})'}>{@html mdi('format-superscript', 15)}</button>
+			{#if !etikett}
+				<button class="et-tool" class:paa={paa('rolle')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('rolle')} title={'Rolle (hele linjen: prefiks, ellers {{r}}-markering)'}>{@html mdi('account-voice', 15)}</button>
+				<button class="et-tool" class:paa={paa('bold')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bold')} title="Fet (**tekst**)">{@html mdi('format-bold', 15)}</button>
+				<button class="et-tool" class:paa={paa('italic')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('italic')} title="Utskrift (*tekst*)">{@html mdi('format-italic', 15)}</button>
+				<button class="et-tool" class:paa={paa('sup')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('sup')} title={'Hevet versnummer (^{12})'}>{@html mdi('format-superscript', 15)}</button>
 				<span class="et-skiller"></span>
-				<button class="et-tool" class:paa={linjeAktiv('BIBELREF | ')} onmousedown={(e) => e.preventDefault()} onclick={() => veksleLinje('BIBELREF | ')} title="Merk linjen som bibelreferanse (BIBELREF | )">{@html mdi('book-open-variant', 15)}</button>
-				<button class="et-tool" class:paa={linjeAktiv('FOTNOTE | ')} onmousedown={(e) => e.preventDefault()} onclick={() => veksleLinje('FOTNOTE | ')} title="Merk linjen som liten tekstnotis (FOTNOTE | )">{@html mdi('script-text-outline', 15)}</button>
+				<button class="et-tool" class:paa={paa('bibelref')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bibelref')} title="Bibelreferanse (BIBELREF | )">{@html mdi('book-open-variant', 15)}</button>
+				<button class="et-tool" class:paa={paa('fotnote')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('fotnote')} title="Liten tekstnotis (FOTNOTE | )">{@html mdi('script-text-outline', 15)}</button>
 				<span class="et-skiller"></span>
+				<button class="et-tool" class:paa={kilde} onmousedown={(e) => e.preventDefault()} onclick={() => byttModus(!kilde)} title={kilde ? 'Vis riktekst' : 'Vis kildekode (markdown)'}>{@html mdi('code-tags', 15)}</button>
 			{/if}
 			<button class="primary" onclick={done}>Ferdig</button>
 		</div>
-		<textarea
-			bind:this={ta}
-			bind:value={value}
-			spellcheck="false"
-			rows={kind === 'etikett' ? 1 : Math.max(3, (value || '').split('\n').length + 1)}
-			onchange={markDirty}
-			onkeyup={oppdaterSel}
-			onmouseup={oppdaterSel}
-			oninput={oppdaterSel}
-			onfocus={oppdaterSel}
-			onkeydown={(e) => { if (e.key === 'Escape') done(); }}
-		></textarea>
+		{#if etikett || kilde}
+			<textarea
+				bind:this={ta}
+				bind:value={value}
+				spellcheck="false"
+				rows={kind === 'etikett' ? 1 : Math.max(3, (value || '').split('\n').length + 1)}
+				onchange={markDirty}
+				onkeyup={oppdaterTilstand}
+				onmouseup={oppdaterTilstand}
+				oninput={oppdaterTilstand}
+				onfocus={oppdaterTilstand}
+				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
+			></textarea>
+		{:else}
+			<div
+				class="et-rik lit-text"
+				bind:this={rikel}
+				contenteditable="true"
+				spellcheck="false"
+				oninput={rikOppdatert}
+				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
+			>{@html html}</div>
+		{/if}
 	</div>
 {:else}
 	<div class={cls} onclick={start}>
