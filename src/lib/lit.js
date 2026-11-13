@@ -73,11 +73,11 @@ export function litLinjeHtml(linje) {
 
 function linjeEditHtml(type, prefiks, chip, innhold) {
 	const klasse = { bibelref: 'fotnote', fotnote: 'fotnote', '@r': 'rline', h1: 'md-h', h2: 'md-h md-h2', liste: 'md-li', rolle: '', tekst: '' }[type];
-	// rolle-chipen er redigerbar og ser ut som rolle-teksten (rød) — navnet kan endres rett i den;
-	// «|»-skillet er en statisk chip som serialiseringen hopper over. Andre chips er dekorasjoner.
+	// rolleprefiks-linjer: rollen («L |») vises som vanlig rød rolle-span (redigerbar tekst),
+	// serialiseres tilbake som {{r}}L |{{/r}} — ingen chips for roller
 	let chipHtml = '';
 	if (type === 'rolle') {
-		chipHtml = `<span class="chip chip-rolle" contenteditable="true" spellcheck="false">${escapeHtml(chip)}</span><span class="chip chip-sep">|</span>`;
+		chipHtml = `<span class="role">${escapeHtml(chip)} |</span> `;
 	} else if (chip) {
 		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
 	}
