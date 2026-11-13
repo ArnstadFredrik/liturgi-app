@@ -505,3 +505,5 @@ textarea {
 .et-rik .chip { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); vertical-align: 1px; margin-right: 4px; user-select: none; }
 .et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }
 .et-rik .et-linje[data-type='bibelref'] .chip, .et-rik .et-linje[data-type='fotnote'] .chip { color: var(--muted); }
+.et-rik .chip.chip-rolle { color: var(--role); border-color: var(--role); cursor: text; user-select: text; }
+.et-rik .chip.chip-rolle:focus { outline: 1px solid var(--role); }
