@@ -48,7 +48,7 @@
 		if (!node || !rikel.contains(node)) return;
 		const el = node.nodeType === 3 ? node.parentElement : node;
 		rikPaa = {
-			rolle: !!el?.closest('span.role'),
+			rolle: !!el?.closest('span.role, .chip-rolle'),
 			bold: document.queryCommandState('bold'),
 			italic: document.queryCommandState('italic'),
 			sup: document.queryCommandState('superscript'),
@@ -78,7 +78,14 @@
 		if (n.nodeType !== 1) return '';
 		if (n.tagName === 'BR') return '\n';
 		const cl = n.classList;
-		if (cl.contains('chip')) return '';
+		if (cl.contains('chip')) {
+			// redigerbar rolle-chip: navnet leses ut som linjeprefiks
+			if (cl.contains('chip-rolle')) {
+				const navn = n.textContent.trim().replace(/\|+$/, '').trim();
+				return navn ? navn + ' | ' : '';
+			}
+			return '';
+		}
 		const indre = [...n.childNodes].map(mdFraNode).join('');
 		const tag = n.tagName;
 		if (tag === 'B' || tag === 'STRONG') return '**' + indre + '**';
@@ -142,7 +149,7 @@
 		if (!linje) return;
 		const av = linje.dataset.type === type;
 		const indreMd = [...linje.childNodes]
-			.filter((n) => !(n.nodeType === 1 && n.classList.contains('chip')))
+			.filter((n) => !(n.nodeType === 1 && n.classList.contains('chip') && !n.classList.contains('chip-rolle')))
 			.map(mdFraNode).join('');
 		const nyPrefiks = av ? '' : prefiks;
 		const fullLinje = nyPrefiks + indreMd;
@@ -318,7 +325,11 @@
 				contenteditable="true"
 				spellcheck="false"
 				oninput={rikOppdatert}
-				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => {
+					// rolle-chipen er ennettet — ingen Enter/Tab inni den
+					if (e.target.closest?.('.chip-rolle') && (e.key === 'Enter' || e.key === 'Tab')) { e.preventDefault(); return; }
+					if (e.key === 'Escape') done();
+				}}
 			>{@html html}</div>
 		{/if}
 	</div>
