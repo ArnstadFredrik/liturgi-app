@@ -1,10 +1,11 @@
-/** Komponert tekst for et ledd som den VISES i gudtjenesteredigeringen:
- *  innledning (introAlts) + valgt alternativ + avslutning. «Fast innledning» (it.text
- *  når leddet har alts) er et mal-felt og følger ikke med for gudstjenester. */
+/** Komponert tekst for et ledd: innledning (introAlts) + fast innledning (it.text ved ledd
+ *  med alts) + valgt alternativ + avslutning. De faste leddene er gyldig liturgi som arves
+ *  fra malen og skal vises i redigeringen og følge med i eksporten. */
 export function leddTekst(it) {
 	const deler = [];
 	if (it.introAlts?.length) deler.push(it.introAlts[it.selIntro ?? 0]?.text ?? '');
 	if (it.alts?.length) {
+		if (it.text && it.text.trim()) deler.push(it.text);   // fast innledning
 		deler.push(it.alts[it.selAlt ?? 0]?.text ?? '');
 	} else {
 		deler.push(it.text ?? '');
