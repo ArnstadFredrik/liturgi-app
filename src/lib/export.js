@@ -6,6 +6,7 @@ import { leddTekst } from './lit.js';
 const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;
+const BIBELREF_RE = /^(?:BIBELREF|FOTNOTE) \| ?(.*)$/;
 
 /** Flett sammen harde linjeskift som bare er linjebryting (limt inn fra Word/e-post)
  *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
@@ -64,7 +65,7 @@ function roleSegments(text) {
 		if (li > 0) push('\n', red, small, false, false);
 		let rest = line;
 		let extraBold = false;
-		const fn = line.match(FOTNOTE_RE);
+		const fn = line.match(BIBELREF_RE);
 		if (fn) {
 			small = true;
 			rest = fn[1];
