@@ -149,6 +149,10 @@ button.wide { width: 100%; }
 .eks-lagre { float: right; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
 .eksport-standard-btn { margin-top: 6px; font-size: 12px; }
 .eksport-skiller { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+/* per-ledd O/I-valg: overskrift (O) og innhold (I) */
+.eksport-del-bokser { display: flex; flex-direction: column; gap: 2px; }
+.eksport-del { font-size: 10px; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+.eksport-del input { cursor: pointer; width: 13px; height: 13px; }
 .alt-gruppe-tittel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
 /* to-kolonne alternativvelger: liste til venstre, forhåndsvisning til høyre */
 .m-velg-to-kolonner { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 14px; align-items: start; max-height: 55vh; }
