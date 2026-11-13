@@ -263,6 +263,8 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 .sec-head .del-sec:hover { color: var(--danger); }
 .item { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin: 10px 0; padding: 12px 14px; }
 .item.off { opacity: 0.45; }
+/* i malredigering markeres «ikke ta med» kun med bryteren, ikke utgråing */
+#editor .item.off { opacity: 1; }
 .item-head { display: flex; align-items: center; gap: 8px; }
 .item-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
 .item-title { font-weight: 700; font-size: 15.5px; cursor: text; }
