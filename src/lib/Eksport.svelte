@@ -365,19 +365,23 @@
 									<span class="eksport-hoved-ikon">{@html mdi('format-title')}</span>
 								</label>
 							{/if}
-							<div class="eksport-rad-tekst">
-								<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
-								{#if visInnhold && it.enabled !== false}
-									<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it) || '*Ingen innhold*')}</div>
-								{/if}
-							</div>
 							{#if it.enabled !== false}
-								<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
-									<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
-									{@html mdi('text')}<span>Innhold</span>
-								</label>
+								<div class="eksport-rad-tekst">
+									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
+								</div>
 							{/if}
-						</div>
+							</div>
+							{#if visInnhold && it.enabled !== false && (leddTekst(it) || '').trim()}
+							<div class="eksport-innhold-rad" class:ut={it.enabled === false || !visTekstDel(si, ii)}>
+								{#if it.enabled !== false}
+									<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
+										<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
+										{@html mdi('text')}
+									</label>
+								{/if}
+								<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it))}</div>
+							</div>
+							{/if}
 					{/each}
 				{/each}
 			</div>

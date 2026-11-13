@@ -156,6 +156,10 @@ button.wide { width: 100%; }
 .eksport-del { font-size: 10px; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
 .eksport-del svg { width: 14px; height: 14px; }
 .eksport-del input { cursor: pointer; width: 13px; height: 13px; }
+/* innhold vises som egen rad under leddraden; utkryssad/fadet når det ikke skal med */
+.eksport-innhold-rad { margin: -4px 0 6px 40px; padding: 4px 12px 6px; border-left: 2px solid var(--border); }
+.eksport-innhold-rad.ut { opacity: 0.4; }
+.eksport-innhold-rad.ut .eksport-innhold { text-decoration: line-through; text-decoration-color: var(--muted); }
 .alt-gruppe-tittel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
 /* to-kolonne alternativvelger: liste til venstre, forhåndsvisning til høyre */
 .m-velg-to-kolonner { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 14px; align-items: start; max-height: 55vh; }
@@ -191,6 +195,7 @@ button.wide { width: 100%; }
 .eksport-rad input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); }
 .eksport-rad-nm { flex: 1; color: var(--text); }
 .eksport-rad:not(.med) .eksport-rad-nm { color: var(--muted); text-decoration: line-through; }
+.eksport-rad:not(.med):not(.deaktivert) { opacity: 0.45; }
 .eksport-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 .eksport-handling { margin-top: 24px; display: flex; align-items: center; gap: 12px; flex-direction: column; }
 .eksport-handling button { width: 100%; }
