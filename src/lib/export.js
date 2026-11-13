@@ -7,6 +7,7 @@ const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;  // generell liten tekstnotis (kun formatering)
 const BIBELREF_RE = /^BIBELREF \| ?(.*)$/;  // bibelreferanse (brukes i bibelref-oppslag)
+const NOTAT_RE = /^@(?:NOTAT|n) ?\|? ?(.+)$/;  // hele avsnitt som notat: rød kursiv, mindre
 
 /** Flett sammen harde linjeskift som bare er linjebryting (limt inn fra Word/e-post)
  *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
@@ -47,7 +48,7 @@ function roleSegments(text) {
 		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it, sup: !!sp });
 	};
 	/** Del tekst på ^{N}-versnummer og inline-markdown; sup-fragmenter merkes med sup. */
-	const pushInline = (part, r, s, bo) => {
+	const pushInline = (part, r, s, bo, itBase) => {
 		for (const sp of part.split(/(\^\{[^}]+\})/)) {
 			if (!sp) continue;
 			const erSup = sp.startsWith('^{') && sp.endsWith('}');
@@ -56,7 +57,7 @@ function roleSegments(text) {
 				if (!md) continue;
 				const b = md.startsWith('**') && md.endsWith('**');
 				const it = !b && md.startsWith('*') && md.endsWith('*');
-				push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, r, s, b || bo, it, erSup);
+				push(b ? md.slice(2, -2) : it ? md.slice(1, -1) : md, r, s, b || bo, it || itBase, erSup);
 			}
 		}
 	};
@@ -71,6 +72,13 @@ function roleSegments(text) {
 			rest = fn[1];
 		} else {
 			small = false;
+			// @NOTAT / @n — hele avsnittet som notat: rød, kursiv, litt mindre
+			const nt = line.match(NOTAT_RE);
+			if (nt) {
+				pushInline(nt[1], true, true, false, true);
+				small = false;
+				return;
+			}
 			// @r — hele linjen som rolle (rød, uten merket)
 			const rl = rest.match(/^@r ?\|? ?(.+)$/);
 			if (rl) {

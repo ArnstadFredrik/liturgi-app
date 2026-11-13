@@ -21,6 +21,8 @@ export function litHtml(text) {
 	let out = (text ?? '')
 		.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 		.replace(/^(?:BIBELREF|FOTNOTE) \| ?(.*)$/gm, (m, t) => '<span class="fotnote">' + mdInline(t) + '</span>')
+		// hele-linje notis: @NOTAT eller @n — rød kursiv, litt mindre enn brødteksten
+		.replace(/^@(?:NOTAT|n) ?\|? ?(.+)$/gm, (m, t) => '<span class="notat">' + mdInline(t) + '</span>')
 		// rene rolleprefiks-linjer: «L |», «ML |», «L/ML |», «KA/L |» osv. → rolle merket rødt, resten inline
 		.replace(/^(L\/ML|ML\/L|L\/M|KA\/L|L|ML|M|A|KA|K)(\s*\| ?)/gm, '<span class="role">$1 |</span> ')
 		.replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '<span class="role">' + mdInline(t) + '</span>')
@@ -63,6 +65,7 @@ export function litLinjeHtml(linje) {
 	let m;
 	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return linjeEditHtml('bibelref', 'BIBELREF | ', 'Bibelref', m[2]);
 	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return linjeEditHtml('fotnote', 'FOTNOTE | ', 'Notis', m[2]);
+	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('notat', '@NOTAT ', '', m[1]);
 	if ((m = /^@r ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('@r', (m[0].slice(0, m[0].length - m[1].length)), '@r', m[1]);
 	if ((m = new RegExp(ROLLE_PREFIKS_RE.source + '(.*)$').exec(linje))) return linjeEditHtml('rolle', '', m[1], m[3]);
 	if ((m = /^(## ?)(.*)$/.exec(linje))) return linjeEditHtml('h2', m[1], '', m[2]);
@@ -72,7 +75,7 @@ export function litLinjeHtml(linje) {
 }
 
 function linjeEditHtml(type, prefiks, chip, innhold) {
-	const klasse = { bibelref: 'fotnote', fotnote: 'fotnote', '@r': 'rline', h1: 'md-h', h2: 'md-h md-h2', liste: 'md-li', rolle: '', tekst: '' }[type];
+	const klasse = { bibelref: 'fotnote', fotnote: 'fotnote', notat: 'notat', '@r': 'rline', h1: 'md-h', h2: 'md-h md-h2', liste: 'md-li', rolle: '', tekst: '' }[type];
 	// rolleprefiks-linjer: rollen («L |») vises som vanlig rød rolle-span (redigerbar tekst),
 	// serialiseres tilbake som {{r}}L |{{/r}} — ingen chips for roller
 	let chipHtml = '';
