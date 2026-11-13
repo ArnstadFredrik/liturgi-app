@@ -162,6 +162,9 @@
 					<EditableText bind:value={it.text} kind="lit" />
 				{/if}
 				<div class="alt-gruppe-tittel">Alternativer</div>
+			{:else if it.text && it.text.trim()}
+				<div class="alt-gruppe-tittel">Fast innledning</div>
+				<EditableText bind:value={it.text} kind="lit" />
 				<div class="alts">
 					{#each it.alts as a, ai (ai)}
 						<label class="alt" class:sel={it.selAlt === ai}>
