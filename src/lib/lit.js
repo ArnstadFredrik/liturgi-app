@@ -1,10 +1,10 @@
-/** Komponert tekst for et ledd: fast innledning/valgt innledning + kropp (valgt alternativ)
- *  + valgt avslutning. Konvensjon: hvis leddet har alts OG text, er text en fast innledning. */
+/** Komponert tekst for et ledd som den VISES i gudtjenesteredigeringen:
+ *  innledning (introAlts) + valgt alternativ + avslutning. «Fast innledning» (it.text
+ *  når leddet har alts) er et mal-felt og følger ikke med for gudstjenester. */
 export function leddTekst(it) {
 	const deler = [];
 	if (it.introAlts?.length) deler.push(it.introAlts[it.selIntro ?? 0]?.text ?? '');
 	if (it.alts?.length) {
-		if (it.text && it.text.trim()) deler.push(it.text);   // fast innledning
 		deler.push(it.alts[it.selAlt ?? 0]?.text ?? '');
 	} else {
 		deler.push(it.text ?? '');

@@ -158,7 +158,8 @@ export function buildOutline(svc, showInstr) {
 				if (it.selAlt == null) out.push({ text: '[Velg alternativ]', muted: true });
 				else {
 					if (it.introAlts?.length) out.push({ text: it.introAlts[it.selIntro ?? 0]?.text ?? '' });
-					if (it.text) out.push({ text: it.text });
+					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudtjenesteredigeringen —
+					// kun innledning + valgt alternativ + avslutning følger med i eksporten
 					const a = it.alts[it.selAlt];
 					if (a.label) out.push({ text: a.label, muted: true });
 					out.push({ text: a.text });
