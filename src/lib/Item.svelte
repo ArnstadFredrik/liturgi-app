@@ -95,7 +95,7 @@
 	}
 </script>
 
-<div class="item" class:off={!it.enabled} oncontextmenu={context}>
+<div class="item" class:off={app.kind !== 'template' && !it.enabled} oncontextmenu={context}>
 	<div class="item-head">
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
