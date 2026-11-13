@@ -110,6 +110,26 @@
 		return lagret !== undefined ? lagret : true;
 	}
 
+	/** Er leddet et bibeltekst-ledd (lesning)? */
+	function erBibel(it) { return erLesning(it); }
+
+	/** Skal leddet vise bibelreferanse i stedet for hele teksten? (lagres med «:br»-nøkkel;
+	 *  standard: på for Menighet på lesningsledd) */
+	function visBibel(si, ii, it) {
+		const v = valg[aktiv]?.[nokkel(si, ii) + ':br'];
+		if (v !== undefined) return v;
+		const lagret = o?.eksportValg?.[aktiv]?.[nokkel(si, ii) + ':br'];
+		if (lagret !== undefined) return lagret;
+		return aktiv === 'Menighet' && erBibel(it);
+	}
+
+	/** Referansen som skal vises i overskriften (valgt alternativ eller leddteksten). */
+	function bibelrefTxt(it) {
+		const r = bibelref(it);
+		if (!r) return '';
+		return Array.isArray(r) ? (r[it.selAlt ?? 0] || r[0] || '') : r;
+	}
+
 	function settDel(si, ii, del, v) {
 		if (!valg[aktiv]) valg[aktiv] = {};
 		valg[aktiv][nokkel(si, ii) + del] = v;
@@ -200,18 +220,34 @@
 				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet
 				it.__visOverskrift = it.enabled;
 				it.__visInnhold = lagret?.[nokkel(si, ii) + ':t'] !== undefined ? lagret[nokkel(si, ii) + ':t'] : true;
+				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
+				// og legg referansen til overskriften
+				const bref = lagret?.[nokkel(si, ii) + ':br'];
+				if (bref !== undefined ? bref : (profil === 'Menighet' && erLesning(it))) {
+					const r = bibelref(it);
+					if (r) {
+						if (it.alts?.length) {
+							const refs = Array.isArray(r) ? r : it.alts.map(() => r);
+							it.alts.forEach((alt, ai) => { if (refs[ai]) alt.text = refs[ai]; });
+							if (it.alts[it.selAlt ?? 0]?.text) it.__ref = it.alts[it.selAlt ?? 0].text;
+						} else {
+							it.__ref = it.text;
+							it.text = r;
+						}
+						// referansen skal frem i overskriften: «3. Andre lesning — Rom 4,1-8»
+						if (it.__ref || r) it.heading = (it.heading || '').replace(/\s*—\s*[^—]*$/, '') + ' — ' + (Array.isArray(r) ? r[it.selAlt ?? 0] || r[0] || '' : r);
+					}
+				}
 			});
 		});
 		return kopi;
 	}
 
-	/** Kun bibelreferansen for lesningene (Word/PDF). Kjenner tre former: FOTNOTE-linjen,
-	 *  «står skrevet i/hos [ref]:»-innledningen og malenes egen konvensjon med referansen
-	 *  som siste linje (f.eks. «Sal 68,21»). Uten kjent referanse beholdes teksten. */
-	function kunReferanse(svc) {
-		const kopi = JSON.parse(JSON.stringify(svc));
-		// kirkeårets referanser til lesningene (for ledd uten referanse i teksten)
-		const k = svc?.date ? lookupKirkeaar(svc.date) : null;
+	/** Bibelreferanse-modus per ledd: finn referansen i teksten (tre former: FOTNOTE-linjen,
+	 *  «står skrevet i/hos [ref]:»-innledningen og referansen som siste linje, f.eks. «Sal 68,21»).
+	 *  Uten kjent referanse brukes kirkeårets oppslag (Første/Andre lesning/Evangelium ↔ L1/L2/E). */
+	function bibelref(it) {
+		const k = o?.date ? lookupKirkeaar(o.date) : null;
 		const kkRefs = k ? { første: k.L1, andre: k.L2, evangelium: k.E } : {};
 		const finnRef = (tekst) => {
 			if (!tekst) return null;
@@ -225,34 +261,22 @@
 			if (linjer.length > 1 && /^[^|:;.!?]{1,30}$/.test(siste) && /[,0-9]/.test(siste)) return siste;
 			return null;
 		};
-		for (const sec of kopi.sections ?? []) {
-			for (const it of sec.items ?? []) {
-				if (!erLesning(it) || !it.enabled) continue;
-				// ingress-leddene er prestens forord — røres ikke
-				if ((it.heading || '').toLowerCase().includes('ingress')) continue;
-				let ref = null;
-				if (it.alts?.length) {
-					for (const alt of it.alts) {
-						ref = finnRef(alt.text);
-						if (ref) alt.text = ref;
-					}
-				} else {
-					ref = finnRef(it.text);
-					if (ref) it.text = ref;
-				}
-				// leddet har ingen referanse i teksten — slå opp kirkeårets referanse
-				// (Første/Andre lesning/Evangelium ↔ L1/L2/E), f.eks. B&G-malen
-				if (!ref) {
-					const h = (it.heading || '').toLowerCase();
-					const kkr = h.includes('evangelium') ? kkRefs?.evangelium : h.includes('andre') ? kkRefs?.andre : h.includes('første') ? kkRefs?.første : null;
-					if (kkr) {
-						if (it.alts?.length) for (const alt of it.alts) alt.text = kkr;
-						else it.text = kkr;
-					}
-				}
+		if (it.alts?.length) {
+			const refs = [];
+			for (const alt of it.alts) refs.push(finnRef(alt.text));
+			// leddet har ingen referanse i teksten — slå opp kirkeårets referanse
+			const h = (it.heading || '').toLowerCase();
+			if (refs.every((r) => !r)) {
+				const kkr = h.includes('evangelium') ? kkRefs?.evangelium : h.includes('andre') ? kkRefs?.andre : h.includes('første') ? kkRefs?.første : null;
+				if (kkr) refs.fill(kkr);
 			}
+			return refs;
 		}
-		return kopi;
+		const ref = finnRef(it.text);
+		if (ref) return ref;
+		const h = (it.heading || '').toLowerCase();
+		const kkr = h.includes('evangelium') ? kkRefs?.evangelium : h.includes('andre') ? kkRefs?.andre : h.includes('første') ? kkRefs?.første : null;
+		return kkr ?? null;
 	}
 
 	function baseNavn(profil) {
@@ -264,7 +288,6 @@
 		let n = 0;
 		if (formater.word) {
 			let kopi = klonMedValg(o, profil);
-			if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
 			const res = await exportWord(kopi, o.visInstr ?? true, base + '.docx', {
 				storrelse: getInnst('storrelse', 'A5'),
 				kolonner: getInnst('kolonner', 1)
@@ -287,8 +310,7 @@
 		}
 		if (formater.pdf && isElectron) {
 					let kopi = klonMedValg(o, profil);
-					if (getInnst('bibel', 'ref') === 'ref') kopi = kunReferanse(kopi);
-					const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
+							const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
 						storrelse: getInnst('storrelse', 'A5'),
 						kolonner: getInnst('kolonner', 1),
 						hefte: getInnst('hefte', aktiv === 'Menighet'),
@@ -367,13 +389,21 @@
 							{/if}
 							{#if it.enabled !== false}
 								<div class="eksport-rad-tekst">
-									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
+									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}{erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? ' — ' + bibelrefTxt(it) : ''}</span>
 									{#if !visInnhold && (leddTekst(it) || '').trim()}
 										<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
 											title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
 											onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
 											{@html mdi('table-of-contents')}
 											<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
+										</button>
+									{/if}
+									{#if erBibel(it)}
+										<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
+											title={visBibel(si, ii, it) ? 'Bibelreferansen er med (overskriften og eventuell innholdstekst) — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
+											onclick={() => settDel(si, ii, ':br', !visBibel(si, ii, it))}>
+											{@html mdi('book-open-variant')}
+											<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
 										</button>
 									{/if}
 								</div>
@@ -436,22 +466,14 @@
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Heftemodus (kun PDF)</span>
 						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
-						<label class="eksport-chk"><input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} /> Navn og dato med i eksporten</label>
 					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Bibellesninger</span>
-						<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'ref') === 'ref'} onchange={() => setInnst('bibel', 'ref')} /> Kun bibelreferansen</label>
-						<label class="eksport-chk"><input type="radio" name="bb" checked={getInnst('bibel', 'full') === 'full'} onchange={() => setInnst('bibel', 'full')} /> Med hele bibelteksten</label>
-						<p class="maler-ingress" style="margin:0">PowerPoint har alltid hele bibelteksten.</p>
-					</div>
-				</div>
-
-				<div class="biblio-kort">
-					<div class="eksport-handling">
-						<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
-							{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
-						</button>
-						<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+					<div class="biblio-kort">
+						<div class="eksport-handling">
+							<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
+								{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
+							</button>
+							<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+						</div>
 					</div>
 				</div>
 			</div>
