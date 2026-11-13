@@ -125,11 +125,11 @@ export const BUILTIN_TEMPLATES = [
 					"avslutningAlts": [
 						{
 							"label": "Løftesord 1 Joh 1,9",
-							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\n1 Joh 1,9"
+							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\nBIBELREF | 1 Joh 1,9"
 						},
 						{
 							"label": "Løftesord Sal 103,11-12",
-							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nSal 103,11-12"
+							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nBIBELREF | Sal 103,11-12"
 						}
 					]
 				},
@@ -407,7 +407,7 @@ export const BUILTIN_TEMPLATES = [
 					"introAlts": [
 						{
 							"label": "Budord (Matt 22,37-39)",
-							"text": "L | Vår Herre Jesus Kristus sier: Du skal elske Herren din Gud av hele ditt hjerte og av hele din sjel og av all din forstand. Dette er det største og første budet. Men det andre er like stort: Du skal elske din neste som deg selv.\nMatt 22,37-39"
+							"text": "L | Vår Herre Jesus Kristus sier: Du skal elske Herren din Gud av hele ditt hjerte og av hele din sjel og av all din forstand. Dette er det største og første budet. Men det andre er like stort: Du skal elske din neste som deg selv.\nBIBELREF | Matt 22,37-39"
 						},
 						{
 							"label": "La oss bøye oss og bekjenne",
@@ -429,11 +429,11 @@ export const BUILTIN_TEMPLATES = [
 					"avslutningAlts": [
 						{
 							"label": "Løftesord 1 Joh 1,9",
-							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\n1 Joh 1,9"
+							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\nBIBELREF | 1 Joh 1,9"
 						},
 						{
 							"label": "Løftesord Sal 103,11-12",
-							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nSal 103,11-12"
+							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nBIBELREF | Sal 103,11-12"
 						}
 					]
 				},
@@ -948,7 +948,7 @@ export const BUILTIN_TEMPLATES = [
 					"introAlts": [
 						{
 							"label": "Bakke og Gyland",
-							"text": "L | Vår Herre Jesus Kristus sier: Du skal elske Herren din Gud av hele ditt hjerte\nog av hele din sjel og av all din forstand. Dette er det største og første budet.\nMen det andre er like stort: Du skal elske din neste som deg selv.\nMatt 22,37-39"
+							"text": "L | Vår Herre Jesus Kristus sier: Du skal elske Herren din Gud av hele ditt hjerte\nog av hele din sjel og av all din forstand. Dette er det største og første budet.\nMen det andre er like stort: Du skal elske din neste som deg selv.\nBIBELREF | Matt 22,37-39"
 						},
 						{
 							"label": "La oss bøye oss og bekjenne",
@@ -970,11 +970,11 @@ export const BUILTIN_TEMPLATES = [
 					"avslutningAlts": [
 						{
 							"label": "Løftesord 1 Joh 1,9",
-							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\n1 Joh 1,9"
+							"text": "L | Guds ord sier: Dersom vi bekjenner våre synder, er han trofast og rettferdig, så han tilgir oss syndene og renser oss for all urett.\nBIBELREF | 1 Joh 1,9"
 						},
 						{
 							"label": "Løftesord Sal 103,11-12",
-							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nSal 103,11-12"
+							"text": "L | Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nBIBELREF | Sal 103,11-12"
 						}
 					],
 					"selAlt": 0
@@ -1710,15 +1710,15 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "Joh 3,16 — standard skriftord",
-							"text": "Så høyt har Gud elsket verden at han gav sin Sønn, den enbårne, for at hver den som tror på ham, ikke skal gå fortapt, men ha evig liv.\nJoh 3,16"
+							"text": "Så høyt har Gud elsket verden at han gav sin Sønn, den enbårne, for at hver den som tror på ham, ikke skal gå fortapt, men ha evig liv.\nBIBELREF | Joh 3,16"
 						},
 						{
 							"label": "Skriftord A — Matt 11,28",
-							"text": "Jesus sier: Kom til meg, alle dere som strever og bærer tunge byrder, og jeg vil gi dere hvile.\nMatt 11,28"
+							"text": "Jesus sier: Kom til meg, alle dere som strever og bærer tunge byrder, og jeg vil gi dere hvile.\nBIBELREF | Matt 11,28"
 						},
 						{
 							"label": "Skriftord B — Sal 50,15",
-							"text": "Gud sier i sitt ord: Kall på meg på nødens dag, så vil jeg utfri deg, og du skal gi meg ære.\nSal 50,15"
+							"text": "Gud sier i sitt ord: Kall på meg på nødens dag, så vil jeg utfri deg, og du skal gi meg ære.\nBIBELREF | Sal 50,15"
 						}
 					],
 					"optional": false,
@@ -1733,15 +1733,15 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Sal 130,1-8",
-							"text": "Fra dypet roper jeg til deg, Herre. Herre, hør min røst!\nVend øret til mitt rop om nåde.\nDersom du, Herre, vil gjemme på synder, Herre, hvem kan da bli stående?\nMen hos deg er tilgivelse, så vi skal frykte deg.\nJeg setter mitt håp til Herren, jeg lengter, jeg venter på hans ord.\nMin sjel på Herren, mer enn vektere på morgenen, vektere på morgenen.\nVent på Herren, Israel!\nFor hos Herren er miskunn og kraft til å løse ut.\nHan skal løse Israel ut fra alle deres synder.\nSal 130,1-8"
+							"text": "Fra dypet roper jeg til deg, Herre. Herre, hør min røst!\nVend øret til mitt rop om nåde.\nDersom du, Herre, vil gjemme på synder, Herre, hvem kan da bli stående?\nMen hos deg er tilgivelse, så vi skal frykte deg.\nJeg setter mitt håp til Herren, jeg lengter, jeg venter på hans ord.\nMin sjel på Herren, mer enn vektere på morgenen, vektere på morgenen.\nVent på Herren, Israel!\nFor hos Herren er miskunn og kraft til å løse ut.\nHan skal løse Israel ut fra alle deres synder.\nBIBELREF | Sal 130,1-8"
 						},
 						{
 							"label": "B — Sal 90,1-4.12",
-							"text": "Herre, du har vært en bolig for oss i slekt etter slekt. Før fjellene ble født, før jorden og verden ble til, ja, fra evighet og til evighet er du, Gud.\nDu lar mennesket bli til støv igjen og sier: «Menneskebarn, vend tilbake!»\nFor tusen år er i dine øyne som dagen i går da den fór forbi, eller som en nattevakt.\nLær oss å telle våre dager, så vi kan få visdom i hjertet!\nSalme 90,1-4.12"
+							"text": "Herre, du har vært en bolig for oss i slekt etter slekt. Før fjellene ble født, før jorden og verden ble til, ja, fra evighet og til evighet er du, Gud.\nDu lar mennesket bli til støv igjen og sier: «Menneskebarn, vend tilbake!»\nFor tusen år er i dine øyne som dagen i går da den fór forbi, eller som en nattevakt.\nLær oss å telle våre dager, så vi kan få visdom i hjertet!\nBIBELREF | Salme 90,1-4.12"
 						},
 						{
 							"label": "C — Sal 22,2-3.20",
-							"text": "Min Gud, min Gud, hvorfor har du forlatt meg? Hvorfor er du så langt borte når jeg trenger hjelp og skriker ut min nød?\nMin Gud, jeg roper om dagen, men du svarer ikke, jeg roper om natten og får ikke ro.\nMen du, Herre, vær ikke langt borte, min styrke, skynd deg og hjelp meg!\nSal 22,2-3.20"
+							"text": "Min Gud, min Gud, hvorfor har du forlatt meg? Hvorfor er du så langt borte når jeg trenger hjelp og skriker ut min nød?\nMin Gud, jeg roper om dagen, men du svarer ikke, jeg roper om natten og får ikke ro.\nMen du, Herre, vær ikke langt borte, min styrke, skynd deg og hjelp meg!\nBIBELREF | Sal 22,2-3.20"
 						},
 						{
 							"label": "D",
@@ -1805,39 +1805,39 @@ export const BUILTIN_TEMPLATES = [
 						},
 						{
 							"label": "B — Sal 23",
-							"text": "Herren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile. Han gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt.\nFor du er med meg.\nDin kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender.\nDu salver mitt hode med olje. Mitt beger flyter over.\nBare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nSalme 23"
+							"text": "Herren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile. Han gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt.\nFor du er med meg.\nDin kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender.\nDu salver mitt hode med olje. Mitt beger flyter over.\nBare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23"
 						},
 						{
 							"label": "C — Sal 42,2-6",
-							"text": "Som hjorten lengter etter bekker med vann, lengter min sjel etter deg, min Gud.\nMin sjel tørster etter Gud, etter den levende Gud.\nNår skal jeg få komme fram for Guds ansikt?\nTårer er mitt brød dag og natt.\nHele dagen spør de meg: «Hvor er din Gud?»\nDette minnes jeg, min lengsel veller fram:\nTil Guds hus vandret jeg i festskaren med jubelrop og lovsang\n– en pilegrimsskare i fest.\nHvorfor er du tynget av sorg, min sjel, hvorfor er du urolig?\nJeg vil vente på Gud!\nEnda en gang skal jeg prise ham, min Frelser og min Gud.\nSalme 42,2-6"
+							"text": "Som hjorten lengter etter bekker med vann, lengter min sjel etter deg, min Gud.\nMin sjel tørster etter Gud, etter den levende Gud.\nNår skal jeg få komme fram for Guds ansikt?\nTårer er mitt brød dag og natt.\nHele dagen spør de meg: «Hvor er din Gud?»\nDette minnes jeg, min lengsel veller fram:\nTil Guds hus vandret jeg i festskaren med jubelrop og lovsang\n– en pilegrimsskare i fest.\nHvorfor er du tynget av sorg, min sjel, hvorfor er du urolig?\nJeg vil vente på Gud!\nEnda en gang skal jeg prise ham, min Frelser og min Gud.\nBIBELREF | Salme 42,2-6"
 						},
 						{
 							"label": "D — Sal 73,23-26",
-							"text": "Men jeg blir alltid hos deg, du har grepet min høyre hånd.\nDu leder meg med ditt råd,\nog siden tar du imot meg i herlighet.\nHvem har jeg ellers i himmelen?\nNår jeg er hos deg, har jeg ikke glede i noe på jorden.\nOm kropp og hjerte forgår,\ner Gud for evig mitt hjertes klippe og min del.\nSalme 73,23-26"
+							"text": "Men jeg blir alltid hos deg, du har grepet min høyre hånd.\nDu leder meg med ditt råd,\nog siden tar du imot meg i herlighet.\nHvem har jeg ellers i himmelen?\nNår jeg er hos deg, har jeg ikke glede i noe på jorden.\nOm kropp og hjerte forgår,\ner Gud for evig mitt hjertes klippe og min del.\nBIBELREF | Salme 73,23-26"
 						},
 						{
 							"label": "E — Sal 103,13-17",
-							"text": "Som en far er barmhjertig mot sine barn,\ner Herren barmhjertig mot dem som frykter ham.\nFor han vet hvordan vi er skapt, han husker at vi er støv.\nDagene mennesket får, er som gress, det blomstrer som blomsten på marken.\nNår vinden farer over den, er den borte, stedet den stod på, vet ikke lenger av den.\nMen Herrens miskunn er fra evighet til evighet over dem som frykter ham.\nSalme 103,13-17"
+							"text": "Som en far er barmhjertig mot sine barn,\ner Herren barmhjertig mot dem som frykter ham.\nFor han vet hvordan vi er skapt, han husker at vi er støv.\nDagene mennesket får, er som gress, det blomstrer som blomsten på marken.\nNår vinden farer over den, er den borte, stedet den stod på, vet ikke lenger av den.\nMen Herrens miskunn er fra evighet til evighet over dem som frykter ham.\nBIBELREF | Salme 103,13-17"
 						},
 						{
 							"label": "F — Sal 121",
-							"text": "Jeg løfter mine øyne mot fjellene. Hvor skal min hjelp komme fra?\nMin hjelp kommer fra Herren,\nhimmelens og jordens skaper.\nHan vil ikke la din fot vakle, din vokter vil ikke blunde!\nSe, han blunder ikke og sover ikke, Israels vokter.\nHerren er din vokter, Herren er din skygge ved din høyre hånd.\nSolen skal ikke skade deg om dagen heller ikke månen om natten.\nHerren skal bevare deg fra alt ondt. Han skal bevare ditt liv.\nHerren skal bevare din utgang og din inngang fra nå og til evig tid.\nSalme 121"
+							"text": "Jeg løfter mine øyne mot fjellene. Hvor skal min hjelp komme fra?\nMin hjelp kommer fra Herren,\nhimmelens og jordens skaper.\nHan vil ikke la din fot vakle, din vokter vil ikke blunde!\nSe, han blunder ikke og sover ikke, Israels vokter.\nHerren er din vokter, Herren er din skygge ved din høyre hånd.\nSolen skal ikke skade deg om dagen heller ikke månen om natten.\nHerren skal bevare deg fra alt ondt. Han skal bevare ditt liv.\nHerren skal bevare din utgang og din inngang fra nå og til evig tid.\nBIBELREF | Salme 121"
 						},
 						{
 							"label": "G — Sal 139,1-12.23-24",
-							"text": "Herre, du ransaker meg og du vet – du vet om jeg sitter eller står,\npå lang avstand kjenner du mine tanker.\nOm jeg går eller ligger, ser du det, du kjenner alle mine veier.\nFør jeg har et ord på tungen, Herre, kjenner du det fullt ut.\nBakfra og forfra omgir du meg, du har lagt din hånd på meg.\nDet er et under jeg ikke forstår,\ndet er så høyt at jeg ikke kan fatte det. Hvor skulle jeg gå fra din pust,\nhvor kunne jeg flykte fra ditt ansikt?\nStiger jeg opp til himmelen, er du der, legger jeg meg i dødsriket, er du der.\nTar jeg soloppgangens vinger og slår meg ned der havet ender, da fører din hånd meg også der, din høyre hånd holder meg fast.\nJeg kan si: «La mørket skjule meg og lyset omkring meg bli natt»,\nmen mørket er ikke mørkt for deg, natten er lys som dagen,\nmørket er som lyset.\nRansak meg, Gud, og kjenn mitt hjerte, prøv meg og kjenn mine tanker!\nSe om jeg følger avguders vei,\nog led meg på evighetens vei!\nSalme 139,1-12.23-24"
+							"text": "Herre, du ransaker meg og du vet – du vet om jeg sitter eller står,\npå lang avstand kjenner du mine tanker.\nOm jeg går eller ligger, ser du det, du kjenner alle mine veier.\nFør jeg har et ord på tungen, Herre, kjenner du det fullt ut.\nBakfra og forfra omgir du meg, du har lagt din hånd på meg.\nDet er et under jeg ikke forstår,\ndet er så høyt at jeg ikke kan fatte det. Hvor skulle jeg gå fra din pust,\nhvor kunne jeg flykte fra ditt ansikt?\nStiger jeg opp til himmelen, er du der, legger jeg meg i dødsriket, er du der.\nTar jeg soloppgangens vinger og slår meg ned der havet ender, da fører din hånd meg også der, din høyre hånd holder meg fast.\nJeg kan si: «La mørket skjule meg og lyset omkring meg bli natt»,\nmen mørket er ikke mørkt for deg, natten er lys som dagen,\nmørket er som lyset.\nRansak meg, Gud, og kjenn mitt hjerte, prøv meg og kjenn mine tanker!\nSe om jeg følger avguders vei,\nog led meg på evighetens vei!\nBIBELREF | Salme 139,1-12.23-24"
 						},
 						{
 							"label": "H — Fork 3,1-2.4.6a.11a.14a",
-							"text": "Alt har sin tid, det er en tid for alt som skjer under himmelen:\nen tid for å fødes, en tid for å dø,\nen tid for å plante, en tid for å rykke opp, en tid for å gråte, en tid for å le,\nen tid for å sørge, en tid for å danse; en tid for å lete, en tid for å miste.\nAlt skapte han vakkert, hver ting til sin tid.\nJa, alle tider har han lagt i menneskenes hjerte.\nJeg skjønte at alt Gud gjør, står gjennom alle tider.\nIngen kan legge noe til, og ingen kan trekke noe fra.\nFork 3,1-2.4.6a.11a.14a"
+							"text": "Alt har sin tid, det er en tid for alt som skjer under himmelen:\nen tid for å fødes, en tid for å dø,\nen tid for å plante, en tid for å rykke opp, en tid for å gråte, en tid for å le,\nen tid for å sørge, en tid for å danse; en tid for å lete, en tid for å miste.\nAlt skapte han vakkert, hver ting til sin tid.\nJa, alle tider har han lagt i menneskenes hjerte.\nJeg skjønte at alt Gud gjør, står gjennom alle tider.\nIngen kan legge noe til, og ingen kan trekke noe fra.\nBIBELREF | Fork 3,1-2.4.6a.11a.14a"
 						},
 						{
 							"label": "I — Jes 49,14-16a",
-							"text": "Sion sier: «Herren har forlatt meg, Herren har glemt meg.»\nKan en kvinne glemme sitt diende barn, en omsorgsfull mor det barnet hun bar?\nSelv om de skulle glemme,\nskal ikke jeg glemme deg.\nSe, jeg har tegnet deg i mine hender.\nJes 49,14-16a"
+							"text": "Sion sier: «Herren har forlatt meg, Herren har glemt meg.»\nKan en kvinne glemme sitt diende barn, en omsorgsfull mor det barnet hun bar?\nSelv om de skulle glemme,\nskal ikke jeg glemme deg.\nSe, jeg har tegnet deg i mine hender.\nBIBELREF | Jes 49,14-16a"
 						},
 						{
 							"label": "J — Klag 3,22-26",
-							"text": "Herren er nådig, vi går ikke til grunne.\nHans barmhjertighet tar ikke slutt,\nden er ny hver morgen.\nDin trofasthet er stor.\nJeg sier: Herren er min del, jeg setter mitt håp til ham.\nHerren er god mot dem\nsom venter på ham og søker ham.\nDet er godt å være stille\nog vente på hjelp fra Herren.\nKlag 3,22-26"
+							"text": "Herren er nådig, vi går ikke til grunne.\nHans barmhjertighet tar ikke slutt,\nden er ny hver morgen.\nDin trofasthet er stor.\nJeg sier: Herren er min del, jeg setter mitt håp til ham.\nHerren er god mot dem\nsom venter på ham og søker ham.\nDet er godt å være stille\nog vente på hjelp fra Herren.\nBIBELREF | Klag 3,22-26"
 						}
 					],
 					"optional": false
@@ -1851,31 +1851,31 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Rom 6,3-5",
-							"text": "Eller vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans.\nRom 6,3-5"
+							"text": "Eller vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans.\nBIBELREF | Rom 6,3-5"
 						},
 						{
 							"label": "B — Rom 8,31b-35.38-39",
-							"text": "Er Gud for oss, hvem er da mot oss? Han som ikke sparte sin egen Sønn, men gav ham for oss alle, kan han gjøre noe annet enn å gi oss alt sammen med ham? Hvem kan anklage dem Gud har utvalgt? Gud er den som frikjenner. Hvem kan da fordømme? Kristus Jesus er den som døde, ja, mer enn det, han sto opp og sitter ved Guds høyre hånd, og han ber for oss. Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd?\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nRom 8,31b-35.38-39"
+							"text": "Er Gud for oss, hvem er da mot oss? Han som ikke sparte sin egen Sønn, men gav ham for oss alle, kan han gjøre noe annet enn å gi oss alt sammen med ham? Hvem kan anklage dem Gud har utvalgt? Gud er den som frikjenner. Hvem kan da fordømme? Kristus Jesus er den som døde, ja, mer enn det, han sto opp og sitter ved Guds høyre hånd, og han ber for oss. Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd?\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,31b-35.38-39"
 						},
 						{
 							"label": "C — Rom 14,7-12",
-							"text": "For ingen av oss lever for seg selv, og ingen dør for seg selv. Om vi lever, så lever vi for Herren, og om vi dør, så dør vi for Herren. Enten vi da lever eller dør, hører vi Herren til.\nDet var derfor Kristus døde og ble levende igjen, for at han skulle være Herre over både levende og døde. Men du, hvorfor dømmer du din bror, eller hvorfor ser du ned på din bror? Vi skal alle fram for Guds domstol, for det står skrevet:\nSå sant jeg lever, sier Herren, for meg skal hvert kne bøye seg,\nog hver tunge skal bekjenne Gud.\nSå skal altså hver enkelt av oss avlegge sitt eget regnskap for Gud.\nRom 14,7-12"
+							"text": "For ingen av oss lever for seg selv, og ingen dør for seg selv. Om vi lever, så lever vi for Herren, og om vi dør, så dør vi for Herren. Enten vi da lever eller dør, hører vi Herren til.\nDet var derfor Kristus døde og ble levende igjen, for at han skulle være Herre over både levende og døde. Men du, hvorfor dømmer du din bror, eller hvorfor ser du ned på din bror? Vi skal alle fram for Guds domstol, for det står skrevet:\nSå sant jeg lever, sier Herren, for meg skal hvert kne bøye seg,\nog hver tunge skal bekjenne Gud.\nSå skal altså hver enkelt av oss avlegge sitt eget regnskap for Gud.\nBIBELREF | Rom 14,7-12"
 						},
 						{
 							"label": "D — 1 Kor 13,8-13",
-							"text": "Kjærligheten tar aldri slutt. Profetgavene skal bli borte,\ntungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer, skal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre:\ntro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\n1 Kor 13,8-13"
+							"text": "Kjærligheten tar aldri slutt. Profetgavene skal bli borte,\ntungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer, skal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre:\ntro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13,8-13"
 						},
 						{
 							"label": "E — 1 Kor 15,53-57",
-							"text": "For det forgjengelige må bli kledd i uforgjengelighet, og det dødelige må bli kledd i udødelighet. Og når dette forgjengelige er kledd i uforgjengelighet og dette dødelige er kledd i udødelighet, da oppfylles det som står skrevet: Døden er oppslukt, seieren vunnet. Død, hvor er din brodd? Død, hvor er din seier? Dødens brodd er synden, og syndens kraft er loven. Men Gud være takk som gir oss seier ved vår Herre Jesus Kristus!\n1 Kor 15,53-57"
+							"text": "For det forgjengelige må bli kledd i uforgjengelighet, og det dødelige må bli kledd i udødelighet. Og når dette forgjengelige er kledd i uforgjengelighet og dette dødelige er kledd i udødelighet, da oppfylles det som står skrevet: Døden er oppslukt, seieren vunnet. Død, hvor er din brodd? Død, hvor er din seier? Dødens brodd er synden, og syndens kraft er loven. Men Gud være takk som gir oss seier ved vår Herre Jesus Kristus!\nBIBELREF | 1 Kor 15,53-57"
 						},
 						{
 							"label": "F — 1 Tess 5,8-11a",
-							"text": "Men vi som hører dagen til, skal være edru, kledd med tro og kjærlighet som brynje og med håpet om frelse som hjelm. For Gud har ikke bestemt oss til vrede, men til å vinne frelse ved vår Herre Jesus Kristus. Han døde for oss for at vi skal leve sammen med ham enten vi våker eller sover. Derfor må dere oppmuntre og oppbygge hverandre.\n1 Tess 5,8-11a"
+							"text": "Men vi som hører dagen til, skal være edru, kledd med tro og kjærlighet som brynje og med håpet om frelse som hjelm. For Gud har ikke bestemt oss til vrede, men til å vinne frelse ved vår Herre Jesus Kristus. Han døde for oss for at vi skal leve sammen med ham enten vi våker eller sover. Derfor må dere oppmuntre og oppbygge hverandre.\nBIBELREF | 1 Tess 5,8-11a"
 						},
 						{
 							"label": "G — Åp 21,1-5a",
-							"text": "Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa:\n«Se, Guds bolig er hos menneskene.\nHan skal bo hos dem,\nog de skal være hans folk,\nog Gud selv skal være hos dem.\nHan skal tørke bort hver tåre fra deres øyne,\nog døden skal ikke være mer,\nheller ikke sorg eller skrik eller smerte.\nFor det som en gang var, er borte.»\nHan som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nÅp 21,1-5a"
+							"text": "Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa:\n«Se, Guds bolig er hos menneskene.\nHan skal bo hos dem,\nog de skal være hans folk,\nog Gud selv skal være hos dem.\nHan skal tørke bort hver tåre fra deres øyne,\nog døden skal ikke være mer,\nheller ikke sorg eller skrik eller smerte.\nFor det som en gang var, er borte.»\nHan som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nBIBELREF | Åp 21,1-5a"
 						}
 					],
 					"optional": false
@@ -1889,35 +1889,35 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Matt 5,3-10",
-							"text": "Salige er de som er fattige i ånden, for himmelriket er deres.\nSalige er de som sørger, for de skal trøstes.\nSalige er de ydmyke, for de skal arve jorden.\nSalige er de som hungrer og tørster etter rettferdigheten, for de skal mettes.\nSalige er de barmhjertige, for de skal få barmhjertighet.\nSalige er de rene av hjertet, for de skal se Gud.\nSalige er de som skaper fred, for de skal kalles Guds barn.\nSalige er de som blir forfulgt for rettferdighets skyld, for himmelriket er deres.\nMatt 5,3-10"
+							"text": "Salige er de som er fattige i ånden, for himmelriket er deres.\nSalige er de som sørger, for de skal trøstes.\nSalige er de ydmyke, for de skal arve jorden.\nSalige er de som hungrer og tørster etter rettferdigheten, for de skal mettes.\nSalige er de barmhjertige, for de skal få barmhjertighet.\nSalige er de rene av hjertet, for de skal se Gud.\nSalige er de som skaper fred, for de skal kalles Guds barn.\nSalige er de som blir forfulgt for rettferdighets skyld, for himmelriket er deres.\nBIBELREF | Matt 5,3-10"
 						},
 						{
 							"label": "B — Matt 28,1-10",
-							"text": "Da sabbaten var over og det begynte å lysne den første dag i uken, kom Maria Magdalena og den andre Maria for å se til graven. Med ett ble det et kraftig jordskjelv, for en Herrens engel steg ned fra himmelen, gikk fram og rullet steinen til side og satte seg på den. Han var som et lyn å se til, og drakten var hvit som snø. Vaktene skalv av redsel da de så ham, og de ble liggende som døde.\nMen engelen tok til orde og sa til kvinnene: «Frykt ikke! Jeg vet at dere leter etter Jesus, den korsfestede. Han er ikke her, han er stått opp, slik som han sa. Kom og se stedet hvor han lå! Skynd dere av sted og si til disiplene hans: «Han er stått opp fra de døde, og han går i forveien for dere til Galilea; der skal dere få se ham.» – Nå har jeg sagt dere det.»\nDa skyndte de seg bort fra graven, redde, men jublende glade, og de løp for å fortelle det til disiplene. Og se, Jesus kom mot dem og sa: «Vær hilset!» De gikk fram og omfavnet føttene hans og tilbad ham. Jesus sa til dem: «Frykt ikke! Gå og si til mine brødre at de skal dra til Galilea. Der skal de se meg.»\nMatt 28,1-10"
+							"text": "Da sabbaten var over og det begynte å lysne den første dag i uken, kom Maria Magdalena og den andre Maria for å se til graven. Med ett ble det et kraftig jordskjelv, for en Herrens engel steg ned fra himmelen, gikk fram og rullet steinen til side og satte seg på den. Han var som et lyn å se til, og drakten var hvit som snø. Vaktene skalv av redsel da de så ham, og de ble liggende som døde.\nMen engelen tok til orde og sa til kvinnene: «Frykt ikke! Jeg vet at dere leter etter Jesus, den korsfestede. Han er ikke her, han er stått opp, slik som han sa. Kom og se stedet hvor han lå! Skynd dere av sted og si til disiplene hans: «Han er stått opp fra de døde, og han går i forveien for dere til Galilea; der skal dere få se ham.» – Nå har jeg sagt dere det.»\nDa skyndte de seg bort fra graven, redde, men jublende glade, og de løp for å fortelle det til disiplene. Og se, Jesus kom mot dem og sa: «Vær hilset!» De gikk fram og omfavnet føttene hans og tilbad ham. Jesus sa til dem: «Frykt ikke! Gå og si til mine brødre at de skal dra til Galilea. Der skal de se meg.»\nBIBELREF | Matt 28,1-10"
 						},
 						{
 							"label": "C — Mark 10,13-16",
-							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nMark 10,13-16"
+							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nBIBELREF | Mark 10,13-16"
 						},
 						{
 							"label": "D — Luk 12,35-38",
-							"text": "Jesus sier: Spenn beltet om livet og hold lampene tent! Vær lik tjenere som venter sin herre hjem fra bryllupsfest og står klar til å lukke opp for ham så snart han kommer og banker på. Lykkelige er de tjenere som herren finner våkne når han kommer! Sannelig, jeg sier dere: Han skal binde opp kjortelen, la dem gå til bords og selv gå fram og tjene dem. Ja, lykkelige er de som han finner våkne, selv om han ikke kommer før i andre eller tredje nattevakt.\nLuk 12,35-38"
+							"text": "Jesus sier: Spenn beltet om livet og hold lampene tent! Vær lik tjenere som venter sin herre hjem fra bryllupsfest og står klar til å lukke opp for ham så snart han kommer og banker på. Lykkelige er de tjenere som herren finner våkne når han kommer! Sannelig, jeg sier dere: Han skal binde opp kjortelen, la dem gå til bords og selv gå fram og tjene dem. Ja, lykkelige er de som han finner våkne, selv om han ikke kommer før i andre eller tredje nattevakt.\nBIBELREF | Luk 12,35-38"
 						},
 						{
 							"label": "E — Joh 5,24-27",
-							"text": "Jesus sier: Sannelig, sannelig, jeg sier dere: Den som hører mitt ord og tror på ham som har sendt meg, har evig liv og kommer ikke for dommen, men er gått over fra døden til livet.\nSannelig, sannelig, jeg sier dere: Den time kommer, ja, den er nå, da de døde skal høre Guds Sønns røst, og de som hører, skal leve. For slik Far har liv i seg selv, har han også gitt Sønnen å ha liv i seg selv, og han har gitt ham myndighet til å holde dom, fordi han er Menneskesønnen.\nJoh 5,24-27"
+							"text": "Jesus sier: Sannelig, sannelig, jeg sier dere: Den som hører mitt ord og tror på ham som har sendt meg, har evig liv og kommer ikke for dommen, men er gått over fra døden til livet.\nSannelig, sannelig, jeg sier dere: Den time kommer, ja, den er nå, da de døde skal høre Guds Sønns røst, og de som hører, skal leve. For slik Far har liv i seg selv, har han også gitt Sønnen å ha liv i seg selv, og han har gitt ham myndighet til å holde dom, fordi han er Menneskesønnen.\nBIBELREF | Joh 5,24-27"
 						},
 						{
 							"label": "F — Joh 6,37-40",
-							"text": "Jesus sier: Alle de som Far gir meg, kommer til meg, og den som kommer til meg, vil jeg aldri støte bort. For jeg er ikke kommet ned fra himmelen for å gjøre det jeg selv vil, men det han vil, han som har sendt meg. Og det han vil, han som har sendt meg, er at jeg ikke skal miste noen av alle dem han har gitt meg, men reise dem opp på den siste dag. For dette er min Fars vilje, at hver den som ser Sønnen og tror på ham, skal ha evig liv, og jeg skal reise ham opp på den siste dag.\nJoh 6,37-40"
+							"text": "Jesus sier: Alle de som Far gir meg, kommer til meg, og den som kommer til meg, vil jeg aldri støte bort. For jeg er ikke kommet ned fra himmelen for å gjøre det jeg selv vil, men det han vil, han som har sendt meg. Og det han vil, han som har sendt meg, er at jeg ikke skal miste noen av alle dem han har gitt meg, men reise dem opp på den siste dag. For dette er min Fars vilje, at hver den som ser Sønnen og tror på ham, skal ha evig liv, og jeg skal reise ham opp på den siste dag.\nBIBELREF | Joh 6,37-40"
 						},
 						{
 							"label": "G — Joh 10,14.28-29",
-							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nJoh 10,14.28-29"
+							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nBIBELREF | Joh 10,14.28-29"
 						},
 						{
 							"label": "H — Joh 14,1-6",
-							"text": "«La ikke hjertet bli grepet av angst. Tro på Gud og tro på meg! I min Fars hus er det mange rom. Var det ikke slik, hadde jeg da sagt dere at jeg går og vil gjøre i stand et sted for dere? Og når jeg har gått og gjort i stand et sted for dere, vil jeg komme tilbake og ta dere til meg, så dere skal være der jeg er. Og dit jeg går, vet dere veien.»\nTomas sier til ham: «Herre, vi vet ikke hvor du går. Hvordan kan vi da vite veien?» Jesus sier: «Jeg er veien, sannheten og livet. Ingen kommer til Far uten ved meg.»\nJoh 14,1-6"
+							"text": "«La ikke hjertet bli grepet av angst. Tro på Gud og tro på meg! I min Fars hus er det mange rom. Var det ikke slik, hadde jeg da sagt dere at jeg går og vil gjøre i stand et sted for dere? Og når jeg har gått og gjort i stand et sted for dere, vil jeg komme tilbake og ta dere til meg, så dere skal være der jeg er. Og dit jeg går, vet dere veien.»\nTomas sier til ham: «Herre, vi vet ikke hvor du går. Hvordan kan vi da vite veien?» Jesus sier: «Jeg er veien, sannheten og livet. Ingen kommer til Far uten ved meg.»\nBIBELREF | Joh 14,1-6"
 						}
 					],
 					"optional": false
@@ -1931,15 +1931,15 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "Mark 10,13-16",
-							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nMark 10,13-16"
+							"text": "De bar små barn til ham for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem.\nBIBELREF | Mark 10,13-16"
 						},
 						{
 							"label": "Joh 10,14.28-29",
-							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nJoh 10,14.28-29"
+							"text": "Jesus sier: Jeg er den gode gjeteren. Jeg kjenner mine, og mine kjenner meg. Jeg gir dem evig liv. De skal aldri i evighet gå tapt, og ingen skal rive dem ut av min hånd. Det min Far har gitt meg, er større enn alt annet, og ingen kan rive det ut av min Fars hånd.\nBIBELREF | Joh 10,14.28-29"
 						},
 						{
 							"label": "Åp 21,1-5a",
-							"text": "Herrens apostel sier: Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa: «Se, Guds bolig er hos menneskene. Han skal bo hos dem, og de skal være hans folk, og Gud selv skal være hos dem. Han skal være deres Gud.\nHan skal tørke bort hver tåre fra deres øyne, og døden skal ikke være mer, heller ikke sorg eller skrik eller smerte. For det som en gang var, er borte.» Han som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nÅp 21,1-5a"
+							"text": "Herrens apostel sier: Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer. Og jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom. Og jeg hørte fra tronen en høy røst som sa: «Se, Guds bolig er hos menneskene. Han skal bo hos dem, og de skal være hans folk, og Gud selv skal være hos dem. Han skal være deres Gud.\nHan skal tørke bort hver tåre fra deres øyne, og døden skal ikke være mer, heller ikke sorg eller skrik eller smerte. For det som en gang var, er borte.» Han som sitter på tronen, sa: «Se, jeg gjør alle ting nye.»\nBIBELREF | Åp 21,1-5a"
 						}
 					],
 					"optional": false
@@ -2084,7 +2084,7 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "Sal 68,21",
-							"text": "Vår Gud er en Gud som frelser, hos Gud Herren er det utgang fra døden.\nSal 68,21"
+							"text": "Vår Gud er en Gud som frelser, hos Gud Herren er det utgang fra døden.\nBIBELREF | Sal 68,21"
 						},
 						{
 							"label": "Åp 1,17b-18",
@@ -2146,11 +2146,11 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Joh 11,25-26",
-							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nJoh 11,25-26"
+							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
 						},
 						{
 							"label": "B — 1 Pet 1,3",
-							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\n1 Pet 1,3"
+							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
 						}
 					],
 					"optional": false,
@@ -2213,11 +2213,11 @@ export const BUILTIN_TEMPLATES = [
 					"alts": [
 						{
 							"label": "A — Joh 11,25-26",
-							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nJoh 11,25-26"
+							"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus sier: Jeg er oppstandelsen og livet. Den som tror på meg, skal leve om han enn dør. Og hver den som lever og tror på meg, skal aldri i evighet dø.\nBIBELREF | Joh 11,25-26"
 						},
 						{
 							"label": "B — 1 Pet 1,3",
-							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\n1 Pet 1,3"
+							"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3"
 						}
 					],
 					"optional": false,
