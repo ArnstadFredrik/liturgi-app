@@ -390,6 +390,8 @@
 							{#if it.enabled !== false}
 								<div class="eksport-rad-tekst">
 									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}{erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? ' — ' + bibelrefTxt(it) : ''}</span>
+								</div>
+								<div class="eksport-rad-knapper">
 									{#if !visInnhold && (leddTekst(it) || '').trim()}
 										<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
 											title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
