@@ -97,12 +97,9 @@
 		return standard(it);
 	}
 
-	/** Skal leddets overskrift være med? (default ja, lagres med «:h»-nøkkel) */
+	/** Skal leddets overskrift være med? Hovedboksen for leddet styrer også overskriften. */
 	function visHode(si, ii) {
-		const v = valg[aktiv]?.[nokkel(si, ii) + ':h'];
-		if (v !== undefined) return v;
-		const lagret = o?.eksportValg?.[aktiv]?.[nokkel(si, ii) + ':h'];
-		return lagret !== undefined ? lagret : true;
+		return erMed(si, ii, {});
 	}
 
 	/** Skal leddets innhold være med? (default ja, lagres med «:t»-nøkkel) */
@@ -200,8 +197,8 @@
 				if (original && original.enabled === false) { it.enabled = false; return; }
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
-				// per-ledd valg: overskrift og/eller innhold med i eksporten
-				it.__visOverskrift = lagret?.[nokkel(si, ii) + ':h'] !== undefined ? lagret[nokkel(si, ii) + ':h'] : true;
+				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet
+				it.__visOverskrift = it.enabled;
 				it.__visInnhold = lagret?.[nokkel(si, ii) + ':t'] !== undefined ? lagret[nokkel(si, ii) + ':t'] : true;
 			});
 		});
@@ -363,7 +360,10 @@
 							{#if it.enabled === false}
 								<span class="eksport-fjernet-tag" title="Fjernet fra gudstjenesten i kontekstmenyen — kommer ikke med i eksport">fjernet</span>
 							{:else}
-								<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(si, ii, e.currentTarget.checked)} />
+								<label class="eksport-hovedchk" title="Leddet (inkl. overskriften) med i eksporten?">
+									<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(si, ii, e.currentTarget.checked)} />
+									<span class="eksport-hoved-ikon">{@html mdi('format-title')}</span>
+								</label>
 							{/if}
 							<div class="eksport-rad-tekst">
 								<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}</span>
@@ -372,10 +372,10 @@
 								{/if}
 							</div>
 							{#if it.enabled !== false}
-								<span class="eksport-del-bokser" title="Velg om overskriften og/eller innholdet skal være med">
-									<label class="eksport-del"><input type="checkbox" checked={visHode(si, ii)} onchange={(e) => settDel(si, ii, ':h', e.currentTarget.checked)} /> O</label>
-									<label class="eksport-del"><input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} /> I</label>
-								</span>
+								<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
+									<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
+									{@html mdi('text')}<span>Innhold</span>
+								</label>
 							{/if}
 						</div>
 					{/each}
