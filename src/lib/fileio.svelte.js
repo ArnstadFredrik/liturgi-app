@@ -530,10 +530,8 @@ function safeNavn(n) {
 }
 
 function autoMarkMigrate(it) {
-	// samme migrering som store autoMark — rolleprefikser → {{r}}-markører
-	it.text = (it.text ?? '').replace(/^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)/gm, '{{r}}$1$2{{/r}}');
-	it.instr = (it.instr ?? '').replace(/^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)/gm, '{{r}}$1$2{{/r}}');
-	if (it.alts) for (const a of it.alts) a.text = (a.text ?? '').replace(/^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)/gm, '{{r}}$1$2{{/r}}');
+	// rolleprefikser («L | tekst») er førsteklasses syntaks i riktekst-editoren
+	// (redigerbar chip) — pakkes ikke lenger automatisk inn i {{r}}…{{/r}}
 }
 
 /** Lagre en kopi av det åpne objektet som lokal mal (fil på disk). */
