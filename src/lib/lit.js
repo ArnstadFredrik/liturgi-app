@@ -15,7 +15,7 @@ export function leddTekst(it) {
 }
 
 /** Render liturgitext til HTML: rollemerker ({{r}}…{{/r}}) i rødt, «@r |»- eller «@r»-linjer
- *  (hele linjen som rolle), «BIBELREF | »- og «FOTNOTE | »-linjer som små urskrifts-fotnoter, og enkel markdown
+ *  (hele linjen som rolle), «BIBELREF | » (bibelreferanse) og «FOTNOTE | » (liten tekstnotis) formateres begge som små fotnoter, og enkel markdown
  *  (**fet**, *urskrift*, «# overskrift», «- punktliste»). */
 export function litHtml(text) {
 	let out = (text ?? '')

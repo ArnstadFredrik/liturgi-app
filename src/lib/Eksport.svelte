@@ -110,11 +110,12 @@
 		return lagret !== undefined ? lagret : true;
 	}
 
-	/** Er leddet et bibeltekst-ledd? Defineres av BIBELREF/FOTNOTE-linjen i teksten
-	 *  (ikke av overskriften — «Ingress til lesning» matcher ellers med). */
+	/** Er leddet et bibeltekst-ledd? Defineres av BIBELREF-linjen i teksten
+	 *  (ikke av overskriften — «Ingress til lesning» matcher ellers med).
+	 *  FOTNOTE er kun generell liten tekstnotis-formatering. */
 	function erBibel(it) {
 		const tekster = [it.text, ...(it.alts || []).map((a) => a.text)];
-		return tekster.some((t) => t && /^(?:BIBELREF|FOTNOTE) \|/m.test(t));
+		return tekster.some((t) => t && /^BIBELREF \|/m.test(t));
 	}
 
 	/** Skal leddet vise bibelreferanse i stedet for hele teksten? (lagres med «:br»-nøkkel;
@@ -255,7 +256,7 @@
 		const kkRefs = k ? { første: k.L1, andre: k.L2, evangelium: k.E } : {};
 		const finnRef = (tekst) => {
 			if (!tekst) return null;
-			const fn = tekst.match(/^BIBELREF \| ?(.*)$/m) ?? tekst.match(/^FOTNOTE \| ?(.*)$/m);
+			const fn = tekst.match(/^BIBELREF \| ?(.*)$/m);
 			if (fn) return fn[1].trim();
 			const intro = tekst.match(/står skrevet (?:i\/hos|i|hos) ([^:\n]+):/);
 			if (intro && /\d/.test(intro[1])) return intro[1].trim();
