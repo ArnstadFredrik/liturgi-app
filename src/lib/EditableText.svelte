@@ -29,10 +29,11 @@
 
 	/** Omslutter paret (open … close) det valgte? Returnerer [start, slutt] på hele spannet. */
 	function parOmslutter(v, s, e, open, close) {
-		let o = v.lastIndexOf(open, Math.max(s, open.length));
+		let o = v.lastIndexOf(open, s);
 		while (o !== -1) {
 			const c = v.indexOf(close, o + open.length);
 			if (c !== -1 && c + close.length >= e && o <= s) return [o, c + close.length];
+			if (o === 0) break;
 			o = v.lastIndexOf(open, o - 1);
 		}
 		return null;
