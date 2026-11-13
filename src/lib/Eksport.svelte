@@ -243,7 +243,7 @@
 		return kopi;
 	}
 
-	/** Bibelreferanse-modus per ledd: finn referansen i teksten (tre former: FOTNOTE-linjen,
+	/** Bibelreferanse-modus per ledd: finn referansen i teksten (tre former: BIBELREF-linjen,
 	 *  «står skrevet i/hos [ref]:»-innledningen og referansen som siste linje, f.eks. «Sal 68,21»).
 	 *  Uten kjent referanse brukes kirkeårets oppslag (Første/Andre lesning/Evangelium ↔ L1/L2/E). */
 	function bibelref(it) {
@@ -251,7 +251,7 @@
 		const kkRefs = k ? { første: k.L1, andre: k.L2, evangelium: k.E } : {};
 		const finnRef = (tekst) => {
 			if (!tekst) return null;
-			const fn = tekst.match(/^FOTNOTE \| ?(.*)$/m);
+			const fn = tekst.match(/^BIBELREF \| ?(.*)$/m) ?? tekst.match(/^FOTNOTE \| ?(.*)$/m);
 			if (fn) return fn[1].trim();
 			const intro = tekst.match(/står skrevet (?:i\/hos|i|hos) ([^:\n]+):/);
 			if (intro && /\d/.test(intro[1])) return intro[1].trim();

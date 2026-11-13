@@ -354,7 +354,7 @@ function fyllLesning(it, ref, tekst, evangelium = false) {
 	const outro = evangelium
 		? 'L | Slik lyder det hellige evangelium.'
 		: 'ML | Slik lyder Herrens ord.';
-	const fotnote = tekst ? '\nFOTNOTE | ' + ref : '';
+	const fotnote = tekst ? '\nBIBELREF | ' + ref : '';
 	if (tekst) {
 		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text + fotnote;
 		if (it.text?.includes(evangelium ? '[Evangelietekst]' : '[Lesningstekst]')) {
