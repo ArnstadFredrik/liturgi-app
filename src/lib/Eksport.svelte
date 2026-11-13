@@ -110,8 +110,12 @@
 		return lagret !== undefined ? lagret : true;
 	}
 
-	/** Er leddet et bibeltekst-ledd (lesning)? */
-	function erBibel(it) { return erLesning(it); }
+	/** Er leddet et bibeltekst-ledd? Defineres av BIBELREF/FOTNOTE-linjen i teksten
+	 *  (ikke av overskriften — «Ingress til lesning» matcher ellers med). */
+	function erBibel(it) {
+		const tekster = [it.text, ...(it.alts || []).map((a) => a.text)];
+		return tekster.some((t) => t && /^(?:BIBELREF|FOTNOTE) \|/m.test(t));
+	}
 
 	/** Skal leddet vise bibelreferanse i stedet for hele teksten? (lagres med «:br»-nøkkel;
 	 *  standard: på for Menighet på lesningsledd) */
@@ -223,7 +227,7 @@
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
 				// og legg referansen til overskriften
 				const bref = lagret?.[nokkel(si, ii) + ':br'];
-				if (bref !== undefined ? bref : (profil === 'Menighet' && erLesning(it))) {
+				if (bref !== undefined ? bref : (profil === 'Menighet' && erBibel(it))) {
 					const r = bibelref(it);
 					if (r) {
 						if (it.alts?.length) {
