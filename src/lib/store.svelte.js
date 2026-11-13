@@ -293,9 +293,9 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 export function formaterBønn(prayer) {
 	const lines = (prayer || '').split('\n').map((s) => s.trim()).filter(Boolean);
 	if (!lines.length) return '';
-	lines[0] = 'L | ' + lines[0];
+	lines[0] = '{{r}}L |{{/r}} ' + lines[0];
 	const last = lines.length - 1;
-	if (last > 0 && /^amen\.?$/i.test(lines[last])) lines[last] = 'M | ' + lines[last];
+	if (last > 0 && /^amen\.?$/i.test(lines[last])) lines[last] = '{{r}}M |{{/r}} ' + lines[last];
 	return lines.join('\n');
 }
 
@@ -308,12 +308,12 @@ export function applyKirkeaar(svc, k, tekster) {
 			const h = (it.heading || '').toLowerCase();
 			const erIngress = h.includes('ingress');
 			if (h.includes('dagens bønn') && !erIngress && k.prayer) {
-				const bønn = 'L | La oss alle be.\n' + formaterBønn(k.prayer);
+				const bønn = '{{r}}L |{{/r}} La oss alle be.\n' + formaterBønn(k.prayer);
 				if (it.text?.includes('[Dagens bønn]')) {
 					const innhold = formaterBønn(k.prayer);
 					it.text = it.text.replace('[Dagens bønn]', innhold);
 					// unngå dobbel avsluttende Amen fra malen (tåler både ren og {{r}}-pakket form)
-					if (/amen\.?$/i.test(innhold)) it.text = it.text.replace(/\n*(?:\{\{r\}\})?M \| Amen\.?(?:\{\{\/r\}\})?\s*$/, '');
+					if (/amen\.?$/i.test(innhold)) it.text = it.text.replace(/\n*(?:\{\{r\}\}M \|\{\{\/r\}\} ?|M \| ?)Amen\.?\s*$/, '');
 				} else if ((it.alts ?? []).length) {
 					// lokal(e) alternativ(er) beholdes – kirkeårsbønnen settes inn/oppdateres forrest
 					const idx = it.alts.findIndex((a) => a.label === 'Dagens bønn (kirkeåret)');
@@ -350,11 +350,11 @@ export function applyKirkeaar(svc, k, tekster) {
 function fyllLesning(it, ref, tekst, evangelium = false) {
 	// teksten innledes/avsluttes som i ordningen; referansen settes som fotnote
 	const intro = evangelium
-		? 'L | Det står skrevet i evangeliet etter ' + ref + ':'
-		: 'ML | Det står skrevet i ' + ref + ':';
+		? '{{r}}L |{{/r}} Det står skrevet i evangeliet etter ' + ref + ':'
+		: '{{r}}ML |{{/r}} Det står skrevet i ' + ref + ':';
 	const outro = evangelium
-		? 'L | Slik lyder det hellige evangelium.'
-		: 'ML | Slik lyder Herrens ord.';
+		? '{{r}}L |{{/r}} Slik lyder det hellige evangelium.'
+		: '{{r}}ML |{{/r}} Slik lyder Herrens ord.';
 	const fotnote = tekst ? '\nBIBELREF | ' + ref : '';
 	if (tekst) {
 		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text + fotnote;
