@@ -21,8 +21,18 @@ export const app = $state({
 	servicesDir: '', // Electron: stien til tjenestemappen
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
+	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	modal: null
 });
+
+const SIDEBAR_KEY = 'liturgi-sidebar';
+export function veksleSidebar() {
+	app.sidebarSkjult = !app.sidebarSkjult;
+	localStorage.setItem(SIDEBAR_KEY, app.sidebarSkjult ? 'skjult' : 'vis');
+}
+try {
+	app.sidebarSkjult = localStorage.getItem(SIDEBAR_KEY) === 'skjult';
+} catch {}
 
 /** Sett tema på <html> og lagre valget (lokalStorage + database i Electron). */
 export function setTheme(t) {

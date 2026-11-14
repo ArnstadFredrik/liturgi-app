@@ -1,5 +1,7 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
+	import { app, veksleSidebar, loadStore } from '$lib/store.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';
 	import Welcome from '$lib/Welcome.svelte';
 	import Maler from '$lib/Maler.svelte';
@@ -7,7 +9,6 @@
 	import Eksport from '$lib/Eksport.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Modal from '$lib/Modal.svelte';
-	import { app, loadStore } from '$lib/store.svelte.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 
 	loadStore();
@@ -26,9 +27,13 @@
 	}
 </script>
 
-<div id="app">
+<div id="app" class:sidebar-skjult={app.sidebarSkjult}>
 	<Sidebar />
 	<main id="main">
+		<button class="ikon-btn sidebar-vis" class:vis={app.sidebarSkjult} onclick={veksleSidebar}
+			title="Vis sidemenyen">
+			{@html mdi('menu-open', 18)}
+		</button>
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
 		{:else if app.current}
