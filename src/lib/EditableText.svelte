@@ -4,7 +4,7 @@
 	import { litHtml, litEditHtml, litLinjeHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true } = $props(); // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true } = $props(); // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	$effect(() => {
@@ -38,7 +38,7 @@
 
 	function done() {
 		editing = false;
-		markDirty();
+		if (dirty) markDirty();
 	}
 
 	/* ---------- tilstand for knappene ---------- */
@@ -106,7 +106,7 @@
 		if (ny == null) return;
 		sistSer = ny;
 		value = ny;
-		markDirty();
+		if (dirty) markDirty();
 	}
 
 	/** Hindrer at skrevet tekst arver rolleformatering når utvalget bare BERØRER et
@@ -245,7 +245,7 @@
 		ta.selectionEnd = e;
 		ta.focus();
 		sel = { s, e };
-		markDirty();
+		if (dirty) markDirty();
 	}
 
 	function vekslePar(id) {

@@ -74,14 +74,6 @@
 		rediger = false;
 	}
 
-	/** Åpne elementet og gå rett i redigering. */
-	function velgOgRediger(r) {
-		valgt = r;
-		skjema = { ...r };
-		rediger = true;
-		visMeta = false;
-	}
-
 	async function lagre() {
 		if (!skjema.ledd.trim()) { alert('Ledd må ha et navn'); return; }
 		// $state-proxy kan ikke sendes over IPC — ta en ren kopi
@@ -138,7 +130,7 @@
 						<div class="biblio-mappe">
 							<div class="sidehead biblio-mappe-navn">{@html mdi('folder-outline')} {mappe}</div>
 							{#each rader as r (r.id)}
-								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velgOgRediger(r)}>
+								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
 									<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 									{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
 								</button>
@@ -194,7 +186,7 @@
 					</details>
 						<div class="biblio-felt"><span>Tekst</span>
 						<div class="biblio-tekstfelt">
-							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" startRedigering visFerdig={false} />
+							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" startRedigering visFerdig={false} dirty={false} />
 						</div>
 						</div>
 					</div>
