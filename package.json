@@ -70,6 +70,7 @@
     "church-year": "^0.2.61",
     "docx": "^9.0.0",
     "jspdf": "^4.2.1",
+    "pdfjs-dist": "^4.10.38",
     "pptxgenjs": "^4.0.1",
     "svelte-sonner": "^1.2.3"
   },
