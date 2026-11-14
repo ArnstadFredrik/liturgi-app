@@ -66,7 +66,7 @@
 			</ul>
 		</div>
 	{/if}
-	<hr class="side-skiller" />
+	{#if åpne.length}<hr class="side-skiller" />{/if}
 	<div class="sidegroup">
 		<div class="sidehead">Sist brukt{#if isElectron}&nbsp;· siste {MAX_RECENT}{/if}</div>
 		<ul class="list">
