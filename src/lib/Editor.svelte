@@ -1,12 +1,9 @@
 <script>
-	import { app, persist, markDirty, saveAsTemplate, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
+	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { prompt, confirmBox, chooseSectionsModal, valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
-	import { toast } from 'svelte-sonner';
-	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
-	import { applyKirkeaar } from '$lib/store.svelte.js';
-	import { saveCurrentToFile, saveCurrent, saveAsTemplateOnDisk, lukkRedigering } from '$lib/fileio.svelte.js';
+	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -85,59 +82,6 @@
 		saveCurrent();
 	}
 
-	/** Sjekk ved datoenesring: gi beskjed hvis kirkeårsdagen endres. */
-	function onDatoEndret() {
-		markDirty();
-		const k = lookupKirkeaar(o.date);
-		if (!k || k.name === o.kirkeaar?.name) return;
-		valgModal(
-			'Kirkeårsdagen er endret',
-			`Datoen peker nå på «${k.name}», men gudstjenesten har innhold fra «${o.kirkeaar?.name ?? 'ingen dag'}». Vil du oppdatere dagens bønn og bibeltekstene?`,
-			'Oppdater', 'Behold innholdet',
-			() => oppdaterInnhold(k)
-		);
-	}
-
-	async function oppdaterInnhold(k) {
-		try {
-			const tekster = await hentTekster(k.day);
-			applyKirkeaar(o, k, tekster);
-			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
-			markDirty();
-			toast.success('Gudstjenesten er oppdatert til «' + k.name + '»');
-		} catch (e) {
-			toast.error('Klarte ikke oppdatere: ' + (e?.message ?? e));
-		}
-	}
-
-	/** Manuelt kirkeårsdag-valg fra redigeringsvisningen. */
-	function velgKirkeaarManuelt() {
-		kirkeaarListeModal(o.date, (k) => {
-			if (!k) return;
-			if (k.name === o.kirkeaar?.name) return;
-			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
-			markDirty();
-			valgModal(
-				'Kirkeårsdag endret manuelt',
-				`Gudstjenesten peker nå på «${k.name}». Vil du oppdatere dagens bønn og bibeltekstene?`,
-				'Oppdater', 'Behold innholdet',
-				() => oppdaterInnhold(k)
-			);
-		});
-	}
-
-	function onSaveTpl() {
-		if (isElectron) {
-			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplateOnDisk(name), o.name + ' (grunnordning)');
-		} else {
-			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplate(name), o.name + ' (grunnordning)');
-		}
-	}
-
-	function tilEksport() {
-		app.visning = 'eksport';
-	}
-
 	function hentFraMal() {
 		const tpl = app.templates.find((t) => t.id === o.templateId);
 		if (!tpl) return;
@@ -167,29 +111,7 @@
 <div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)}>
 	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
-		{#if app.kind === 'service'}
-			<input type="date" bind:value={o.date} onchange={onDatoEndret} />
-		{/if}
-		<div id="ed-actions">
-			<button onclick={onSave} title="Lagre">{@html mdi('content-save')} Lagre</button>
-			<button onclick={saveCurrentToFile} title="Lagre som ny fil på disk">Lagre som …</button>
-			{#if app.kind === 'service'}
-				<button onclick={onSaveTpl} title="Lagre som lokal mal">Lagre som mal</button>
-				<button onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">Eksport …</button>
-			{/if}
-			<button onclick={lukkRedigering} title="Lukk">✕</button>
-		</div>
 	</header>
-	<div id="ed-meta">
-		{#if app.kind === 'service'}
-			Basert på mal: {o.templateName}
-			&nbsp;<button class="link-btn" onclick={velgKirkeaarManuelt} title="Velg kirkeårsdag manuelt">{@html mdi('calendar-edit')} {o.kirkeaar ? 'endre kirkeårsdag' : 'velg kirkeårsdag'}</button>
-			{#if o.kirkeaar}&nbsp;· ☀️ {o.kirkeaar.name}{#if o.kirkeaar.color}&nbsp;({o.kirkeaar.color}){/if}{/if}
-		{:else}
-			Lokal mal (grunnordning)
-		{/if}
-		{#if app.dirty}<span class="dirty">• ulagrede endringer</span>{/if}
-	</div>
 	<div id="ed-date-line">{nlDate(o.date)}{#if o.kirkeaar}&nbsp;– {o.kirkeaar.name}{/if}</div>
 
 	{#each o.sections as sec, si (si)}
