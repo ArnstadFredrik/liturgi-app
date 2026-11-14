@@ -194,7 +194,7 @@
 					</details>
 						<div class="biblio-felt"><span>Tekst</span>
 						<div class="biblio-tekstfelt">
-							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
+							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" startRedigering visFerdig={false} />
 						</div>
 						</div>
 					</div>
