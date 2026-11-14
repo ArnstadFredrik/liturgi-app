@@ -1,6 +1,6 @@
-import { app, persist, uid, openService, openTemplate, closeEditor, entryFor, syncDirty } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
-import { prompt, lukkModal, closeModal } from './modal.svelte.js';
+import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
 
 const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -679,3 +679,43 @@ export async function deleteTemplateFile(p) {
 listenForFinderOpen();
 // lytt etter «lagre og lukk» fra avsluttingsdialogen (kun i Electron)
 listenForSaveThenClose();
+
+// ---------- mac-menylinjen: handlinger fra toppmenyen ----------
+function nyGudtjenesteFraMeny() {
+	if (!app.templates.length) { toast.error('Ingen maler å base ny gudtjeneste på'); return; }
+	newServiceModal((name, date, tplId, include, kirkeaar, tekster) => {
+		createService(name, date, tplId, include, kirkeaar, tekster);
+	});
+}
+
+function lagreSomMalFraMeny() {
+	const o = app.current;
+	if (!o) return;
+	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
+	if (isElectron) {
+		prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplateOnDisk(name), o.name + ' (grunnordning)');
+	} else {
+		prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplate(name), o.name + ' (grunnordning)');
+	}
+}
+
+if (typeof window !== 'undefined') {
+	window.liturgi?.onMenyHandling?.((id) => {
+		switch (id) {
+			case 'ny-gudtjeneste': nyGudtjenesteFraMeny(); break;
+			case 'apne-fil': openFileToStore(); break;
+			case 'lagre': saveCurrent(); break;
+			case 'lagre-som': saveCurrentToFile(); break;
+			case 'lagre-som-mal': lagreSomMalFraMeny(); break;
+			case 'eksport': app.visning = 'eksport'; break;
+			case 'lukk-dok': lukkRedigering(); break;
+			case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
+			case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
+			case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
+			case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
+			case 'veksle-sidebar': veksleSidebar(); break;
+			case 'veksle-toc': veksleToc(); break;
+			case 'tema': toggleTheme(); break;
+		}
+	});
+}

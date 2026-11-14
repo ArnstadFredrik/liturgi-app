@@ -14,6 +14,11 @@
 
 	loadStore();
 
+	// mac-menylinjen: dokumenthandlinger av/på etter tilstand
+	$effect(() => {
+		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme });
+	});
+
 	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)
 	if (typeof window !== 'undefined' && window.liturgi?.onSaveThenClose) {
 		window.liturgi.onSaveThenClose(async () => {

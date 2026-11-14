@@ -1,7 +1,7 @@
 // Electron-hovedprosess: serverer den statiske SvelteKit-bygget (build/)
 // på localhost og legger på bibel.no-proxyen (samme som vite.config.js),
 // så kirkeårsfunksjonen fungerer også i den pakkede appen.
-const { app, BrowserWindow, shell, ipcMain, dialog, nativeTheme } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog, nativeTheme, Menu } = require('electron');
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -356,6 +356,76 @@ ipcMain.on('tema:naativ', (_e, t) => {
 	nativeTheme.themeSource = t === 'dark' ? 'dark' : 'light';
 });
 
+// ---------- mac-menylinjen ----------
+// Alle handlingene fra venstre og høyre sidemeny; dokumenthandlinger deaktivert
+// uten åpne dokument (renderer melder tilstand på 'app:meny-tilstand').
+function byggMeny(win, st = {}) {
+	const dok = !!st.dokumentÅpen;
+	const erTjeneste = st.kind === 'service';
+	const send = (id) => win.webContents.send('meny:handling', id);
+	const mal = [
+		{
+			label: 'Liturgi',
+			submenu: [
+				{ role: 'about', label: 'Om Liturgi' },
+				{ type: 'separator' },
+				{ label: 'Innstillinger …', accelerator: 'CmdOrCtrl+,', click: () => send('innstillinger') },
+				{ type: 'separator' },
+				{ role: 'quit', label: 'Avslutt Liturgi' }
+			]
+		},
+		{
+			label: 'Fil',
+			submenu: [
+				{ label: 'Ny gudtjeneste …', accelerator: 'CmdOrCtrl+N', click: () => send('ny-gudtjeneste') },
+				{ label: 'Åpne fil …', accelerator: 'CmdOrCtrl+O', click: () => send('apne-fil') },
+				{ type: 'separator' },
+				{ label: 'Lagre', accelerator: 'CmdOrCtrl+S', enabled: dok, click: () => send('lagre') },
+				{ label: 'Lagre som …', accelerator: 'CmdOrCtrl+Shift+S', enabled: dok, click: () => send('lagre-som') },
+				{ label: 'Lagre som mal', enabled: dok, click: () => send('lagre-som-mal') },
+				{ type: 'separator' },
+				{ label: 'Lukk dokument', accelerator: 'CmdOrCtrl+W', enabled: dok, click: () => send('lukk-dok') }
+			]
+		},
+		{
+			label: 'Rediger',
+			submenu: [
+				{ role: 'undo', label: 'Angre' },
+				{ role: 'redo', label: 'Gjør om' },
+				{ type: 'separator' },
+				{ role: 'cut', label: 'Klipp ut' },
+				{ role: 'copy', label: 'Kopier' },
+				{ role: 'paste', label: 'Lim inn' },
+				{ role: 'selectAll', label: 'Velg alt' }
+			]
+		},
+		{
+			label: 'Vis',
+			submenu: [
+				{ label: 'Sidemeny', accelerator: 'CmdOrCtrl+\\', click: () => send('veksle-sidebar') },
+				{ label: 'Dokumentpanel', accelerator: 'CmdOrCtrl+Alt+\\', click: () => send('veksle-toc') },
+				{ type: 'separator' },
+				{ label: 'Hjem', accelerator: 'CmdOrCtrl+1', click: () => send('hjem') },
+				{ label: 'Maler', accelerator: 'CmdOrCtrl+2', click: () => send('maler') },
+				{ label: 'Bibliotek', accelerator: 'CmdOrCtrl+3', click: () => send('bibliotek') },
+				{ type: 'separator' },
+				{ label: st.tema === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', click: () => send('tema') }
+			]
+		},
+		{
+			label: 'Gudtjeneste',
+			submenu: [
+				{ label: 'Eksport …', accelerator: 'CmdOrCtrl+E', enabled: dok && erTjeneste, click: () => send('eksport') }
+			]
+		}
+	];
+	Menu.setApplicationMenu(Menu.buildFromTemplate(mal));
+}
+ipcMain.on('app:meny-tilstand', (e, st) => {
+	const win = BrowserWindow.fromWebContents(e.sender);
+	if (win) byggMeny(win, st);
+});
+
 // ---------- vindu ----------
 function createWindow(port) {
 	const win = new BrowserWindow({
@@ -374,7 +444,7 @@ function createWindow(port) {
 			preload: path.join(__dirname, 'preload.cjs')
 		}
 	});
-	win.removeMenu();
+	byggMeny(win);
 	win.loadURL(`http://localhost:${port}/`);
 	// merknad: filer som åpnes ved oppstart leveres når rendereren melder 'liturgi:renderer-ready'
 	// (did-finish-load fyrer før SPA-modulene har registrert lytteren)
