@@ -49,6 +49,7 @@
 
 <aside id="sidebar">
 	<h1>Liturgi</h1>
+	<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudtjeneste</button>
 	{#if åpne.length}
 		<div class="sidegroup åpne-gruppe">
 			<div class="sidehead">Åpne gudstjenester</div>
@@ -95,7 +96,6 @@
 				{/each}
 			{/if}
 		</ul>
-		<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudtjeneste</button>
 	</div>
 	<div class="sidefoot">
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = 'hjem'; }}>
