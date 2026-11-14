@@ -359,6 +359,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
  *  valg.hefte: kompakt 4-siders modus (menighetsprogram som brettes) — mindre skrift,
  *  strammere mellomrom og smalere marg. */
 export function buildPdfBase64(svc, showInstr, valg = {}) {
+	const skriftSkala = { hoveddel: 1, ledd: 1, tekst: 1, ...(valg.skriftSkala ?? {}) }; // manuell fontjustering (forhåndsvisning + eksport)
 	const a5 = valg.storrelse === 'A5';
 	const hefte = !!valg.hefte;
 	const mm = { w: a5 ? 148 : 210, h: a5 ? 210 : 297 };
@@ -369,7 +370,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const colW = (mm.w - margin * 2 - colGap * (kolonner - 1)) / kolonner;
 	// skriftskala: hefte 0,85× — brødtekst ~9 pt, overskrifter proporsjonalt mindre
 	const skala = hefte ? 0.85 : 1;
-	const S = (n) => Math.round(n * skala * 10) / 10;
+	const S = (n, omr) => {
+		const f = omr ? (skriftSkala[omr] ?? 1) : 1;
+		return Math.round(n * skala * f * 10) / 10;
+	};
 
 	const ROLE = [31, 112, 77];   // ikke brukt direkte; rød = #C0392B
 	const RED = [192, 57, 43];
@@ -461,15 +465,20 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	y += hefte ? 2.5 : 4;
 
 	for (const sec of svc.sections) {
-		y += hefte ? 3 : 5; // god margin før overskriften
+		y += hefte ? 2 : 3; // kortere mellomrom før hoveddel-overskriften (2-kol var trangt)
 		nySideHvisNodvendig(12);
-		skrivLinjer(sec.title, { bold: true, size: S(13), sans: true });
-		y += hefte ? 2 : 3.5;
+		skrivLinjer(sec.title, { bold: true, size: S(11, 'hoveddel'), sans: true });
+		// horisontal linje under hoveddel-overskriften (skiller den fra leddoverskriftene)
+		const linjeY = y + 1;
+		doc.setDrawColor(180, 180, 180);
+		doc.setLineWidth(0.3);
+		doc.line(x0(), linjeY, x0() + colW, linjeY);
+		y = linjeY + (hefte ? 1 : 1.5);
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head && it.__visOverskrift !== false) { y += hefte ? 1.5 : 3; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11), sans: true }); y += 1.8; }
+			if (head && it.__visOverskrift !== false) { y += hefte ? 2.2 : 3.5; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 1.2; }
 			if (it.__visInnhold === false) continue;
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
@@ -481,7 +490,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
-			skrivSegmenter(roleSegments(flytAvsnitt(tekst)));
+			skrivSegmenter(roleSegments(flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
 			y += hefte ? 1.8 : 3;
 		}
 	}
