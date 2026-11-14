@@ -96,5 +96,6 @@ export function sf(navn, size = 16) {
 	if (!p) return '';
 	const inner = p.d.map((d) => `<path d="${d}"/>`).join('');
 	const vb = `${-P} ${-P} ${p.w + 2 * P} ${p.h + 2 * P}`;
-	return `<svg class="sf-ikon" viewBox="${vb}" width="${size}" height="${size}" fill="currentColor" stroke="currentColor" stroke-width="${SW}" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><g transform="scale(1 -1) translate(0 -${p.h})">${inner}</g></svg>`;
+	const s = Math.round(size * 1.18); // SF-tegningene har luft rundt glyfen — gjeng litt større for å matche MDI-størrelsen
+	return `<svg class="sf-ikon" viewBox="${vb}" width="${s}" height="${s}" fill="currentColor" stroke="currentColor" stroke-width="${SW}" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><g transform="scale(1 -1) translate(0 -${p.h})">${inner}</g></svg>`;
 }
