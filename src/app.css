@@ -629,3 +629,13 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .insp-info .link-btn { text-align: left; font-size: 12.5px; }
 .insp-info .dirty { color: var(--role); }
 .insp-knapper { display: flex; flex-direction: column; gap: 2px; }
+/* knappene nederst i panelet (skillelinjen skjøver dem mot bunnen) */
+.insp-bunn { margin-top: 0; }
+.insp-skiller { margin-top: auto; }
+/* mac native datofelt (compakt, integrert i panelet) */
+.insp-rad input[type='date'] { -webkit-appearance: none; appearance: none; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 13px; font-family: inherit; }
+/* meny-vekslere: bare symbol, bakgrunn ved hover, kompakt (ikon-btn-bakgrunnen nullstilles) */
+.sidebar-toggle, .toc-toggle { padding: 3px 4px; border-radius: 6px; background: none; border: none; }
+.sidebar-toggle:hover, .toc-toggle:hover { background: var(--sidebar-hover); border: none; }
+/* høyre meny-veksler: ikonet flippes 180° (peker riktig vei for høyremenyen) */
+.toc-toggle svg { transform: rotate(180deg); }
