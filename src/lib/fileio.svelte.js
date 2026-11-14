@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, closeEditor, syncDirty } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, closeEditor, entryFor, syncDirty } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -44,8 +44,8 @@ export async function saveCurrentToDisk() {
 			syncDirty();
 			toast.success('Lagret: ' + r.filePath.split('/').pop());
 			// oppdater «åpne gudstjenester»-oppføringen med den nye stien
-			const e = app.åpneTjenester.find((x) => x.obj === o);
-			if (e) { e.path = r.filePath; e.name = o.name ?? ''; }
+			const e = entryFor(o);
+			if (e) { e.path = r.filePath; e.name = o.name ?? ''; e.dirty = false; }
 			await touchRecent(o);
 			await refreshRecentServices();
 		} else if (!r.canceled) {
@@ -67,7 +67,10 @@ export async function saveCurrentToFile() {
 			o.filePath = r.filePath;
 			o.__dirty = false;
 			app.dirty = false;
+			syncDirty();
 			toast.success('Lagret til ' + r.filePath);
+			const e = entryFor(o);
+			if (e) { e.path = r.filePath; e.name = o.name ?? ''; e.dirty = false; }
 			await touchRecent(o);
 			await refreshRecentServices();
 		} else if (!r.canceled) toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
@@ -235,10 +238,10 @@ function åpneIFil(data, filePath) {
 	syncDirty();
 	// registrer som «åpne gudstjeneste» (denne økten)
 	if (!app.åpneTjenester.some((x) => x.path === filePath)) {
-		app.åpneTjenester.push({ obj: data, name: data.name ?? '', path: filePath, åpenId: data.__åpenId });
+		app.åpneTjenester.push({ obj: data, name: data.name ?? '', path: filePath, åpenId: data.__åpenId, dirty: false });
 	} else {
 		const e = app.åpneTjenester.find((x) => x.path === filePath);
-		if (e) { e.obj = data; e.name = data.name ?? ''; e.åpenId = data.__åpenId; }
+		if (e) { e.obj = data; e.name = data.name ?? ''; e.åpenId = data.__åpenId; e.dirty = false; }
 	}
 	touchRecent(data).then(() => refreshRecentServices());
 }
@@ -652,16 +655,11 @@ export function lukkRedigering() {
 		} else {
 			persist();
 		}
-		// lukk = fjern fra «åpne gudstjenester»
-	const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
-	if (i !== -1) app.åpneTjenester.splice(i, 1);
-	closeEditor();
+		closeEditor();
 	}, () => {
 		if (app.current) app.current.__dirty = false;
 		app.dirty = false;
 		syncDirty();
-		const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
-		if (i !== -1) app.åpneTjenester.splice(i, 1);
 		closeEditor();
 	});
 }

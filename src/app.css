@@ -66,7 +66,8 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 	padding: 7px 10px; border-radius: 6px; cursor: pointer;
 	display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;
 }
-/* lister i sidemenyen: samme highlight som menyknappene */
+/* lister i sidemenyen: samme highlight + sentrert innhold som menyknappene */
+#sidebar .list li { align-items: center; }
 #sidebar .list li:hover { background: var(--sidebar-hover); }
 #sidebar .list li.active { background: var(--accent-dim); }
 .list li:hover { background: var(--panel2); }
@@ -563,14 +564,15 @@ html.electron #sidebar::before {
 .sidebar-toggle { position: fixed; top: 10px; left: 12px; z-index: 40; -webkit-app-region: no-drag; }
 html.electron .sidebar-toggle { top: 5px; left: 84px; }
 
-/* macOS source-list-stil for sidemenyknapper */
-#sidebar .sidefoot .wide {
+/* macOS source-list-stil for ALLE sidemenyknapper (menerader + Ny gudtjeneste) */
+#sidebar .wide {
 	background: transparent; border: none; text-align: left;
 	display: flex; align-items: center; gap: 9px;
 	padding: 7px 10px; border-radius: 6px; font-size: 13px;
 }
-#sidebar .sidefoot .wide:hover { background: var(--sidebar-hover); border: none; }
+#sidebar .wide:hover { background: var(--sidebar-hover); border: none; }
+#sidebar .wide svg { width: 19px; height: 19px; opacity: 0.85; flex: 0 0 auto; }
 #sidebar .sidefoot .wide.sel { background: var(--accent-dim); }
-#sidebar .sidefoot .wide svg { width: 19px; height: 19px; flex: 0 0 auto; }
+#sidebar .sidefoot .wide.sel svg { opacity: 1; }
 /* HIG sidebars: sidefeltikoner bruker appens aksentfarge som standard */
-#sidebar .sidefoot .wide .sf-ikon { color: var(--accent); }
+#sidebar .wide .sf-ikon { color: var(--accent); }
