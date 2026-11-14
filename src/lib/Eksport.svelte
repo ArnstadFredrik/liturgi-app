@@ -53,6 +53,44 @@
 	const profiler = $derived(['Prest', 'Medarbeider', 'Menighet', ...egneProfiler]);
 	const datoTekst = $derived(o?.date ? nlDate(o.date) : '');
 
+	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
+	function portal(node, target) {
+		const host = document.querySelector(target);
+		host?.appendChild(node);
+		return { destroy() { node.remove(); } };
+	}
+
+	/** Forhåndsvisning: programmets sider (side for side) for aktiv profil —
+	 *  bygger klonen med klonMedValg (alle valg og alternativer) og deler den
+	 *  opp i sider med en enkel linjekostnad-heuristikk. */
+	const forhvisning = $derived.by(() => {
+		if (!o || app.kind !== 'service') return [];
+		const kopi = klonMedValg(o, aktiv);
+		const sider = [];
+		let side = [];
+		let kost = 0;
+		const kapasitet = getInnst('hefte', aktiv === 'Menighet') ? 46 : 36;
+		const dytt = (blokk) => {
+			if (kost + blokk.kost > kapasitet && side.length) { sider.push(side); side = []; kost = 0; }
+			side.push(blokk);
+			kost += blokk.kost;
+		};
+		if (kopi.__visTittel) {
+			dytt({ type: 'tittel', tittel: kopi.name, dato: kopi.date ? nlDate(kopi.date) : '', kirkeaar: kopi.kirkeaar?.name, kost: 5 });
+		}
+		for (const sec of kopi.sections ?? []) {
+			for (const it of sec.items ?? []) {
+				if (it.enabled === false) continue;
+				const tekst = it.__visInnhold !== false ? (leddTekst(it) || '').trim() : '';
+				const linjer = tekst ? tekst.split('\n').filter((l) => l.trim()).length : 0;
+				const kostnad = (it.__visOverskrift !== false ? 2 : 0) + Math.ceil(linjer * 1.1);
+				dytt({ type: 'ledd', tittel: it.__visOverskrift !== false ? (it.heading || it.type) : null, tekst, kost: kostnad });
+			}
+		}
+		if (side.length) sider.push(side);
+		return sider;
+	});
+
 	function nokkel(si, ii) { return si + ':' + ii; }
 
 	function erLesning(it) { return LESNING_RE.test(it.heading || ''); }
@@ -429,8 +467,28 @@
 				{/each}
 			</div>
 
-			<div id="eksport-hoyre">
-				<div class="biblio-kort">
+			<div id="eks-forhvisning">
+				{#each forhvisning as side, si}
+					<div class="eks-side" class:foerste={si === 0}>
+						{#each side as blokk, bi (si + '-' + bi)}
+							{#if blokk.type === 'tittel'}
+								<div class="eks-side-tittel">
+									<strong>{blokk.tittel}</strong>
+									{#if blokk.dato}<span>{blokk.dato}</span>{/if}
+									{#if blokk.kirkeaar}<span>{blokk.kirkeaar}</span>{/if}
+								</div>
+							{:else}
+								{#if blokk.tittel}<h3>{blokk.tittel}</h3>{/if}
+								{#if blokk.tekst}<div class="eks-side-tekst lit-text">{@html litHtml(blokk.tekst)}</div>{/if}
+							{/if}
+						{/each}
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<aside id="eks-panel" use:portal={'#toc-side'}>
+			<div class="biblio-kort">
 					<div class="biblio-kort-hode"><span class="sidehead">Visning</span></div>
 					<label class="eksport-chk"><input type="checkbox" bind:checked={visInnhold} /> Vis leddinnhold</label>
 				</div>
@@ -483,7 +541,6 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+		</aside>
 	{/if}
 </div>
