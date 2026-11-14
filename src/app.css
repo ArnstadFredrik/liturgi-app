@@ -108,7 +108,7 @@ button.wide { width: 100%; }
 .m-type-btn { flex: 1; border-radius: 8px; }
 .m-type-btn.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
 /* åpne gudstjenester-seksjonen */
-.åpne-gruppe { padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.åpne-gruppe { padding-bottom: 10px; margin-bottom: 4px; }
 /* shadcn-accent-tonet markering av aktiv gudstjeneste (passer lys og mørk) */
 .åpne-gruppe li.active { background: var(--accent-dim); box-shadow: inset 3px 0 0 0 var(--accent); }
 .åpne-gruppe li.active .nm { color: var(--text); }
