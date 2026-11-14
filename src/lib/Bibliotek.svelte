@@ -177,11 +177,11 @@
 							</label>
 						</div>
 					</details>
-						<label class="biblio-felt"><span>Tekst</span>
+						<div class="biblio-felt"><span>Tekst</span>
 						<div class="biblio-tekstfelt">
 							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
 						</div>
-					</label>
+					</div>
 								<div class="w-mal-handlinger">
 							<button class="primary" onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
 							<button onclick={() => { rediger = false; }}>Avbryt</button>
