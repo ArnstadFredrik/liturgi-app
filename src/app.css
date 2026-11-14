@@ -612,7 +612,9 @@ html.electron #sidebar::after {
 }
 #sidebar .wide:hover, #toc-side .wide:hover { background: var(--sidebar-hover); border: none; }
 svg.sf-ikon { vertical-align: -0.35em; }
-#sidebar .wide svg, #toc-side .wide svg { width: 19px; height: 19px; flex: 0 0 auto; }
+#sidebar .wide svg, #toc-side .wide svg { flex: 0 0 auto; }
+#sidebar .wide svg { width: 19px; height: 19px; }
+/* panel-ikoner: størrelse styres per knapp (normalisert til Lukk-ikonets glyf ~13 px) */
 #sidebar .sidefoot .wide.sel { background: var(--accent-dim); }
 #sidebar .sidefoot .wide.sel svg { opacity: 1; }
 /* HIG sidebars: sidefeltikoner bruker appens aksentfarge som standard */
