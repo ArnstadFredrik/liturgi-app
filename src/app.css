@@ -449,7 +449,8 @@ textarea {
 	display: flex; flex-direction: column; gap: 6px;
 }
 /* macOS native: TOC-menyen matcher sidemenyen (vibrancy gjennom, kilde-liste-rader) */
-html.electron #toc-side { background: transparent; border-left: none; }
+html.electron #toc-side { background: transparent; border-left: none; padding-top: 44px; }
+html:not(.electron) #toc-side { padding-top: 36px; }
 #toc-side .list li { padding: 5px 8px; font-size: 12.5px; border-radius: 6px; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
 #toc-side .list li.active { background: var(--accent-dim); box-shadow: inset -3px 0 0 0 var(--accent); }
