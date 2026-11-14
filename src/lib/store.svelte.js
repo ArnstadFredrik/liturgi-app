@@ -30,12 +30,18 @@ export function setTheme(t) {
 	document.documentElement.dataset.theme = t;
 	localStorage.setItem(THEME_KEY, t);
 	window.liturgi?.dbSet?.('tema', t);
+	// vibrancy/nativeTheme i Electron følger appens tema
+	window.liturgi?.setNativeTheme?.(t);
 }
 
 export function initTheme() {
 	const saved = localStorage.getItem(THEME_KEY);
 	const t = saved ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 	setTheme(t);
+	// vibrancy-gjennomsiktighet kun i Electron (markert med .electron på <html>)
+	if (typeof window !== 'undefined' && window.liturgi?.isElectron) {
+		document.documentElement.classList.add('electron');
+	}
 	// brukerens lagrede tema i databasen vinner over lokalStorage/gjett
 	window.liturgi?.dbGet?.('tema')?.then?.((r) => {
 		if (r?.ok && (r.value === 'dark' || r.value === 'light') && r.value !== app.theme) setTheme(r.value);
