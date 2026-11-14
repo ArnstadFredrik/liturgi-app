@@ -459,8 +459,8 @@ html:not(.electron) #toc-side { padding-top: 36px; }
 #app.toc-skjult #toc-side { margin-right: -175px; opacity: 0; pointer-events: none; }
 .toc-toggle { position: fixed; top: 10px; right: 12px; z-index: 40; -webkit-app-region: no-drag; }
 html.electron .toc-toggle { top: 5px; right: 12px; }
-/* når menyen er åpen vises ikonet speilvendt (flippet 180°) */
-.toc-toggle.aaapen svg { transform: rotate(180deg); }
+/* ikonene flippes 180° (peker riktig vei for høyremenyen) */
+.toc-toggle svg { transform: rotate(180deg); }
 
 .item-head { cursor: grab; }
 .item-head:active { cursor: grabbing; }
