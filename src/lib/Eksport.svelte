@@ -60,61 +60,40 @@
 		return { destroy() { node.remove(); } };
 	}
 
-	/** Forhåndsvisning: programmets sider for aktiv profil —
-	 *  bygger klonen med klonMedValg (alle valg og alternativer) og deler den
-	 *  opp i sider etter sidestørrelse, kolonner og heftemodus. */
-	const forhvisning = $derived.by(() => {
-		if (!o || app.kind !== 'service') return [];
-		const kopi = klonMedValg(o, aktiv);
-		const sider = [];
-		let side = [];
-		let kost = 0;
-		const hefte = getInnst('hefte', aktiv === 'Menighet');
-		const storrelse = getInnst('storrelse', 'A5');
-		const kolonner = getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1);
-		// visuelle tegn per linje — MÅLT i Georgia 12/13 (A5-kort 218 px, A4-kort 258 px)
-		const tegn = ((storrelse === 'A4' ? (kolonner === 2 ? 21 : 43) : (kolonner === 2 ? 20 : 40)) * (hefte ? 1.08 : 1));
-		// kapasitet i visuelle linjer per side (kort: A5 354 px, A4 410 px, linje ~17-19 px)
-		let kapasitet = storrelse === 'A4' ? 19 : 14;
-		if (hefte) kapasitet = Math.round(kapasitet * 1.15);
-		const dytt = (blokk) => {
-			if (kost + blokk.kost > kapasitet && side.length) { sider.push(side); side = []; kost = 0; }
-			side.push(blokk);
-			kost += blokk.kost;
-		};
-		if (kopi.__visTittel) {
-			dytt({ type: 'tittel', tittel: kopi.name, dato: kopi.date ? nlDate(kopi.date) : '', kirkeaar: kopi.kirkeaar?.name, kost: 5 });
-		}
-		const visAv = (l) => Math.max(1, Math.ceil(l.trim().length / tegn));
-		for (const sec of kopi.sections ?? []) {
-			for (const it of sec.items ?? []) {
-				if (it.enabled === false) continue;
-				const tekst = it.__visInnhold !== false ? (leddTekst(it) || '').trim() : '';
-				if (!tekst) {
-					if (it.__visOverskrift !== false) dytt({ type: 'ledd', tittel: it.heading || it.type, tekst: '', kost: 2 });
-					continue;
+	/** Forhåndsvisning: den EKTE eksporten (buildPdfBase64) rendres side for side
+	 *  med pdf.js — visningen er garantert identisk med eksporten. */
+	let pdfSideBilder = $state([]); // dataURL per side
+	$effect(() => {
+		if (!o || app.kind !== 'service') { pdfSideBilder = []; return; }
+		let død = false;
+		(async () => {
+			try {
+				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), hefte: getInnst('hefte', aktiv === 'Menighet'), tittel: getInnst('tittel', true) };
+				const kopi = klonMedValg(o, aktiv);
+				const { doc } = buildPdfBase64(kopi, true, valg);
+				const mod = await import('pdfjs-dist');
+				const pdfjsLib = mod.pdfjsLib ?? mod; // chunk-eksporten heter ikke alltid pdfjsLib
+				// ekte worker: Vite bygger worker-filen fra pdfjs-dist
+				const worker = new Worker(new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url), { type: 'module' });
+				pdfjsLib.GlobalWorkerOptions.workerPort = worker;
+				const buf = doc.output('arraybuffer');
+				const pdf = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+				const bilder = [];
+				for (let i = 1; i <= pdf.numPages; i++) {
+					const side = await pdf.getPage(i);
+					const viewport = side.getViewport({ scale: 1.4 });
+					const c = document.createElement('canvas');
+					c.width = viewport.width; c.height = viewport.height;
+					await side.render({ canvasContext: c.getContext('2d'), viewport }).promise;
+					if (død) return;
+					bilder.push(c.toDataURL('image/jpeg', 0.85));
 				}
-				const visLinjer = tekst.split('\n').reduce((n, l) => n + visAv(l), 0);
-				const hode = it.__visOverskrift !== false ? (it.heading || it.type) : null;
-				// lange ledd deles over sider (første del med overskrift, resten som videreføring)
-				if (visLinjer + 3 > kapasitet) {
-					const linjer = tekst.split('\n');
-					const deler = [];
-					let cur = [], curK = 0;
-					for (const l of linjer) {
-						const k = visAv(l);
-						if (curK + k > kapasitet - 3 && cur.length) { deler.push(cur.join('\n')); cur = []; curK = 0; }
-						cur.push(l); curK += k;
-					}
-					if (cur.length) deler.push(cur.join('\n'));
-					deler.forEach((d, di) => dytt({ type: 'ledd', tittel: di === 0 ? hode : (hode ? hode + ' (forts.)' : null), tekst: d, kost: (di === 0 ? 3 : 1) + d.split('\n').reduce((n, l) => n + visAv(l), 0) }));
-				} else {
-					dytt({ type: 'ledd', tittel: hode, tekst, kost: (hode ? 3 : 1) + visLinjer });
-				}
+				if (!død) pdfSideBilder = bilder;
+			} catch (e) {
+				if (!død) { console.error('Forhåndsvisning feilet:', e); pdfSideBilder = []; }
 			}
-		}
-		if (side.length) sider.push(side);
-		return sider;
+		})();
+		return () => { død = true; };
 	});
 
 	function nokkel(si, ii) { return si + ':' + ii; }
@@ -494,23 +473,16 @@
 			</div>
 
 			<div id="eks-forhvisning">
-				{#each forhvisning as side, si}
-					<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'} class:hefte={getInnst('hefte', aktiv === 'Menighet')}>
-						<span class="eks-side-nr">{si + 1}</span>
-						{#each side as blokk, bi (si + '-' + bi)}
-							{#if blokk.type === 'tittel'}
-								<div class="eks-side-tittel">
-									<strong>{blokk.tittel}</strong>
-									{#if blokk.dato}<span>{blokk.dato}</span>{/if}
-									{#if blokk.kirkeaar}<span>{blokk.kirkeaar}</span>{/if}
-								</div>
-							{:else}
-								{#if blokk.tittel}<h3>{blokk.tittel}</h3>{/if}
-								{#if blokk.tekst}<div class="eks-side-tekst lit-text">{@html litHtml(blokk.tekst)}</div>{/if}
-							{/if}
-						{/each}
-					</div>
-				{/each}
+				{#if pdfSideBilder.length === 0}
+					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
+				{:else}
+					{#each pdfSideBilder as bilde, si}
+						<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'}>
+							<img src={bilde} alt="Side {si + 1}" draggable="false" />
+							<span class="eks-side-nr">{si + 1}</span>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		</div>
 
