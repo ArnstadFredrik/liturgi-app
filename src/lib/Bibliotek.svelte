@@ -3,6 +3,7 @@
 	import { confirmBox } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import EditableText from '$lib/EditableText.svelte';
+	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -119,9 +120,9 @@
 		</p>
 		<div class="biblio-sok">
 			<input bind:value={q} oninput={sok} placeholder='Søk, f.eks. «forbønn» eller «sanctus» …' spellcheck="false" />
-			<button onclick={nyttLedd}>+ Nytt ledd</button>
+			<button onclick={nyttLedd}>{@html mdi('plus')} Nytt ledd</button>
 			{#if isElectron && brukerrader.length}
-				<button onclick={() => eksporterBibliotek(brukerrader)} title="Eksporter alt eget innhold til JSON">Eksportér eget innhold</button>
+				<button onclick={() => eksporterBibliotek(brukerrader)} title="Eksporter alt eget innhold til JSON">{@html mdi('download')} Eksportér eget innhold</button>
 			{/if}
 		</div>
 	</div>
@@ -135,7 +136,7 @@
 					<div class="sidehead">Mine ledd</div>
 					{#each mapper as [mappe, rader] (mappe)}
 						<div class="biblio-mappe">
-							<div class="sidehead biblio-mappe-navn">🗂 {mappe}</div>
+							<div class="sidehead biblio-mappe-navn">{@html mdi('folder-outline')} {mappe}</div>
 							{#each rader as r (r.id)}
 								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velgOgRediger(r)}>
 									<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
@@ -167,7 +168,7 @@
 								<span class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</span>
 							</div>
 							<div class="w-mal-handlinger" style="margin-top: 0;">
-								<button class="primary" onclick={lagre}>{skjema.id ? '💾 Lagre' : 'Legg inn'}</button>
+								<button class="primary" onclick={lagre}>{@html mdi('content-save')} {skjema.id ? 'Lagre' : 'Legg inn'}</button>
 								<button onclick={() => { rediger = false; }}>Avbryt</button>
 							</div>
 						</div>
@@ -202,11 +203,11 @@
 						<div class="biblio-kort-hode">
 							<div>
 								<div class="biblio-tittel">{valgt.ledd}{valgt.alt_label ? ' · ' + valgt.alt_label : ''}</div>
-								<p class="maler-ingress">🗂 {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' + valgt.tags : ''}</p>
+								<p class="maler-ingress">{@html mdi('folder-outline')} {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' : '<span class="biblio-taggapart"></span>'}{#if valgt.tags}{@html mdi('tag-outline')} {valgt.tags}{/if}</p>
 							</div>
 							<div class="w-mal-handlinger" style="margin-top: 0;">
-								<button onclick={redigerValgt}>Endre</button>
-								<button class="w-mal-del" onclick={() => slett(valgt)}>Slett</button>
+								<button onclick={redigerValgt}>{@html mdi('pencil')} Endre</button>
+								<button class="w-mal-del" onclick={() => slett(valgt)}>{@html mdi('delete-outline')} Slett</button>
 							</div>
 						</div>
 						<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>

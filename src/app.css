@@ -523,3 +523,8 @@ details.biblio-meta[open] summary { margin-bottom: 10px; }
 .biblio-tekstfelt:focus-within { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
 .biblio-tekstfelt .et-rik { min-height: 180px; padding: 8px 8px; }
 .biblio-tekstfelt .et-edit { gap: 8px; }
+
+/* bibliotek: ikoner i knapper og overskrifter */
+.biblio-mappe-navn { display: flex; align-items: center; gap: 5px; }
+.biblio-mappe-navn svg, #biblio-detalj .maler-ingress svg, #biblio-hode button svg, #biblio-detalj .w-mal-handlinger svg { width: 14px; height: 14px; vertical-align: -2px; }
+#biblio-detalj .maler-ingress { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
