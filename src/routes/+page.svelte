@@ -28,12 +28,12 @@
 </script>
 
 <div id="app" class:sidebar-skjult={app.sidebarSkjult}>
+	<button class="ikon-btn sidebar-toggle" onclick={veksleSidebar}
+		title={app.sidebarSkjult ? 'Vis sidemenyen' : 'Skjul sidemenyen'}>
+		{@html mdi(app.sidebarSkjult ? 'menu-open' : 'page-layout-sidebar-left', 18)}
+	</button>
 	<Sidebar />
 	<main id="main">
-		<button class="ikon-btn sidebar-vis" class:vis={app.sidebarSkjult} onclick={veksleSidebar}
-			title="Vis sidemenyen">
-			{@html mdi('menu-open', 18)}
-		</button>
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
 		{:else if app.current}

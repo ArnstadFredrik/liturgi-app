@@ -1,5 +1,5 @@
 <script>
-	import { app, openService, deleteService, sortedServices, createService, toggleTheme, veksleSidebar } from '$lib/store.svelte.js';
+	import { app, openService, deleteService, sortedServices, createService, toggleTheme } from '$lib/store.svelte.js';
 	import { newServiceModal } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
@@ -40,12 +40,7 @@
 </script>
 
 <aside id="sidebar">
-	<h1>
-		Liturgi
-		<button class="ikon-btn sidebar-toggle" onclick={veksleSidebar} title="Skjul sidemenyen">
-			{@html mdi('page-layout-sidebar-left', 17)}
-		</button>
-	</h1>
+	<h1>Liturgi</h1>
 	{#if åpne.length}
 		<div class="sidegroup åpne-gruppe">
 			<div class="sidehead">Åpne gudstjenester</div>
