@@ -1,7 +1,7 @@
 // Electron-hovedprosess: serverer den statiske SvelteKit-bygget (build/)
 // på localhost og legger på bibel.no-proxyen (samme som vite.config.js),
 // så kirkeårsfunksjonen fungerer også i den pakkede appen.
-const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog, nativeTheme } = require('electron');
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -351,6 +351,11 @@ const server = http.createServer(async (req, res) => {
 	serveStatic(req, res);
 });
 
+// synkroniser nativeTheme med appens tema (vibrancy følger med)
+ipcMain.on('tema:naativ', (_e, t) => {
+	nativeTheme.themeSource = t === 'dark' ? 'dark' : 'light';
+});
+
 // ---------- vindu ----------
 function createWindow(port) {
 	const win = new BrowserWindow({
@@ -359,6 +364,10 @@ function createWindow(port) {
 		minWidth: 900,
 		minHeight: 600,
 		title: 'Liturgi',
+		titleBarStyle: 'hiddenInset',
+		trafficLightPosition: { x: 14, y: 16 },
+		vibrancy: 'sidebar',
+		backgroundColor: '#00000000',
 		webPreferences: {
 			contextIsolation: true,
 			sandbox: false,

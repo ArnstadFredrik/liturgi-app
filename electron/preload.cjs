@@ -39,5 +39,6 @@ contextBridge.exposeInMainWorld('liturgi', {
 	readTemplate: (p) => ipcRenderer.invoke('tpl:read', { path: p }),
 	writeTemplate: (p, json) => ipcRenderer.invoke('tpl:write', { path: p, json }),
 	deleteTemplateFile: (p) => ipcRenderer.invoke('tpl:delete', { path: p }),
-	isElectron: true
+	isElectron: true,
+	setNativeTheme: (t) => ipcRenderer.send('tema:naativ', t),
 });
