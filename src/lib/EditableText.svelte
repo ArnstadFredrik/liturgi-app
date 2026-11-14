@@ -4,9 +4,15 @@
 	import { litHtml, litEditHtml, litLinjeHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]' } = $props(); // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true } = $props(); // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
+	$effect(() => {
+		if (startRedigering && !editing) {
+			start();
+			visFerdig = false;
+		}
+	});
 	let ta = $state(null);          // textarea (kildevisning)
 	let rikel = $state(null);       // contenteditable (riktekst)
 	let kilde = $state(false);      // vis markdown-kilde i stedet for riktekst
@@ -336,7 +342,7 @@
 				<span class="et-skiller"></span>
 				<button class="et-tool" class:paa={kilde} onmousedown={(e) => e.preventDefault()} onclick={() => byttModus(!kilde)} title={kilde ? 'Vis riktekst' : 'Vis kildekode (markdown)'}>{@html mdi('code-tags', 15)}</button>
 			{/if}
-			<button class="primary" onclick={done}>Ferdig</button>
+			{#if visFerdig}<button class="primary" onclick={done}>Ferdig</button>{/if}
 		</div>
 		{#if etikett || kilde}
 			<textarea
