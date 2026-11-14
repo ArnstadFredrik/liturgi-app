@@ -453,6 +453,11 @@ html.electron #toc-side { background: transparent; border-left: none; }
 #toc-side .list li { padding: 5px 8px; font-size: 12.5px; border-radius: 6px; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
 #toc-side .list li.active { background: var(--accent-dim); box-shadow: inset -3px 0 0 0 var(--accent); }
+/* skjulbar TOC: samme glidende animasjon som sidemenyen; knapp fast øverst til høyre */
+#toc-side { transition: margin-right 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease; }
+#app.toc-skjult #toc-side { margin-right: -175px; opacity: 0; pointer-events: none; }
+.toc-toggle { position: fixed; top: 10px; right: 12px; z-index: 40; -webkit-app-region: no-drag; }
+html.electron .toc-toggle { top: 5px; right: 84px; }
 
 .item-head { cursor: grab; }
 .item-head:active { cursor: grabbing; }

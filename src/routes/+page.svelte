@@ -1,6 +1,6 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
-	import { app, veksleSidebar, loadStore } from '$lib/store.svelte.js';
+	import { app, veksleSidebar, veksleToc, loadStore } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';
 	import Welcome from '$lib/Welcome.svelte';
@@ -27,7 +27,7 @@
 	}
 </script>
 
-<div id="app" class:sidebar-skjult={app.sidebarSkjult}>
+<div id="app" class:sidebar-skjult={app.sidebarSkjult} class:toc-skjult={app.tocSkjult}>
 	<button class="ikon-btn sidebar-toggle" onclick={veksleSidebar}
 		title={app.sidebarSkjult ? 'Vis sidemenyen' : 'Skjul sidemenyen'}>
 		{@html mdi(app.sidebarSkjult ? 'menu-open' : 'page-layout-sidebar-left', 18)}
@@ -51,6 +51,10 @@
 		{/if}
 	</main>
 	{#if app.current && app.current.sections && app.current.sections.length > 1}
+		<button class="ikon-btn toc-toggle" onclick={veksleToc}
+			title={app.tocSkjult ? 'Vis avsnittslisten' : 'Skjul avsnittslisten'}>
+			{@html mdi(app.tocSkjult ? 'menu-open' : 'page-layout-sidebar-right', 18)}
+		</button>
 		<aside id="toc-side">
 			<div class="sidehead">Avsnitt</div>
 			<ul class="list">
