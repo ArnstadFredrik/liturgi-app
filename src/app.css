@@ -448,7 +448,11 @@ textarea {
 	overflow-y: auto;
 	display: flex; flex-direction: column; gap: 6px;
 }
-#toc-side .list li { padding: 5px 8px; font-size: 12.5px; }
+/* macOS native: TOC-menyen matcher sidemenyen (vibrancy gjennom, kilde-liste-rader) */
+html.electron #toc-side { background: transparent; border-left: none; }
+#toc-side .list li { padding: 5px 8px; font-size: 12.5px; border-radius: 6px; }
+#toc-side .list li:hover { background: var(--sidebar-hover); }
+#toc-side .list li.active { background: var(--accent-dim); box-shadow: inset -3px 0 0 0 var(--accent); }
 
 .item-head { cursor: grab; }
 .item-head:active { cursor: grabbing; }
