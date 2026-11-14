@@ -637,5 +637,5 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* meny-vekslere: bare symbol, bakgrunn ved hover, kompakt (ikon-btn-bakgrunnen nullstilles) */
 .sidebar-toggle, .toc-toggle { padding: 3px 4px; border-radius: 6px; background: none; border: none; }
 .sidebar-toggle:hover, .toc-toggle:hover { background: var(--sidebar-hover); border: none; }
-/* høyre meny-veksler: ikonet flippes 180° (peker riktig vei for høyremenyen) */
+/* høyre meny-veksler: ikonet flippes 180° i begge tilstander (peker riktig vei for høyremenyen) */
 .toc-toggle svg { transform: rotate(180deg); }

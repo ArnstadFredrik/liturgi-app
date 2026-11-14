@@ -49,7 +49,7 @@
 
 <aside id="sidebar">
 	<h1>Liturgi</h1>
-	<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudtjeneste</button>
+	<button class="wide" onclick={newService}>{@html mdi('church')} Ny gudtjeneste</button>
 	<hr class="side-skiller" />
 	{#if åpne.length}
 		<div class="sidegroup åpne-gruppe">
