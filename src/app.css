@@ -203,7 +203,7 @@ button.wide { width: 100%; }
 .eksport-rad.deaktivert { opacity: 0.45; }
 .eksport-rad.deaktivert .eksport-rad-nm { text-decoration: line-through; }
 .eksport-fjernet-tag { font-size: 10px; padding: 1px 7px; border-radius: 8px; background: var(--danger-dim, rgba(192,57,43,0.12)); color: var(--role, #c0392b); border: 1px solid rgba(192,57,43,0.3); white-space: nowrap; }
-#eksport-side { max-width: 860px; margin: 40px auto 80px; padding: 0 24px; }
+#eksport-side { max-width: none; margin: 24px 24px 60px; padding: 0 8px; }
 #eksport-side h2 { color: var(--text); margin-bottom: 4px; }
 .eksport-ingress { color: var(--muted); margin-top: 0; }
 .eksport-ingress code { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.85em; }
@@ -232,11 +232,16 @@ button.wide { width: 100%; }
 /* forhåndsvisning: den eksporterte PDF-en rendres side for side (vertikal kolonne) */
 #eks-forhvisning { flex: 1; display: flex; flex-direction: column; overflow: auto; padding: 8px 4px 16px; align-items: flex-start; }
 .eks-forh-inner { display: flex; flex-direction: column; gap: 18px; margin: 0 auto; }
-/* layout-båndet over kolonnene (mac-bånd-lignende) */
-.eks-baand { display: flex; gap: 18px; align-items: flex-start; padding: 8px 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin: 8px 0 12px; flex-wrap: wrap; }
-.eks-baand-gruppe { display: flex; flex-direction: column; gap: 4px; padding: 0 12px; border-right: 1px solid var(--border); }
+/* layout-båndet over kolonnene (mac-bånd-lignende): sideoverskrift + horisontal rad = én linje */
+.eks-baand { display: flex; gap: 8px; align-items: center; padding: 4px 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin: 6px 0 10px; flex-wrap: wrap; }
+.eks-baand-gruppe { display: flex; align-items: center; gap: 6px; padding: 0 7px; border-right: 1px solid var(--border); }
 .eks-baand-gruppe:last-child { border-right: none; }
-.eks-baand .eks-chk { font-size: 12.5px; }
+.eks-baand-rad { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.eks-baand .sidehead { flex: 0 0 auto; }
+.eks-baand .eks-tilbakestill { width: auto; padding: 2px 6px; font-size: 12px; }
+.eks-baand .ikon-btn { padding: 2px 4px; }
+.eks-baand .eks-chk-pt { gap: 5px; font-size: 12.5px; white-space: nowrap; }
+.eks-baand .eks-chk-pt input[type='number'] { width: 38px; padding: 3px 4px; }
 .eks-side {
 	position: relative;
 	flex: 0 0 auto; width: 250px; min-height: 354px; /* A5-forhold 1:1,414 */
