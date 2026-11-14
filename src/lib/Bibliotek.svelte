@@ -73,6 +73,14 @@
 		rediger = false;
 	}
 
+	/** Åpne elementet og gå rett i redigering. */
+	function velgOgRediger(r) {
+		valgt = r;
+		skjema = { ...r };
+		rediger = true;
+		visMeta = false;
+	}
+
 	async function lagre() {
 		if (!skjema.ledd.trim()) { alert('Ledd må ha et navn'); return; }
 		// $state-proxy kan ikke sendes over IPC — ta en ren kopi
@@ -129,7 +137,7 @@
 						<div class="biblio-mappe">
 							<div class="sidehead biblio-mappe-navn">🗂 {mappe}</div>
 							{#each rader as r (r.id)}
-								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
+								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velgOgRediger(r)}>
 									<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 									{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
 								</button>
@@ -155,7 +163,13 @@
 				{#if rediger}
 					<div class="biblio-kort">
 						<div class="biblio-kort-hode">
-							<span class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</span>
+							<div>
+								<span class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</span>
+							</div>
+							<div class="w-mal-handlinger" style="margin-top: 0;">
+								<button class="primary" onclick={lagre}>{skjema.id ? '💾 Lagre' : 'Legg inn'}</button>
+								<button onclick={() => { rediger = false; }}>Avbryt</button>
+							</div>
 						</div>
 						<details class="biblio-meta" bind:open={visMeta}>
 						<summary>{visMeta ? 'Skjul detaljer' : 'Vis detaljer (mappe, ledd, tagger)'}</summary>
@@ -181,25 +195,21 @@
 						<div class="biblio-tekstfelt">
 							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
 						</div>
-					</div>
-								<div class="w-mal-handlinger">
-							<button class="primary" onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
-							<button onclick={() => { rediger = false; }}>Avbryt</button>
 						</div>
 					</div>
-				{:else if valgt}
+					{:else if valgt}
 					<div class="biblio-kort">
 						<div class="biblio-kort-hode">
 							<div>
 								<div class="biblio-tittel">{valgt.ledd}{valgt.alt_label ? ' · ' + valgt.alt_label : ''}</div>
 								<p class="maler-ingress">🗂 {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' + valgt.tags : ''}</p>
 							</div>
+							<div class="w-mal-handlinger" style="margin-top: 0;">
+								<button onclick={redigerValgt}>Endre</button>
+								<button class="w-mal-del" onclick={() => slett(valgt)}>Slett</button>
+							</div>
 						</div>
 						<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>
-						<div class="w-mal-handlinger">
-							<button onclick={redigerValgt}>Endre</button>
-							<button class="w-mal-del" onclick={() => slett(valgt)}>Slett</button>
-						</div>
 					</div>
 				{:else}
 					<div class="biblio-kort biblio-tom">
