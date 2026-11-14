@@ -51,7 +51,7 @@
 		{/if}
 	</main>
 	{#if app.current && app.current.sections && app.current.sections.length > 1}
-		<button class="ikon-btn toc-toggle" onclick={veksleToc}
+		<button class="ikon-btn toc-toggle" class:aaapen={!app.tocSkjult} onclick={veksleToc}
 			title={app.tocSkjult ? 'Vis avsnittslisten' : 'Skjul avsnittslisten'}>
 			{@html mdi(app.tocSkjult ? 'menu-open' : 'page-layout-sidebar-right', 18)}
 		</button>
