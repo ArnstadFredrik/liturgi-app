@@ -11,6 +11,7 @@
 	let brukerrader = $state([]);
 	let valgt = $state(null);       // valgt brukerrad (objekt)
 	let rediger = $state(false);    // skjemamodus (ny eller eksisterende)
+	let visMeta = $state(true);     // vis mappe/ledd/tagger-feltene? (foldet i redigering)
 	let skjema = $state({ id: null, mappe: '', ledd: '', alt_label: '', tekst: '', tags: '' });
 
 	async function lastRader() {
@@ -57,17 +58,19 @@
 	async function nyttLedd() {
 		valgt = null;
 		rediger = true;
+		visMeta = true;
 		skjema = { id: null, mappe: '', ledd: '', alt_label: '', tekst: '', tags: '' };
-	}
-
-	function velg(r) {
-		valgt = r;
-		rediger = false;
 	}
 
 	function redigerValgt() {
 		skjema = { ...valgt };
 		rediger = true;
+		visMeta = false;
+	}
+
+	function velg(r) {
+		valgt = r;
+		rediger = false;
 	}
 
 	async function lagre() {
@@ -154,6 +157,8 @@
 						<div class="biblio-kort-hode">
 							<span class="sidehead">{skjema.id ? 'Rediger ledd' : 'Nytt ledd'}</span>
 						</div>
+						<details class="biblio-meta" bind:open={visMeta}>
+						<summary>{visMeta ? 'Skjul detaljer' : 'Vis detaljer (mappe, ledd, tagger)'}</summary>
 						<label class="biblio-felt"><span>Mappe</span>
 							<input bind:value={skjema.mappe} placeholder="F.eks. «Forbønner» eller «Bakke og Gyland»" spellcheck="false" list="biblio-mapper" />
 							<datalist id="biblio-mapper">
@@ -171,9 +176,12 @@
 								<input bind:value={skjema.tags} placeholder="F.eks. «advent, høymesse»" spellcheck="false" />
 							</label>
 						</div>
+					</details>
 						<label class="biblio-felt"><span>Tekst</span>
-									<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
-								</label>
+						<div class="biblio-tekstfelt">
+							<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
+						</div>
+					</label>
 								<div class="w-mal-handlinger">
 							<button class="primary" onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
 							<button onclick={() => { rediger = false; }}>Avbryt</button>
