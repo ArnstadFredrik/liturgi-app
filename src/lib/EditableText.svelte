@@ -19,7 +19,7 @@
 	let html = $state('');
 	let sistSer = '';               // sist serialiserte verdi (hindrer re-render ved egen skriving)
 	let sel = $state({ s: 0, e: 0 });
-	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false });
+	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false, liste: false });
 
 	const cls = $derived(kind === 'instr' ? 'instr' : kind === 'etikett' ? 'etikett' : 'lit-text');
 	const etikett = $derived(kind === 'etikett');
@@ -59,7 +59,8 @@
 			italic: document.queryCommandState('italic'),
 			sup: document.queryCommandState('superscript'),
 			bibelref: el?.closest('.et-linje')?.dataset.type === 'bibelref',
-			fotnote: el?.closest('.et-linje')?.dataset.type === 'fotnote'
+			fotnote: el?.closest('.et-linje')?.dataset.type === 'fotnote',
+			liste: el?.closest('.et-linje')?.dataset.type === 'liste'
 		};
 	}
 
@@ -313,6 +314,7 @@
 		} else {
 			if (id === 'bibelref') rikLinje('BIBELREF | ', 'bibelref');
 			else if (id === 'fotnote') rikLinje('FOTNOTE | ', 'fotnote');
+			else if (id === 'liste') rikLinje('- ', 'liste');
 			else rikPar(id);
 		}
 	}
@@ -321,6 +323,7 @@
 		if (kilde) {
 			if (id === 'bibelref') return linjeAktiv('BIBELREF | ');
 			if (id === 'fotnote') return linjeAktiv('FOTNOTE | ');
+			if (id === 'liste') return linjeAktiv('- ');
 			return parAktiv(id);
 		}
 		return rikPaa[id];
@@ -337,6 +340,7 @@
 				<button class="et-tool" class:paa={paa('italic')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('italic')} title="Utskrift (*tekst*)">{@html mdi('format-italic', 15)}</button>
 				<button class="et-tool" class:paa={paa('sup')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('sup')} title={'Hevet versnummer (^{12})'}>{@html mdi('format-superscript', 15)}</button>
 				<span class="et-skiller"></span>
+				<button class="et-tool" class:paa={paa('liste')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('liste')} title="Punktliste (- tekst)">{@html mdi('format-list-bulleted', 15)}</button>
 				<button class="et-tool" class:paa={paa('bibelref')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bibelref')} title="Bibelreferanse (BIBELREF | )">{@html mdi('book-open-variant', 15)}</button>
 				<button class="et-tool" class:paa={paa('fotnote')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('fotnote')} title="Liten tekstnotis (FOTNOTE | )">{@html mdi('script-text-outline', 15)}</button>
 				<span class="et-skiller"></span>

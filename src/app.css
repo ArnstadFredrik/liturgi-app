@@ -535,7 +535,9 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 .et-rik:empty::before { content: '[Klikk for å skrive]'; color: var(--muted); pointer-events: none; }
 .et-rik .et-linje { min-height: 1.35em; }
 .et-rik .rline { color: var(--role); }
-.et-rik .chip { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); vertical-align: 1px; margin-right: 4px; user-select: none; }
+.et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: 13px; line-height: inherit; }
+/* lister: prikk og tekst på samme linje (md-li-spanene bruker hengende innrykk i visning) */
+.et-rik .et-linje[data-type='liste'] .md-li { display: inline; padding: 0; text-indent: 0; }
 .et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }
 .et-rik .et-linje[data-type='bibelref'] .chip, .et-rik .et-linje[data-type='fotnote'] .chip { color: var(--muted); }
 
