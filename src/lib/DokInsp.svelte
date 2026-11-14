@@ -21,7 +21,7 @@
 
 	function tilEksport() { app.visning = 'eksport'; }
 
-	/** Sjekk ved datoenesring: gi beskjed hvis kirkeårsdagen endres. */
+	/** Sjekk ved datoendring: gi beskjed hvis kirkeårsdagen endres. */
 	function onDatoEndret() {
 		markDirty();
 		const k = lookupKirkeaar(o.date);
@@ -40,7 +40,7 @@
 			applyKirkeaar(o, k, tekster);
 			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
 			markDirty();
-			toast.success('Gudstjenesten er oppdatert til «' + k.name + '»');
+			toast.success('Gudtjenesten er oppdatert til «' + k.name + '»');
 		} catch (e) {
 			toast.error('Klarte ikke oppdatere: ' + (e?.message ?? e));
 		}
@@ -64,7 +64,7 @@
 </script>
 
 <div class="insp-gruppe">
-	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudstjeneste'}</div>
+	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudtjeneste'}</div>
 	<div class="insp-rad">
 		<input type="date" bind:value={o.date} onchange={onDatoEndret} />
 	</div>
@@ -78,8 +78,12 @@
 			<span class="insp-linje">Lokal mal (grunnordning)</span>
 		{/if}
 	</div>
+</div>
+
+<hr class="side-skiller insp-skiller" />
+
+<div class="insp-gruppe insp-bunn">
 	<div class="insp-knapper">
-		<hr class="side-skiller" />
 		<button class="wide" onclick={onSave} title="Lagre">{@html mdi('content-save', 17)} Lagre</button>
 		<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">{@html mdi('lagre-som', 17)} Lagre som …</button>
 		<button class="wide" onclick={onSaveTpl} title="Lagre som lokal mal">{@html mdi('lagre-som-mal', 14)} Lagre som mal</button>
