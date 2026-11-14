@@ -22,6 +22,7 @@ export const app = $state({
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
+	tocSkjult: false, // skjulbar avsnittsliste (TOC)
 	modal: null
 });
 
@@ -32,6 +33,15 @@ export function veksleSidebar() {
 }
 try {
 	app.sidebarSkjult = localStorage.getItem(SIDEBAR_KEY) === 'skjult';
+} catch {}
+
+const TOC_KEY = 'liturgi-toc';
+export function veksleToc() {
+	app.tocSkjult = !app.tocSkjult;
+	localStorage.setItem(TOC_KEY, app.tocSkjult ? 'skjult' : 'vis');
+}
+try {
+	app.tocSkjult = localStorage.getItem(TOC_KEY) === 'skjult';
 } catch {}
 
 /** Sett tema på <html> og lagre valget (lokalStorage + database i Electron). */
