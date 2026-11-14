@@ -218,7 +218,16 @@ export function persist() {
 export function markDirty() {
 	app.dirty = true;
 	if (app.current) app.current.__dirty = true;
+	// dirty-status på listeraden — reaktivt (objektets eget __dirty er upålitelig i templaten)
+	const e = entryFor(app.current);
+	if (e) e.dirty = true;
 	window.liturgi?.setDirty?.(true);
+}
+
+/** Finn «åpne gudstjenester»-oppføringen for et dokument (åpenId er stabil; identitet er det ikke). */
+export function entryFor(obj) {
+	const id = obj?.__åpenId;
+	return app.åpneTjenester.find((x) => (id != null && x.åpenId === id) || x.obj === obj);
 }
 
 /** Hold hovedprosessen oppdatert om dirty-flagget (avsluttingsbekreftelse). */
@@ -247,8 +256,8 @@ export function openTemplate(id) {
 export function closeEditor() {
 	// fjern gudtjenesten fra «åpne gudstjenester» — alle lukkeveier går hit
 	if (app.kind === 'service' && app.current) {
-		const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
-		if (i !== -1) app.åpneTjenester.splice(i, 1);
+		const e = entryFor(app.current);
+		if (e) app.åpneTjenester.splice(app.åpneTjenester.indexOf(e), 1);
 	}
 	app.current = null;
 	app.kind = null;
@@ -300,7 +309,7 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 		app.dirty = true;
 		window.liturgi?.setDirty?.(true);
 		if (!app.åpneTjenester.some((x) => x.åpenId === s.__åpenId)) {
-			app.åpneTjenester.push({ obj: app.current, name: s.name, path: null, åpenId: s.__åpenId });
+			app.åpneTjenester.push({ obj: app.current, name: s.name, path: null, åpenId: s.__åpenId, dirty: true });
 		}
 		return s;
 	}

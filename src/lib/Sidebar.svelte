@@ -27,8 +27,8 @@
 		app.current = e.obj;
 		app.kind = 'service';
 		app.visning = 'hjem';
-		app.dirty = !!e.obj.__dirty;
-		window.liturgi?.setDirty?.(!!e.obj.__dirty);
+		app.dirty = !!e.dirty;
+		window.liturgi?.setDirty?.(!!e.dirty);
 	}
 
 	function newService() {
@@ -54,9 +54,9 @@
 			<div class="sidehead">Åpne gudstjenester</div>
 			<ul class="list">
 				{#each åpne as e (e.åpenId)}
-					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={e.obj?.__dirty}>
+					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={e.dirty}>
 						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
-							{#if e.obj?.__dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
+							{#if e.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{navn(e)}
 						</span>
 					</li>
