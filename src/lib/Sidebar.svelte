@@ -92,7 +92,7 @@
 			{@html mdi('home')} Hjem
 		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
-			{@html mdi('book-open-variant')} Maler
+			{@html mdi('maler')} Maler
 		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'bibliotek' ? 'hjem' : 'bibliotek'; }}>
 			{@html mdi('library')} Bibliotek

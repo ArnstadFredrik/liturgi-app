@@ -566,4 +566,6 @@ html.electron .sidebar-vis { top: 12px; left: 78px; }
 }
 #sidebar .sidefoot .wide:hover { background: var(--panel2); border: none; }
 #sidebar .sidefoot .wide.sel { background: var(--accent-dim); }
-#sidebar .sidefoot .wide svg { width: 16px; height: 16px; opacity: 0.8; flex: 0 0 auto; }
+#sidebar .sidefoot .wide svg { width: 16px; height: 16px; flex: 0 0 auto; }
+/* HIG sidebars: sidefeltikoner bruker appens aksentfarge som standard */
+#sidebar .sidefoot .wide .sf-ikon { color: var(--accent); }
