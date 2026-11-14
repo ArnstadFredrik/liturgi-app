@@ -214,8 +214,8 @@ button.wide { width: 100%; }
 .eksport-profil-slett:hover { color: var(--danger); }
 .eksport-nyprofil { display: flex; gap: 6px; margin-bottom: 18px; }
 .eksport-nyprofil input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; width: 240px; }
-.eksport-kolonner { display: flex; gap: 20px; margin-top: 8px; }
-.eksport-liste { flex: 1; }
+.eksport-kolonner { display: flex; gap: 20px; margin-top: 8px; height: calc(100vh - 130px); }
+.eksport-liste { flex: 1; overflow-y: auto; padding-right: 4px; }
 .eksport-seksjon { margin: 16px 0 6px; color: var(--accent); }
 .eksport-rad { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; }
 .eksport-rad:hover { border-color: var(--accent); }
@@ -658,6 +658,9 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .insp-info .link-btn { text-align: left; font-size: 12.5px; }
 .insp-info .dirty { color: var(--role); }
 .insp-knapper { display: flex; flex-direction: column; gap: 2px; }
+/* pt-feltene i eksportpanelet */
+.eks-chk-pt { display: flex; align-items: center; gap: 8px; font-size: 13px; justify-content: space-between; }
+.eks-chk-pt input[type='number'] { width: 64px; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 13px; font-family: inherit; }
 /* knappene nederst i panelet (skillelinjen skjøver dem mot bunnen) */
 .insp-bunn { margin-top: 0; }
 .insp-skiller { margin-top: auto; }

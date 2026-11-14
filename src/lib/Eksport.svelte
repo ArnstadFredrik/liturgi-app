@@ -29,8 +29,19 @@
 		zoomNivå = v;
 		try { localStorage.setItem('eks-zoom', String(v)); } catch {}
 	}
-	// manuell fontstørrelse per profil (lagres med dokumentet, gjelder eksporten også)
+	// manuell fontstørrelse per profil (pt, lagres som skala i eksportInnst)
+	const grunnPt = { hoveddel: 11, ledd: 11, tekst: 10.5 };
 	const skrift = $derived(o?.eksportInnst?.[aktiv]?.skriftSkala ?? {});
+	function ptVerdi(omr, grunn) { return Math.round(grunn * (skrift[omr] ?? 1) * 10) / 10; }
+	function settPt(omr, verdi, grunn) {
+		const n = parseFloat(verdi);
+		if (!o || !isFinite(n) || n <= 0) return;
+		if (!o) return;
+		o.eksportInnst = o.eksportInnst ?? {};
+		const innst = o.eksportInnst[aktiv] ?? {};
+		o.eksportInnst[aktiv] = { ...innst, skriftSkala: { ...(innst.skriftSkala ?? {}), [omr]: n / grunn } };
+		markDirty();
+	}
 	function settSkrift(omr, v) {
 		if (!o) return;
 		o.eksportInnst = o.eksportInnst ?? {};
@@ -553,10 +564,10 @@
 						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
 					</div>
 					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Skriftstørrelse</span>
-						<label class="eksport-chk">Hoveddeler <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.hoveddel} oninput={(e) => settSkrift('hoveddel', +e.currentTarget.value)} /></label>
-						<label class="eksport-chk">Ledd <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.ledd} oninput={(e) => settSkrift('ledd', +e.currentTarget.value)} /></label>
-						<label class="eksport-chk">Brødtekst <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.tekst} oninput={(e) => settSkrift('tekst', +e.currentTarget.value)} /></label>
+						<span class="sidehead">Skriftstørrelse (pt)</span>
+						<label class="eks-chk-pt">Hoveddeler <input type="number" min="6" max="20" step="0.5" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /> pt</label>
+						<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="0.5" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /> pt</label>
+						<label class="eks-chk-pt">Brødtekst <input type="number" min="6" max="20" step="0.5" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /> pt</label>
 						<button class="wide" title="Tilbakestill fontstørrelsene" onclick={nullstillSkrift}>Tilbakestill</button>
 					</div>
 					<div class="eksport-innst-gruppe">
