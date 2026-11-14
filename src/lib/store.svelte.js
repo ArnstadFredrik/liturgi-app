@@ -245,6 +245,11 @@ export function openTemplate(id) {
 }
 
 export function closeEditor() {
+	// fjern gudtjenesten fra «åpne gudstjenester» — alle lukkeveier går hit
+	if (app.kind === 'service' && app.current) {
+		const i = app.åpneTjenester.findIndex((x) => x.obj === app.current);
+		if (i !== -1) app.åpneTjenester.splice(i, 1);
+	}
 	app.current = null;
 	app.kind = null;
 	app.visning = 'hjem';

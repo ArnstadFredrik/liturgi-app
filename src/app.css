@@ -66,13 +66,18 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 	padding: 7px 10px; border-radius: 6px; cursor: pointer;
 	display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;
 }
+/* lister i sidemenyen: samme highlight som menyknappene */
+#sidebar .list li:hover { background: var(--sidebar-hover); }
+#sidebar .list li.active { background: var(--accent-dim); }
 .list li:hover { background: var(--panel2); }
 .list li.active { background: var(--accent-dim); }
 .list li .nm { overflow-wrap: anywhere; word-break: break-word; }
-.list li .dt { color: var(--muted); font-size: 11px; }
-.list li .del { opacity: 0; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 13px; }
-.list li:hover .del { opacity: 1; }
-.list li .del:hover { color: var(--danger); }
+.list li .nm .dt { display: block; color: var(--muted); font-size: 11px; margin-bottom: 1px; }
+.list li .fjern { opacity: 0; border: none; background: none; color: var(--muted); cursor: pointer; padding: 2px; border-radius: 4px; flex: 0 0 auto; }
+.list li:hover .fjern { opacity: 0.75; }
+.list li .fjern:hover { opacity: 1; background: var(--sidebar-hover); }
+.list li .fjern:hover svg { color: var(--danger); }
+.list li .fjern svg { display: block; }
 button {
 	background: var(--panel2); color: var(--text);
 	border: 1px solid var(--border); border-radius: 6px;
