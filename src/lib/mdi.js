@@ -1,4 +1,5 @@
-/** Material Design Icons (Pictogrammers) — path-data lagret offline. */
+/** Material Design Icons (Pictogrammers) — path-data lagret offline. (NB: bruksordning nå SF Symbols først — se sf.js.) */
+import { sf } from './sf.js';
 const paths = {
 	"menu-open": "M21,15.61L19.59,17L14.58,12L19.59,7L21,8.39L17.44,12L21,15.61M3,6H16V8H3V6M3,13V11H13V13H3M3,18V16H16V18H3Z",
 	"page-layout-sidebar-left": "M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M6,8V16H10V8H6Z",
@@ -29,8 +30,10 @@ const paths = {
 	"calendar-edit": "M19,3H18V1H16V3H8V1H6V3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H10V19H5V8H19V9H21V5A2,2 0 0,0 19,3M21.7,13.35L20.7,14.35L18.65,12.35L19.65,11.35C19.85,11.14 20.19,11.13 20.42,11.35L21.7,12.63C21.89,12.83 21.89,13.15 21.7,13.35M12,18.94L18.07,12.88L20.12,14.88L14.06,21H12V18.94Z",
 };
 
-/** Inline SVG for et MDI-ikon. */
+/** Inline SVG for et app-ikon: SF Symbol (Apple) når det finnes, ellers MDI-fallback. */
 export function mdi(navn, size = 16) {
+	const s = sf(navn, size);
+	if (s) return s;
 	const d = paths[navn];
 	if (!d) return '';
 	return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor" aria-hidden="true"><path d="${d}"/></svg>`;
