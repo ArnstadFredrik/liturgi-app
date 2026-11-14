@@ -103,6 +103,46 @@
 		markDirty();
 	}
 
+	/** Hindrer at skrevet tekst arver rolleformatering når utvalget bare BERØRER et
+	 *  rollespan (Chromium ellers beholder den røde stilen): tekst som går ut av
+	 *  spanet, eller som skrives rett etter spanet, settes inn som ren tekst. */
+	function rikBeforeInput(e) {
+		if (!['insertText', 'insertReplacementText', 'insertCompositionText'].includes(e.inputType)) return;
+		const s = window.getSelection();
+		if (!s || s.rangeCount === 0) return;
+		const r = s.getRangeAt(0);
+		const el = (n) => (n.nodeType === 3 ? n.parentElement : n);
+		const startSpan = el(r.startContainer)?.closest('span.role');
+		const endSpan = el(r.endContainer)?.closest('span.role');
+		const tekst = e.data ?? (e.dataTransfer ? e.dataTransfer.getData('text/plain') : '');
+		// A) utvalg som starter i et rollespan men går utover det → erstatt som ren tekst
+		if (!s.isCollapsed && (startSpan || endSpan) && !(startSpan && startSpan === endSpan)) {
+			e.preventDefault();
+			r.deleteContents();
+			const tn = document.createTextNode(tekst);
+			r.insertNode(tn);
+			s.removeAllRanges();
+			const nr = document.createRange();
+			nr.setStart(tn, tn.length);
+			nr.collapse(true);
+			s.addRange(nr);
+			rikOppdatert();
+			return;
+		}
+		// B) caret helt på slutten av et rollespan → ny tekst havner etter spanet
+		if (s.isCollapsed && startSpan && r.startContainer === startSpan.lastChild && r.startOffset === startSpan.lastChild.textContent.length) {
+			e.preventDefault();
+			const tn = document.createTextNode(tekst);
+			startSpan.after(tn);
+			s.removeAllRanges();
+			const nr = document.createRange();
+			nr.setStart(tn, tn.length);
+			nr.collapse(true);
+			s.addRange(nr);
+			rikOppdatert();
+		}
+	}
+
 	/* ---------- riktekst-knapper ---------- */
 
 	function rikPar(id) {
@@ -318,6 +358,7 @@
 				contenteditable="true"
 				spellcheck="false"
 				oninput={rikOppdatert}
+				onbeforeinput={rikBeforeInput}
 				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
 		{/if}

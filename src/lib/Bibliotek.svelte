@@ -172,13 +172,9 @@
 							</label>
 						</div>
 						<label class="biblio-felt"><span>Tekst</span>
-								<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
-							</label>
-						{#if skjema.tekst}
-							<div class="sidehead">Forhåndsvisning</div>
-							<div class="lit-text biblio-forhvisning">{@html forhvisning}</div>
-						{/if}
-						<div class="w-mal-handlinger">
+									<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
+								</label>
+								<div class="w-mal-handlinger">
 							<button class="primary" onclick={lagre}>{skjema.id ? 'Lagre endringer' : 'Legg inn i biblioteket'}</button>
 							<button onclick={() => { rediger = false; }}>Avbryt</button>
 						</div>
