@@ -50,6 +50,7 @@
 <aside id="sidebar">
 	<h1>Liturgi</h1>
 	<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudtjeneste</button>
+	<hr class="side-skiller" />
 	{#if åpne.length}
 		<div class="sidegroup åpne-gruppe">
 			<div class="sidehead">Åpne gudstjenester</div>
@@ -65,6 +66,7 @@
 			</ul>
 		</div>
 	{/if}
+	<hr class="side-skiller" />
 	<div class="sidegroup">
 		<div class="sidehead">Sist brukt{#if isElectron}&nbsp;· siste {MAX_RECENT}{/if}</div>
 		<ul class="list">
