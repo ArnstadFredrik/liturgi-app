@@ -9,7 +9,10 @@ const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron
 export function currentJson() {
 	const o = app.current;
 	if (!o) return null;
-	return JSON.stringify({ liturgiFormat: 1, kind: o.kind ?? app.kind, data: o }, null, '\t');
+	// __dirty/filePath er runtime-felter — skal aldri inn i filen (gjør at
+	// gjenåpnede filer ellers markeres som endret uten endringer)
+	return JSON.stringify({ liturgiFormat: 1, kind: o.kind ?? app.kind, data: o },
+		(k, v) => (k === '__dirty' || k === 'filePath' ? undefined : v), '\t');
 }
 
 /** Filnavn: "dato - navn - kirkeårsdag". */
@@ -245,6 +248,7 @@ function parseLiturgi(raw) {
 		const parsed = JSON.parse(raw);
 		const data = parsed?.liturgiFormat ? parsed.data : parsed;
 		if (!data || !Array.isArray(data.sections)) return null;
+		delete data.__dirty; // gamle filer kan ha flagget bakt inn — åpnes alltid rent
 		return data;
 	} catch {
 		return null;

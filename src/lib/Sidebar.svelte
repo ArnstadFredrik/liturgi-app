@@ -37,6 +37,14 @@
 			createService(name, date, tplId, include, kirkeaar, tekster);
 		});
 	}
+
+	/** Fjern fra «Sist brukt»-listen — filen på disken røres ikke. */
+	async function fjernRecent(p) {
+		if (typeof window !== 'undefined' && window.liturgi?.removeRecent) {
+			await window.liturgi.removeRecent(p);
+			refreshRecentServices();
+		}
+	}
 </script>
 
 <aside id="sidebar">
@@ -63,8 +71,12 @@
 				{#each recent as s (s.path)}
 					<li>
 						<span class="nm" onclick={() => openServiceFile(s.path)} title={s.path}>
-							{s.name}{#if s.date}&nbsp;<span class="dt">{s.date}</span>{/if}
+							{#if s.date}<span class="dt">{s.date}</span>{/if}
+							<span class="nm-t">{s.name}</span>
 						</span>
+						<button class="fjern" title="Fjern fra listen (filen beholdes)" onclick={(e) => { e.stopPropagation(); fjernRecent(s.path); }}>
+							{@html mdi('close', 14)}
+						</button>
 					</li>
 				{:else}
 					<li class="empty">Ingen lagrede gudstjenester ennå</li>
@@ -73,14 +85,17 @@
 				{#each sortedServices() as s (s.id)}
 					<li class:active={app.current === s}>
 						<span class="nm" onclick={() => openService(s.id)}>
-							{s.name}{#if s.date}&nbsp;<span class="dt">{s.date}</span>{/if}
+							{#if s.date}<span class="dt">{s.date}</span>{/if}
+							<span class="nm-t">{s.name}</span>
 						</span>
-						<button class="del" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>🗑</button>
+						<button class="fjern" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>
+							{@html mdi('delete-outline', 14)}
+						</button>
 					</li>
 				{/each}
 			{/if}
 		</ul>
-		<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudstjeneste</button>
+		<button class="wide" onclick={newService}>{@html mdi('church')} + Ny gudtjeneste</button>
 	</div>
 	<div class="sidefoot">
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = 'hjem'; }}>
@@ -96,10 +111,8 @@
 			{@html mdi('cog')} Innstillinger
 		</button>
 		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">{@html mdi('folder-open-outline')} Åpne fil …</button>
-		<div class="sidefoot-ikoner">
-			<button class="ikon-btn" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
-				{@html mdi('theme-light-dark', 18)}
-			</button>
-		</div>
+		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
+			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}
+		</button>
 	</div>
 </aside>
