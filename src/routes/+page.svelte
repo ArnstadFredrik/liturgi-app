@@ -57,16 +57,16 @@
 			{@html mdi(app.tocSkjult ? 'menu-open' : 'page-layout-sidebar-right', 18)}
 		</button>
 		<aside id="toc-side">
-			<DokInsp />
 			{#if app.current.sections && app.current.sections.length > 1}
-				<hr class="side-skiller" />
 				<div class="sidehead">Avsnitt</div>
 				<ul class="list">
 					{#each app.current.sections as sec, i (i)}
 						<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
 					{/each}
 				</ul>
+				<hr class="side-skiller" />
 			{/if}
+			<DokInsp />
 		</aside>
 	{/if}
 </div>

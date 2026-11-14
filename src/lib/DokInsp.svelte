@@ -79,11 +79,12 @@
 		{/if}
 	</div>
 	<div class="insp-knapper">
+		<hr class="side-skiller" />
 		<button class="wide" onclick={onSave} title="Lagre">{@html mdi('content-save')} Lagre</button>
-		<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">Lagre som …</button>
-		<button class="wide" onclick={onSaveTpl} title="Lagre som lokal mal">Lagre som mal</button>
+		<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">{@html mdi('lagre-som')} Lagre som …</button>
+		<button class="wide" onclick={onSaveTpl} title="Lagre som lokal mal">{@html mdi('lagre-som-mal')} Lagre som mal</button>
 		{#if app.kind === 'service'}
-			<button class="wide" onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">Eksport …</button>
+			<button class="wide" onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">{@html mdi('download')} Eksport …</button>
 		{/if}
 		<button class="wide" onclick={lukkRedigering} title="Lukk">{@html mdi('close')} Lukk</button>
 	</div>
