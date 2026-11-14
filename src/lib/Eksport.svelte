@@ -29,6 +29,42 @@
 		zoomNivå = v;
 		try { localStorage.setItem('eks-zoom', String(v)); } catch {}
 	}
+	// pinch-to-zoom (trackpad) + dra for å panorere i visningen
+	function pinnehendelse(node) {
+		let avstand = null;
+		let start = null; // {x, y, scrollX, scrollY} for panning
+		const bruk = (e) => e.ctrlKey || e.metaKey;
+		function ned(e) {
+			// pinch start (ctrl/meta + wheel håndteres på wheel) — trackpad-pinch gir ctrl+wheel
+			if (e.pointerType === 'touch' && e.isPrimary) {
+				start = { x: e.clientX, y: e.clientY, sx: node.scrollLeft, sy: node.scrollTop };
+			}
+		}
+		function flytt(e) {
+			if (e.pointerType === 'touch' && start) {
+				node.scrollLeft = start.sx - (e.clientX - start.x);
+				node.scrollTop = start.sy - (e.clientY - start.y);
+			}
+		}
+		function opp() { start = null; avstand = null; }
+		const hjul = (e) => {
+			if (!bruk(e)) return; // vanlig scroll skal forbli vanlig scroll
+			e.preventDefault();
+			zoom(Math.min(2.5, Math.max(0.4, zoomNivå * (1 - e.deltaY * 0.004))));
+		};
+		node.addEventListener('wheel', hjul, { passive: false });
+		node.addEventListener('pointerdown', ned);
+		node.addEventListener('pointermove', flytt);
+		node.addEventListener('pointerup', opp);
+		node.addEventListener('pointercancel', opp);
+		return { destroy() {
+			node.removeEventListener('wheel', hjul);
+			node.removeEventListener('pointerdown', ned);
+			node.removeEventListener('pointermove', flytt);
+			node.removeEventListener('pointerup', opp);
+			node.removeEventListener('pointercancel', opp);
+		} };
+	}
 	// manuell fontstørrelse per profil (pt, lagres som skala i eksportInnst)
 	const grunnPt = { hoveddel: 11, ledd: 11, tekst: 10.5 };
 	const skrift = $derived(o?.eksportInnst?.[aktiv]?.skriftSkala ?? {});
@@ -444,6 +480,38 @@
 			<strong>{o.name}</strong>{o.date ? ` · ${datoTekst}` : ''} — velg profil til høyre, juster leddene som skal med, og eksportér.
 		</p>
 
+		<div class="eks-baand">
+			<div class="eks-baand-gruppe">
+				<span class="sidehead">Sidestørrelse</span>
+				<label class="eks-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
+				<label class="eks-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
+			</div>
+			<div class="eks-baand-gruppe">
+				<span class="sidehead">Kolonner</span>
+				<label class="eks-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> Én</label>
+				<label class="eks-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> To</label>
+			</div>
+			<div class="eks-baand-gruppe">
+				<span class="sidehead">Heftemodus</span>
+				<label class="eks-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt</label>
+			</div>
+			<div class="eks-baand-gruppe">
+				<span class="sidehead">Skrift (pt)</span>
+				<label class="eks-chk-pt">Hoveddeler <input type="number" min="6" max="20" step="0.5" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
+				<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="0.5" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
+				<label class="eks-chk-pt">Brødtekst <input type="number" min="6" max="20" step="0.5" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /></label>
+				<button class="wide" title="Tilbakestill fontstørrelsene" onclick={nullstillSkrift}>Tilbakestill</button>
+			</div>
+			<div class="eks-baand-gruppe">
+				<span class="sidehead">Visning</span>
+				<label class="eks-chk"><input type="checkbox" bind:checked={visInnhold} /> Vis leddinnhold</label>
+				<div class="eks-zoom">
+					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
+					<span>{Math.round(zoomNivå * 100)} %</span>
+					<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
+				</div>
+			</div>
+		</div>
 		<div class="eksport-kolonner">
 			<div class="eksport-liste">
 				{#if o.kind === 'service'}
@@ -470,24 +538,24 @@
 							{#if it.enabled !== false}
 								<div class="eksport-rad-tekst">
 									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}{erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? ' — ' + bibelrefTxt(it) : ''}</span>
-								</div>
-								<div class="eksport-rad-knapper">
-									{#if !visInnhold && (leddTekst(it) || '').trim()}
-										<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
-											title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
-											onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
-											{@html mdi('table-of-contents')}
-											<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
-										</button>
-									{/if}
-									{#if erBibel(it)}
-										<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
-											title={visBibel(si, ii, it) ? 'Bibelreferansen er med (overskriften og eventuell innholdstekst) — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
-											onclick={() => settDel(si, ii, ':br', !visBibel(si, ii, it))}>
-											{@html mdi('book-open-variant')}
-											<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
-										</button>
-									{/if}
+									<div class="eksport-rad-knapper">
+										{#if !visInnhold && (leddTekst(it) || '').trim()}
+											<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
+												title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
+												onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
+												{@html mdi('table-of-contents')}
+												<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
+											</button>
+										{/if}
+										{#if erBibel(it)}
+											<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
+												title={visBibel(si, ii, it) ? 'Bibelreferansen er med (overskriften og eventuell innholdstekst) — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
+												onclick={() => settDel(si, ii, ':br', !visBibel(si, ii, it))}>
+												{@html mdi('book-open-variant')}
+												<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
+											</button>
+										{/if}
+									</div>
 								</div>
 							{/if}
 						</div>
@@ -504,7 +572,8 @@
 				{/each}
 			</div>
 
-			<div id="eks-forhvisning">
+			<div id="eks-forhvisning" use:pinnehendelse>
+				<div class="eks-forh-inner" style="width: {250 * zoomNivå}px">
 				{#if pdfSideBilder.length === 0}
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
@@ -515,78 +584,44 @@
 						</div>
 					{/each}
 				{/if}
+				</div>
 			</div>
 		</div>
 
 		<aside id="eks-panel" use:portal={'#toc-side'}>
 			<div class="biblio-kort">
-					<div class="biblio-kort-hode"><span class="sidehead">Visning</span></div>
-					<label class="eksport-chk"><input type="checkbox" bind:checked={visInnhold} /> Vis leddinnhold</label>
-				</div>
-				<div class="biblio-kort">
-					<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
-					<div class="eksport-profiler">
-						{#each profiler as p (p)}
-							<button class="eksport-profil" class:sel={aktiv === p} onclick={() => byttProfil(p)}>{p}</button>
-							{#if !INNBYGGET.includes(p)}
-								<button class="eksport-profil-slett" title="Slett profilen" onclick={() => slettEgenProfil(p)}>×</button>
-							{/if}
-						{/each}
-					</div>
-					<button class="wide" onclick={lagEgenProfil}>+ Ny profil</button>
-				</div>
-
-				<div class="biblio-kort">
-					<div class="biblio-kort-hode"><span class="sidehead">Innstillinger for «{aktiv}»</span></div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Format</span>
-						<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
-						<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
-						<hr class="eksport-skiller" />
-						<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
-						{#if formater.pptx}
-							<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene (PowerPoint)</label>
+				<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
+				<div class="eksport-profiler">
+					{#each profiler as p (p)}
+						<button class="eksport-profil" class:sel={aktiv === p} onclick={() => byttProfil(p)}>{p}</button>
+						{#if !INNBYGGET.includes(p)}
+							<button class="eksport-profil-slett" title="Slett profilen" onclick={() => slettEgenProfil(p)}>×</button>
 						{/if}
-						<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
-					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Sidestørrelse (Word/PDF)</span>
-						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
-						<label class="eksport-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
-					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Kolonner (Word/PDF)</span>
-						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> Én kolonne</label>
-						<label class="eksport-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> To kolonner</label>
-					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Heftemodus (kun PDF)</span>
-						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
-					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Skriftstørrelse (pt)</span>
-						<label class="eks-chk-pt">Hoveddeler <input type="number" min="6" max="20" step="0.5" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /> pt</label>
-						<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="0.5" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /> pt</label>
-						<label class="eks-chk-pt">Brødtekst <input type="number" min="6" max="20" step="0.5" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /> pt</label>
-						<button class="wide" title="Tilbakestill fontstørrelsene" onclick={nullstillSkrift}>Tilbakestill</button>
-					</div>
-					<div class="eksport-innst-gruppe">
-						<span class="sidehead">Zoom (visning)</span>
-						<div class="eks-zoom">
-							<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
-							<span>{Math.round(zoomNivå * 100)} %</span>
-							<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
-						</div>
-					</div>
-					<div class="biblio-kort">
-						<div class="eksport-handling">
-							<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
-								{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
-							</button>
-							<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
-						</div>
-					</div>
+					{/each}
 				</div>
+				<button class="wide" onclick={lagEgenProfil}>+ Ny profil</button>
+			</div>
+
+			<div class="biblio-kort">
+				<div class="biblio-kort-hode"><span class="sidehead">Eksportformat</span></div>
+				<div class="eksport-innst-gruppe">
+					<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
+					<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
+					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
+					{#if formater.pptx}
+						<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene</label>
+					{/if}
+					<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
+				</div>
+			</div>
+			<div class="biblio-kort">
+				<div class="eksport-handling">
+					<button class="primary" onclick={eksporterAlle} disabled={eksporterer}>
+						{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
+					</button>
+					<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+				</div>
+			</div>
 		</aside>
 	{/if}
 </div>
