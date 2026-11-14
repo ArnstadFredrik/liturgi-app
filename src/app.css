@@ -62,11 +62,12 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 }
 #sidebar h1 { font-size: 18px; margin: 0 4px 4px; letter-spacing: 0.5px; }
 .sidegroup { display: flex; flex-direction: column; gap: 6px; }
-/* skillelinjer i sidemenyen (synlig i begge tema): under «+ Ny gudtjeneste»
-	og over menygruppen — ikke mellom åpne og sist brukt */
-#sidebar > button.wide {
-	border-bottom: 1px solid var(--sidebar-line);
-	padding-bottom: 12px;
+/* skillelinjer i sidemenyen (samme stil som over menygruppen) */
+.side-skiller {
+	border: none;
+	border-top: 1px solid var(--sidebar-line);
+	margin: 6px 4px;
+	flex: 0 0 auto;
 }
 #sidebar .sidefoot {
 	border-top: 1px solid var(--sidebar-line);
