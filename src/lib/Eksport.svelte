@@ -23,6 +23,27 @@
 	let tomSlide = $state(false);
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
+	let zoomNivå = $state(1); // kun visning (lagres i lokalStorage)
+	try { zoomNivå = +(localStorage.getItem('eks-zoom') ?? 1) || 1; } catch {}
+	function zoom(v) {
+		zoomNivå = v;
+		try { localStorage.setItem('eks-zoom', String(v)); } catch {}
+	}
+	// manuell fontstørrelse per profil (lagres med dokumentet, gjelder eksporten også)
+	const skrift = $derived(o?.eksportInnst?.[aktiv]?.skriftSkala ?? {});
+	function settSkrift(omr, v) {
+		if (!o) return;
+		o.eksportInnst = o.eksportInnst ?? {};
+		const innst = o.eksportInnst[aktiv] ?? {};
+		o.eksportInnst[aktiv] = { ...innst, skriftSkala: { ...(innst.skriftSkala ?? {}), [omr]: v } };
+		markDirty();
+	}
+	function nullstillSkrift() {
+		if (!o) return;
+		const innst = o.eksportInnst?.[aktiv] ?? {};
+		o.eksportInnst[aktiv] = { ...innst, skriftSkala: undefined };
+		markDirty();
+	}
 
 	$effect(() => {
 		// app-standard for formater (DB), brukes når dokumentet ikke har egne valg
@@ -68,7 +89,7 @@
 		let død = false;
 		(async () => {
 			try {
-				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), hefte: getInnst('hefte', aktiv === 'Menighet'), tittel: getInnst('tittel', true) };
+				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), hefte: getInnst('hefte', aktiv === 'Menighet'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 				const kopi = klonMedValg(o, aktiv);
 				const { doc } = buildPdfBase64(kopi, true, valg);
 				const mod = await import('pdfjs-dist');
@@ -477,8 +498,8 @@
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
 					{#each pdfSideBilder as bilde, si}
-						<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'}>
-							<img src={bilde} alt="Side {si + 1}" draggable="false" />
+						<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'} style="width: {250 * zoomNivå}px">
+							<img src={bilde} alt="Side {si + 1}" draggable="false" style="width: {250 * zoomNivå}px" />
 							<span class="eks-side-nr">{si + 1}</span>
 						</div>
 					{/each}
@@ -530,6 +551,21 @@
 					<div class="eksport-innst-gruppe">
 						<span class="sidehead">Heftemodus (kun PDF)</span>
 						<label class="eksport-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Kompakt 4-siders hefte (mindre skrift, smalere marg)</label>
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Skriftstørrelse</span>
+						<label class="eksport-chk">Hoveddeler <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.hoveddel} oninput={(e) => settSkrift('hoveddel', +e.currentTarget.value)} /></label>
+						<label class="eksport-chk">Ledd <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.ledd} oninput={(e) => settSkrift('ledd', +e.currentTarget.value)} /></label>
+						<label class="eksport-chk">Brødtekst <input type="range" min="0.7" max="1.4" step="0.05" value={skrift.tekst} oninput={(e) => settSkrift('tekst', +e.currentTarget.value)} /></label>
+						<button class="wide" title="Tilbakestill fontstørrelsene" onclick={nullstillSkrift}>Tilbakestill</button>
+					</div>
+					<div class="eksport-innst-gruppe">
+						<span class="sidehead">Zoom (visning)</span>
+						<div class="eks-zoom">
+							<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
+							<span>{Math.round(zoomNivå * 100)} %</span>
+							<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
+						</div>
 					</div>
 					<div class="biblio-kort">
 						<div class="eksport-handling">
