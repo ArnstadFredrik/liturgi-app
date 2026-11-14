@@ -107,7 +107,7 @@
 	 *  rollespan (Chromium ellers beholder den røde stilen): tekst som går ut av
 	 *  spanet, eller som skrives rett etter spanet, settes inn som ren tekst. */
 	function rikBeforeInput(e) {
-		if (!['insertText', 'insertReplacementText', 'insertCompositionText'].includes(e.inputType)) return;
+		if (!['insertText', 'insertReplacementText', 'insertCompositionText', 'insertFromPaste'].includes(e.inputType)) return;
 		const s = window.getSelection();
 		if (!s || s.rangeCount === 0) return;
 		const r = s.getRangeAt(0);
