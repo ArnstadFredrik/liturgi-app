@@ -2,6 +2,7 @@
 	import { bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete, eksporterBibliotek } from '$lib/fileio.svelte.js';
 	import { confirmBox } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
+	import EditableText from '$lib/EditableText.svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -96,35 +97,6 @@
 
 	const forhvisning = $derived(litHtml(skjema.tekst || ''));
 
-	/** Pakk markert tekst i {{r}}…{{/r}} (rolle-farge), eller sett inn et tomt par ved markøren.
-	 *  Markeres flere linjer settes @r foran hver linje (hele linjen som rolle). */
-	function settInnRmarker() {
-		const ta = document.getElementById('biblio-tekst');
-		if (!ta) return;
-		const start = ta.selectionStart ?? ta.value.length;
-		const slutt = ta.selectionEnd ?? start;
-		const før = ta.value.slice(0, start);
-		const merket = ta.value.slice(start, slutt);
-		const etter = ta.value.slice(slutt);
-		if (merket.includes('\n')) {
-			const ny = før + merket.split('\n').map((l) => (l.trim() && !l.trim().startsWith('@r') ? '@r ' + l : l)).join('\n') + etter;
-			skjema.tekst = ny;
-			return;
-		}
-		if (før.endsWith('{{r}}') && merket.includes('{{/r}}')) {
-			skjema.tekst = før.slice(0, -5) + merket.replace('{{/r}}', '') + etter;
-		} else {
-			skjema.tekst = før + '{{r}}' + (merket || '') + '{{/r}}' + etter;
-		}
-		settMarkør(ta, start + 5 + merket.length);
-	}
-
-	function settMarkør(ta, pos) {
-		requestAnimationFrame(() => {
-			ta.focus();
-			ta.setSelectionRange(pos, pos);
-		});
-	}
 </script>
 
 <div id="biblio-side">
@@ -200,14 +172,8 @@
 							</label>
 						</div>
 						<label class="biblio-felt"><span>Tekst</span>
-							<div class="biblio-verktøy" role="toolbar" aria-label="Tekstverktøy">
-								<button type="button" class="biblio-rolle-btn" onclick={settInnRmarker}
-									title={'Rolle på markert tekst ({{r}}…{{/r}}) eller @r for hele linjer'}>Rolle</button>
-								<span class="biblio-md-hint">Markdown: **fet**, *urskrift*, # overskrift, - punkt · {'{{r}}…{{/r}}'} for rollefarge, @r for hele linjer</span>
-							</div>
-							<textarea id="biblio-tekst" bind:value={skjema.tekst} rows="12" spellcheck="false"
-								placeholder={'L | La oss alle be.\\n\\n**Tema:** *advent*\\n- Bønnopunkt ett\\n- Bønnopunkt to'}></textarea>
-						</label>
+								<EditableText bind:value={skjema.tekst} kind="lit" plassholder="Klikk for å skrive leddteksten …" />
+							</label>
 						{#if skjema.tekst}
 							<div class="sidehead">Forhåndsvisning</div>
 							<div class="lit-text biblio-forhvisning">{@html forhvisning}</div>
