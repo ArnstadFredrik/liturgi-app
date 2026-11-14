@@ -605,15 +605,23 @@ html.electron #sidebar::after {
 }
 
 /* macOS source-list-stil for ALLE sidemenyknapper (menerader + Ny gudtjeneste) */
-#sidebar .wide {
+#sidebar .wide, #toc-side .wide {
 	background: transparent; border: none; text-align: left;
 	display: flex; align-items: center; gap: 9px;
 	padding: 7px 10px; border-radius: 6px; font-size: 13px;
 }
-#sidebar .wide:hover { background: var(--sidebar-hover); border: none; }
+#sidebar .wide:hover, #toc-side .wide:hover { background: var(--sidebar-hover); border: none; }
 svg.sf-ikon { vertical-align: -0.35em; }
-#sidebar .wide svg { width: 19px; height: 19px; flex: 0 0 auto; }
+#sidebar .wide svg, #toc-side .wide svg { width: 19px; height: 19px; flex: 0 0 auto; }
 #sidebar .sidefoot .wide.sel { background: var(--accent-dim); }
 #sidebar .sidefoot .wide.sel svg { opacity: 1; }
 /* HIG sidebars: sidefeltikoner bruker appens aksentfarge som standard */
-#sidebar .wide .sf-ikon { color: var(--accent); }
+#sidebar .wide .sf-ikon, #toc-side .wide .sf-ikon { color: var(--accent); }
+/* dokumentpanelet (DokInsp) i TOC */
+.insp-gruppe { display: flex; flex-direction: column; gap: 6px; }
+.insp-rad input[type='date'] { width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 13px; }
+.insp-info { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; font-size: 12.5px; color: var(--muted); }
+.insp-info .insp-linje { display: flex; align-items: center; gap: 6px; }
+.insp-info .link-btn { text-align: left; font-size: 12.5px; }
+.insp-info .dirty { color: var(--role); }
+.insp-knapper { display: flex; flex-direction: column; gap: 2px; }

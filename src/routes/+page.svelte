@@ -8,6 +8,7 @@
 	import Bibliotek from '$lib/Bibliotek.svelte';
 	import Eksport from '$lib/Eksport.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
+	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 
@@ -50,18 +51,22 @@
 			<Welcome />
 		{/if}
 	</main>
-	{#if app.current && app.current.sections && app.current.sections.length > 1}
+	{#if app.current}
 		<button class="ikon-btn toc-toggle" class:aaapen={!app.tocSkjult} onclick={veksleToc}
-			title={app.tocSkjult ? 'Vis avsnittslisten' : 'Skjul avsnittslisten'}>
+			title={app.tocSkjult ? 'Vis dokumentpanelet' : 'Skjul dokumentpanelet'}>
 			{@html mdi(app.tocSkjult ? 'menu-open' : 'page-layout-sidebar-right', 18)}
 		</button>
 		<aside id="toc-side">
-			<div class="sidehead">Avsnitt</div>
-			<ul class="list">
-				{#each app.current.sections as sec, i (i)}
-					<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
-				{/each}
-			</ul>
+			<DokInsp />
+			{#if app.current.sections && app.current.sections.length > 1}
+				<hr class="side-skiller" />
+				<div class="sidehead">Avsnitt</div>
+				<ul class="list">
+					{#each app.current.sections as sec, i (i)}
+						<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
+					{/each}
+				</ul>
+			{/if}
 		</aside>
 	{/if}
 </div>
