@@ -32,9 +32,11 @@
 	function kommendeSoendag() {
 		const d = new Date();
 		const dag = d.getDay();
-		const diff = (7 - dag) % 7 || 7;
-		d.setDate(d.getDate() + diff);
-		return d.toISOString().slice(0, 10);
+		// samme søndag teller med helt til dagen er passert (søndag → i dag)
+		d.setDate(d.getDate() + (7 - dag) % 7);
+		// lokal dato (toISOString ville skiftet dato ved tidssoneforskyvning)
+		const pad = (n) => String(n).padStart(2, '0');
+		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 	}
 
 	const CACHE_KEY = 'liturgi-soendag-cache';

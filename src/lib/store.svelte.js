@@ -24,6 +24,7 @@ export const app = $state({
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar avsnittsliste (TOC)
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
+	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	modal: null
 });
 
@@ -56,8 +57,8 @@ export function setTheme(t) {
 }
 
 export function initTheme() {
-	// eksport-visning: gjenopprett «Vis leddinnhold» fra forrige økt
-	try { app.eksVisInnhold = localStorage.getItem('eks-visInnhold') === '1'; } catch {}
+	// eksport-visning: gjenopprett «Vis leddinnhold» + koblet visning fra forrige økt
+	try { app.eksVisInnhold = localStorage.getItem('eks-visInnhold') === '1'; app.eksKoblet = localStorage.getItem('eks-koblet') !== '0'; } catch {}
 	const saved = localStorage.getItem(THEME_KEY);
 	const t = saved ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 	setTheme(t);

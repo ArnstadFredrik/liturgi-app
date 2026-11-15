@@ -30,6 +30,52 @@
 		try { localStorage.setItem('eks-zoom', String(v)); } catch {}
 	}
 	// pinch-to-zoom (trackpad) + dra for å panorere i visningen
+	// koblet rulling mellom venstre liste og forhåndsvisningen (kan slås av i menyen)
+	let kobletLås = 0;
+	function fraForhvisning() {
+		if (!app.eksKoblet || Date.now() < kobletLås) return;
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		const liste = document.querySelector('.eksport-liste');
+		if (!inner || !liste) return;
+		const topp = inner.scrollTop + 40;
+		const kart = window.__eksSecSider ?? {};
+		let sec = null;
+		for (const [s, p] of Object.entries(kart).map(([s, p]) => [+s, p]).sort((a, b) => a[1] - b[1])) {
+			const el = inner.querySelectorAll('.eks-side')[p - 1];
+			if (el && el.offsetTop - inner.offsetTop <= topp) sec = s;
+		}
+		if (sec == null) return;
+		const hode = liste.querySelector(`.eksport-seksjon[data-sec="${sec}"]`);
+		if (hode) { kobletLås = Date.now() + 400; liste.scrollTop = Math.max(0, hode.offsetTop - liste.offsetTop - 6); }
+	}
+	function fraListe() {
+		if (!app.eksKoblet || Date.now() < kobletLås) return;
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		const liste = document.querySelector('.eksport-liste');
+		if (!inner || !liste) return;
+		const topp = liste.scrollTop + 40;
+		let sec = null;
+		for (const hode of liste.querySelectorAll('.eksport-seksjon[data-sec]')) {
+			if (hode.offsetTop - liste.offsetTop <= topp) sec = +hode.dataset.sec;
+		}
+		if (sec == null) return;
+		const el = inner.querySelectorAll('.eks-side')[window.__eksSecSider?.[sec] - 1];
+		if (el) { kobletLås = Date.now() + 400; inner.scrollTop = Math.max(0, el.offsetTop - inner.offsetTop - 8); }
+	}
+	function lenket(node) {
+		const h = () => (node.classList.contains('eksport-liste') ? fraListe : fraForhvisning)();
+		node.addEventListener('scroll', h, { passive: true });
+		return { destroy: () => node.removeEventListener('scroll', h) };
+	}
+	// TOC-navigering (kalles fra Avsnitt-listen i +page.svelte): glidende rull til seksjonens side
+	window.__eksTilSec = (sec) => {
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		const el = inner?.querySelectorAll('.eks-side')[window.__eksSecSider?.[sec] - 1];
+		if (inner && el) {
+			kobletLås = Date.now() + 900; // unngå at koblet rulling slåss med animasjonen
+			inner.scrollTo({ top: Math.max(0, el.offsetTop - inner.offsetTop - 8), behavior: 'smooth' });
+		}
+	};
 	function pinnehendelse(node) {
 		let avstand = null;
 		let start = null; // {x, y, scrollX, scrollY} for panning
@@ -523,7 +569,7 @@
 			</div>
 		</div>
 		<div class="eksport-kolonner">
-			<div class="eksport-liste">
+			<div class="eksport-liste" use:lenket>
 				{#if o.kind === 'service'}
 					<div class="sidehead eksport-seksjon">Tittel</div>
 					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
@@ -583,7 +629,7 @@
 			</div>
 
 			<div id="eks-forhvisning">
-				<div class="eks-forh-inner" use:pinnehendelse>
+				<div class="eks-forh-inner" use:pinnehendelse use:lenket>
 				{#if pdfSideBilder.length === 0}
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
