@@ -25,6 +25,7 @@ export const app = $state({
 	tocSkjult: false, // skjulbar avsnittsliste (TOC)
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
+	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
 	modal: null
 });
 

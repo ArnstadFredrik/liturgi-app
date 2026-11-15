@@ -112,6 +112,15 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			{@html mdi('cog')} Innstillinger
 		</button>
+		{#if app.devModus}
+			<button class="wide" onclick={() => {
+				// beholder åpent dev-dokument (Malverkøy-redigering), slik at «Lagre til prosjektet» kan nås
+				if (app.current?.__devMal) { app.visning = app.visning === 'malverktoy' ? 'hjem' : 'malverktoy'; return; }
+				app.current = null; app.kind = null; app.visning = app.visning === 'malverktoy' ? 'hjem' : 'malverktoy';
+			}}>
+				{@html mdi('pencil')} Malverkøy
+			</button>
+		{/if}
 		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">{@html mdi('folder-open-outline')} Åpne fil …</button>
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
 			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}

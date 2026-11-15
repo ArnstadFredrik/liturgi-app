@@ -45,4 +45,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	apneMappe: (p) => ipcRenderer.invoke('apne:mappe', p),
 	onMenyHandling: (cb) => ipcRenderer.on('meny:handling', (_e, id) => cb(id)),
 	sendMenyTilstand: (st) => ipcRenderer.send('app:meny-tilstand', st),
+	// DEV: malredigeringsverktøy — main-prosessen avgjør (isPackaged)
+	devTilstand: () => ipcRenderer.invoke('dev:tilstand'),
+	lagreDataJs: (mal) => ipcRenderer.invoke('dev:lagre-datajs', { mal }),
 });
