@@ -1,7 +1,7 @@
 <script>
 	import { app, openService, deleteService, sortedServices, createService, toggleTheme } from '$lib/store.svelte.js';
 	import { newServiceModal } from '$lib/modal.svelte.js';
-	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk } from '$lib/fileio.svelte.js';
+	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -38,6 +38,21 @@
 		});
 	}
 
+	/** Kryss på en åpen gudtjeneste: lukk den. Aktive med ulagrede endringer får
+	 *  lagre/forkast-dialogen; ikke-aktive uten endringer fjernes rett fra listen. */
+	function lukkFraListe(e) {
+		if (app.current?.__åpenId === e.åpenId) { lukkRedigering(); return; }
+		if (e.dirty) {
+			app.current = e.obj;
+			app.kind = 'service';
+			app.visning = 'hjem';
+			lukkRedigering();
+			return;
+		}
+		const idx = app.åpneTjenester.indexOf(e);
+		if (idx >= 0) app.åpneTjenester.splice(idx, 1);
+	}
+
 	/** Fjern fra «Sist brukt»-listen — filen på disken røres ikke. */
 	async function fjernRecent(p) {
 		if (typeof window !== 'undefined' && window.liturgi?.removeRecent) {
@@ -61,6 +76,9 @@
 							{#if e.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{navn(e)}
 						</span>
+						<button class="åpne-x" title="Lukk gudtjenesten" onclick={(ev) => { ev.stopPropagation(); lukkFraListe(e); }}>
+							{@html mdi('close', 13)}
+						</button>
 					</li>
 				{/each}
 			</ul>
