@@ -67,8 +67,7 @@
 					medDåp = true;
 					medNattverd = true;
 					manuellK = null;
-					autoNavn = true; // navneforslag «Gudstjeneste - [Kirkeårsdag]» fylles når kirkeåret er slått opp
-				}
+					}
 		} else if (m?.type === 'prompt') {
 			name = m.def ?? '';
 		} else if (m?.type === 'choose') {
@@ -150,22 +149,16 @@
 		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudtjeneste') autoKirkeaar();
 	});
 
-	// navneforslag «Gudstjeneste - [Kirkeårsdag]»: fylles automatisk så lenge
-	// brukeren ikke har skrevet et eget navn (autoNavn-nullstilles ved input)
-	let autoNavn = $state(false);
-	function oppdaterNavnForslag() {
-		if (m?.type !== 'newService' || !autoNavn) return;
-		const knavn = manuellK?.name ?? kirkeaar?.name;
-		if (knavn) name = 'Gudtjeneste - ' + knavn;
-	}
-	function navnEndret() { autoNavn = false; }
+	// navneforslag «Gudtjeneste - [Kirkeårsdag]»: BRUKES IKKE Lenger som live-forslag
+	// i modalen (den gjorde modalen treg) — createService fyller navnet ved opprettelse
+	// hvis navnefeltet er tomt
+	function navnEndret() { /* beholdt for oninput-kompatibilitet */ }
 
 	function autoKirkeaar() {
 		const k = lookupKirkeaar(date);
 		kirkeaar = k;
 		tekster = null;
 		teksterStatus = k ? 'laster' : '';
-		oppdaterNavnForslag();
 		const req = ++teksterReq;
 		if (!k) return;
 		hentTekster(k.day).then((t) => {
@@ -196,8 +189,7 @@
 			kirkeaar = k;
 			tekster = null;
 			teksterStatus = 'laster';
-			oppdaterNavnForslag();
-			const req = ++teksterReq;
+				const req = ++teksterReq;
 			hentTekster(k.day).then((t) => {
 				if (req !== teksterReq) return;
 				tekster = t;

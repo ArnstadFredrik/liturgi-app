@@ -312,7 +312,8 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	const s = newServiceFromTemplate(tpl, include);
 	s.visInstr = true;
 	s.visRoles = true;
-	s.name = name || tpl.name;
+	// navneforslag: tom navn → «Gudstjeneste - [Kirkeårsdag]» (datoknitten kirkeårsdagen)
+	s.name = name || (kirkeaar?.name ? 'Gudtjeneste - ' + kirkeaar.name : tpl.name);
 	s.date = date;
 	applyKirkeaar(s, kirkeaar, tekster);
 	if (isElectron) {
