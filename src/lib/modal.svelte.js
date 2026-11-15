@@ -7,7 +7,9 @@ import { app } from './store.svelte.js';
  *  - {type:'newService', ok}
  */
 export function showModal(modal) {
-	app.modal = modal;
+	// id: +page.svelte keyer <Modal /> på type+id — garanterer remount (fersk $state)
+	// ved HVER åpning; åpnings-tilbakestillingen i Modal kan ellers bli stående
+	app.modal = { ...modal, id: (app.modalTeller = (app.modalTeller ?? 0) + 1) };
 }
 
 export function prompt(title, label, ok, def = '') {
@@ -29,7 +31,7 @@ export function lukkModal(onLagre, onForkast) {
 	});
 }
 
-export function newServiceModal(ok, forhåndsvalgtType = 'gudtjeneste') {
+export function newServiceModal(ok, forhåndsvalgtType = 'gudstjeneste') {
 	showModal({ type: 'newService', ok, forhåndsvalgtType });
 }
 

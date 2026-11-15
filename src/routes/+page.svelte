@@ -98,7 +98,7 @@
 	{/if}
 </div>
 
-{#key (app.modal?.type ?? '') + ':' + (app.modal?.forhåndsvalgtType ?? '')}
+{#key (app.modal?.type ?? '') + ':' + (app.modal?.id ?? '')}
 	<Modal />
 {/key}
 
