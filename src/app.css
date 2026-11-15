@@ -246,6 +246,9 @@ button.wide { width: 100%; }
 #eks-forhvisning { position: relative; }
 .eks-flyt-zoom { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.18); z-index: 5; }
 .eks-flyt-zoom.eks-rendrer { bottom: 52px; font-size: 12px; color: var(--muted); pointer-events: none; }
+/* status-toast over toppen av visningen: rendrer → oppdatert */
+.eks-status { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 3px 14px; font-size: 12px; color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 6; pointer-events: none; }
+.eks-status.oppdatert { color: var(--accent); border-color: var(--accent-dim, var(--accent)); }
 /* eksportmodulen: hovedsiden selv skal ikke scrolle — bare de to kolonnene */
 #app:has(#eksport-side) #main { overflow: hidden; }
 #app:has(#eksport-side) #eksport-side { height: 100%; display: flex; flex-direction: column; }

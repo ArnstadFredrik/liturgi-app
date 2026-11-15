@@ -197,12 +197,13 @@
 	 *  Første runde rendres raskt i lav oppløsning (sidene dukker opp fortløpende),
 	 *  deretter skjerpes hver side i bakgrunnen og byttes inn når den er klar. */
 	let pdfSideBilder = $state([]); // dataURL per side
-	let genererer = $state(false); // indikator: sidene rendres (første runde / endringer)
+	let rendrerStatus = $state(''); // '' | 'rendrer' | 'oppdatert' — toast over visningen
+	let innstVersjon = $state(0); // økes ved setInnst — garanterer at forhåndsvisningen re-rendrer
 	$effect(() => {
-		if (!o || app.kind !== 'service') { pdfSideBilder = []; genererer = false; return; }
+		innstVersjon; // avhengighet: re-render når sideinnstillingene endres
+		if (!o || app.kind !== 'service') { pdfSideBilder = []; rendrerStatus = ''; return; }
 		let død = false;
-		genererer = true;
-		pdfSideBilder = [];
+		rendrerStatus = 'rendrer'; // gamle sidene beholdes synlige til de erstattes
 		(async () => {
 			try {
 				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
@@ -226,10 +227,13 @@
 					const tc = await side.getTextContent();
 					sideTekster.push(tc.items.map((x) => x.str).join(' '));
 					if (død) return;
-					pdfSideBilder.push(c.toDataURL('image/jpeg', 0.85));
+					if (i - 1 < pdfSideBilder.length) pdfSideBilder[i - 1] = c.toDataURL('image/jpeg', 0.85);
+					else pdfSideBilder.push(c.toDataURL('image/jpeg', 0.85));
 				}
 				if (død) return;
-				genererer = false;
+				pdfSideBilder.length = pdf.numPages; // gamle sider utover nye antall fjernes
+				rendrerStatus = 'oppdatert';
+				setTimeout(() => { if (!død) rendrerStatus = ''; }, 1500);
 				// kartlegg avsnittstitler til sidenummer (brukes av Avsnitt-listen i høyremenyen)
 				const kart = {};
 				(app.current?.sections ?? []).forEach((sec, i) => {
@@ -251,7 +255,7 @@
 					pdfSideBilder[i - 1] = c.toDataURL('image/jpeg', 0.85);
 				}
 			} catch (e) {
-				if (!død) { console.error('Forhåndsvisning feilet:', e); pdfSideBilder = []; genererer = false; }
+				if (!død) { console.error('Forhåndsvisning feilet:', e); rendrerStatus = ''; }
 			}
 		})();
 		return () => { død = true; };
@@ -283,6 +287,7 @@
 		if (!o) return;
 		o.eksportInnst = o.eksportInnst ?? {};
 		o.eksportInnst[aktiv] = { ...profInnst(), [k]: v };
+		innstVersjon++;
 		markDirty();
 	}
 
@@ -674,8 +679,10 @@
 					{/each}
 				{/if}
 				</div>
-				{#if genererer}
-					<div class="eks-flyt-zoom eks-rendrer">⏳ Rendrer sidene …</div>
+				{#if rendrerStatus}
+					<div class="eks-status" class:oppdatert={rendrerStatus === 'oppdatert'}>
+						{rendrerStatus === 'rendrer' ? '⏳ Rendrer sidene …' : '✓ Oppdatert'}
+					</div>
 				{/if}
 				<div class="eks-flyt-zoom">
 					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
