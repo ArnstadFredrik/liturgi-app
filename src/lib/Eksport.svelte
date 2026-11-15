@@ -23,11 +23,29 @@
 	let tomSlide = $state(false);
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
-	let zoomNivå = $state(1); // kun visning (lagres i lokalStorage)
-	try { zoomNivå = +(localStorage.getItem('eks-zoom') ?? 1) || 1; } catch {}
+	let zoomNivå = $state(1.5); // kun visning (lagres i lokalStorage) — 150 % er ny standard
+	try {
+		const lagret = localStorage.getItem('eks-zoom2') ?? localStorage.getItem('eks-zoom');
+		if (lagret !== null) zoomNivå = +lagret || 1.5; // gammel nøkkel med 1 (gammel standard) migreres ikke — 1,5 gjelder
+		else localStorage.removeItem('eks-zoom');
+	} catch {}
 	function zoom(v) {
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		if (!inner) { zoomNivå = v; try { localStorage.setItem('eks-zoom2', String(v)); } catch {} return; }
+		// anker: siden (og relativ posisjon i den) som er midt i visningen følger med ved zoom
+		const sider = [...inner.querySelectorAll('.eks-side')];
+		const midt = inner.scrollTop + inner.clientHeight / 2;
+		let idx = 0, rel = 0.5;
+		for (let i = 0; i < sider.length; i++) {
+			const top = sider[i].offsetTop - inner.offsetTop, h = sider[i].offsetHeight + 18;
+			if (midt >= top) { idx = i; rel = Math.min(1, Math.max(0, (midt - top) / h)); }
+		}
 		zoomNivå = v;
-		try { localStorage.setItem('eks-zoom', String(v)); } catch {}
+		try { localStorage.setItem('eks-zoom2', String(v)); } catch {}
+		requestAnimationFrame(() => {
+			const s = [...inner.querySelectorAll('.eks-side')][idx];
+			if (s) inner.scrollTop = Math.max(0, s.offsetTop - inner.offsetTop + rel * (s.offsetHeight + 18) - inner.clientHeight / 2);
+		});
 	}
 	// pinch-to-zoom (trackpad) + dra for å panorere i visningen
 	// koblet rulling mellom venstre liste og forhåndsvisningen (kan slås av i menyen)
@@ -175,11 +193,16 @@
 	}
 
 	/** Forhåndsvisning: den EKTE eksporten (buildPdfBase64) rendres side for side
-	 *  med pdf.js — visningen er garantert identisk med eksporten. */
+	 *  med pdf.js — visningen er garantert identisk med eksporten.
+	 *  Første runde rendres raskt i lav oppløsning (sidene dukker opp fortløpende),
+	 *  deretter skjerpes hver side i bakgrunnen og byttes inn når den er klar. */
 	let pdfSideBilder = $state([]); // dataURL per side
+	let genererer = $state(false); // indikator: sidene rendres (første runde / endringer)
 	$effect(() => {
-		if (!o || app.kind !== 'service') { pdfSideBilder = []; return; }
+		if (!o || app.kind !== 'service') { pdfSideBilder = []; genererer = false; return; }
 		let død = false;
+		genererer = true;
+		pdfSideBilder = [];
 		(async () => {
 			try {
 				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
@@ -192,8 +215,8 @@
 				pdfjsLib.GlobalWorkerOptions.workerPort = worker;
 				const buf = doc.output('arraybuffer');
 				const pdf = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
-				const bilder = [];
 				const sideTekster = []; // for Avsnitt → side-kartlegging i eksportmodulen
+				// 1. runde: rask, lav oppløsning — sidene vises fortløpende
 				for (let i = 1; i <= pdf.numPages; i++) {
 					const side = await pdf.getPage(i);
 					const viewport = side.getViewport({ scale: 1.4 });
@@ -203,22 +226,32 @@
 					const tc = await side.getTextContent();
 					sideTekster.push(tc.items.map((x) => x.str).join(' '));
 					if (død) return;
-					bilder.push(c.toDataURL('image/jpeg', 0.85));
+					pdfSideBilder.push(c.toDataURL('image/jpeg', 0.85));
 				}
-				if (!død) {
-					pdfSideBilder = bilder;
-					// kartlegg avsnittstitler til sidenummer (brukes av Avsnitt-listen i høyremenyen)
-					const kart = {};
-					(app.current?.sections ?? []).forEach((sec, i) => {
-						const t = (sec.title || '').replace(/\s+/g, ' ').trim();
-						if (t.length < 2) return;
-						const idx = sideTekster.findIndex((txt) => txt.replace(/\s+/g, ' ').includes(t));
-						if (idx >= 0) kart[i] = idx + 1;
-					});
-					window.__eksSecSider = kart;
+				if (død) return;
+				genererer = false;
+				// kartlegg avsnittstitler til sidenummer (brukes av Avsnitt-listen i høyremenyen)
+				const kart = {};
+				(app.current?.sections ?? []).forEach((sec, i) => {
+					const t = (sec.title || '').replace(/\s+/g, ' ').trim();
+					if (t.length < 2) return;
+					const idx = sideTekster.findIndex((txt) => txt.replace(/\s+/g, ' ').includes(t));
+					if (idx >= 0) kart[i] = idx + 1;
+				});
+				window.__eksSecSider = kart;
+				// 2. runde i bakgrunnen: skarp versjon per side (skalerer til 250 % zoom på retina), byttes inn fortløpende
+				for (let i = 1; i <= pdf.numPages; i++) {
+					if (død) return;
+					const side = await pdf.getPage(i);
+					const viewport = side.getViewport({ scale: 3 });
+					const c = document.createElement('canvas');
+					c.width = viewport.width; c.height = viewport.height;
+					await side.render({ canvasContext: c.getContext('2d'), viewport }).promise;
+					if (død) return;
+					pdfSideBilder[i - 1] = c.toDataURL('image/jpeg', 0.85);
 				}
 			} catch (e) {
-				if (!død) { console.error('Forhåndsvisning feilet:', e); pdfSideBilder = []; }
+				if (!død) { console.error('Forhåndsvisning feilet:', e); pdfSideBilder = []; genererer = false; }
 			}
 		})();
 		return () => { død = true; };
@@ -641,6 +674,9 @@
 					{/each}
 				{/if}
 				</div>
+				{#if genererer}
+					<div class="eks-flyt-zoom eks-rendrer">⏳ Rendrer sidene …</div>
+				{/if}
 				<div class="eks-flyt-zoom">
 					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
 					<span>{Math.round(zoomNivå * 100)} %</span>
