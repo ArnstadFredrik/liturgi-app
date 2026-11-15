@@ -312,8 +312,11 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	const s = newServiceFromTemplate(tpl, include);
 	s.visInstr = true;
 	s.visRoles = true;
-	// navneforslag: tom navn → «Gudstjeneste - [Kirkeårsdag]» (datoknitten kirkeårsdagen)
-	s.name = name || (kirkeaar?.name ? 'Gudtjeneste - ' + kirkeaar.name : tpl.name);
+	// navneforslag: tom navn → «[dato] - [Gudtjeneste|Gravferd] - [Kirkeårsdag]»
+	// (kirkeårsdag bare for gudtjenester — gravferd har ingen)
+	const typeNavn = s.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudtjeneste';
+	const navneDeler = [date, typeNavn, kirkeaar?.name].filter(Boolean);
+	s.name = name || (navneDeler.length > 1 ? navneDeler.join(' - ') : tpl.name);
 	s.date = date;
 	applyKirkeaar(s, kirkeaar, tekster);
 	if (isElectron) {
