@@ -20,6 +20,15 @@
 		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath });
 	});
 
+	// DEV: hent dev-tilstand fra main (isPackaged) — styrer Malverkøy-modulen
+	let Malverktoy = $state(null); // lastes bare inn i dev-bygg (__MALVERKOY__)
+	if (__MALVERKOY__ && typeof window !== 'undefined') {
+		if (window.liturgi?.devTilstand) {
+			window.liturgi.devTilstand().then((t) => { app.devModus = !!t?.devModus; });
+		}
+		import('$lib/Malverktoy.svelte').then((m) => { Malverktoy = m.default; });
+	}
+
 	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)
 	if (typeof window !== 'undefined' && window.liturgi?.onSaveThenClose) {
 		window.liturgi.onSaveThenClose(async () => {
@@ -53,6 +62,8 @@
 	<main id="main">
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
+		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}
+			<Malverktoy />
 		{:else if app.current}
 			<Editor />
 		{:else if app.visning === 'maler'}

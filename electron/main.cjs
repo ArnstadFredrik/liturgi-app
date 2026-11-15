@@ -6,6 +6,7 @@ const http = require('http');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const url = require('url');
 
 // ---------- fil-dialoger: lagre/åpne liturgi-filer (.liturgi, json-innhold) ----------
 ipcMain.on('app:dirty', (e, v) => {
@@ -361,6 +362,44 @@ ipcMain.handle('apne:mappe', (_e, p) => {
 	if (typeof p === 'string' && p) shell.showItemInFolder(p);
 });
 
+// ---------- DEV: malredigeringsverktøy (aldri med i pakkede bygg) ----------
+// Rendereren spør om den kjører i en dev-utgave; malredigeringsvisningen vises
+// bare når byggflagget __MALVERKOY__ er satt OG appen er upakket.
+ipcMain.handle('dev:tilstand', () => ({ devModus: !app.isPackaged }));
+// Skriv en redigert originalmal tilbake til src/lib/data.js så den blir med
+// i byggprosessen. Handleren nekter å kjøre i en pakket app.
+ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
+	if (!mal || typeof mal !== 'object' || !mal.id) return { ok: false, error: 'Ugyldig mal-objekt' };
+	const fil = path.join(app.getAppPath(), 'src', 'lib', 'data.js');
+	let src;
+	try { src = fs.readFileSync(fil, 'utf8'); }
+	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
+	const linjer = src.split('\n');
+	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${mal.id}"`));
+	if (idLinje < 0) return { ok: false, error: `Fant ikke id "${mal.id}" i data.js` };
+	// entry-objektet åpner med en linje som kun inneholder «{» og lukker med «},»/«}» i kolonne 0
+	let start = idLinje;
+	while (start > 0 && linjer[start].trim() !== '{') start--;
+	let slutt = idLinje;
+	while (slutt < linjer.length && !/^},?$/.test(linjer[slutt])) slutt++;
+	if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
+	const komma = linjer[slutt].trim().endsWith(',');
+	const ny = JSON.stringify(mal, null, '	').split('\n');
+	ny[0] = '	' + ny[0]; // entry-objektet innrykkes ett hakk (filens format)
+	if (komma) ny[ny.length - 1] += ',';
+	linjer.splice(start, slutt - start + 1, ...ny);
+	fs.writeFileSync(fil, linjer.join('\n'));
+	// valider ved å importere; rull tilbake ved feil
+	try {
+		await import(url.pathToFileURL(fil).href + '?v=' + Date.now());
+		return { ok: true };
+	} catch (err) {
+		fs.writeFileSync(fil, src);
+		return { ok: false, error: 'data.js var ugyldig etter skriving (gjenopprettet): ' + err.message };
+	}
+});
+
 // ---------- mac-menylinjen ----------
 // Alle handlingene fra venstre og høyre sidemeny; dokumenthandlinger deaktivert
 // uten åpne dokument (renderer melder tilstand på 'app:meny-tilstand').
@@ -383,6 +422,7 @@ function byggMeny(win, st = {}) {
 			label: 'Fil',
 			submenu: [
 				{ label: 'Ny gudtjeneste …', accelerator: 'CmdOrCtrl+N', click: () => send('ny-gudtjeneste') },
+			{ label: 'Ny gravferd …', accelerator: 'CmdOrCtrl+Shift+G', click: () => send('ny-gravferd') },
 				{ label: 'Åpne fil …', accelerator: 'CmdOrCtrl+O', click: () => send('apne-fil') },
 				{ type: 'separator' },
 				{ label: 'Lagre', accelerator: 'CmdOrCtrl+S', enabled: dok, click: () => send('lagre') },

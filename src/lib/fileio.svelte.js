@@ -532,7 +532,7 @@ export async function regenererBibliotek() {
 	}
 }
 
-function safeNavn(n) {
+export function safeNavn(n) {
 	return (n || 'mal').replace(/[\\/:*?"<>|]+/g, '').trim() || 'mal';
 }
 

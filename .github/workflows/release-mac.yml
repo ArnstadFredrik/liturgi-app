@@ -37,6 +37,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Sikkerhetsnett: dev-modulen (Malverkøy) skal ALDRI være med i et publisert bygg.
+      # Den inkluderes kun av «npm run build:dev», som kjøres manuelt lokalt.
+      - name: Verifiser at dev-modulen ikke er i byggget
+        run: |
+          if grep -rl "__devKey\|Lagre til prosjektet" build/; then
+            echo "::error::DEV-modulen (Malverkøy) er med i publiseringssbyggget!"
+            exit 1
+          fi
+          echo "OK: ingen dev-modul i byggget."
+
       - name: Regn ut sjekksum
         id: sha
         run: |
