@@ -232,15 +232,15 @@ button.wide { width: 100%; }
 #eks-forhvisning { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 8px 4px 16px; align-items: flex-start; }
 .eks-forh-inner { display: flex; flex-direction: column; gap: 18px; margin: 0 auto; overflow-y: auto; overscroll-behavior: contain; flex: 1; width: max-content; max-width: 100%; align-items: center; }
 /* layout-båndet over kolonnene (mac-bånd-lignende): sideoverskrift + horisontal rad = én linje */
-.eks-baand { display: flex; gap: 18px; align-items: center; padding: 9px 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; margin: 10px 0 14px; flex-wrap: wrap; }
-.eks-baand-gruppe { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-right: 1px solid var(--border); }
+.eks-baand { display: flex; gap: 14px; align-items: center; padding: 8px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; margin: 10px 0 14px; flex-wrap: wrap; }
+.eks-baand-gruppe { display: flex; align-items: center; gap: 9px; padding: 0 12px; border-right: 1px solid var(--border); }
 .eks-baand-gruppe:last-child { border-right: none; margin-left: auto; }
 .eks-baand-rad { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .eks-baand .sidehead { flex: 0 0 auto; }
 .eks-baand .eks-tilbakestill { width: auto; padding: 4px 10px; font-size: 12.5px; }
 .eks-baand .ikon-btn { padding: 3px 6px; }
 .eks-baand .eks-chk-pt { gap: 7px; font-size: 13px; white-space: nowrap; }
-.eks-baand .eks-chk-pt input[type='number'] { width: 44px; padding: 4px 6px; }
+.eks-baand .eks-chk-pt input[type='number'] { width: 50px; padding: 4px 5px; }
 .eks-baand select { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 13px; font-family: inherit; }
 /* flytende zoom-kontroll over sidene i bunnen av visningsfeltet */
 #eks-forhvisning { position: relative; }
