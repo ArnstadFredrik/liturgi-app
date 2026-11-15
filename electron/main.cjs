@@ -356,6 +356,11 @@ ipcMain.on('tema:naativ', (_e, t) => {
 	nativeTheme.themeSource = t === 'dark' ? 'dark' : 'light';
 });
 
+// «Åpne mappe»: vis gudtjenestefilen i Finder
+ipcMain.handle('apne:mappe', (_e, p) => {
+	if (typeof p === 'string' && p) shell.showItemInFolder(p);
+});
+
 // ---------- mac-menylinjen ----------
 // Alle handlingene fra venstre og høyre sidemeny; dokumenthandlinger deaktivert
 // uten åpne dokument (renderer melder tilstand på 'app:meny-tilstand').
@@ -417,7 +422,8 @@ function byggMeny(win, st = {}) {
 			submenu: [
 				{ label: 'Eksport …', accelerator: 'CmdOrCtrl+E', enabled: dok && erTjeneste, click: () => send('eksport') },
 				{ label: 'Vis leddinnhold', type: 'checkbox', checked: !!st.visInnhold, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('vis-leddinnhold') },
-				{ label: 'Koblet visning (liste + forhåndsvisning)', type: 'checkbox', checked: st.koblet !== false, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('koblet-visning') }
+				{ label: 'Koblet visning (liste + forhåndsvisning)', type: 'checkbox', checked: st.koblet !== false, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('koblet-visning') },
+				{ label: 'Åpne mappe', enabled: dok && erTjeneste && st.harFil, click: () => send('apne-mappe') }
 			]
 		}
 	];

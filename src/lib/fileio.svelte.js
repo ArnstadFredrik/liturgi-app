@@ -710,6 +710,7 @@ if (typeof window !== 'undefined') {
 			case 'eksport': app.visning = 'eksport'; break;
 			case 'vis-leddinnhold': app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} break;
 			case 'koblet-visning': app.eksKoblet = !app.eksKoblet; try { localStorage.setItem('eks-koblet', app.eksKoblet ? '1' : '0'); } catch {} break;
+			case 'apne-mappe': if (app.current?.filePath) window.liturgi?.apneMappe?.(app.current.filePath); break;
 			case 'lukk-dok': lukkRedigering(); break;
 			case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
 			case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
