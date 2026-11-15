@@ -24,14 +24,26 @@ function flytAvsnitt(text) {
 		const t = linje.trim();
 		if (!t) { flush(); out.push(''); return; }   // tom linje = avsnittskift
 		if (!buf) buf = t;
-		else if (/^[-–—•*]/.test(t)) { flush(); out.push(''); buf = t; }  // punktoppstillinger starter ny linje
+		else if (/^[-–—•] /.test(t)) { flush(); out.push(''); buf = t; }  // punktoppstillinger starter ny linje (* er kursiv-markdown, ikke punkt)
 		else buf += ' ' + t;
 		const neste = (linjer[i + 1] ?? '').trim();
-		// avslutt avsnittet på setningsslutt eller før neste linje ser ut som ny setning/rolle/overskrift
-		if (sluttTegn.test(t) || /^[-–—•]/.test(neste) || /^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste)) flush();
+		// avslutt avsnittet på setningsslutt, etter fullførte fet-blokker (**), eller
+		// før neste linje ser ut som ny setning/rolle/vers/fotnote/bibelref/notat
+		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^[-–—•] /.test(neste) || /^\^\{/.test(neste) ||
+			/^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste) || /^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n) /.test(neste)) flush();
 	});
 	flush();
-	return out.join('\n');
+	// markdown-blokker (*kursiv*) som spenner over linjeskift (odde antall * på linjen)
+	// flytes sammen med neste linje, så kursivmarkeringen ikke blir liggende rå
+	const linjer2 = out.join('\n').split('\n');
+	for (let i = 0; i < linjer2.length - 1; i++) {
+		if (((linjer2[i].match(/\*/g) || []).length % 2) === 1) {
+			linjer2[i] += ' ' + linjer2[i + 1];
+			linjer2.splice(i + 1, 1);
+			i--;
+		}
+	}
+	return linjer2.join('\n');
 }
 
 /** Del tekst i segmenter [{text, red, small, bold, italics}] – rollemerke (f.eks. «L |»),
