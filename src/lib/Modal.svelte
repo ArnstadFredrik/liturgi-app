@@ -58,16 +58,17 @@
 				manuellK = m.preserve.kirkeaar;
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
-				nyType = 'gudstjeneste';
-				jordpaa = 'graven';
-				name = '';
-				date = nextSundayISO();
-				// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
-				tplId = app.templates[0]?.id ?? '';
-				medDåp = true;
-				medNattverd = true;
-				manuellK = null;
-			}
+					nyType = 'gudtjeneste';
+					jordpaa = 'graven';
+					name = '';
+					date = nextSundayISO();
+					// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
+					tplId = app.templates[0]?.id ?? '';
+					medDåp = true;
+					medNattverd = true;
+					manuellK = null;
+					autoNavn = true; // navneforslag «Gudstjeneste - [Kirkeårsdag]» fylles når kirkeåret er slått opp
+				}
 		} else if (m?.type === 'prompt') {
 			name = m.def ?? '';
 		} else if (m?.type === 'choose') {
@@ -142,18 +143,29 @@
 		bibAltValgt = 0;
 		}
 
-	// slå opp kirkeårsdag når datoen endres i ny-gudstjeneste-modalen
+	// slå opp kirkeårsdag når datoen endres i ny-gudtjeneste-modalen
 	// (manuelt valgt dag har forrang inntil den nullstilles)
 	let teksterReq = 0;
 	$effect(() => {
-		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudstjeneste') autoKirkeaar();
+		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudtjeneste') autoKirkeaar();
 	});
+
+	// navneforslag «Gudstjeneste - [Kirkeårsdag]»: fylles automatisk så lenge
+	// brukeren ikke har skrevet et eget navn (autoNavn-nullstilles ved input)
+	let autoNavn = $state(false);
+	function oppdaterNavnForslag() {
+		if (m?.type !== 'newService' || !autoNavn) return;
+		const knavn = manuellK?.name ?? kirkeaar?.name;
+		if (knavn) name = 'Gudtjeneste - ' + knavn;
+	}
+	function navnEndret() { autoNavn = false; }
 
 	function autoKirkeaar() {
 		const k = lookupKirkeaar(date);
 		kirkeaar = k;
 		tekster = null;
 		teksterStatus = k ? 'laster' : '';
+		oppdaterNavnForslag();
 		const req = ++teksterReq;
 		if (!k) return;
 		hentTekster(k.day).then((t) => {
@@ -184,6 +196,7 @@
 			kirkeaar = k;
 			tekster = null;
 			teksterStatus = 'laster';
+			oppdaterNavnForslag();
 			const req = ++teksterReq;
 			hentTekster(k.day).then((t) => {
 				if (req !== teksterReq) return;
@@ -270,7 +283,7 @@
 				</label>
 				<label>
 					Navn
-					<input bind:value={name} onkeydown={onKey} placeholder="F.eks. Søndag 15. november" />
+					<input bind:value={name} onkeydown={onKey} oninput={navnEndret} placeholder="F.eks. Gudstjeneste - 25. søndag i treenighetstiden" />
 				</label>
 				<label>
 					Dato
