@@ -24,12 +24,16 @@ function flytAvsnitt(text) {
 		const t = linje.trim();
 		if (!t) { flush(); out.push(''); return; }   // tom linje = avsnittskift
 		if (!buf) buf = t;
-		else if (/^[-–—•] /.test(t)) { flush(); out.push(''); buf = t; }  // punktoppstillinger starter ny linje (* er kursiv-markdown, ikke punkt)
+		// linjemerker (FOTNOTE/BIBELREF/@) og punktoppstillinger starter alltid egne avsnitt —
+		// merket gjelder kun sin egen linje, så påfølgende linjer skal ikke limes inn
+		else if (/^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n) ?\||^@r ?\||^[-–—•] /.test(t)) { flush(); out.push(''); buf = t; }
 		else buf += ' ' + t;
 		const neste = (linjer[i + 1] ?? '').trim();
-		// avslutt avsnittet på setningsslutt, etter fullførte fet-blokker (**), eller
-		// før neste linje ser ut som ny setning/rolle/vers/fotnote/bibelref/notat
-		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^[-–—•] /.test(neste) || /^\^\{/.test(neste) ||
+		// avslutt avsnittet på setningsslutt, etter fullførte fet-blokker (**), etter
+		// linjemerke-linjer (gjelder kun egen linje), eller før neste linje ser ut som
+		// ny setning/rolle/vers/fotnote/bibelref/notat
+		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^(FOTNOTE|BIBELREF) \||^@/.test(t) ||
+			/^[-–—•] /.test(neste) || /^\^\{/.test(neste) ||
 			/^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste) || /^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n) /.test(neste)) flush();
 	});
 	flush();

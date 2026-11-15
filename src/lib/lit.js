@@ -81,10 +81,15 @@ function linjeEditHtml(type, prefiks, chip, innhold) {
 	let chipHtml = '';
 	if (type === 'rolle') {
 		chipHtml = `<span class="role">${escapeHtml(chip)} |</span> `;
-	} else if (chip) {
-		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
 	}
-	const indre = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
+	const indreBase = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
+	// linjemerker (Notis/Bibelref) vises som parentes-tag ETTER teksten — tydelig at det
+	// gjelder linjen, ikke innholdet; legges INNI tekst-spanet så størrelsen matcher
+	let indre = indreBase;
+	if (type === 'bibelref' || type === 'fotnote' || type === 'notat') {
+		const tag = ` <span class="chip linje-tag">(${escapeHtml(chip)})</span>`;
+		indre = klasse ? indreBase.replace(/<\/span>$/, tag + '</span>') : indreBase + tag;
+	}
 	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}">${chipHtml}${indre}</div>`;
 }
 
