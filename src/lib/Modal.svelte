@@ -10,7 +10,7 @@
 	let tplId = $state('');
 	let medDåp = $state(true);
 	let medNattverd = $state(true);
-	let nyType = $state('gudstjeneste'); // 'gudstjeneste' | 'gravferd'
+	let nyType = $state(app.modal?.forhåndsvalgtType ?? 'gudtjeneste'); // 'gudtjeneste' | 'gravferd'
 	let jordpaa = $state('graven'); // gravferd: 'graven' | 'krematorium'
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
@@ -282,32 +282,34 @@
 					Dato
 					<input type="date" bind:value={date} />
 				</label>
-				{#if nyType === 'gudstjeneste'}
-				{#if kirkeaar}
-					<p class="m-kirkeaar">☀️ {kirkeaar.name}{#if kirkeaar.color}&nbsp;· {kirkeaar.color}{/if}
-						<button class="link-btn" onclick={manuellKirkeaar}>endre …</button>
-						{#if manuellK}<button class="link-btn" onclick={nullstillKirkeaar} title="Bruk datoens kirkeårsdag">tilbakestill</button>{/if}</p>
-					{#if teksterStatus === 'laster'}<p class="m-kirkeaar muted">Henter bibeltekster …</p>
-					{:else if teksterStatus === 'feil'}<p class="m-kirkeaar muted">Klarte ikke hente bibeltekstene – kun referanser fylles inn.</p>
-					{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudstjenesten.</p>
-					{:else if teksterStatus === 'ok' && manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes for den valgte kirkeårsdagen.</p>
+				{#key nyType}
+					{#if nyType === 'gudtjeneste'}
+					{#if kirkeaar}
+						<p class="m-kirkeaar">☀️ {kirkeaar.name}{#if kirkeaar.color}&nbsp;· {kirkeaar.color}{/if}
+							<button class="link-btn" onclick={manuellKirkeaar}>endre …</button>
+							{#if manuellK}<button class="link-btn" onclick={nullstillKirkeaar} title="Bruk datoens kirkeårsdag">tilbakestill</button>{/if}</p>
+						{#if teksterStatus === 'laster'}<p class="m-kirkeaar muted">Henter bibeltekster …</p>
+						{:else if teksterStatus === 'feil'}<p class="m-kirkeaar muted">Klarte ikke hente bibeltekstene – kun referanser fylles inn.</p>
+						{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudstjenesten.</p>
+						{:else if teksterStatus === 'ok' && manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes for den valgte kirkeårsdagen.</p>
+						{/if}
+					{:else if date}
+						<p class="m-kirkeaar muted">Ingen kirkeårsdag funnet for datoen.
+							<button class="link-btn" onclick={manuellKirkeaar}>velg manuelt …</button></p>
 					{/if}
-				{:else if date}
-					<p class="m-kirkeaar muted">Ingen kirkeårsdag funnet for datoen.
-						<button class="link-btn" onclick={manuellKirkeaar}>velg manuelt …</button></p>
-				{/if}
-				<div class="m-chk">
-					<label class="chk"><input type="checkbox" bind:checked={medDåp} /> Med dåp</label>
-					<label class="chk"><input type="checkbox" bind:checked={medNattverd} /> Med nattverd</label>
-				</div>
-				{:else}
 					<div class="m-chk">
-						<span class="m-jordpaa-label">Jordpåkastelse:</span>
-						<label class="chk"><input type="radio" bind:group={jordpaa} value="graven" /> Ved graven</label>
-						<label class="chk"><input type="radio" bind:group={jordpaa} value="krematorium" /> I krematorium</label>
+						<label class="chk"><input type="checkbox" bind:checked={medDåp} /> Med dåp</label>
+						<label class="chk"><input type="checkbox" bind:checked={medNattverd} /> Med nattverd</label>
 					</div>
-					<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
-				{/if}
+					{:else}
+						<div class="m-chk">
+							<span class="m-jordpaa-label">Jordpåkastelse:</span>
+							<label class="chk"><input type="radio" bind:group={jordpaa} value="graven" /> Ved graven</label>
+							<label class="chk"><input type="radio" bind:group={jordpaa} value="krematorium" /> I krematorium</label>
+						</div>
+						<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
+					{/if}
+				{/key}
 			{:else if m.type === 'choose'}
 				<p>Velg deler som skal hentes inn fra malen:</p>
 				<div class="m-chk">

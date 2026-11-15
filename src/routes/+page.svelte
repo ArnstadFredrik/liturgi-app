@@ -98,7 +98,9 @@
 	{/if}
 </div>
 
-<Modal />
+{#key (app.modal?.type ?? '') + ':' + (app.modal?.forhåndsvalgtType ?? '')}
+	<Modal />
+{/key}
 
 <Kommandopalett />
 
