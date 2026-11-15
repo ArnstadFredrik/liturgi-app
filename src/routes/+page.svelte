@@ -10,6 +10,7 @@
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
+	import Kommandopalett from '$lib/Kommandopalett.svelte';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 
 	loadStore();
@@ -87,5 +88,7 @@
 </div>
 
 <Modal />
+
+<Kommandopalett />
 
 <svelte:window onbeforeunload={(e) => { if (app.dirty) e.preventDefault(); }} />
