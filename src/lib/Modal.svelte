@@ -58,16 +58,16 @@
 				manuellK = m.preserve.kirkeaar;
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
-					nyType = 'gudtjeneste';
-					jordpaa = 'graven';
-					name = '';
-					date = nextSundayISO();
-					// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
-					tplId = app.templates[0]?.id ?? '';
-					medDåp = true;
-					medNattverd = true;
-					manuellK = null;
-					}
+				nyType = m.forhåndsvalgtType ?? 'gudtjeneste';
+				jordpaa = 'graven';
+				name = '';
+				date = nextSundayISO();
+				// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
+				tplId = app.templates[0]?.id ?? '';
+				medDåp = true;
+				medNattverd = true;
+				manuellK = null;
+			}
 		} else if (m?.type === 'prompt') {
 			name = m.def ?? '';
 		} else if (m?.type === 'choose') {
@@ -262,8 +262,8 @@
 				</label>
 			{:else if m.type === 'newService'}
 				<div class="m-type">
-					<button type="button" class="m-type-btn" class:sel={nyType === 'gudstjeneste'} onclick={() => { nyType = 'gudstjeneste'; }}>Gudstjeneste</button>
-					<button type="button" class="m-type-btn" class:sel={nyType === 'gravferd'} onclick={() => { nyType = 'gravferd'; }}>Gravferd</button>
+					<button type="button" class={nyType === 'gudtjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudtjeneste'; }}>Gudstjeneste</button>
+					<button type="button" class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gravferd'; }}>Gravferd</button>
 				</div>
 				<label>
 					Mal
