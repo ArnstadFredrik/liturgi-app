@@ -29,8 +29,8 @@ export function lukkModal(onLagre, onForkast) {
 	});
 }
 
-export function newServiceModal(ok) {
-	showModal({ type: 'newService', ok });
+export function newServiceModal(ok, forhåndsvalgtType = 'gudtjeneste') {
+	showModal({ type: 'newService', ok, forhåndsvalgtType });
 }
 
 export function chooseSectionsModal(titles, ok) {

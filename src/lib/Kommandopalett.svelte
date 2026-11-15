@@ -11,6 +11,7 @@
 	// samme handlinger som mac-menylinjen
 	const kommandoer = [
 		{ id: 'ny-gudtjeneste', navn: 'Ny gudtjeneste …', kategori: 'Fil', taster: '⌘N', enabled: () => true, kjor: () => kjorMenyId('ny-gudtjeneste') },
+		{ id: 'ny-gravferd', navn: 'Ny gravferd …', kategori: 'Fil', taster: '⇧⌘G', enabled: () => true, kjor: () => kjorMenyId('ny-gravferd') },
 		{ id: 'apne-fil', navn: 'Åpne fil …', kategori: 'Fil', taster: '⌘O', enabled: () => true, kjor: () => kjorMenyId('apne-fil') },
 		{ id: 'lagre', navn: 'Lagre', kategori: 'Fil', taster: '⌘S', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre') },
 		{ id: 'lagre-som', navn: 'Lagre som …', kategori: 'Fil', taster: '⇧⌘S', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre-som') },
