@@ -40,7 +40,7 @@
 			applyKirkeaar(o, k, tekster);
 			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
 			markDirty();
-			toast.success('Gudtjenesten er oppdatert til «' + k.name + '»');
+			toast.success('Gudstjenesten er oppdatert til «' + k.name + '»');
 		} catch (e) {
 			toast.error('Klarte ikke oppdatere: ' + (e?.message ?? e));
 		}
@@ -64,7 +64,7 @@
 </script>
 
 <div class="insp-gruppe">
-	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudtjeneste'}</div>
+	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudstjeneste'}</div>
 	<div class="insp-rad">
 		<input type="date" bind:value={o.date} onchange={onDatoEndret} />
 	</div>

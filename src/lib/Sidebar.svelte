@@ -40,7 +40,7 @@
 		});
 	}
 
-	/** Kryss på en åpen gudtjeneste: lukk den. Aktive med ulagrede endringer får
+	/** Kryss på en åpen gudstjeneste: lukk den. Aktive med ulagrede endringer får
 	 *  lagre/forkast-dialogen; ikke-aktive uten endringer fjernes rett fra listen. */
 	function lukkFraListe(e) {
 		if (app.current?.__åpenId === e.åpenId) { lukkRedigering(); return; }
@@ -66,7 +66,7 @@
 
 <aside id="sidebar">
 	<h1>Liturgi</h1>
-	<button class="wide" onclick={newService}>{@html mdi('church')} Ny gudtjeneste</button>
+	<button class="wide" onclick={newService}>{@html mdi('church')} Ny gudstjeneste</button>
 	<hr class="side-skiller" />
 	{#if åpne.length}
 		<div class="sidegroup åpne-gruppe">
@@ -78,7 +78,7 @@
 							{#if e.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{navn(e)}
 						</span>
-						<button class="åpne-x" title="Lukk gudtjenesten" onclick={(ev) => { ev.stopPropagation(); lukkFraListe(e); }}>
+						<button class="åpne-x" title="Lukk gudstjenesten" onclick={(ev) => { ev.stopPropagation(); lukkFraListe(e); }}>
 							{@html mdi('close', 13)}
 						</button>
 					</li>

@@ -77,13 +77,17 @@
 				manuellK = m.preserve.kirkeaar;
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
-				nyType = m.forhåndsvalgtType ?? 'gudtjeneste';
-				jordpaa = 'graven';
+				// NB: les forhåndsvalgtType inn i en LOKAL variabel — leser vi nyType her
+				// blir den en dependency av effekten, og type-bytt-klikk re-triggere
+				// effekten som da RESETTER typen tilbake (type-knappene virket ikke)
+				const forhType = m.forhåndsvalgtType ?? 'gudtjeneste';
+				nyType = forhType;
+				jordpå = 'graven';
 				name = '';
 				date = nextSundayISO();
 				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
 				// en gravferdsmal — originalene lastes først og rekkefølgen er ikke garantert)
-				tplId = (app.templates.find((t) => malType(t) === nyType))?.id ?? '';
+				tplId = (app.templates.find((t) => malType(t) === forhType))?.id ?? '';
 				medDåp = true;
 				medNattverd = true;
 				manuellK = null;
@@ -169,7 +173,7 @@
 		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudtjeneste') autoKirkeaar();
 	});
 
-	// navneforslag «Gudtjeneste - [Kirkeårsdag]»: BRUKES IKKE Lenger som live-forslag
+	// navneforslag «gudstjeneste - [Kirkeårsdag]»: BRUKES IKKE Lenger som live-forslag
 	// i modalen (den gjorde modalen treg) — createService fyller navnet ved opprettelse
 	// hvis navnefeltet er tomt
 	function navnEndret() { /* beholdt for oninput-kompatibilitet */ }
@@ -309,7 +313,7 @@
 							{#if manuellK}<button class="link-btn" onclick={nullstillKirkeaar} title="Bruk datoens kirkeårsdag">tilbakestill</button>{/if}</p>
 						{#if teksterStatus === 'laster'}<p class="m-kirkeaar muted">Henter bibeltekster …</p>
 						{:else if teksterStatus === 'feil'}<p class="m-kirkeaar muted">Klarte ikke hente bibeltekstene – kun referanser fylles inn.</p>
-						{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudtjenesten.</p>
+						{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudstjenesten.</p>
 						{:else if teksterStatus === 'ok' && manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes for den valgte kirkeårsdagen.</p>
 						{/if}
 					{:else if date}
@@ -353,7 +357,7 @@
 				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">
-					Søk i hovedgudtjenesten
+					Søk i hovedgudstjenesten
 					<input bind:value={bibQ} oninput={() => bibSok(bibQ)} placeholder='F.eks. «forbønn», «velsignelse» …' spellcheck="false" />
 				</label>
 				{#if !bibGrupper.length}
