@@ -479,7 +479,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head && it.__visOverskrift !== false) { y += hefte ? 2.2 : 3.5; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 1.2; }
+			if (head && it.__visOverskrift !== false) { y += hefte ? 3.2 : 5.5; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6; }
 			if (it.__visInnhold === false) continue;
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
