@@ -147,16 +147,30 @@
 				const buf = doc.output('arraybuffer');
 				const pdf = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
 				const bilder = [];
+				const sideTekster = []; // for Avsnitt → side-kartlegging i eksportmodulen
 				for (let i = 1; i <= pdf.numPages; i++) {
 					const side = await pdf.getPage(i);
 					const viewport = side.getViewport({ scale: 1.4 });
 					const c = document.createElement('canvas');
 					c.width = viewport.width; c.height = viewport.height;
 					await side.render({ canvasContext: c.getContext('2d'), viewport }).promise;
+					const tc = await side.getTextContent();
+					sideTekster.push(tc.items.map((x) => x.str).join(' '));
 					if (død) return;
 					bilder.push(c.toDataURL('image/jpeg', 0.85));
 				}
-				if (!død) pdfSideBilder = bilder;
+				if (!død) {
+					pdfSideBilder = bilder;
+					// kartlegg avsnittstitler til sidenummer (brukes av Avsnitt-listen i høyremenyen)
+					const kart = {};
+					(app.current?.sections ?? []).forEach((sec, i) => {
+						const t = (sec.title || '').replace(/\s+/g, ' ').trim();
+						if (t.length < 2) return;
+						const idx = sideTekster.findIndex((txt) => txt.replace(/\s+/g, ' ').includes(t));
+						if (idx >= 0) kart[i] = idx + 1;
+					});
+					window.__eksSecSider = kart;
+				}
 			} catch (e) {
 				if (!død) { console.error('Forhåndsvisning feilet:', e); pdfSideBilder = []; }
 			}
@@ -482,31 +496,26 @@
 
 		<div class="eks-baand">
 			<div class="eks-baand-gruppe">
-				<div class="eks-baand-rad">
-					<label class="eks-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A4'} onchange={() => setInnst('storrelse', 'A4')} /> A4</label>
-					<label class="eks-chk"><input type="radio" name="st" checked={getInnst('storrelse', 'A5') === 'A5'} onchange={() => setInnst('storrelse', 'A5')} /> A5</label>
-					<label class="eks-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 1} onchange={() => setInnst('kolonner', 1)} /> 1 kol.</label>
-					<label class="eks-chk"><input type="radio" name="ko" checked={getInnst('kolonner', 1) === 2} onchange={() => setInnst('kolonner', 2)} /> 2 kol.</label>
-					<label class="eks-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Hefte</label>
-				</div>
+				<select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
+					<option value="A4">A4</option>
+					<option value="A5">A5</option>
+				</select>
+				<select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}>
+					<option value="1">1 kolonne</option>
+					<option value="2">2 kolonner</option>
+				</select>
+				<label class="eks-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Hefte</label>
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-chk-pt">Hov. <input type="number" min="6" max="20" step="0.5" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
-					<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="0.5" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
-					<label class="eks-chk-pt">Tekst <input type="number" min="6" max="20" step="0.5" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /></label>
+					<label class="eks-chk-pt">Hov. <input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
+					<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
+					<label class="eks-chk-pt">Tekst <input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /></label>
 					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10,5 pt)" onclick={nullstillSkrift}>↺</button>
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
-				<div class="eks-baand-rad">
-					<label class="eks-chk"><input type="checkbox" bind:checked={visInnhold} /> Leddinnhold</label>
-					<div class="eks-zoom">
-						<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
-						<span>{Math.round(zoomNivå * 100)} %</span>
-						<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
-					</div>
-				</div>
+				<label class="eks-chk"><input type="checkbox" bind:checked={visInnhold} /> Leddinnhold</label>
 			</div>
 		</div>
 		<div class="eksport-kolonner">
@@ -569,8 +578,8 @@
 				{/each}
 			</div>
 
-			<div id="eks-forhvisning" use:pinnehendelse>
-				<div class="eks-forh-inner" style="width: {250 * zoomNivå}px">
+			<div id="eks-forhvisning">
+				<div class="eks-forh-inner" use:pinnehendelse>
 				{#if pdfSideBilder.length === 0}
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
@@ -581,6 +590,11 @@
 						</div>
 					{/each}
 				{/if}
+				</div>
+				<div class="eks-flyt-zoom">
+					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
+					<span>{Math.round(zoomNivå * 100)} %</span>
+					<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
 				</div>
 			</div>
 		</div>
