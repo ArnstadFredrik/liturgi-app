@@ -16,7 +16,7 @@
 
 	// mac-menylinjen: dokumenthandlinger av/på etter tilstand
 	$effect(() => {
-		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false });
+		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath });
 	});
 
 	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)

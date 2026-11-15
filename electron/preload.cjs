@@ -42,6 +42,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	isElectron: true,
 	platform: process.platform, // 'darwin' | 'win32' | 'linux'
 	setNativeTheme: (t) => ipcRenderer.send('tema:naativ', t),
+	apneMappe: (p) => ipcRenderer.invoke('apne:mappe', p),
 	onMenyHandling: (cb) => ipcRenderer.on('meny:handling', (_e, id) => cb(id)),
 	sendMenyTilstand: (st) => ipcRenderer.send('app:meny-tilstand', st),
 });
