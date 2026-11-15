@@ -5,6 +5,16 @@
 	import { lookupKirkeaar, hentTekster, kirkeaarDager } from '$lib/kirkeaar.js';
 
 	const m = $derived(app.modal);
+	// debug (fjernes når mal-velger-feilen er løst)
+	if (typeof window !== 'undefined') {
+		window.__modalDebug = {
+			get nyType() { return nyType; },
+			get malerForTypeAntall() { return malerForType.length; },
+			get malerForTypeNavne() { return malerForType.map((t) => t.name); },
+			get appTplAntall() { return app.templates.length; },
+				get appMaler() { return app.templates.map((t) => ({ navn: t.name, liturgiType: t.liturgiType ?? null, malType: malType(t) })); }
+		};
+	}
 	let name = $state('');
 	let date = $state('');
 	let tplId = $state('');
@@ -15,10 +25,19 @@
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
-		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
+		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudtjeneste');
 	}
 
-	const malerForType = $derived(app.templates.filter((t) => malType(t) === nyType));
+	let malerForType = $state([]);
+	// NB: $derived-var her stale i Svelte 5 når app.templates erstattes fra fileio
+	// (modal-forekomsten montert før mal-lasten) — $effect holder listen synkronisert
+	$effect(() => {
+		const detaljer = app.templates.map((t) => { const mtv = malType(t); return { navn: t.name, mtLen: mtv.length, mtChars: [...mtv].map((c) => c.codePointAt(0)), eq: mtv === nyType, nyTypeLen: nyType.length }; });
+		const filtrert = app.templates.filter((t) => String(malType(t)) === String(nyType));
+		console.log('[malerFilter] nyType.length=', nyType.length, 'chars=', [...nyType].map((ch) => ch.codePointAt(0)));
+		window.__malerFilter = { templates: app.templates.length, nyTypeLen: nyType.length, nyTypeChars: [...nyType].map((ch) => ch.codePointAt(0)), resultat: filtrert.length, detaljer };
+		malerForType = filtrert;
+	});
 
 	// sørg for at valgt mal passer typen når type byttes
 	$effect(() => {
@@ -49,7 +68,7 @@
 		if (m?.type === 'newService') {
 			if (m.preserve) {
 				// tilbake etter manuell kirkeårsdag-valg: gjenopprett feltene
-				nyType = m.preserve.type ?? 'gudstjeneste';
+				nyType = m.preserve.type ?? 'gudtjeneste';
 				name = m.preserve.name;
 				date = m.preserve.date;
 				tplId = m.preserve.tplId;
@@ -225,7 +244,7 @@
 				if (app.modal === forrige) closeModal();
 			};
 			// vent på at tekstepplaget er ferdig (maks 6 s) før opprettelse
-			if (nyType === 'gudstjeneste' && kirkeaar && teksterStatus === 'laster') {
+			if (nyType === 'gudtjeneste' && kirkeaar && teksterStatus === 'laster') {
 				const t0 = Date.now();
 				const vent = () => {
 					if (teksterStatus !== 'laster' || Date.now() - t0 > 6000) opprett();
@@ -290,7 +309,7 @@
 							{#if manuellK}<button class="link-btn" onclick={nullstillKirkeaar} title="Bruk datoens kirkeårsdag">tilbakestill</button>{/if}</p>
 						{#if teksterStatus === 'laster'}<p class="m-kirkeaar muted">Henter bibeltekster …</p>
 						{:else if teksterStatus === 'feil'}<p class="m-kirkeaar muted">Klarte ikke hente bibeltekstene – kun referanser fylles inn.</p>
-						{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudstjenesten.</p>
+						{:else if teksterStatus === 'ok' && !manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes inn i gudtjenesten.</p>
 						{:else if teksterStatus === 'ok' && manuellK}<p class="m-kirkeaar muted">✓ Bibeltekstene hentes for den valgte kirkeårsdagen.</p>
 						{/if}
 					{:else if date}
@@ -334,7 +353,7 @@
 				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">
-					Søk i hovedgudstjenesten
+					Søk i hovedgudtjenesten
 					<input bind:value={bibQ} oninput={() => bibSok(bibQ)} placeholder='F.eks. «forbønn», «velsignelse» …' spellcheck="false" />
 				</label>
 				{#if !bibGrupper.length}
