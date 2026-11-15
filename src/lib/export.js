@@ -57,11 +57,11 @@ function roleSegments(text) {
 	const out = [];
 	let red = false;
 	let small = false;
-	const push = (t, r, s, bo, it, sp) => {
+	const push = (t, r, s, bo, it, sp, mdH) => {
 		if (t === '') return;
 		const last = out.at(-1);
-		if (last && !!last.red === !!r && !!last.small === !!s && !!last.bold === !!bo && !!last.italics === !!it && !!last.sup === !!sp) last.text += t;
-		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it, sup: !!sp });
+		if (last && !!last.red === !!r && !!last.small === !!s && !!last.bold === !!bo && !!last.italics === !!it && !!last.sup === !!sp && !!last.mdH === !!mdH) last.text += t;
+		else out.push({ text: t, red: r, small: !!s, bold: !!bo, italics: !!it, sup: !!sp, mdH: !!mdH });
 	};
 	/** Del tekst på ^{N}-versnummer og inline-markdown; sup-fragmenter merkes med sup. */
 	const pushInline = (part, r, s, bo, itBase) => {
@@ -111,7 +111,8 @@ function roleSegments(text) {
 			const hd = rest.match(/^#{1,2} ?(.+)$/);
 			if (hd) {
 				extraBold = true;
-				push(hd[1].replace(/\*\*([^*]+)\*\*/g, '$1').replace(/(^|[^*])\*([^*]+)\*/g, '$1$2'), red, false, true, false);
+				// mdH: visningens .md-h (sans, fet) — Word/PDF bruker sans for disse
+				push(hd[1].replace(/\*\*([^*]+)\*\*/g, '$1').replace(/(^|[^*])\*([^*]+)\*/g, '$1$2'), red, false, true, false, false, true);
 				small = false;
 				return;
 			}
@@ -253,16 +254,28 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			continue;
 		}
 		// brødtekst: Times 10,5 pt, linjeavstand som PDF-en (size*0.48+1,1 mm ≈ 17,4 pt)
-		paras.push(new Paragraph({
-			children: roleSegments(p.text).map((s) =>
-				new TextRun({
-					text: s.text, italics: !!s.italics,
+		// linjeskift: '\n'-segmentene fra roleSegments blir EKTE linjeskift (break) —
+		// docx viser ellers rå \n som mellomrom, så avsnittene i visningen forsvinner
+		const runs = [];
+		for (const s of roleSegments(p.text)) {
+			// '\n' ligger ofte inni et tekstrun (push konsoliderer) — splitt og bruk
+			// ekte linjeskift (break), ellers viser Word rå \n som mellomrom
+			const deler = s.text.split('\n');
+			deler.forEach((d, i) => {
+				if (i > 0) runs.push(new TextRun({ text: '', break: 1 }));
+				if (!d) return;
+				runs.push(new TextRun({
+					text: d, italics: !!s.italics,
 					size: s.small ? 18 : 21,
-					font: SERIF,
+					font: s.mdH ? SANS : SERIF,
 					superScript: !!s.sup,
 					color: s.red ? ROLE_COLOR : s.small ? GRAY : BLACK,
 					bold: !!s.bold || (!!s.red && !s.small)
-				})),
+				}));
+			});
+		}
+		paras.push(new Paragraph({
+			children: runs,
 			spacing: { after: Math.round(3 * MM), line: 348 }
 		}));
 	}
@@ -439,7 +452,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		};
 		for (const seg of segs) {
 			const size = seg.small ? baseSize - 1.5 : baseSize;
-			doc.setFont('times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
+			doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
 			doc.setFontSize(size);
 			doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
 			const parts = seg.text.split('\n');
