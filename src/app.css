@@ -591,6 +591,8 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 .et-rik .et-linje[data-type='liste'] .md-li { display: inline; padding: 0; text-indent: 0; }
 .et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }
 .et-rik .et-linje[data-type='bibelref'] .chip, .et-rik .et-linje[data-type='fotnote'] .chip { color: var(--muted); }
+/* linjemerke-tag bak teksten (Notis/Bibelref): parentes, arver tekstens størrelse */
+.et-rik .chip.linje-tag { display: inline; padding: 0; border: none; background: none; font-size: inherit; line-height: inherit; color: var(--muted); }
 
 /* @NOTAT / @n — rød kursiv, litt mindre enn brødteksten */
 .notat, .lit-text .notat, .et-rik .notat { color: var(--role); font-style: italic; font-size: 0.92em; }

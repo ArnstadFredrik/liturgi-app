@@ -50,8 +50,12 @@
 	// pinch-to-zoom (trackpad) + dra for å panorere i visningen
 	// koblet rulling mellom venstre liste og forhåndsvisningen (kan slås av i menyen)
 	let kobletLås = 0;
+	// engangsflagg: den programmatiske scrollen skal ikke utløse tilbake-rulling
+	// (tids-lås alene sviktet ved scroll-momentum — siden "låste" seg fast)
+	let hoppOver = { liste: false, visning: false };
 	function fraForhvisning() {
 		if (!app.eksKoblet || Date.now() < kobletLås) return;
+		if (hoppOver.visning) { hoppOver.visning = false; return; }
 		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
 		const liste = document.querySelector('.eksport-liste');
 		if (!inner || !liste) return;
@@ -64,10 +68,11 @@
 		}
 		if (sec == null) return;
 		const hode = liste.querySelector(`.eksport-seksjon[data-sec="${sec}"]`);
-		if (hode) { kobletLås = Date.now() + 400; liste.scrollTop = Math.max(0, hode.offsetTop - liste.offsetTop - 6); }
+		if (hode) { hoppOver.liste = true; liste.scrollTop = Math.max(0, hode.offsetTop - liste.offsetTop - 6); }
 	}
 	function fraListe() {
 		if (!app.eksKoblet || Date.now() < kobletLås) return;
+		if (hoppOver.liste) { hoppOver.liste = false; return; }
 		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
 		const liste = document.querySelector('.eksport-liste');
 		if (!inner || !liste) return;
@@ -78,7 +83,7 @@
 		}
 		if (sec == null) return;
 		const el = inner.querySelectorAll('.eks-side')[window.__eksSecSider?.[sec] - 1];
-		if (el) { kobletLås = Date.now() + 400; inner.scrollTop = Math.max(0, el.offsetTop - inner.offsetTop - 8); }
+		if (el) { hoppOver.visning = true; inner.scrollTop = Math.max(0, el.offsetTop - inner.offsetTop - 8); }
 	}
 	function lenket(node) {
 		const h = () => (node.classList.contains('eksport-liste') ? fraListe : fraForhvisning)();

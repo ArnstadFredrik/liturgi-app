@@ -108,6 +108,62 @@
 		sistSer = ny;
 		value = ny;
 		if (dirty) markDirty();
+		planleggKonvertering();
+	}
+
+	/* ---------- live markdown-konvertering i riktekst ---------- */
+	// fullførte *kursiv*-/**fet**-blokker som skrives, konverteres til em/strong
+	// (debounced) med caret-gjenoppretting på samme visuelle posisjon
+	let konvTid = null;
+	function planleggKonvertering() {
+		clearTimeout(konvTid);
+		konvTid = setTimeout(() => {
+			if (!rikel) return;
+			const v = serialiser();
+			if (v == null) return;
+			// er det noe å konvertere (fullførte markdown-par som ikke allerede er em/strong)?
+			if (!/(^|[^*])\*[^*\n]+\*/.test(v) && !/\*\*[^*\n]+\*\*/.test(v)) return;
+			// lagre caret: linjeindeks + visuell tekst-offset i linjen (stabil før/etter)
+			const s = window.getSelection();
+			const caret = (() => {
+				if (!s || s.rangeCount === 0) return null;
+				const r = s.getRangeAt(0);
+				const le = ((n) => (n.nodeType === 3 ? n.parentElement : n))(r.startContainer)?.closest('.et-linje');
+				if (!le) return null;
+				const idx = [...rikel.children].indexOf(le);
+				const pre = document.createRange();
+				pre.selectNodeContents(le);
+				try { pre.setEnd(r.startContainer, r.startOffset); } catch { return { idx, off: 0 }; }
+				return { idx, off: pre.toString().length };
+			})();
+			html = litEditHtml(v);
+			sistSer = v;
+			// gjenopprett caret på samme visuelle posisjon i samme linje
+			if (caret && caret.idx >= 0 && rikel.children[caret.idx]) {
+				const le = rikel.children[caret.idx];
+				const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT);
+				let n, acc = 0, plassert = false;
+				while ((n = w.nextNode())) {
+					if (acc + n.textContent.length >= caret.off) {
+						const r = document.createRange();
+						r.setStart(n, Math.min(caret.off - acc, n.textContent.length));
+						r.collapse(true);
+						s.removeAllRanges();
+						s.addRange(r);
+						plassert = true;
+						break;
+					}
+					acc += n.textContent.length;
+				}
+				if (!plassert) {
+					const r = document.createRange();
+					r.selectNodeContents(le);
+					r.collapse(false);
+					s.removeAllRanges();
+					s.addRange(r);
+				}
+			}
+		}, 700);
 	}
 
 	/** Hindrer at skrevet tekst arver rolleformatering når utvalget bare BERØRER et
