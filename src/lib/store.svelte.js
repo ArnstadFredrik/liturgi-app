@@ -17,7 +17,7 @@ export const app = $state({
 	showRoles: true,
 	theme: 'dark', // 'light' | 'dark'
 	contextMenu: null, // {x, y, items: [{label, action, danger?} | 'sep']}
-	recentServices: [], // Electron: siste gudstjenestefiler på disk
+	recentServices: [], // Electron: siste gudtjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
@@ -110,7 +110,7 @@ function migrateItem(it) {
 export function newServiceFromTemplate(tpl, include) {
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
-		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
+		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudtjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec.title, include))
@@ -125,14 +125,14 @@ export function includeSection(title, include) {
 	return true;
 }
 
-/** Legg inn manglende deler fra malen i en eksisterende gudstjeneste, på riktig plass. */
+/** Legg inn manglende deler fra malen i en eksisterende gudtjeneste, på riktig plass. */
 export function insertSectionsFromTemplate(svc, titles) {
 	const tpl = app.templates.find((t) => t.id === svc.templateId);
 	if (!tpl) return;
 	for (const title of titles) {
 		const tsec = tpl.sections.find((s) => s.title === title);
 		if (!tsec || svc.sections.some((s) => s.title === title)) continue;
-		// finn innsettingspunkt: før første senere mal-del som finnes i gudstjenesten
+		// finn innsettingspunkt: før første senere mal-del som finnes i gudtjenesten
 		const tIdx = tpl.sections.indexOf(tsec);
 		let at = svc.sections.length;
 		for (let j = tIdx + 1; j < tpl.sections.length; j++) {
@@ -155,6 +155,14 @@ export function newBlankTemplate(name) {
 /** Electron: lokale maler som skal migreres fra localStorage til disk ved oppstart. */
 export let pendingLocalTemplates = [];
 
+// debug-vindu (ufarlig, brukes av CDP-verifisering)
+if (typeof window !== 'undefined') {
+	window.__liturgiDebug = {
+		get templates() { return app.templates.length; },
+		get malerListet() { return app.templates.map((t) => t.name); }
+	};
+}
+
 export function loadStore() {
 	if (isElectron) {
 		// maler: innebygde + lokale fra ~/.config/Liturgi/maler (lastes async av fileio)
@@ -176,7 +184,7 @@ export function loadStore() {
 		if (raw) {
 			const s = JSON.parse(raw);
 			app.templates = s.templates ?? [];
-			// Electron: gudstjenester bor som filer på disk, ikke i localStorage
+			// Electron: gudtjenester bor som filer på disk, ikke i localStorage
 			if (!isElectron) app.services = s.services ?? [];
 		}
 	} catch {
@@ -197,7 +205,7 @@ export function loadStore() {
 		seenIds.add(t.id);
 		return true;
 	});
-	// 3) dropp gudstjenester med duplisert id
+	// 3) dropp gudtjenester med duplisert id
 	const seenSvc = new Set();
 	app.services = app.services.filter((s) => {
 		if (seenSvc.has(s.id)) return false;
@@ -222,7 +230,7 @@ export function loadStore() {
 }
 
 export function persist() {
-	// Electron: maler bor på disk (~/.config/Liturgi/maler), gudstjenester som filer
+	// Electron: maler bor på disk (~/.config/Liturgi/maler), gudtjenester som filer
 	localStorage.setItem(
 		LS_KEY,
 		JSON.stringify(isElectron ? {} : { templates: app.templates, services: app.services })
@@ -239,7 +247,7 @@ export function markDirty() {
 	window.liturgi?.setDirty?.(true);
 }
 
-/** Finn «åpne gudstjenester»-oppføringen for et dokument (åpenId er stabil; identitet er det ikke). */
+/** Finn «åpne gudtjenester»-oppføringen for et dokument (åpenId er stabil; identitet er det ikke). */
 export function entryFor(obj) {
 	const id = obj?.__åpenId;
 	return app.åpneTjenester.find((x) => (id != null && x.åpenId === id) || x.obj === obj);
@@ -269,7 +277,7 @@ export function openTemplate(id) {
 }
 
 export function closeEditor() {
-	// fjern gudtjenesten fra «åpne gudstjenester» — alle lukkeveier går hit
+	// fjern gudtjenesten fra «åpne gudtjenester» — alle lukkeveier går hit
 	if (app.kind === 'service' && app.current) {
 		const e = entryFor(app.current);
 		if (e) app.åpneTjenester.splice(app.åpneTjenester.indexOf(e), 1);
@@ -294,7 +302,7 @@ export function deleteTemplate(id) {
 export function saveAsTemplate(name) {
 	const t = {
 		id: uid(), kind: 'template', name: name || app.current.name,
-		liturgiType: app.current.liturgiType ?? 'gudstjeneste',
+		liturgiType: app.current.liturgiType ?? 'gudtjeneste',
 		sections: JSON.parse(JSON.stringify(app.current.sections)).map((sec) => ({
 			title: sec.title,
 			items: sec.items.map((x) => ({
@@ -321,7 +329,7 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	s.date = date;
 	applyKirkeaar(s, kirkeaar, tekster);
 	if (isElectron) {
-		// gudstjenester lagres som fil — ligger i minnet til «Lagre»
+		// gudtjenester lagres som fil — ligger i minnet til «Lagre»
 		if (!s.__åpenId) Object.defineProperty(s, '__åpenId', { value: uid(), enumerable: false });
 		app.current = s;
 		app.kind = 'service';
@@ -348,7 +356,7 @@ export function formaterBønn(prayer) {
 	return lines.join('\n');
 }
 
-/** Fyll inn dagens bønn og bibeltekster fra kirkeåret i en ny gudstjeneste. */
+/** Fyll inn dagens bønn og bibeltekster fra kirkeåret i en ny gudtjeneste. */
 export function applyKirkeaar(svc, k, tekster) {
 	if (!k) return;
 	svc.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
