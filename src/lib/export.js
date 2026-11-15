@@ -362,9 +362,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const skriftSkala = { hoveddel: 1, ledd: 1, tekst: 1, ...(valg.skriftSkala ?? {}) }; // manuell fontjustering (forhåndsvisning + eksport)
 	const a5 = valg.storrelse === 'A5';
 	const hefte = !!valg.hefte;
+	const marger = valg.marger ?? (hefte ? 'smal' : 'normal');
 	const mm = { w: a5 ? 148 : 210, h: a5 ? 210 : 297 };
 	const doc = new jsPDF({ unit: 'mm', format: [mm.w, mm.h] });
-	const margin = hefte ? 10 : 15;
+	const margin = marger === 'smal' ? 10 : marger === 'bred' ? 20 : 15;
 	const kolonner = valg.kolonner === 2 ? 2 : 1;
 	const colGap = hefte ? 4 : 6;
 	const colW = (mm.w - margin * 2 - colGap * (kolonner - 1)) / kolonner;

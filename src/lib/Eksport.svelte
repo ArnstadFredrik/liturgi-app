@@ -17,7 +17,7 @@
 	let egneProfiler = $state([]);   // egendefinerte profilnavn (i databasen)
 	let aktiv = $state('Prest');
 	let valg = $state({});           // per profil per dokument: { nokkel: bool }
-	let visInnhold = $state(false);
+	let visInnhold = $derived(app.eksVisInnhold);
 	let formater = $state({ word: true, pptx: false, pdf: false });
 	let appFormater = $state({ word: true, pptx: false, pdf: false }); // app-standard (DB)
 	let tomSlide = $state(false);
@@ -136,7 +136,7 @@
 		let død = false;
 		(async () => {
 			try {
-				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), hefte: getInnst('hefte', aktiv === 'Menighet'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
+				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 				const kopi = klonMedValg(o, aktiv);
 				const { doc } = buildPdfBase64(kopi, true, valg);
 				const mod = await import('pdfjs-dist');
@@ -443,7 +443,7 @@
 							const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
 						storrelse: getInnst('storrelse', 'A5'),
 						kolonner: getInnst('kolonner', 1),
-						hefte: getInnst('hefte', aktiv === 'Menighet'),
+						marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'),
 						tittel: getInnst('tittel', true)
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
@@ -504,7 +504,11 @@
 					<option value="1">1 kolonne</option>
 					<option value="2">2 kolonner</option>
 				</select>
-				<label class="eks-chk"><input type="checkbox" checked={getInnst('hefte', aktiv === 'Menighet')} onchange={(e) => setInnst('hefte', e.currentTarget.checked)} /> Hefte</label>
+				<select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF">
+					<option value="bred">Bred marg</option>
+					<option value="normal">Normal marg</option>
+					<option value="smal">Smal marg</option>
+				</select>
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
@@ -515,7 +519,7 @@
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
-				<label class="eks-chk"><input type="checkbox" bind:checked={visInnhold} /> Leddinnhold</label>
+				<label class="eks-chk"><input type="checkbox" checked={app.eksVisInnhold} onchange={(e) => { app.eksVisInnhold = e.currentTarget.checked; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }} /> Leddinnhold</label>
 			</div>
 		</div>
 		<div class="eksport-kolonner">
@@ -530,7 +534,7 @@
 					</div>
 				{/if}
 				{#each o.sections as sec, si (si)}
-					<div class="sidehead eksport-seksjon">{sec.title}</div>
+					<div class="sidehead eksport-seksjon" data-sec={si}>{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
 						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}>
 							{#if it.enabled === false}

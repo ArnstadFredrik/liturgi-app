@@ -23,6 +23,7 @@ export const app = $state({
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar avsnittsliste (TOC)
+	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	modal: null
 });
 
@@ -55,6 +56,8 @@ export function setTheme(t) {
 }
 
 export function initTheme() {
+	// eksport-visning: gjenopprett «Vis leddinnhold» fra forrige økt
+	try { app.eksVisInnhold = localStorage.getItem('eks-visInnhold') === '1'; } catch {}
 	const saved = localStorage.getItem(THEME_KEY);
 	const t = saved ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 	setTheme(t);

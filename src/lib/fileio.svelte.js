@@ -708,6 +708,7 @@ if (typeof window !== 'undefined') {
 			case 'lagre-som': saveCurrentToFile(); break;
 			case 'lagre-som-mal': lagreSomMalFraMeny(); break;
 			case 'eksport': app.visning = 'eksport'; break;
+			case 'vis-leddinnhold': app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} break;
 			case 'lukk-dok': lukkRedigering(); break;
 			case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
 			case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
