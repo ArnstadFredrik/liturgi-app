@@ -252,6 +252,8 @@ function parseLiturgi(raw) {
 		const data = parsed?.liturgiFormat ? parsed.data : parsed;
 		if (!data || !Array.isArray(data.sections)) return null;
 		delete data.__dirty; // gamle filer kan ha flagget bakt inn — åpnes alltid rent
+		// normaliser gammel skrivemåte: liturgiType 'gudtjeneste' (uten s) → 'gudstjeneste'
+		if (data.liturgiType === 'gudtjeneste') data.liturgiType = 'gudstjeneste';
 		return data;
 	} catch {
 		return null;
@@ -681,7 +683,7 @@ listenForFinderOpen();
 listenForSaveThenClose();
 
 // ---------- mac-menylinjen: handlinger fra toppmenyen ----------
-function nyGudtjenesteFraMeny(type = 'gudtjeneste') {
+function nyGudtjenesteFraMeny(type = 'gudstjeneste') {
 	if (!app.templates.length) { toast.error('Ingen maler å base ny gudstjeneste på'); return; }
 	newServiceModal((name, date, tplId, include, kirkeaar, tekster) => {
 		createService(name, date, tplId, include, kirkeaar, tekster);
@@ -702,7 +704,7 @@ function lagreSomMalFraMeny() {
 /** Kjør en meny-handling (brukes av mac-menyen og Cmd+K-kommandopaletten). */
 export function kjorMenyId(id) {
 	switch (id) {
-		case 'ny-gudtjeneste': nyGudtjenesteFraMeny(); break;
+		case 'ny-gudstjeneste': nyGudtjenesteFraMeny(); break;
 		case 'ny-gravferd': nyGudtjenesteFraMeny('gravferd'); break;
 		case 'apne-fil': openFileToStore(); break;
 		case 'lagre': saveCurrent(); break;

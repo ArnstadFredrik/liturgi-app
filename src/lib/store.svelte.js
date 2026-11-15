@@ -110,7 +110,7 @@ function migrateItem(it) {
 export function newServiceFromTemplate(tpl, include) {
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
-		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudtjeneste'),
+		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec.title, include))
@@ -155,13 +155,6 @@ export function newBlankTemplate(name) {
 /** Electron: lokale maler som skal migreres fra localStorage til disk ved oppstart. */
 export let pendingLocalTemplates = [];
 
-// debug-vindu (ufarlig, brukes av CDP-verifisering)
-if (typeof window !== 'undefined') {
-	window.__liturgiDebug = {
-		get templates() { return app.templates.length; },
-		get malerListet() { return app.templates.map((t) => t.name); }
-	};
-}
 
 export function loadStore() {
 	if (isElectron) {
@@ -302,7 +295,7 @@ export function deleteTemplate(id) {
 export function saveAsTemplate(name) {
 	const t = {
 		id: uid(), kind: 'template', name: name || app.current.name,
-		liturgiType: app.current.liturgiType ?? 'gudtjeneste',
+		liturgiType: app.current.liturgiType ?? 'gudstjeneste',
 		sections: JSON.parse(JSON.stringify(app.current.sections)).map((sec) => ({
 			title: sec.title,
 			items: sec.items.map((x) => ({

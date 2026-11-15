@@ -5,38 +5,31 @@
 	import { lookupKirkeaar, hentTekster, kirkeaarDager } from '$lib/kirkeaar.js';
 
 	const m = $derived(app.modal);
-	// debug (fjernes når mal-velger-feilen er løst)
-	if (typeof window !== 'undefined') {
-		window.__modalDebug = {
-			get nyType() { return nyType; },
-			get malerForTypeAntall() { return malerForType.length; },
-			get malerForTypeNavne() { return malerForType.map((t) => t.name); },
-			get appTplAntall() { return app.templates.length; },
-				get appMaler() { return app.templates.map((t) => ({ navn: t.name, liturgiType: t.liturgiType ?? null, malType: malType(t) })); }
-		};
-	}
-	let name = $state('');
-	let date = $state('');
-	let tplId = $state('');
-	let medDåp = $state(true);
-	let medNattverd = $state(true);
-	let nyType = $state(app.modal?.forhåndsvalgtType ?? 'gudtjeneste'); // 'gudtjeneste' | 'gravferd'
+	// Alle felt settes i $state-INIT: +page keyer <Modal /> på type+id, så komponenten
+	// remountes (fersk init) ved HVER modal-åpning. $effect-åpningen lenger ned kjørte
+	// upålitelig (dato ble aldri satt) — init garanterer ferske felt.
+	const mInit = app.modal;
+	const isNS = mInit?.type === 'newService';
+	const pres = isNS ? (mInit.preserve ?? null) : null;
+	const forhType = pres?.type ?? mInit?.forhåndsvalgtType ?? 'gudstjeneste';
+	let name = $state(isNS ? (pres?.name ?? '') : (mInit?.def ?? ''));
+	let date = $state(isNS ? (pres?.date ?? nextSundayISO()) : (mInit?.dato ?? ''));
+	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType)?.id ?? '') : '');
+	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
+	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
+	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
 	let jordpaa = $state('graven'); // gravferd: 'graven' | 'krematorium'
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
-		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudtjeneste');
+		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
 	}
 
 	let malerForType = $state([]);
 	// NB: $derived-var her stale i Svelte 5 når app.templates erstattes fra fileio
 	// (modal-forekomsten montert før mal-lasten) — $effect holder listen synkronisert
 	$effect(() => {
-		const detaljer = app.templates.map((t) => { const mtv = malType(t); return { navn: t.name, mtLen: mtv.length, mtChars: [...mtv].map((c) => c.codePointAt(0)), eq: mtv === nyType, nyTypeLen: nyType.length }; });
-		const filtrert = app.templates.filter((t) => String(malType(t)) === String(nyType));
-		console.log('[malerFilter] nyType.length=', nyType.length, 'chars=', [...nyType].map((ch) => ch.codePointAt(0)));
-		window.__malerFilter = { templates: app.templates.length, nyTypeLen: nyType.length, nyTypeChars: [...nyType].map((ch) => ch.codePointAt(0)), resultat: filtrert.length, detaljer };
-		malerForType = filtrert;
+		malerForType = app.templates.filter((t) => malType(t) === nyType);
 	});
 
 	// sørg for at valgt mal passer typen når type byttes
@@ -51,7 +44,12 @@
 	let kirkeaar = $state(null);
 	let tekster = $state(null);
 	let teksterStatus = $state('');
-	let manuellK = $state(null);
+	let manuellK = $state(pres?.kirkeaar ?? null);
+	// init: slå opp kirkeårsdag for startdatoen direkte ($effect first-run ved
+	// remount kjørte upålitelig i Svelte 5 — change-eventene dekkes fortsatt av
+	// $effect-en lenger ned)
+
+
 	// bibliotek-søk
 	let bibQ = $state('');
 	let bibValgt = $state(-1);
@@ -68,7 +66,7 @@
 		if (m?.type === 'newService') {
 			if (m.preserve) {
 				// tilbake etter manuell kirkeårsdag-valg: gjenopprett feltene
-				nyType = m.preserve.type ?? 'gudtjeneste';
+				nyType = m.preserve.type ?? 'gudstjeneste';
 				name = m.preserve.name;
 				date = m.preserve.date;
 				tplId = m.preserve.tplId;
@@ -80,7 +78,7 @@
 				// NB: les forhåndsvalgtType inn i en LOKAL variabel — leser vi nyType her
 				// blir den en dependency av effekten, og type-bytt-klikk re-triggere
 				// effekten som da RESETTER typen tilbake (type-knappene virket ikke)
-				const forhType = m.forhåndsvalgtType ?? 'gudtjeneste';
+				const forhType = m.forhåndsvalgtType ?? 'gudstjeneste';
 				nyType = forhType;
 				jordpå = 'graven';
 				name = '';
@@ -166,11 +164,14 @@
 		bibAltValgt = 0;
 		}
 
-	// slå opp kirkeårsdag når datoen endres i ny-gudtjeneste-modalen
+	// slå opp kirkeårsdag når datoen endres i ny-gudstjeneste-modalen
 	// (manuelt valgt dag har forrang inntil den nullstilles)
 	let teksterReq = 0;
+	// init: slå opp kirkeårsdag for startdatoen direkte ($effect first-run ved remount
+	// kjørte upålitelig i Svelte 5 — dato-endringer dekkes fortsatt av $effect-en under)
+	if (isNS && !pres?.kirkeaar && forhType === 'gudstjeneste') autoKirkeaar();
 	$effect(() => {
-		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudtjeneste') autoKirkeaar();
+		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudstjeneste') autoKirkeaar();
 	});
 
 	// navneforslag «gudstjeneste - [Kirkeårsdag]»: BRUKES IKKE Lenger som live-forslag
@@ -248,7 +249,7 @@
 				if (app.modal === forrige) closeModal();
 			};
 			// vent på at tekstepplaget er ferdig (maks 6 s) før opprettelse
-			if (nyType === 'gudtjeneste' && kirkeaar && teksterStatus === 'laster') {
+			if (nyType === 'gudstjeneste' && kirkeaar && teksterStatus === 'laster') {
 				const t0 = Date.now();
 				const vent = () => {
 					if (teksterStatus !== 'laster' || Date.now() - t0 > 6000) opprett();
@@ -286,7 +287,7 @@
 				</label>
 			{:else if m.type === 'newService'}
 				<div class="m-type">
-					<button type="button" class={nyType === 'gudtjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudtjeneste'; }}>Gudstjeneste</button>
+					<button type="button" class={nyType === 'gudstjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudstjeneste'; }}>Gudstjeneste</button>
 					<button type="button" class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gravferd'; }}>Gravferd</button>
 				</div>
 				<label>
@@ -303,10 +304,10 @@
 				</label>
 				<label>
 					Dato
-					<input type="date" bind:value={date} />
+					<input type="date" value={date} onchange={(e) => { date = e.currentTarget.value; manuellK = null; }} />
 				</label>
 				{#key nyType}
-					{#if nyType === 'gudtjeneste'}
+					{#if nyType === 'gudstjeneste'}
 					{#if kirkeaar}
 						<p class="m-kirkeaar">☀️ {kirkeaar.name}{#if kirkeaar.color}&nbsp;· {kirkeaar.color}{/if}
 							<button class="link-btn" onclick={manuellKirkeaar}>endre …</button>
