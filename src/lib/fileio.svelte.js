@@ -699,26 +699,29 @@ function lagreSomMalFraMeny() {
 	}
 }
 
+/** Kjør en meny-handling (brukes av mac-menyen og Cmd+K-kommandopaletten). */
+export function kjorMenyId(id) {
+	switch (id) {
+		case 'ny-gudtjeneste': nyGudtjenesteFraMeny(); break;
+		case 'apne-fil': openFileToStore(); break;
+		case 'lagre': saveCurrent(); break;
+		case 'lagre-som': saveCurrentToFile(); break;
+		case 'lagre-som-mal': lagreSomMalFraMeny(); break;
+		case 'eksport': app.visning = 'eksport'; break;
+		case 'vis-leddinnhold': app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} break;
+		case 'koblet-visning': app.eksKoblet = !app.eksKoblet; try { localStorage.setItem('eks-koblet', app.eksKoblet ? '1' : '0'); } catch {} break;
+		case 'apne-mappe': if (app.current?.filePath) window.liturgi?.apneMappe?.(app.current.filePath); break;
+		case 'lukk-dok': lukkRedigering(); break;
+		case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
+		case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
+		case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
+		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
+		case 'veksle-sidebar': veksleSidebar(); break;
+		case 'veksle-toc': veksleToc(); break;
+		case 'tema': toggleTheme(); break;
+	}
+}
+
 if (typeof window !== 'undefined') {
-	window.liturgi?.onMenyHandling?.((id) => {
-		switch (id) {
-			case 'ny-gudtjeneste': nyGudtjenesteFraMeny(); break;
-			case 'apne-fil': openFileToStore(); break;
-			case 'lagre': saveCurrent(); break;
-			case 'lagre-som': saveCurrentToFile(); break;
-			case 'lagre-som-mal': lagreSomMalFraMeny(); break;
-			case 'eksport': app.visning = 'eksport'; break;
-			case 'vis-leddinnhold': app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} break;
-			case 'koblet-visning': app.eksKoblet = !app.eksKoblet; try { localStorage.setItem('eks-koblet', app.eksKoblet ? '1' : '0'); } catch {} break;
-			case 'apne-mappe': if (app.current?.filePath) window.liturgi?.apneMappe?.(app.current.filePath); break;
-			case 'lukk-dok': lukkRedigering(); break;
-			case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
-			case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
-			case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
-			case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
-			case 'veksle-sidebar': veksleSidebar(); break;
-			case 'veksle-toc': veksleToc(); break;
-			case 'tema': toggleTheme(); break;
-		}
-	});
+	window.liturgi?.onMenyHandling?.((id) => kjorMenyId(id));
 }
