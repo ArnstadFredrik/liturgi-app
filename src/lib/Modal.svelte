@@ -62,8 +62,9 @@
 				jordpaa = 'graven';
 				name = '';
 				date = nextSundayISO();
-				// mal velges av type-synk-effekten (leser ikke nyType her, slik at typebytte ikke kjører denne effekten på nytt)
-				tplId = app.templates[0]?.id ?? '';
+				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
+				// en gravferdsmal — originalene lastes først og rekkefølgen er ikke garantert)
+				tplId = (app.templates.find((t) => malType(t) === nyType))?.id ?? '';
 				medDåp = true;
 				medNattverd = true;
 				manuellK = null;
