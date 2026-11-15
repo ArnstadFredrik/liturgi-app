@@ -28,6 +28,13 @@
 	}
 
 	function gotoSec(i) {
+		// i eksportmodulen ruller Avsnitt-listen forhåndsvisningen til seksjonens side
+		if (document.querySelector('#eksport-side')) {
+			const side = window.__eksSecSider?.[i];
+			const el = document.querySelector('#eks-forhvisning .eks-forh-inner')?.querySelectorAll('.eks-side')[side - 1];
+			el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			return;
+		}
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		document.getElementById('sec-' + i)?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
 	}
