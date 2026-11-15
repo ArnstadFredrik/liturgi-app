@@ -1040,7 +1040,7 @@ export const BUILTIN_TEMPLATES = [
 					"type": "instruks",
 					"heading": "DÅP",
 					"text": "",
-					"instr": "Dåp i hovedgudtjenesten skjer normalt her. Forbered dåpsvann, dåpslys og verger.",
+					"instr": "Dåp i hovedgudstjenesten skjer normalt her. Forbered dåpsvann, dåpslys og verger.",
 					"alts": [],
 					"optional": false,
 					"enabled": false

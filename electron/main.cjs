@@ -357,7 +357,7 @@ ipcMain.on('tema:naativ', (_e, t) => {
 	nativeTheme.themeSource = t === 'dark' ? 'dark' : 'light';
 });
 
-// «Åpne mappe»: vis gudtjenestefilen i Finder
+// «Åpne mappe»: vis gudstjenestefilen i Finder
 ipcMain.handle('apne:mappe', (_e, p) => {
 	if (typeof p === 'string' && p) shell.showItemInFolder(p);
 });
@@ -421,7 +421,7 @@ function byggMeny(win, st = {}) {
 		{
 			label: 'Fil',
 			submenu: [
-				{ label: 'Ny gudtjeneste …', accelerator: 'CmdOrCtrl+N', click: () => send('ny-gudtjeneste') },
+				{ label: 'Ny gudstjeneste …', accelerator: 'CmdOrCtrl+N', click: () => send('ny-gudstjeneste') },
 			{ label: 'Ny gravferd …', accelerator: 'CmdOrCtrl+Shift+G', click: () => send('ny-gravferd') },
 				{ label: 'Åpne fil …', accelerator: 'CmdOrCtrl+O', click: () => send('apne-fil') },
 				{ type: 'separator' },
@@ -458,7 +458,7 @@ function byggMeny(win, st = {}) {
 			]
 		},
 		{
-			label: 'Gudtjeneste',
+			label: 'Gudstjeneste',
 			submenu: [
 				{ label: 'Eksport …', accelerator: 'CmdOrCtrl+E', enabled: dok && erTjeneste, click: () => send('eksport') },
 				{ label: 'Vis leddinnhold', type: 'checkbox', checked: !!st.visInnhold, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('vis-leddinnhold') },

@@ -432,7 +432,7 @@
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
-				// «Fjern fra gudtjenesten» i kontekstmenyen gjelder også for eksport
+				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
 				if (original && original.enabled === false) { it.enabled = false; return; }
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
@@ -616,7 +616,7 @@
 				{#if o.kind === 'service'}
 					<div class="sidehead eksport-seksjon">Tittel</div>
 					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
-						<input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} title="Gudtjenestenavn og dato med i eksporten" />
+						<input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} title="gudstjenestenavn og dato med i eksporten" />
 						<div class="eksport-rad-tekst">
 							<span class="eksport-rad-nm">{o.name}{o.date ? ' · ' + datoTekst : ''}</span>
 						</div>

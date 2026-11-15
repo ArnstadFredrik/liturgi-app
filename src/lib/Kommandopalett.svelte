@@ -10,7 +10,7 @@
 
 	// samme handlinger som mac-menylinjen
 	const kommandoer = [
-		{ id: 'ny-gudtjeneste', navn: 'Ny gudtjeneste …', kategori: 'Fil', taster: '⌘N', enabled: () => true, kjor: () => kjorMenyId('ny-gudtjeneste') },
+		{ id: 'ny-gudstjeneste', navn: 'Ny gudstjeneste …', kategori: 'Fil', taster: '⌘N', enabled: () => true, kjor: () => kjorMenyId('ny-gudstjeneste') },
 		{ id: 'ny-gravferd', navn: 'Ny gravferd …', kategori: 'Fil', taster: '⇧⌘G', enabled: () => true, kjor: () => kjorMenyId('ny-gravferd') },
 		{ id: 'apne-fil', navn: 'Åpne fil …', kategori: 'Fil', taster: '⌘O', enabled: () => true, kjor: () => kjorMenyId('apne-fil') },
 		{ id: 'lagre', navn: 'Lagre', kategori: 'Fil', taster: '⌘S', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre') },
@@ -21,10 +21,10 @@
 		{ id: 'maler', navn: 'Maler', kategori: 'Gå til', taster: '⌘2', enabled: () => true, kjor: () => kjorMenyId('maler') },
 		{ id: 'bibliotek', navn: 'Bibliotek', kategori: 'Gå til', taster: '⌘3', enabled: () => true, kjor: () => kjorMenyId('bibliotek') },
 		{ id: 'innstillinger', navn: 'Innstillinger', kategori: 'Gå til', taster: '⌘,', enabled: () => true, kjor: () => kjorMenyId('innstillinger') },
-		{ id: 'eksport', navn: 'Eksport', kategori: 'Gudtjeneste', taster: '⌘E', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('eksport') },
-		{ id: 'vis-leddinnhold', navn: 'Vis leddinnhold (eksport)', kategori: 'Gudtjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('vis-leddinnhold') },
-		{ id: 'koblet-visning', navn: 'Koblet visning (eksport)', kategori: 'Gudtjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('koblet-visning') },
-		{ id: 'apne-mappe', navn: 'Åpne mappe (vis filen i Finder)', kategori: 'Gudtjeneste', taster: '', enabled: () => !!app.current?.filePath, kjor: () => kjorMenyId('apne-mappe') },
+		{ id: 'eksport', navn: 'Eksport', kategori: 'Gudstjeneste', taster: '⌘E', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('eksport') },
+		{ id: 'vis-leddinnhold', navn: 'Vis leddinnhold (eksport)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('vis-leddinnhold') },
+		{ id: 'koblet-visning', navn: 'Koblet visning (eksport)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('koblet-visning') },
+		{ id: 'apne-mappe', navn: 'Åpne mappe (vis filen i Finder)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current?.filePath, kjor: () => kjorMenyId('apne-mappe') },
 		{ id: 'veksle-sidebar', navn: 'Vis/skjul sidemenyen', kategori: 'Visning', taster: '⌘\\', enabled: () => true, kjor: () => veksleSidebar() },
 		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘\\', enabled: () => true, kjor: () => veksleToc() },
 		{ id: 'tema', navn: app.theme === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => toggleTheme() }

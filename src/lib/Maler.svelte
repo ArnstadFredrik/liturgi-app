@@ -70,7 +70,7 @@
 <div id="maler-side">
 	<h2>Maler</h2>
 	<p class="maler-ingress">
-		Originalmalene («Ordning for hovedgudtjenesten») følger med appen og kan ikke slettes.
+		Originalmalene («Ordning for hovedgudstjenesten») følger med appen og kan ikke slettes.
 		Endrer du en original utover å velge alternativer, lagres endringene som en kopi i brukermaler.
 	</p>
 
