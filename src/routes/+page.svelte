@@ -16,7 +16,7 @@
 
 	// mac-menylinjen: dokumenthandlinger av/på etter tilstand
 	$effect(() => {
-		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold });
+		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false });
 	});
 
 	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)
@@ -31,13 +31,11 @@
 		// i eksportmodulen ruller Avsnitt-listen forhåndsvisningen til seksjonens side
 		// (manuell scrollTop — scrollIntoView ville også forskjøvet foreldre-containerne)
 		if (document.querySelector('#eksport-side')) {
-			const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
-			const el = inner?.querySelectorAll('.eks-side')[window.__eksSecSider?.[i] - 1];
-			if (inner && el) inner.scrollTop = Math.max(0, el.offsetTop - inner.offsetTop - 8);
-			// oppdater også oversikten i venstre kolonne til samme seksjon
+			// glidende rull i forhåndsvisningen (Eksport.svelte) + rull i venstre oversikt
 			const liste = document.querySelector('.eksport-liste');
 			const hode = liste?.querySelector(`.eksport-seksjon[data-sec="${i}"]`);
-			if (liste && hode) liste.scrollTop = Math.max(0, hode.offsetTop - liste.offsetTop - 6);
+			if (liste && hode) liste.scrollTo({ top: Math.max(0, hode.offsetTop - liste.offsetTop - 6), behavior: 'smooth' });
+			window.__eksTilSec?.(i);
 			return;
 		}
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;

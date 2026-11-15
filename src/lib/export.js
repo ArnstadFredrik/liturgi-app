@@ -466,7 +466,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	y += hefte ? 2.5 : 4;
 
 	for (const sec of svc.sections) {
-		y += hefte ? 2 : 3; // kortere mellomrom før hoveddel-overskriften (2-kol var trangt)
+		y += hefte ? 4 : 8; // luft over hoveddel-overskriften (ny seksjon)
 		nySideHvisNodvendig(12);
 		skrivLinjer(sec.title, { bold: true, size: S(11, 'hoveddel'), sans: true });
 		// horisontal linje under hoveddel-overskriften (skiller den fra leddoverskriftene)
