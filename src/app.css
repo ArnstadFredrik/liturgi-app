@@ -114,6 +114,13 @@ button.wide { width: 100%; }
 #sidebar .åpne-gruppe li.active .nm { color: #fff; font-weight: 500; }
 #sidebar .åpne-gruppe li.active:hover { background: var(--accent); }
 #sidebar .åpne-gruppe li.active .dirty-dot { background: #fff; }
+/* kryss for å lukke en åpen gudtjeneste fra listen */
+.åpne-x { flex: 0 0 auto; background: none; border: none; cursor: pointer; color: var(--muted); padding: 2px; border-radius: 4px; opacity: 0; transition: opacity 0.12s; display: inline-flex; align-items: center; }
+.åpne-gruppe li:hover .åpne-x { opacity: 0.75; }
+.åpne-x:hover { opacity: 1 !important; color: var(--danger); background: var(--panel2); }
+.åpne-gruppe li.active .åpne-x { color: #fff; }
+.åpne-gruppe li.active .åpne-x:hover { color: #fff; background: rgba(255,255,255,0.25); }
+.åpne-x svg { display: block; }
 .dirty-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--role, #c0392b); margin-right: 6px; }
 .list li.dirty .nm { font-style: italic; }
 /* temaknapp (ikon) nederst i menyen */
