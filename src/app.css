@@ -797,10 +797,12 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .kp-bunn { padding: 7px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
 
 /* Kirkeåret-modulen */
-#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; margin: 0 auto; padding: 24px 20px 40px; }
-.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; }
+#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; margin: 0 auto; padding: 24px 20px 20px; height: calc(100vh - 90px); }
+.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
+.ka-hoved::-webkit-scrollbar { width: 8px; }
+.ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 .ka-topp { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.ka-topp h2 { margin: 0; }
+.ka-topp h2 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; }
 .ka-nett { font-size: 12px; color: var(--muted); }
 .ka-nett.off { color: #c0392b; }
 .ka-sok { margin: 16px 0 8px; position: relative; }
@@ -812,32 +814,43 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-treff-dato { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
 .ka-treff-navn { font-weight: 500; }
 .ka-mellom { margin: 14px 0; display: flex; flex-direction: column; gap: 4px; }
-.ka-mellom h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 0 0 4px; }
+.ka-mellom h3 { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 0 0 4px; }
 .ka-dag { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; cursor: pointer; color: var(--text); font-size: 14px; }
 .ka-dag:hover { border-color: var(--accent); }
 .ka-dag.valgt { border-color: var(--accent); background: var(--accent-dim); }
 .ka-dag.erSoendag { font-weight: 600; }
 .ka-dag-dato { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
 .ka-valgt { margin-top: 20px; }
-.ka-tittel { margin: 0 0 2px; font-size: 22px; font-weight: 800; color: var(--text); }
+.ka-tittel { margin: 0 0 2px; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); }
 .ka-kirkeaar { font-size: 12px; color: var(--muted); margin: 0 0 16px; }
-.ka-valgt h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 16px 0 6px; }
-.ka-lesning { font-size: 14px !important; font-weight: 700 !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--text) !important; margin: 18px 0 6px !important; }
+.ka-valgt h4 { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 16px 0 6px; }
 .ka-bønn { white-space: normal; }
 .ka-muted { color: var(--muted); font-size: 0.9em; }
 .ka-prikk { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
 .ka-hoved .ka-prikk { align-self: center; }
 
+/* Lesnings-overskrifter: klikkbar for å folde ut teksten */
+.ka-lesning { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: none; padding: 10px 0 2px; margin: 6px 0 0; cursor: default; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 15px; font-weight: 700; border-top: 1px solid var(--border); }
+.ka-lesning.klar { cursor: pointer; }
+.ka-lesning.klar:hover { color: var(--accent); }
+.ka-lesning-navn { flex: 1; }
+.ka-lesning-tekst { margin: 6px 0 4px 0; }
+.ka-spinner { flex: none; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: ka-spin 0.8s linear infinite; }
+@keyframes ka-spin { to { transform: rotate(360deg); } }
+.ka-chevron { flex: none; color: var(--muted); font-size: 12px; }
+
 /* Høyrepanel: hele kirkeåret som klikkbar liste */
-.ka-panel { flex: 0 0 230px; display: flex; flex-direction: column; min-height: 0; height: calc(100vh - 120px); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ka-panel { flex: 0 0 230px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
 .ka-panel-topp { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-.ka-panel-topp h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+.ka-panel-topp h3 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
 .ka-panel-topp .avpaa-tekst { font-size: 11px; }
 .ka-panel-topp .avpaa { width: auto; padding: 2px 6px; gap: 6px; }
 .ka-panel-topp .avpaa-bryter { width: 26px; height: 16px; }
-.ka-panel-topp .avpaa-klump { width: 12px; height: 12px; }
-.ka-panel-topp .avpaa[aria-checked="true"] .avpaa-klump { transform: translateX(10px); }
+.ka-panel-topp .avpaa-klump { width: 12px; height: 12px; top: 2px; }
+.ka-panel-topp .avpaa[aria-checked="true"] .avpaa-klump { left: 12px; }
 .ka-liste { flex: 1; overflow-y: auto; padding: 6px; }
+.ka-liste::-webkit-scrollbar { width: 8px; }
+.ka-liste::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 .ka-liste-dag { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; background: transparent; border: none; border-radius: 6px; padding: 5px 8px; cursor: pointer; color: var(--text); }
 .ka-liste-dag:hover { background: var(--panel2); }
 .ka-liste-dag.valgt { background: var(--accent-dim); }
