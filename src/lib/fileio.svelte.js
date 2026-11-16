@@ -735,6 +735,7 @@ export function kjorMenyId(id) {
 		case 'hjem': app.current = null; app.kind = null; app.visning = 'hjem'; break;
 		case 'maler': app.current = null; app.kind = null; app.visning = 'maler'; break;
 		case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
+		case 'kirkeaar': app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
 		case 'veksle-sidebar': veksleSidebar(); break;
 		case 'veksle-toc': veksleToc(); break;
