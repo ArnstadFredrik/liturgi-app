@@ -456,6 +456,7 @@ function byggMeny(win, st = {}) {
 				{ label: 'Hjem', accelerator: 'CmdOrCtrl+1', click: () => send('hjem') },
 				{ label: 'Maler', accelerator: 'CmdOrCtrl+2', click: () => send('maler') },
 				{ label: 'Bibliotek', accelerator: 'CmdOrCtrl+3', click: () => send('bibliotek') },
+				{ label: 'Kirkeåret', accelerator: 'CmdOrCtrl+4', click: () => send('kirkeaar') },
 				{ type: 'separator' },
 				{ label: st.tema === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', click: () => send('tema') }
 			]

@@ -8,6 +8,7 @@
 	import Bibliotek from '$lib/Bibliotek.svelte';
 	import Eksport from '$lib/Eksport.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
+	import Kirkeaar from '$lib/Kirkeaar.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import Kommandopalett from '$lib/Kommandopalett.svelte';
@@ -72,6 +73,8 @@
 			<Bibliotek />
 		{:else if app.visning === 'eksport'}
 			<Eksport />
+		{:else if app.visning === 'kirkeaar'}
+			<Kirkeaar />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
 		{:else}
