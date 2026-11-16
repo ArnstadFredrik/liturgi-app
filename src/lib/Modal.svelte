@@ -2,6 +2,7 @@
 	import { app } from '$lib/store.svelte.js';
 	import { closeModal, showModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
+	import { mdi } from '$lib/mdi.js';
 	import { lookupKirkeaar, hentTekster, kirkeaarDager } from '$lib/kirkeaar.js';
 
 	const m = $derived(app.modal);
@@ -286,9 +287,9 @@
 					<input bind:value={name} onkeydown={onKey} />
 				</label>
 			{:else if m.type === 'newService'}
-				<div class="m-type">
-					<button type="button" class={nyType === 'gudstjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudstjeneste'; }}>Gudstjeneste</button>
-					<button type="button" class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gravferd'; }}>Gravferd</button>
+				<div class="m-type" role="radiogroup" aria-label="Type">
+					<button type="button" role="radio" aria-checked={nyType === 'gudstjeneste'} class={nyType === 'gudtjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudtjeneste'; }} title="Gudstjeneste">{@html mdi('church')}<span>Gudstjeneste</span></button>
+					<button type="button" role="radio" aria-checked={nyType === 'gravferd'} class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gravferd'; }} title="Gravferd">{@html mdi('flower-tulip')}<span>Gravferd</span></button>
 				</div>
 				<label>
 					Mal
