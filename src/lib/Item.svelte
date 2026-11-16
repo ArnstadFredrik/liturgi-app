@@ -162,6 +162,18 @@
 					<EditableText bind:value={it.text} kind="lit" />
 				{/if}
 				<div class="alt-gruppe-tittel">Alternativer</div>
+				<div class="alts">
+					{#each it.alts as a, ai (ai)}
+						<label class="alt" class:sel={it.selAlt === ai}>
+							<input type="radio" name="alt-{it.id}" checked={it.selAlt === ai}
+								onchange={() => { it.selAlt = ai; markDirty(); }} />
+							<span class="alt-col">
+								<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
+								<EditableText bind:value={a.text} kind="lit" />
+							</span>
+						</label>
+					{/each}
+				</div>
 			{:else if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
 				<EditableText bind:value={it.text} kind="lit" />
