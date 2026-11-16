@@ -20,24 +20,24 @@
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
 	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
 	let jordpaa = $state('graven'); // gravferd: 'graven' | 'krematorium'
+	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
 		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
 	}
 
-	let malerForType = $state([]);
-	// NB: $derived-var her stale i Svelte 5 når app.templates erstattes fra fileio
-	// (modal-forekomsten montert før mal-lasten) — $effect holder listen synkronisert
-	$effect(() => {
-		malerForType = app.templates.filter((t) => malType(t) === nyType);
-	});
+	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
+	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudtjeneste)
+	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType));
 
-	// sørg for at valgt mal passer typen når type byttes
+	// sørg for at valgt mal passer typen når type byttes. NB: malerForType kan være
+	// stale i denne effekten (oppdateres av en annen $effect) — filtrer direkte på
+	// app.templates med malType, IKKE på malerForType.
 	$effect(() => {
 		if (m?.type === 'newService') {
 			const t = app.templates.find((x) => x.id === tplId);
-			if (!t || malType(t) !== nyType) tplId = malerForType[0]?.id ?? '';
+			if (!t || malType(t) !== nyType) tplId = app.templates.find((x) => malType(x) === nyType)?.id ?? '';
 		}
 	});
 	let valgte = $state([]);
@@ -168,9 +168,12 @@
 	// slå opp kirkeårsdag når datoen endres i ny-gudstjeneste-modalen
 	// (manuelt valgt dag har forrang inntil den nullstilles)
 	let teksterReq = 0;
-	// init: slå opp kirkeårsdag for startdatoen direkte ($effect first-run ved remount
-	// kjørte upålitelig i Svelte 5 — dato-endringer dekkes fortsatt av $effect-en under)
-	if (isNS && !pres?.kirkeaar && forhType === 'gudstjeneste') autoKirkeaar();
+	// init: slå opp kirkeårsdag for startdatoen. Kjøres i en $effect som kun leser
+	// mount-konstanter (m/isNS/pres/forhType) — IKKE date/nyType (da re-fyrer den
+	// ved type-bytte); dato-endringer dekkes av $effect-en under.
+	$effect(() => {
+		if (m?.type === 'newService' && isNS && !pres?.kirkeaar && forhType === 'gudstjeneste') autoKirkeaar();
+	});
 	$effect(() => {
 		if (m?.type === 'newService' && date && !manuellK && nyType === 'gudstjeneste') autoKirkeaar();
 	});
@@ -225,6 +228,17 @@
 		}, tilbakeTilNyService);
 	}
 
+	/** Type-bytte: nullstill malerForType-listen eksplisitt og oppdater nyType.
+	 *  Svelte 5 $derived.by som leser nyType var stale ved rask GF→GJ-bryting. */
+	function velgType(type) {
+		nyType = type;
+		malerForType = app.templates.filter((t) => malType(t) === type);
+		if (type === 'gudstjeneste') {
+			manuellK = null;
+			autoKirkeaar();
+		}
+	}
+
 	function nullstillKirkeaar() {
 		manuellK = null;
 		autoKirkeaar();
@@ -238,7 +252,7 @@
 		else if (m.type === 'lukk') { m.ok(); return; } // onLagre lukker selv (kan bli avbrutt av lagre-dialog)
 		else if (m.type === 'newService') {
 			const opprett = () => {
-				if (nyType === 'gravferd') {
+							if (nyType === 'gravferd') {
 					m.ok(name.trim(), date, tplId, { dåp: false, nattverd: false }, null, null);
 					// bare den valgte jordpåkastelsesdelen skal være med
 					const cur = app.current;
@@ -288,8 +302,8 @@
 				</label>
 			{:else if m.type === 'newService'}
 				<div class="m-type" role="radiogroup" aria-label="Type">
-					<button type="button" role="radio" aria-checked={nyType === 'gudstjeneste'} class={nyType === 'gudtjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gudtjeneste'; }} title="Gudstjeneste">{@html mdi('church')}<span>Gudstjeneste</span></button>
-					<button type="button" role="radio" aria-checked={nyType === 'gravferd'} class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { nyType = 'gravferd'; }} title="Gravferd">{@html mdi('flower-tulip')}<span>Gravferd</span></button>
+					<button type="button" role="radio" aria-checked={nyType === 'gudstjeneste'} class={nyType === 'gudstjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('gudstjeneste'); remountTeller += 1; }} title="Gudstjeneste">{@html mdi('church')}<span>Gudstjeneste</span></button>
+					<button type="button" role="radio" aria-checked={nyType === 'gravferd'} class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('gravferd'); remountTeller += 1; }} title="Gravferd">{@html mdi('flower-tulip')}<span>Gravferd</span></button>
 				</div>
 				<label>
 					Mal
@@ -307,8 +321,8 @@
 					Dato
 					<input type="date" value={date} onchange={(e) => { date = e.currentTarget.value; manuellK = null; }} />
 				</label>
-				{#key nyType}
-					{#if nyType === 'gudstjeneste'}
+				{#key remountTeller}
+				{#if nyType === 'gudstjeneste'}
 					{#if kirkeaar}
 						<p class="m-kirkeaar">☀️ {kirkeaar.name}{#if kirkeaar.color}&nbsp;· {kirkeaar.color}{/if}
 							<button class="link-btn" onclick={manuellKirkeaar}>endre …</button>
@@ -333,7 +347,7 @@
 							<label class="chk"><input type="radio" bind:group={jordpaa} value="krematorium" /> I krematorium</label>
 						</div>
 						<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
-					{/if}
+				{/if}
 				{/key}
 			{:else if m.type === 'choose'}
 				<p>Velg deler som skal hentes inn fra malen:</p>
