@@ -47,9 +47,9 @@
 	function church_startYear(dateISO) {
 		try { return church.calculateStartYear(dateISO); } catch { return null; }
 	}
-	function churchYearFiltered(startYear, fraISO, tilISO) {
+	function churchYearFiltered(startYear, fraISO, tilISO, commemorative = true) {
 		try {
-			return church.churchYear({ year: startYear })
+			return church.churchYear({ year: startYear, commemorative })
 				.filter((d) => {
 					const dt = d.day?.slice(0, 10) ?? '';
 					return dt >= fraISO && dt <= tilISO;
@@ -101,26 +101,29 @@
 			.slice(0, 12);
 	});
 
-	/** Høyrepanelets liste: hele kirkeåret, sortert etter dato, merkedager valgfritt.
-	 *  Dager som ikke er kirkeårsdager (ukedager i ordinumtiden) representeres av
-	 *  en «i dag»-markør på riktig plass, som også er ankeret for sentreringen. */
+	/** Høyrepanelets liste: hele kirkeåret, sortert etter dato.
+	 *  Merkedager styres av church-year-pakkens `commemorative`-flagg (true/false) —
+	 *  ikke egen filtrering. Dager som ikke er kirkeårsdager representeres av en
+	 *  «i dag»-markør på riktig plass, som også er ankeret for sentreringen. */
 	let panelDager = $state([]);
-	$effect(() => {
-		const alle = visMerkedager
-			? [...alleKirkeaarsDager].sort((a, b) => a.date.localeCompare(b.date))
-			: alleKirkeaarsDager.filter((d) => d.erSoendag).sort((a, b) => a.date.localeCompare(b.date));
+	function byggPanel() {
+		const alle = [
+			...churchYearFiltered(church_startYear(soendag), iDag, '9999-12-31', visMerkedager),
+			...churchYearFiltered(church_startYear(soendag) + 1, '2000-01-01', '9999-12-31', visMerkedager)
+		].sort((a, b) => a.date.localeCompare(b.date));
 		if (!iDag) { panelDager = alle; return; }
 		if (alle.some((d) => d.date === iDag)) { panelDager = alle; return; }
 		// sett inn markør før første dag ETTER i dag
 		const idx = alle.findIndex((d) => d.date > iDag);
 		const markor = { iDagMarkor: true, date: iDag };
 		panelDager = idx === -1 ? [...alle, markor] : [...alle.slice(0, idx), markor, ...alle.slice(idx)];
-	});
+	}
 
 	/** Utfoldede lesninger (nøkkles per dag i hentTeksterBakgrunn). */
 	let aapne = $state({ L1: false, L2: false, E: false });
 
-	/** Hent bibeltekstene for en dag I BAKGRUNNEN — dato/navn/farge/bønn/referanser vises umiddelbart. */
+	/** Hent bibeltekstene for en dag I BAKGRUNNEN — dato/navn/farge/bønn/referanser vises umiddelbart.
+	 *  Tekstene ligger BAK folden — brukeren åpner dem via lesnings-overskriften. */
 	async function hentTeksterBakgrunn(dag) {
 		if (!dag?.day) { valgtTekster = null; valgtHenter = false; return; }
 		const id = dag.date + dag.name; // anrop-identitet: rask klikking i sekvens
@@ -134,8 +137,6 @@
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
 		valgtTekster = t;
 		valgtHenter = false;
-		// brett ut lesningene når teksten kommer til syne
-		aapne = { L1: !!t?.L1, L2: !!t?.L2, E: !!t?.E };
 	}
 
 	/** Velg en dag: alt unntatt selve bibelteksten vises umiddelbart fra church-year-data. */
@@ -152,8 +153,9 @@
 		} else {
 			try { localStorage.setItem('kirkeaarMerkedager', v ? '1' : '0'); } catch { /* full */ }
 		}
-		// re-filter mellom-dagene med ny innstilling
-		mellomDager = raaMellom.filter((d) => visMerkedager || d.erSoendag);
+		// re-generer mellom-dagene med pakkens commemorative-flagg
+		mellomDager = churchYearFiltered(church_startYear(soendag), iDag, soendag, visMerkedager);
+		byggPanel();
 	}
 
 	let raaMellom = $state([]); // alle dager i vinduet (før merkedager-filter)
@@ -180,13 +182,14 @@
 			iDag = isoLokal(new Date());
 			soendag = nesteSoendag();
 			online = navigator.onLine;
-			// selve kirkeåret — ren beregning, umiddelbar
-			raaMellom = churchYearFiltered(church_startYear(soendag), iDag, soendag);
-			mellomDager = raaMellom.filter((d) => visMerkedager || d.erSoendag);
+			// selve kirkeåret — ren beregning, umiddelbar (med merkedager, standard)
+			raaMellom = churchYearFiltered(church_startYear(soendag), iDag, soendag, true);
+			mellomDager = raaMellom;
 			// hele kirkeåret + neste kirkeår (til søk og høyrepanel) — lista starter I DAG
 			const detteAaret = churchYearFiltered(church_startYear(soendag), iDag, '9999-12-31');
 			const nesteAaret = churchYearFiltered(church_startYear(soendag) + 1, '2000-01-01', '9999-12-31');
 			alleKirkeaarsDager = [...detteAaret, ...nesteAaret];
+			byggPanel();
 			const sd = lookupKirkeaar(soendag);
 			if (sd) hentDag({ ...sd, date: soendag, erSoendag: true });
 		} catch (e) {
@@ -194,7 +197,7 @@
 		}
 		panelKlar = true;
 		// PERSISTENT innstilling: dbGet er asynkron IPC — les den i bakgrunnen
-		// og re-filter hvis den avviker fra standardverdien
+		// og re-generer med pakkens commemorative-flagg hvis den avviker fra standarden
 		if (isElectron) {
 			window.liturgi.dbGet('kirkeaarMerkedager')
 				.then((r) => {
@@ -202,7 +205,8 @@
 						const v = r.value === '1';
 						if (v !== visMerkedager) {
 							visMerkedager = v;
-							mellomDager = raaMellom.filter((d) => visMerkedager || d.erSoendag);
+							mellomDager = churchYearFiltered(church_startYear(soendag), iDag, soendag, visMerkedager);
+							byggPanel();
 						}
 					}
 				})
@@ -212,7 +216,8 @@
 				const v = (localStorage.getItem('kirkeaarMerkedager') ?? '1') === '1';
 				if (v !== visMerkedager) {
 					visMerkedager = v;
-					mellomDager = raaMellom.filter((d) => visMerkedager || d.erSoendag);
+					mellomDager = churchYearFiltered(church_startYear(soendag), iDag, soendag, visMerkedager);
+					byggPanel();
 				}
 			} catch { /* standard */ }
 		}
@@ -283,28 +288,35 @@
 					<h4>Dagens bønn</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
-				{#each lesninger as L}
-					{#if valgtDag[L.key]}
-						<button
-							type="button"
-							class="ka-lesning"
-							class:klar={!!valgtTekster?.[L.key]}
-							onclick={() => { if (valgtTekster?.[L.key]) aapne = { ...aapne, [L.key]: !aapne[L.key] }; }}
-							aria-expanded={aapne[L.key]}
-							title={valgtTekster?.[L.key] ? 'Vis/skjul teksten' : (valgtHenter ? 'Henter teksten …' : 'Ingen tekst' + (online ? '' : ' (offline)'))}
-						>
-							<span class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</span>
-							{#if valgtHenter && !valgtTekster?.[L.key]}
-								<span class="ka-spinner" aria-hidden="true"></span>
-							{:else if valgtTekster?.[L.key]}
-								<span class="ka-chevron" aria-hidden="true">{aapne[L.key] ? '▾' : '▸'}</span>
+				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
+					<h4>Bibeltekster</h4>
+					<div class="ka-lesninger">
+						{#each lesninger as L}
+							{#if valgtDag[L.key]}
+								<div class="ka-lesning-item">
+									<button
+										type="button"
+										class="ka-lesning"
+										class:klar={!!valgtTekster?.[L.key]}
+										onclick={() => { if (valgtTekster?.[L.key]) aapne = { ...aapne, [L.key]: !aapne[L.key] }; }}
+										aria-expanded={aapne[L.key]}
+										title={valgtTekster?.[L.key] ? 'Vis/skjul teksten' : (valgtHenter ? 'Henter teksten …' : 'Ingen tekst' + (online ? '' : ' (offline)'))}
+									>
+										<span class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</span>
+										{#if valgtHenter && !valgtTekster?.[L.key]}
+											<span class="ka-spinner" aria-hidden="true"></span>
+										{:else if valgtTekster?.[L.key]}
+											<span class="ka-chevron" class:aapen={aapne[L.key]} aria-hidden="true">▾</span>
+										{/if}
+									</button>
+									{#if aapne[L.key] && valgtTekster?.[L.key]}
+										<div class="lit-text ka-lesning-tekst">{@html visTekst(valgtDag[L.key], valgtTekster[L.key])}</div>
+									{/if}
+								</div>
 							{/if}
-						</button>
-						{#if aapne[L.key] && valgtTekster?.[L.key]}
-							<div class="lit-text ka-lesning-tekst">{@html visTekst(valgtDag[L.key], valgtTekster[L.key])}</div>
-						{/if}
-					{/if}
-				{/each}
+						{/each}
+					</div>
+				{/if}
 			</div>
 		{:else}
 			<p class="ka-muted">Fant ingen kirkeårsdag.</p>
