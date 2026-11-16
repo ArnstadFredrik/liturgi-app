@@ -10,7 +10,7 @@
 	import { toast } from 'svelte-sonner';
 	import { mdi } from '$lib/mdi.js';
 
-	const erDev = __MALVERKOY__ && !!window.liturgi?.lagreDataJs;
+	const erDev = __DEV_MODE__ && !!window.liturgi?.lagreDataJs;
 	if (!erDev) window.location.href = '/';
 
 	/** Redigeres nå en dev-kopi av en originalmal? */
@@ -40,7 +40,7 @@
 		app.kind = 'template';
 		app.visning = 'hjem';
 		app.dirty = false;
-		toast.info('Rediger malen, og velg «Lagre til prosjektet» i Malverkøy når du er ferdig.');
+		toast.info('Rediger malen, og velg «Lagre til prosjektet» i Malverktøy når du er ferdig.');
 	}
 
 	/** Fjerner felter lagt til under redigering: tomme strenger («text: ""» fra
@@ -103,7 +103,7 @@
 </script>
 
 <div id="malverktoy">
-	<h1>Malverkøy <span class="dev-merke">DEV</span></h1>
+	<h1>Malverktøy <span class="dev-merke">DEV</span></h1>
 	<p class="beskrivelse">
 		Rediger originalmalene som følger programmet. Endringene lagres tilbake i
 		<code>src/lib/data.js</code> og i seed-filene under
