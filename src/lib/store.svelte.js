@@ -26,7 +26,7 @@ export const app = $state({
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
-	åpneMaler: [], // åpne maler for redigering: {obj, name, dev, dirty}
+	åpneMaler: [], // åpne maler for redigering: {obj, åpenMalId, dev, dirty}
 	modal: null
 });
 
@@ -238,7 +238,7 @@ export function markDirty() {
 	// dirty-status på listeraden — reaktivt (objektets eget __dirty er upålitelig i templaten)
 	const e = entryFor(app.current);
 	if (e) e.dirty = true;
-	const m = app.åpneMaler.find((x) => x.obj === app.current);
+	const m = malEntryFor(app.current);
 	if (m) m.dirty = true;
 	window.liturgi?.setDirty?.(true);
 }
@@ -269,13 +269,23 @@ export function openTemplate(id) {
 	registrerÅpenMal(t, false);
 }
 
+/** Finn «Åpne maler»-oppføringen for et mal-dokument (stabil id — identitet er
+ *  upålitelig: app.current er en reaktiv proxy, obj-referansen er det ikke). */
+export function malEntryFor(obj) {
+	const id = obj?.__åpenMalId;
+	return app.åpneMaler.find((x) => (id != null && x.åpenMalId === id) || x.obj === obj);
+}
+
 /** Registrer et mal-dokument som åpent (importeres av malverktoy.svelte.js). */
 export function registrerÅpenMal(obj, dev) {
 	obj.visInstr = obj.visInstr ?? true;
 	obj.visRoles = obj.visRoles ?? true;
-	let e = app.åpneMaler.find((x) => x.obj === obj);
+	// NB: vanlig tellbar egenskap — ikke-tellbare (defineProperty) forsvinner gjennom
+	// $state-proxyen. Fjernes ved lagring (currentJson + malverktoy HELPER_FELTER).
+	if (!obj.__åpenMalId) obj.__åpenMalId = uid();
+	let e = malEntryFor(obj);
 	if (!e) {
-		e = { obj, name: obj.name ?? '', dev: !!dev, dirty: false };
+		e = { obj, åpenMalId: obj.__åpenMalId, name: obj.name ?? '', dev: !!dev, dirty: false };
 		app.åpneMaler.push(e);
 	} else {
 		e.dev = !!dev;
@@ -291,7 +301,7 @@ export function closeEditor() {
 		if (e) app.åpneTjenester.splice(app.åpneTjenester.indexOf(e), 1);
 	}
 	if (app.kind === 'template' && app.current) {
-		const m = app.åpneMaler.find((x) => x.obj === app.current);
+		const m = malEntryFor(app.current);
 		if (m) app.åpneMaler.splice(app.åpneMaler.indexOf(m), 1);
 	}
 	app.current = null;

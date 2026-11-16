@@ -6,7 +6,7 @@ import { app } from '$lib/store.svelte.js';
 import { safeNavn } from '$lib/fileio.svelte.js';
 import { toast } from 'svelte-sonner';
 
-const HELPER_FELTER = ['__devMal', '__devId', '__devKey', '__dirty', 'filePath', 'kind'];
+const HELPER_FELTER = ['__devMal', '__devId', '__devKey', '__dirty', '__åpenMalId', 'filePath', 'kind'];
 
 /** Åpne en arbeidskopi av en originalmal (BUILTIN) i editoren. */
 export function åpneOriginal(bt) {

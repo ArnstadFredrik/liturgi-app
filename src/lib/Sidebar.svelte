@@ -65,7 +65,7 @@
 
 	/** Åpne en mal fra «Åpne maler»-listen. */
 	function åpneMalFraListe(m) {
-		if (app.current === m.obj) { app.visning = 'hjem'; return; }
+		if (app.current?.__åpenMalId === m.åpenMalId) { app.visning = 'hjem'; return; }
 		app.current = m.obj;
 		app.kind = 'template';
 		app.visning = 'hjem';
@@ -76,7 +76,7 @@
 	/** Kryss på en åpen mal: lukk den. Ulagrede endringer i en ikke-aktiv mal
 	 *  bekreftes først (Lagre til prosjektet gjelder kun dev-maler). */
 	function lukkMalFraListe(m) {
-		if (app.current === m.obj) { lukkRedigering(); return; }
+		if (app.current?.__åpenMalId === m.åpenMalId) { lukkRedigering(); return; }
 		const idx = app.åpneMaler.indexOf(m);
 		if (idx < 0) return;
 		if (m.dirty) {
@@ -120,7 +120,7 @@
 			<div class="sidehead">Åpne maler</div>
 			<ul class="list">
 				{#each app.åpneMaler as m (m.obj.id ?? m.obj.name)}
-					<li class:active={app.current === m.obj} class:dirty={m.dirty}>
+					<li class:active={app.current?.__åpenMalId === m.åpenMalId} class:dirty={m.dirty}>
 						<span class="nm" onclick={() => åpneMalFraListe(m)} title={m.obj.name}>
 							{#if m.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							{m.obj.name ?? m.name}

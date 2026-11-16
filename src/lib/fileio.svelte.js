@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -12,7 +12,7 @@ export function currentJson() {
 	// __dirty/filePath er runtime-felter — skal aldri inn i filen (gjør at
 	// gjenåpnede filer ellers markeres som endret uten endringer)
 	return JSON.stringify({ liturgiFormat: 1, kind: o.kind ?? app.kind, data: o },
-		(k, v) => (k === '__dirty' || k === 'filePath' ? undefined : v), '\t');
+		(k, v) => (k === '__dirty' || k === 'filePath' || k === '__åpenMalId' ? undefined : v), '	');
 }
 
 /** Filnavn: "dato - navn - kirkeårsdag". */
@@ -124,6 +124,12 @@ function malLikBortsettFraValg(a, b) {
 async function saveCurrentTemplate() {
 	const o = app.current;
 	if (!o.filePath) {
+		if (o.__devMal) {
+			// dev-mal uten filsti: «Lagre» = «Lagre til prosjektet» (⌘S / Lagre-knapp)
+			const { lagreTilProsjekt } = await import('./malverktoy.svelte.js');
+			await lagreTilProsjekt();
+			return;
+		}
 		toast.info('Innebygde maler lagres med «Lagre som mal»');
 		return;
 	}
@@ -157,7 +163,7 @@ async function lagreOriginalSomBrukerKopi(o) {
 		data.filePath = r.filePath;
 		app.templates.push(data);
 		// det åpne dokumentet er nå kopien — oppdater «Åpne maler» (uten dev-merke)
-		const m = app.åpneMaler.find((x) => x.obj === o);
+		const m = malEntryFor(o);
 		if (m) app.åpneMaler.splice(app.åpneMaler.indexOf(m), 1);
 		registrerÅpenMal(data, false);
 		app.dirty = false;
@@ -649,14 +655,22 @@ export function importerMalFil(json, filePath) {
 export function lukkRedigering() {
 	if (!app.current) return;
 	if (!app.dirty) { closeEditor(); return; }
+	const erDev = !!app.current.__devMal;
 	lukkModal(async () => {
 		closeModal();
 		const o = app.current;
 		const haddeFilsti = !!o?.filePath;
 		if (isElectron) {
-			await saveCurrent();
-			// lagre-dialog avbrutt → forbli i redigeringen
-			if (!haddeFilsti && !app.current?.filePath) return;
+			if (erDev) {
+				// dev-mal: «Lagre» betyr «Lagre til prosjektet» — feiler det, forbli i redigeringen
+				const { lagreTilProsjekt } = await import('./malverktoy.svelte.js');
+				const ok = await lagreTilProsjekt();
+				if (!ok) return;
+			} else {
+				await saveCurrent();
+				// lagre-dialog avbrutt → forbli i redigeringen
+				if (!haddeFilsti && !app.current?.filePath) return;
+			}
 		} else {
 			persist();
 		}
