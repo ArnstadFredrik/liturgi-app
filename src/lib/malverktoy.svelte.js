@@ -3,8 +3,14 @@
 // Brukes av både Malverktøy-visningen og dokumentpanelet (DokInsp).
 import { BUILTIN_TEMPLATES } from '$lib/data.js';
 import { app } from '$lib/store.svelte.js';
-import { safeNavn } from '$lib/fileio.svelte.js';
 import { toast } from 'svelte-sonner';
+
+// safeNavn er duplisert her (ikke importert fra fileio) for å unngå
+// import-sirkel malverktoy ↔ fileio — Rollup duplicerer da store-modulen,
+// og appen ender med to ulike state-instanser.
+function safeNavn(n) {
+	return (n || 'mal').replace(/[\\/:*?"<>|]+/g, '').trim() || 'mal';
+}
 
 const HELPER_FELTER = ['__devMal', '__devId', '__devKey', '__dirty', '__åpenMalId', 'filePath', 'kind'];
 

@@ -333,6 +333,9 @@ function serveStatic(req, res) {
 		file = path.join(BUILD, 'index.html');
 	}
 	res.setHeader('content-type', MIME[path.extname(file)] || 'application/octet-stream');
+	// aldri cache: ellers kjører dev-utgaven gammel kode etter rebuild
+	// (samme origin hver gang — porten er konstant)
+	res.setHeader('Cache-Control', 'no-store');
 	fs.createReadStream(file).pipe(res);
 }
 
