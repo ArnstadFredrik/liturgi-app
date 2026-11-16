@@ -797,7 +797,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .kp-bunn { padding: 7px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
 
 /* Kirkeåret-modulen */
-#kirkeaar-modul { max-width: 720px; margin: 0 auto; padding: 24px 20px 40px; }
+#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; margin: 0 auto; padding: 24px 20px 40px; }
+.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; }
 .ka-topp { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .ka-topp h2 { margin: 0; }
 .ka-nett { font-size: 12px; color: var(--muted); }
@@ -810,23 +811,42 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-treff.valgt { background: var(--accent-dim); }
 .ka-treff-dato { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
 .ka-treff-navn { font-weight: 500; }
-.ka-treff-farge { margin-left: auto; color: var(--muted); font-size: 12px; }
 .ka-mellom { margin: 14px 0; display: flex; flex-direction: column; gap: 4px; }
 .ka-mellom h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 0 0 4px; }
-.ka-dag { display: flex; gap: 12px; align-items: baseline; width: 100%; text-align: left; background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; cursor: pointer; color: var(--text); font-size: 14px; }
+.ka-dag { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; cursor: pointer; color: var(--text); font-size: 14px; }
 .ka-dag:hover { border-color: var(--accent); }
 .ka-dag.valgt { border-color: var(--accent); background: var(--accent-dim); }
 .ka-dag.erSoendag { font-weight: 600; }
 .ka-dag-dato { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
-.ka-dag-farge { margin-left: auto; color: var(--muted); font-size: 12px; }
-.ka-valgt { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
-.ka-valgt h3 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: var(--text); }
-.ka-kirkeaar { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 0 0 14px; }
-.ka-valgt h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 16px 0 6px; }
-.ka-valgt details { margin: 8px 0; }
-.ka-valgt summary { cursor: pointer; color: var(--text); }
-.ka-valgt details[open] summary { margin-bottom: 8px; }
+.ka-valgt { margin-top: 20px; }
+.ka-tittel { margin: 0 0 2px; font-size: 22px; font-weight: 800; color: var(--text); }
+.ka-kirkeaar { font-size: 12px; color: var(--muted); margin: 0 0 16px; }
+.ka-valgt h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 16px 0 6px; }
+.ka-lesning { font-size: 14px !important; font-weight: 700 !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--text) !important; margin: 18px 0 6px !important; }
 .ka-bønn { white-space: normal; }
 .ka-muted { color: var(--muted); font-size: 0.9em; }
-.ka-innstilling { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 14px; }
-.ka-innstilling .ka-muted { margin: 6px 0 0; }
+.ka-prikk { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+.ka-hoved .ka-prikk { align-self: center; }
+
+/* Høyrepanel: hele kirkeåret som klikkbar liste */
+.ka-panel { flex: 0 0 230px; display: flex; flex-direction: column; min-height: 0; height: calc(100vh - 120px); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ka-panel-topp { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.ka-panel-topp h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+.ka-panel-topp .avpaa-tekst { font-size: 11px; }
+.ka-panel-topp .avpaa { width: auto; padding: 2px 6px; gap: 6px; }
+.ka-panel-topp .avpaa-bryter { width: 26px; height: 16px; }
+.ka-panel-topp .avpaa-klump { width: 12px; height: 12px; }
+.ka-panel-topp .avpaa[aria-checked="true"] .avpaa-klump { transform: translateX(10px); }
+.ka-liste { flex: 1; overflow-y: auto; padding: 6px; }
+.ka-liste-dag { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; background: transparent; border: none; border-radius: 6px; padding: 5px 8px; cursor: pointer; color: var(--text); }
+.ka-liste-dag:hover { background: var(--panel2); }
+.ka-liste-dag.valgt { background: var(--accent-dim); }
+.ka-liste-dag .ka-prikk { align-self: center; }
+.ka-liste-tekst { display: flex; flex-direction: column; min-width: 0; }
+.ka-liste-navn { font-size: 12.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ka-liste-dato { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ka-liste-dag.i-dag .ka-liste-navn { font-weight: 700; }
+.ka-liste-dag.i-dag { position: relative; }
+.ka-liste-dag.i-dag::after { content: ''; position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.ka-i-dag-markor { display: flex; align-items: center; gap: 8px; padding: 4px 8px; color: var(--accent); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.ka-i-dag-markor::before, .ka-i-dag-markor::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.5; }
