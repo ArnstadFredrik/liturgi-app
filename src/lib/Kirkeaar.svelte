@@ -77,37 +77,32 @@
 		}
 	}
 
-	/** Liturgiske perioder → norske navn (kirkeårets «kapitler» i TOC-en). */
-	const PERIOD_NAVN = {
-		advent: 'Advent',
-		christmas: 'Jul',
-		commemorative: 'Merkedager',
-		epiphany: 'Åpenbaringstiden',
-		lent: 'Fastetiden',
-		easter: 'Påsken',
-		pentacost: 'Pinsetiden',
-		trinity: 'Treenighetstiden'
-	};
-
-	/** TOC over panelets liste: periodene i kirkeåret, i datorekkefølge. */
-	let panelToc = $state([]);
-	function byggToc() {
-		const sett = [];
-		for (const dag of panelDager) {
-			if (dag.iDagMarkor || !dag.period) continue;
-			const navn = PERIOD_NAVN[dag.period];
-			if (navn && !sett.some((s) => s.periode === dag.period)) {
-				sett.push({ periode: dag.period, navn, dato: dag.date });
-			}
+	/** Side-TOC: delene på hovedsiden (Dagens bønn + lesningene) for rask navigering
+	 *  når tekstene er lastet og siden må scrolles. Offline er alt på én side — ingen TOC. */
+	function seksjoner() {
+		if (!online || !valgtDag) return [];
+		const s = [];
+		if (valgtDag.prayer) s.push({ nokkel: 'boenn', navn: 'Dagens bønn' });
+		for (const L of lesninger) {
+			if (valgtDag[L.key]) s.push({ nokkel: L.key, navn: L.tittel + ' · ' + valgtDag[L.key] });
 		}
-		panelToc = sett;
+		return s;
 	}
 
-	/** Rull panelets liste til første dag i en periode. */
-	function tocTil(periode) {
-		const liste = document.querySelector('.ka-liste');
-		const el = liste?.querySelector(`.ka-liste-dag[data-periode="${periode}"]`);
-		if (liste && el) liste.scrollTop = Math.max(0, el.offsetTop - 8);
+	/** Rull hovedsiden til en seksjon; lesninger åpnes først hvis de er lukket. */
+	function tilSeksjon(nokkel) {
+		if (nokkel !== 'boenn' && !aapne[nokkel] && valgtTekster?.[nokkel]) {
+			aapne = { ...aapne, [nokkel]: true };
+		}
+		// vent ett øyeblikk så Svelte har rendret eventuell utfoldet tekst, måle med
+		// getBoundingClientRect (uavhengig av offsetParent)
+		setTimeout(() => {
+			const hoved = document.querySelector('.ka-hoved');
+			const el = hoved?.querySelector(`[data-seksjon="${nokkel}"]`);
+			if (!hoved || !el) return;
+			const delta = el.getBoundingClientRect().top - hoved.getBoundingClientRect().top + hoved.scrollTop;
+			hoved.scrollTop = Math.max(0, delta - 16);
+		}, 60);
 	}
 
 	/** Søk: navn (fuzzy innehold) eller dato (2026-12-24, 24.12, 24/12, 24-12). */
@@ -151,7 +146,6 @@
 		const idx = alle.findIndex((d) => d.date > iDag);
 		const markor = { iDagMarkor: true, date: iDag };
 		panelDager = idx === -1 ? [...alle, markor] : [...alle.slice(0, idx), markor, ...alle.slice(idx)];
-		byggToc();
 	}
 
 	/** Utfoldede lesninger (nøkkles per dag i hentTeksterBakgrunn). */
@@ -320,7 +314,7 @@
 				<h3 class="ka-tittel">{valgtDag.name}</h3>
 				<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
 				{#if valgtDag.prayer}
-					<h4>Dagens bønn</h4>
+					<h4 data-seksjon="boenn">Dagens bønn</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
 				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
@@ -328,7 +322,7 @@
 					<div class="ka-lesninger">
 						{#each lesninger as L}
 							{#if valgtDag[L.key]}
-								<div class="ka-lesning-item">
+								<div class="ka-lesning-item" data-seksjon={L.key}>
 									<button
 										type="button"
 										class="ka-lesning"
@@ -366,12 +360,12 @@
 				<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 			</button>
 		</div>
-		{#if online && panelToc.length}
-			<nav class="ka-toc" aria-label="Innhold">
-				{#each panelToc as t (t.periode)}
-					<button class="ka-toc-lenk" onclick={() => tocTil(t.periode)} title={'Gå til ' + t.navn}>
-						<span class="ka-toc-navn">{t.navn}</span>
-						<span class="ka-toc-dato">{t.dato}</span>
+		{#if seksjoner().length > 1}
+			<nav class="ka-toc" aria-label="Innhold på siden">
+				<h4>Innhold</h4>
+				{#each seksjoner() as s (s.nokkel)}
+					<button class="ka-toc-lenk" onclick={() => tilSeksjon(s.nokkel)} title={'Gå til ' + s.navn}>
+						<span class="ka-toc-navn">{s.navn}</span>
 					</button>
 				{/each}
 			</nav>
@@ -383,7 +377,6 @@
 				{:else}
 					<button
 						class="ka-liste-dag"
-						data-periode={dag.period}
 						class:i-dag={dag.date === iDag}
 						class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name}
 						onclick={() => hentDag(dag)}
