@@ -24,10 +24,10 @@ function bibelProxy() {
 
 export default defineConfig({
 	plugins: [sveltekit(), bibelProxy()],
-	// DEV-modul Merk: __MALVERKOY__ = 1 KUN i «npm run build:dev» / dev-server med
-	// VITE_MALVERKOY=1. Publiserte bygg (npm run build / app:mac / CI) har den aldri,
-	// så malredigeringsverktøyet tree-shakes ut av produksjonsbyggget.
+	// DEV-modul-flagg: __DEV_MODE__ = true KUN i «npm run build:dev» / «npm run electron:dev»
+	// (VITE_DEV_MODE=1). Publiserte bygg (npm run build / app:mac / CI) har den aldri,
+	// så dev-verktøyene (f.eks. malverktøyet) tree-shakes ut av produksjonsbyggget.
 	define: {
-		__MALVERKOY__: JSON.stringify(process.env.VITE_MALVERKOY === '1')
+		__DEV_MODE__: JSON.stringify(process.env.VITE_DEV_MODE === '1')
 	}
 });

@@ -364,7 +364,7 @@ ipcMain.handle('apne:mappe', (_e, p) => {
 
 // ---------- DEV: malredigeringsverktøy (aldri med i pakkede bygg) ----------
 // Rendereren spør om den kjører i en dev-utgave; malredigeringsvisningen vises
-// bare når byggflagget __MALVERKOY__ er satt OG appen er upakket.
+// bare når byggflagget __DEV_MODE__ er satt OG appen er upakket.
 ipcMain.handle('dev:tilstand', () => ({ devModus: !app.isPackaged }));
 // Skriv en redigert originalmal tilbake til src/lib/data.js så den blir med
 // i byggprosessen. Handleren nekter å kjøre i en pakket app.
