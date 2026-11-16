@@ -1,6 +1,6 @@
 <script>
-	import { app, openService, deleteService, sortedServices, createService, toggleTheme } from '$lib/store.svelte.js';
-	import { newServiceModal } from '$lib/modal.svelte.js';
+	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty } from '$lib/store.svelte.js';
+	import { newServiceModal, valgModal } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
@@ -62,6 +62,34 @@
 			refreshRecentServices();
 		}
 	}
+
+	/** Åpne en mal fra «Åpne maler»-listen. */
+	function åpneMalFraListe(m) {
+		if (app.current === m.obj) { app.visning = 'hjem'; return; }
+		app.current = m.obj;
+		app.kind = 'template';
+		app.visning = 'hjem';
+		app.dirty = !!m.dirty;
+		syncDirty();
+	}
+
+	/** Kryss på en åpen mal: lukk den. Ulagrede endringer i en ikke-aktiv mal
+	 *  bekreftes først (Lagre til prosjektet gjelder kun dev-maler). */
+	function lukkMalFraListe(m) {
+		if (app.current === m.obj) { lukkRedigering(); return; }
+		const idx = app.åpneMaler.indexOf(m);
+		if (idx < 0) return;
+		if (m.dirty) {
+			valgModal(
+				'Forkast endringer?',
+				`«${m.obj.name}» har ulagrede endringer${m.dev ? '. De kan lagres til prosjektet i Malverktøy' : ''}.`,
+				'Forkast', 'Avbryt',
+				() => app.åpneMaler.splice(idx, 1)
+			);
+			return;
+		}
+		app.åpneMaler.splice(idx, 1);
+	}
 </script>
 
 <aside id="sidebar">
@@ -87,6 +115,26 @@
 		</div>
 	{/if}
 	{#if åpne.length}<hr class="side-skiller" />{/if}
+	{#if app.åpneMaler.length}
+		<div class="sidegroup åpne-gruppe">
+			<div class="sidehead">Åpne maler</div>
+			<ul class="list">
+				{#each app.åpneMaler as m (m.obj.id ?? m.obj.name)}
+					<li class:active={app.current === m.obj} class:dirty={m.dirty}>
+						<span class="nm" onclick={() => åpneMalFraListe(m)} title={m.obj.name}>
+							{#if m.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
+							{m.obj.name ?? m.name}
+							{#if m.dev}<span class="dev-merke" title="Åpnet fra Malverktøy — lagres tilbake til prosjektet">dev</span>{/if}
+						</span>
+						<button class="åpne-x" title="Lukk malen" onclick={(ev) => { ev.stopPropagation(); lukkMalFraListe(m); }}>
+							{@html mdi('close', 13)}
+						</button>
+					</li>
+				{/each}
+			</ul>
+		</div>
+		<hr class="side-skiller" />
+	{/if}
 	<div class="sidegroup">
 		<div class="sidehead">Sist brukt{#if isElectron}&nbsp;· siste {MAX_RECENT}{/if}</div>
 		<ul class="list">
