@@ -797,8 +797,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .kp-bunn { padding: 7px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
 
 /* Kirkeåret-modulen */
-#app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; }
-#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
+#app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: 1000px; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
 .ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
 .ka-hoved::-webkit-scrollbar { width: 8px; }
 .ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -854,14 +854,12 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-panel-topp .avpaa-klump { width: 12px; height: 12px; top: 2px; }
 .ka-panel-topp .avpaa[aria-checked="true"] .avpaa-klump { left: 12px; }
 
-/* TOC over listen: kirkeårets perioder */
-.ka-toc { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border); max-height: 108px; overflow-y: auto; flex: none; }
-.ka-toc::-webkit-scrollbar { width: 8px; }
-.ka-toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-.ka-toc-lenk { display: flex; align-items: baseline; gap: 5px; background: var(--panel2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; cursor: pointer; color: var(--text); font-size: 11.5px; }
-.ka-toc-lenk:hover { border-color: var(--accent); background: var(--accent-dim); }
-.ka-toc-navn { font-weight: 500; }
-.ka-toc-dato { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+/* TOC for hovedsiden: delene (Dagens bønn + lesningene) */
+.ka-toc { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-bottom: 1px solid var(--border); flex: none; }
+.ka-toc h4 { margin: 0 0 4px; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+.ka-toc-lenk { width: 100%; text-align: left; background: transparent; border: none; border-radius: 6px; padding: 5px 8px; cursor: pointer; color: var(--text); font-size: 12px; }
+.ka-toc-lenk:hover { background: var(--panel2); }
+.ka-toc-lenk .ka-toc-navn { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ka-liste { flex: 1; overflow-y: auto; padding: 6px; }
 .ka-liste::-webkit-scrollbar { width: 8px; }
 .ka-liste::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
