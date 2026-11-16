@@ -577,6 +577,44 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 #modal input[type='checkbox'] { width: auto; }
 #modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .m-chk { display: flex; gap: 16px; padding: 2px 0; }
+/* Av/på-bryter (mac-nativ switch) i Ny-modalen — logikk = checkbox/radio, utseende = switch */
+.avpaa {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: none;
+	background: transparent;
+	padding: 4px 2px;
+	cursor: pointer;
+	color: var(--text);
+	font-size: inherit;
+	font-family: inherit;
+}
+.avpaa-tekst { user-select: none; }
+.avpaa-bryter {
+	flex: none;
+	width: 34px;
+	height: 20px;
+	border-radius: 10px;
+	background: rgba(128, 128, 128, 0.35);
+	position: relative;
+	transition: background 0.18s ease;
+}
+.avpaa-klump {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	transition: left 0.18s ease;
+}
+.avpaa[aria-checked="true"] .avpaa-bryter { background: var(--accent); }
+.avpaa[aria-checked="true"] .avpaa-klump { left: 16px; }
+.m-chk-jord { align-items: center; flex-wrap: wrap; }
+.m-jordpaa-label { color: var(--muted); font-size: 13px; }
 .m-alts { display: flex; flex-direction: column; gap: 10px; }
 .m-alt { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; position: relative; }
 .m-alt:hover { background: var(--panel2); }

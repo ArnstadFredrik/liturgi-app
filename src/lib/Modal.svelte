@@ -336,15 +336,30 @@
 						<p class="m-kirkeaar muted">Ingen kirkeårsdag funnet for datoen.
 							<button class="link-btn" onclick={manuellKirkeaar}>velg manuelt …</button></p>
 					{/if}
+					<!-- Av/på-knapper (mac-nativ switch-stil): logikken er fortsatt checkbox -->
 					<div class="m-chk">
-						<label class="chk"><input type="checkbox" bind:checked={medDåp} /> Med dåp</label>
-						<label class="chk"><input type="checkbox" bind:checked={medNattverd} /> Med nattverd</label>
+						<button type="button" class="avpaa" role="checkbox" aria-checked={medDåp} onclick={() => { medDåp = !medDåp; }}>
+							<span class="avpaa-tekst">Med dåp</span>
+							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+						</button>
+						<button type="button" class="avpaa" role="checkbox" aria-checked={medNattverd} onclick={() => { medNattverd = !medNattverd; }}>
+							<span class="avpaa-tekst">Med nattverd</span>
+							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+						</button>
 					</div>
 					{:else}
-						<div class="m-chk">
+						<!-- Jordpåkastelse: av/på-knapper — logikken er fortsatt radioknapper
+						     (bind:group, kun én av to kan være på) -->
+						<div class="m-chk m-chk-jord">
 							<span class="m-jordpaa-label">Jordpåkastelse:</span>
-							<label class="chk"><input type="radio" bind:group={jordpaa} value="graven" /> Ved graven</label>
-							<label class="chk"><input type="radio" bind:group={jordpaa} value="krematorium" /> I krematorium</label>
+							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'graven'} onclick={() => { jordpaa = 'graven'; }}>
+								<span class="avpaa-tekst">Ved graven</span>
+								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+							</button>
+							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'krematorium'} onclick={() => { jordpaa = 'krematorium'; }}>
+								<span class="avpaa-tekst">I krematorium</span>
+								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+							</button>
 						</div>
 						<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
 				{/if}
