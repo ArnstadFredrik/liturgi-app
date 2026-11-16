@@ -797,7 +797,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .kp-bunn { padding: 7px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
 
 /* Kirkeåret-modulen */
-#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; margin: 0 auto; padding: 24px 20px 20px; height: calc(100vh - 90px); }
+#app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; }
+#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: none; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
 .ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
 .ka-hoved::-webkit-scrollbar { width: 8px; }
 .ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -829,15 +830,19 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-prikk { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
 .ka-hoved .ka-prikk { align-self: center; }
 
-/* Lesnings-overskrifter: klikkbar for å folde ut teksten */
-.ka-lesning { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: none; padding: 10px 0 2px; margin: 6px 0 0; cursor: default; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 15px; font-weight: 700; border-top: 1px solid var(--border); }
+/* Lesningene: shadcn-accordion-look — innrammet container, delte linjer, klikkbar trigger */
+.ka-lesninger { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ka-lesning-item { border-bottom: 1px solid var(--border); }
+.ka-lesning-item:last-child { border-bottom: none; }
+.ka-lesning { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: none; padding: 12px 14px; cursor: default; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 14px; font-weight: 500; }
 .ka-lesning.klar { cursor: pointer; }
-.ka-lesning.klar:hover { color: var(--accent); }
+.ka-lesning.klar:hover { background: var(--panel2); }
 .ka-lesning-navn { flex: 1; }
-.ka-lesning-tekst { margin: 6px 0 4px 0; }
-.ka-spinner { flex: none; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: ka-spin 0.8s linear infinite; }
+.ka-lesning-tekst { padding: 0 14px 12px; }
+.ka-spinner { flex: none; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: ka-spin 0.8s linear infinite; }
 @keyframes ka-spin { to { transform: rotate(360deg); } }
-.ka-chevron { flex: none; color: var(--muted); font-size: 12px; }
+.ka-chevron { flex: none; color: var(--muted); font-size: 11px; transition: transform 0.18s ease; }
+.ka-chevron.aapen { transform: rotate(180deg); }
 
 /* Høyrepanel: hele kirkeåret som klikkbar liste */
 .ka-panel { flex: 0 0 230px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
