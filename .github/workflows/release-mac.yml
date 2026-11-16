@@ -41,7 +41,7 @@ jobs:
       # De inkluderes kun av «npm run build:dev» / «npm run electron:dev», som kjøres manuelt lokalt.
       - name: Verifiser at dev-modulen ikke er i byggget
         run: |
-          if grep -rl "__devKey\|Lagre til prosjektet" build/; then
+          if grep -rl "Denne modulen finnes ikke i pakkede utgaver" build/; then
             echo "::error::DEV-modulen (Malverktøy) er med i publiseringssbyggget!"
             exit 1
           fi

@@ -20,6 +20,14 @@
 		chooseOneModal(it.alts, it.selAlt ?? 0, (idx) => { it.selAlt = idx; markDirty(); });
 	}
 
+	function velgIntro() {
+		chooseOneModal(it.introAlts, it.selIntro ?? 0, (idx) => { it.selIntro = idx; markDirty(); });
+	}
+
+	function velgAvsl() {
+		chooseOneModal(it.avslutningAlts, it.selAvsl ?? 0, (idx) => { it.selAvsl = idx; markDirty(); });
+	}
+
 	function move(dir) {
 		const j = ii + dir;
 		if (j < 0 || j >= items.length) return;
@@ -134,91 +142,33 @@
 		{:else if it.alts && it.alts.length}
 			{#if introAltsLen}
 				<div class="alt-gruppe-tittel">Innledning</div>
-				{#if app.kind === 'template'}
-					<div class="alts">
-						{#each it.introAlts as a, ai (ai)}
-							<label class="alt" class:sel={it.selIntro === ai}>
-								<input type="radio" name="intro-{it.id}" checked={it.selIntro === ai}
-									onchange={() => { it.selIntro = ai; markDirty(); }} />
-								<span class="alt-col">
-									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selIntro === ai}&nbsp;· standard i malen{/if}</span>
-									<EditableText bind:value={a.text} kind="lit" />
-								</span>
-							</label>
-						{/each}
-					</div>
-				{:else}
-					<div class="alt-cur">
-						<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" />
-						{#if introAltsLen > 1}<button class="alt-btn" onclick={() => { it.selIntro = ((it.selIntro ?? 0) + 1) % introAltsLen; markDirty(); }}>
-							Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
-						</button>{/if}
-					</div>
-				{/if}
-			{/if}
-			{#if app.kind === 'template'}
-				{#if it.text && it.text.trim()}
-					<div class="alt-gruppe-tittel">Fast innledning</div>
-					<EditableText bind:value={it.text} kind="lit" />
-				{/if}
-				<div class="alt-gruppe-tittel">Alternativer</div>
-				<div class="alts">
-					{#each it.alts as a, ai (ai)}
-						<label class="alt" class:sel={it.selAlt === ai}>
-							<input type="radio" name="alt-{it.id}" checked={it.selAlt === ai}
-								onchange={() => { it.selAlt = ai; markDirty(); }} />
-							<span class="alt-col">
-								<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAlt === ai}&nbsp;· standard i malen{/if}</span>
-								<EditableText bind:value={a.text} kind="lit" />
-							</span>
-						</label>
-					{/each}
+				<div class="alt-cur">
+					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" />
+					<button class="alt-btn" onclick={() => velgIntro()}>
+						Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
+					</button>
 				</div>
-			{:else if it.text && it.text.trim()}
+			{/if}
+			{#if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
 				<EditableText bind:value={it.text} kind="lit" />
-				{@const sel = it.alts[it.selAlt ?? 0]}
-				<div class="alt-cur">
-					<EditableText bind:value={sel.text} kind="lit" />
-					<button class="alt-btn" onclick={() => velgAlt()}>
-						Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
-					</button>
-				</div>
-			{:else}
-				{@const sel = it.alts[it.selAlt ?? 0]}
-				<div class="alt-cur">
-					<EditableText bind:value={sel.text} kind="lit" />
-					<button class="alt-btn" onclick={() => velgAlt()}>
-						Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
-					</button>
-				</div>
 			{/if}
+			<div class="alt-gruppe-tittel">Alternativer</div>
+			{@const sel = it.alts[it.selAlt ?? 0]}
+			<div class="alt-cur">
+				<EditableText bind:value={sel.text} kind="lit" />
+				<button class="alt-btn" onclick={() => velgAlt()}>
+					Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
+				</button>
+			</div>
 			{#if avslAltsLen}
 				<div class="alt-gruppe-tittel">Avslutning</div>
-				{#if app.kind === 'template'}
-					<div class="alts">
-						{#each it.avslutningAlts as a, ai (ai)}
-							<label class="alt" class:sel={it.selAvsl === ai}>
-								<input type="radio" name="avsl-{it.id}" checked={it.selAvsl === ai}
-									onchange={() => { it.selAvsl = ai; markDirty(); }} />
-								<span class="alt-col">
-									<span class="alt-label"><EditableText bind:value={a.label} kind="etikett" plassholder="Etikett" />{#if it.selAvsl === ai}&nbsp;· standard i malen{/if}</span>
-									<EditableText bind:value={a.text} kind="lit" />
-								</span>
-							</label>
-						{/each}
-					</div>
-				{:else}
-					<div class="alt-cur">
-						<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" />
-						{#if avslAltsLen > 1}<button class="alt-btn" onclick={() => { it.selAvsl = ((it.selAvsl ?? 0) + 1) % avslAltsLen; markDirty(); }}>
-							Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
-						</button>{/if}
-					</div>
-				{/if}
-			{/if}
-			{#if app.kind === 'template' && it.selAlt == null}
-				<div class="instr">Velg et alternativ ⬆</div>
+				<div class="alt-cur">
+					<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" />
+					<button class="alt-btn" onclick={() => velgAvsl()}>
+						Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
+					</button>
+				</div>
 			{/if}
 		{:else}
 			<EditableText bind:value={it.text} kind="lit" />

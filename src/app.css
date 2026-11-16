@@ -159,6 +159,8 @@ button.wide { width: 100%; }
 .åpne-x svg { display: block; }
 .dirty-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--role, #c0392b); margin-right: 6px; }
 .list li.dirty .nm { font-style: italic; }
+/* «dev»-merket på åpne maler som er åpnet fra Malverktøy (dev-bygg) */
+#sidebar .dev-merke { font-size: 10px; font-weight: 600; line-height: 1; padding: 2px 5px; border-radius: 4px; background: var(--accent); color: #fff; margin-left: 6px; vertical-align: 1px; }
 /* temaknapp (ikon) nederst i menyen */
 .sidefoot-ikoner { display: flex; justify-content: flex-end; margin-top: 4px; }
 .ikon-btn { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel2); color: var(--muted); }

@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -156,7 +156,10 @@ async function lagreOriginalSomBrukerKopi(o) {
 		if (!r.ok) { toast.error('Klarte ikke lagre kopien: ' + (r.error ?? 'ukjent feil')); return; }
 		data.filePath = r.filePath;
 		app.templates.push(data);
-		app.current = data;
+		// det åpne dokumentet er nå kopien — oppdater «Åpne maler» (uten dev-merke)
+		const m = app.åpneMaler.find((x) => x.obj === o);
+		if (m) app.åpneMaler.splice(app.åpneMaler.indexOf(m), 1);
+		registrerÅpenMal(data, false);
 		app.dirty = false;
 		syncDirty();
 		toast.success('Originalen er uendret – endringene er lagret som brukermalen «' + data.name + '»');

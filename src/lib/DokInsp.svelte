@@ -1,23 +1,20 @@
 <script>
-	import { app, markDirty, applyKirkeaar, saveAsTemplate } from '$lib/store.svelte.js';
-	import { saveCurrent, saveCurrentToFile, lukkRedigering, saveAsTemplateOnDisk } from '$lib/fileio.svelte.js';
-	import { valgModal, kirkeaarListeModal, prompt } from '$lib/modal.svelte.js';
+	import { app, markDirty, applyKirkeaar } from '$lib/store.svelte.js';
+	import { saveCurrent, lukkRedigering } from '$lib/fileio.svelte.js';
+	import { lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
+	import { valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
-	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const o = $derived(app.current);
 
-	function onSave() { saveCurrent(); }
-
-	function onSaveTpl() {
-		if (isElectron) {
-			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplateOnDisk(name), o.name + ' (grunnordning)');
-		} else {
-			prompt('Lagre som lokal mal', 'Navn på malen', (name) => saveAsTemplate(name), o.name + ' (grunnordning)');
-		}
+	function onSave() {
+		if (app.current?.__devMal) { lagreTilProsjekt(); return; } // ⌘S på dev-mal → «Lagre til prosjektet»
+		saveCurrent();
 	}
+
+	function onLagreTilProsjekt() { lagreTilProsjekt(); }
 
 	function tilEksport() { app.visning = 'eksport'; }
 
@@ -64,18 +61,24 @@
 </script>
 
 <div class="insp-gruppe">
-	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudstjeneste'}</div>
-	<div class="insp-rad">
-		<input type="date" bind:value={o.date} onchange={onDatoEndret} />
-	</div>
+	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudtjeneste'}</div>
+	{#if app.kind === 'service'}
+		<div class="insp-rad">
+			<input type="date" bind:value={o.date} onchange={onDatoEndret} />
+		</div>
+	{/if}
 	<div class="insp-info">
 		{#if app.kind === 'service'}
 			<span class="insp-linje">Basert på mal: {o.templateName ?? '—'}</span>
 			<button class="link-btn insp-linje" onclick={velgKirkeaarManuelt} title="Velg kirkeårsdag manuelt">{@html mdi('calendar-edit')} {o.kirkeaar ? 'endre kirkeårsdag' : 'velg kirkeårsdag'}</button>
 			{#if o.kirkeaar}<span class="insp-linje">{o.kirkeaar.name}{#if o.kirkeaar.color}&nbsp;({o.kirkeaar.color}){/if}</span>{/if}
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
+		{:else if o?.__devMal}
+			<span class="insp-linje">Original i prosjektet — endringene skrives til <code>src/lib/data.js</code> og seed-filen ved «Lagre til prosjektet».</span>
+			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{:else}
 			<span class="insp-linje">Lokal mal (grunnordning)</span>
+			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{/if}
 	</div>
 </div>
@@ -84,9 +87,14 @@
 
 <div class="insp-gruppe insp-bunn">
 	<div class="insp-knapper">
-		<button class="wide" onclick={onSave} title="Lagre">{@html mdi('content-save', 17)} Lagre</button>
-		<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">{@html mdi('lagre-som', 17)} Lagre som …</button>
-		<button class="wide" onclick={onSaveTpl} title="Lagre som lokal mal">{@html mdi('lagre-som-mal', 14)} Lagre som mal</button>
+		{#if app.kind === 'template'}
+			{#if o?.__devMal}
+				<button class="wide primary" onclick={onLagreTilProsjekt} title="Skriv originalen tilbake til src/lib/data.js og seed-filen">{@html mdi('content-save', 17)} Lagre til prosjektet</button>
+			{/if}
+		{:else}
+			<button class="wide" onclick={onSave} title="Lagre">{@html mdi('content-save', 17)} Lagre</button>
+			<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">{@html mdi('lagre-som', 17)} Lagre som …</button>
+		{/if}
 		{#if app.kind === 'service'}
 			<button class="wide" onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">{@html mdi('download', 16)} Eksport …</button>
 		{/if}

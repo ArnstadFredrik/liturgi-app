@@ -26,6 +26,7 @@ export const app = $state({
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
+	åpneMaler: [], // åpne maler for redigering: {obj, name, dev, dirty}
 	modal: null
 });
 
@@ -237,6 +238,8 @@ export function markDirty() {
 	// dirty-status på listeraden — reaktivt (objektets eget __dirty er upålitelig i templaten)
 	const e = entryFor(app.current);
 	if (e) e.dirty = true;
+	const m = app.åpneMaler.find((x) => x.obj === app.current);
+	if (m) m.dirty = true;
 	window.liturgi?.setDirty?.(true);
 }
 
@@ -263,17 +266,33 @@ export function openService(id) {
 export function openTemplate(id) {
 	const t = app.templates.find((x) => x.id === id);
 	if (!t) return;
-	t.visInstr = t.visInstr ?? true;
-	t.visRoles = t.visRoles ?? true;
-	app.current = t;
+	registrerÅpenMal(t, false);
+}
+
+/** Registrer et mal-dokument som åpent (importeres av malverktoy.svelte.js). */
+export function registrerÅpenMal(obj, dev) {
+	obj.visInstr = obj.visInstr ?? true;
+	obj.visRoles = obj.visRoles ?? true;
+	let e = app.åpneMaler.find((x) => x.obj === obj);
+	if (!e) {
+		e = { obj, name: obj.name ?? '', dev: !!dev, dirty: false };
+		app.åpneMaler.push(e);
+	} else {
+		e.dev = !!dev;
+	}
+	app.current = obj;
 	app.kind = 'template';
 }
 
 export function closeEditor() {
-	// fjern gudstjenesten fra «åpne gudstjenester» — alle lukkeveier går hit
+	// fjern gudtjenesten/malen fra «åpne»-listene — alle lukkeveier går hit
 	if (app.kind === 'service' && app.current) {
 		const e = entryFor(app.current);
 		if (e) app.åpneTjenester.splice(app.åpneTjenester.indexOf(e), 1);
+	}
+	if (app.kind === 'template' && app.current) {
+		const m = app.åpneMaler.find((x) => x.obj === app.current);
+		if (m) app.åpneMaler.splice(app.åpneMaler.indexOf(m), 1);
 	}
 	app.current = null;
 	app.kind = null;
