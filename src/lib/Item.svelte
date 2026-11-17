@@ -5,6 +5,7 @@
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import { formaterSalme } from '$lib/lit.js';
 	import EditableText from './EditableText.svelte';
 
 	let { it, si, ii } = $props();
@@ -44,7 +45,7 @@
 					: (r?.error ?? 'Klarte ikke hente salmen'));
 				return;
 			}
-			it.text = r.tekst;
+			it.text = formaterSalme(r.tekst);
 			if (!it.salmeTittel && r.tittel) it.salmeTittel = r.tittel;
 			it.showSalmeTekst = true;
 			markDirty();
@@ -103,6 +104,7 @@
 			'sep',
 			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
 			{ label: (o?.visRoles ?? true) ? '✓ Vis roller' : 'Vis roller', action: () => { if (o) { o.visRoles = !(o.visRoles ?? true); markDirty(); } } },
+			{ label: (o?.visSalmeinfo ?? true) ? '✓ Vis salmeinfo' : 'Vis salmeinfo', action: () => { if (o) { o.visSalmeinfo = !(o.visSalmeinfo ?? true); markDirty(); } } },
 			'sep',
 			{ label: it.enabled ? 'Fjern fra gudstjenesten' : 'Ta med i gudstjenesten', action: toggle },
 			'sep',

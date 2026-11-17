@@ -8,6 +8,9 @@ const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;  // generell liten tekstnotis (kun formatering)
 const BIBELREF_RE = /^BIBELREF \| ?(.*)$/;  // bibelreferanse (brukes i bibelref-oppslag)
 const NOTAT_RE = /^@(?:NOTAT|n) ?\|? ?(.+)$/;  // hele avsnitt som notat: rød kursiv, mindre
+const COPYRIGHT_RE = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/;  // salmeinfo: T/M/O-hode og ©-linjer — liten (som fotnote)
+const REFRENG_START_RE = /^\{\{refreng\}\} ?(.*)$/;  // blokkstart: alt til {{/refreng}} i kursiv
+const REFRENG_SLUTT_RE = /^\{\{\/refreng\}\} ?(.*)$/;
 
 /** Flett sammen harde linjeskift som bare er linjebryting (limt inn fra Word/e-post)
  *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
@@ -24,17 +27,18 @@ export function flytAvsnitt(text) {
 		const t = linje.trim();
 		if (!t) { flush(); out.push(''); return; }   // tom linje = avsnittskift
 		if (!buf) buf = t;
-		// linjemerker (FOTNOTE/BIBELREF/@) og punktoppstillinger starter alltid egne avsnitt —
-		// merket gjelder kun sin egen linje, så påfølgende linjer skal ikke limes inn
-		else if (/^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n) ?\||^@r ?\||^[-–—•] /.test(t)) { flush(); out.push(''); buf = t; }
+		// linjemerker (FOTNOTE/BIBELREF/@COPYRIGHT/@NOTAT), refrengmarkører og punktoppstillinger
+		// starter alltid egne avsnitt — merket gjelder kun sin egen linje, så påfølgende linjer
+		// skal ikke limes inn
+		else if (/^(FOTNOTE|BIBELREF) \||^@r ?\||^@(?:NOTAT|n|COPYRIGHT|copyright|c)\b|^\{\{\/?refreng\}\}|^[-–—•] /.test(t)) { flush(); out.push(''); buf = t; }
 		else buf += ' ' + t;
 		const neste = (linjer[i + 1] ?? '').trim();
 		// avslutt avsnittet på setningsslutt, etter fullførte fet-blokker (**), etter
 		// linjemerke-linjer (gjelder kun egen linje), eller før neste linje ser ut som
-		// ny setning/rolle/vers/fotnote/bibelref/notat
-		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^(FOTNOTE|BIBELREF) \||^@/.test(t) ||
+		// ny setning/rolle/vers/fotnote/bibelref/notat/copyright/refreng-markør
+		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^(FOTNOTE|BIBELREF) \||^@/.test(t) || /^\{\{\/?refreng\}\}/.test(t) ||
 			/^[-–—•] /.test(neste) || /^\^\{/.test(neste) ||
-			/^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste) || /^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n) /.test(neste)) flush();
+			/^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste) || /^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n|COPYRIGHT|copyright|c)\b/.test(neste) || /^\{\{\/?refreng\}\}/.test(neste)) flush();
 	});
 	flush();
 	// markdown-blokker (*kursiv*) som spenner over linjeskift (odde antall * på linjen)
@@ -78,11 +82,32 @@ export function roleSegments(text) {
 		}
 	};
 	const lines = (text ?? '').split('\n');
+	let iRefreng = false;      // inne i en {{refreng}}-blokk → kursiv
+	let hoppLinjeskift = false; // markørlinjer gir ingen egen utskrift — hopper over neste \n
 	lines.forEach((line, li) => {
-		if (li > 0) push('\n', red, small, false, false);
+		if (li > 0) {
+			if (hoppLinjeskift) hoppLinjeskift = false;
+			else push('\n', red, small, false, false);
+		}
+		// {{refreng}} / {{/refreng}} — blokkmarkører: ingen egen utskrift, linjene
+		// inni blokken settes i kursiv
+		const refS = line.match(REFRENG_START_RE);
+		if (refS) {
+			iRefreng = true;
+			if (refS[1]) pushInline(refS[1], red, small, false, true);
+			hoppLinjeskift = true;
+			return;
+		}
+		const refS2 = line.match(REFRENG_SLUTT_RE);
+		if (refS2) {
+			iRefreng = false;
+			if (refS2[1]) pushInline(refS2[1], red, small, false, true);
+			hoppLinjeskift = true;
+			return;
+		}
 		let rest = line;
 		let extraBold = false;
-		const fn = line.match(BIBELREF_RE) ?? line.match(FOTNOTE_RE);
+		const fn = line.match(BIBELREF_RE) ?? line.match(FOTNOTE_RE) ?? line.match(COPYRIGHT_RE);
 		if (fn) {
 			small = true;
 			rest = fn[1];
@@ -130,8 +155,8 @@ export function roleSegments(text) {
 		for (const part of rest.split(/(\{\{\/?r\}\})/)) {
 			if (part === '{{r}}') { red = true; continue; }
 			if (part === '{{/r}}') { red = false; continue; }
-			// inline markdown: **fet** og *urskrift* + hevede versnummer ^{N}
-			pushInline(part, red, small, extraBold);
+			// inline markdown: **fet** og *urskrift* + hevede versnummer ^{N} (+ refreng-kursiv)
+			pushInline(part, red, small, extraBold, iRefreng);
 		}
 		small = false;
 	});

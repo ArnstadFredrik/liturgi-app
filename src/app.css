@@ -546,6 +546,15 @@ textarea {
 .lit-text .fotnote, .alt-text .fotnote, .m-bib-lit .fotnote {
 	display: block; font-size: 0.8em; font-style: italic; color: var(--muted);
 }
+/* salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) — samme stil som fotnote */
+.lit-text .copyright, .alt-text .copyright, .m-bib-lit .copyright, .et-rik .copyright {
+	display: block; font-size: 0.8em; font-style: italic; color: var(--muted);
+}
+/* {{refreng}}-blokker — kursiv */
+.lit-text .refreng, .alt-text .refreng, .m-bib-lit .refreng, .et-rik .refreng { font-style: italic; }
+/* «Vis salmeinfo» av: @COPYRIGHT-linjene skjules i visning og redigering */
+#editor.skjul-salmeinfo .copyright,
+#editor.skjul-salmeinfo .et-linje[data-type='copyright'] { display: none; }
 
 .list li.empty {
 	color: var(--muted);
