@@ -15,7 +15,7 @@
 	const forhType = pres?.type ?? mInit?.forhåndsvalgtType ?? 'gudstjeneste';
 	let name = $state(isNS ? (pres?.name ?? '') : (mInit?.def ?? ''));
 	let date = $state(isNS ? (pres?.date ?? nextSundayISO()) : (mInit?.dato ?? ''));
-	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType)?.id ?? '') : '');
+	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType && kanBrukes(t))?.id ?? '') : '');
 	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
 	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
@@ -26,10 +26,16 @@
 	function malType(t) {
 		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
 	}
+	/** Kan malen brukes direkte til å opprette gudstjenester? (malen kan selv
+	 *  bestemme: «Dåp i hovedgudstjenesten» er bare en del av gudstjenesten.)
+	 *  Standard er ja — malen må eksplisitt si kanGudstjeneste: false. */
+	function kanBrukes(t) {
+		return t.kanGudstjeneste !== false;
+	}
 
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
 	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudtjeneste)
-	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType));
+	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)));
 
 	// sørg for at valgt mal passer typen når type byttes. NB: malerForType kan være
 	// stale i denne effekten (oppdateres av en annen $effect) — filtrer direkte på
@@ -37,7 +43,7 @@
 	$effect(() => {
 		if (m?.type === 'newService') {
 			const t = app.templates.find((x) => x.id === tplId);
-			if (!t || malType(t) !== nyType) tplId = app.templates.find((x) => malType(x) === nyType)?.id ?? '';
+			if (!t || malType(t) !== nyType || !kanBrukes(t)) tplId = app.templates.find((x) => malType(x) === nyType && kanBrukes(x))?.id ?? '';
 		}
 	});
 	let valgte = $state([]);
@@ -86,7 +92,7 @@
 				date = nextSundayISO();
 				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
 				// en gravferdsmal — originalene lastes først og rekkefølgen er ikke garantert)
-				tplId = (app.templates.find((t) => malType(t) === forhType))?.id ?? '';
+				tplId = (app.templates.find((t) => malType(t) === forhType && kanBrukes(t)))?.id ?? '';
 				medDåp = true;
 				medNattverd = true;
 				manuellK = null;
@@ -232,7 +238,7 @@
 	 *  Svelte 5 $derived.by som leser nyType var stale ved rask GF→GJ-bryting. */
 	function velgType(type) {
 		nyType = type;
-		malerForType = app.templates.filter((t) => malType(t) === type);
+		malerForType = app.templates.filter((t) => malType(t) === type && kanBrukes(t));
 		if (type === 'gudstjeneste') {
 			manuellK = null;
 			autoKirkeaar();

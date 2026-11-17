@@ -875,3 +875,6 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-liste-dag.i-dag::after { content: ''; position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 .ka-i-dag-markor { display: flex; align-items: center; gap: 8px; padding: 4px 8px; color: var(--accent); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .ka-i-dag-markor::before, .ka-i-dag-markor::after { content: ''; flex: 1; height: 1px; background: var(--accent); opacity: 0.5; }
+
+/* Kan-brukes-til-gudstjenester-bryteren i dokumentpanelet (maler) */
+.insp-avpaa-rad { margin-top: 8px; }

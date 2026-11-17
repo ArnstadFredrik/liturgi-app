@@ -935,6 +935,7 @@ export const BUILTIN_TEMPLATES = [
 		"builtinKey": "dop-i-hovedgudstjenesten-2017",
 		"name": "Dåp i hovedgudstjenesten (bokmål, 2017)",
 		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
+		"kanGudstjeneste": false,
 		"sections": [
 			{
 				"title": "Dåp i hovedgudstjenesten",
