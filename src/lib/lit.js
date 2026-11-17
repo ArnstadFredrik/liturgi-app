@@ -129,7 +129,8 @@ export function litEditHtml(text) {
 
 /** Formater rå salmetekst fra gudstjeneste.no: T/M/O-hodet øverst og ©-linjene
  *  på slutten blir @COPYRIGHT-linjer (salmeinfo), «Refreng»-blokker pakkes i
- *  {{refreng}}…{{/refreng}} (kursiv). */
+ *  {{refreng}}…{{/refreng}} (kursiv), og tospråklige salmer får språkseksjonene
+ *  (Bokmål / Sørsamisk / …) som ## -overskrifter. */
 export function formaterSalme(raa) {
 	if (!raa) return raa ?? '';
 	const linjer = String(raa).replace(/\r\n/g, '\n').split('\n');
@@ -140,6 +141,8 @@ export function formaterSalme(raa) {
 		ut.push('@COPYRIGHT ' + linjer[i].trim());
 		i++;
 	}
+	// språknavn som står alene på en linje (NOS13: Bokmål/Nynorsk/samiske varianter/…)
+	const SPRÅK = /^(bokmål|nynorsk|sørsamisk|nordsamisk|lulesamisk|samisk|norsk|engelsk|svensk|tysk|fransk|spansk|latin)$/i;
 	let iRef = false;
 	for (; i < linjer.length; i++) {
 		const t = linjer[i].trim();
@@ -157,6 +160,10 @@ export function formaterSalme(raa) {
 			} else {
 				ut.push(t);
 			}
+			continue;
+		}
+		if (SPRÅK.test(t)) {
+			ut.push('## ' + t);
 			continue;
 		}
 		if (/^\s*©/.test(linjer[i])) {
