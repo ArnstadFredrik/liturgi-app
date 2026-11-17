@@ -239,7 +239,7 @@
 			try {
 				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 				const kopi = klonMedValg(o, aktiv);
-				const { doc } = buildPdfBase64(kopi, true, valg);
+				const { doc } = buildPdfBase64(kopi, aktiv === 'Menighet' ? false : visInstrValg, valg);
 				const mod = await import('pdfjs-dist');
 				const pdfjsLib = mod.pdfjsLib ?? mod; // chunk-eksporten heter ikke alltid pdfjsLib
 				// ekte worker: Vite bygger worker-filen fra pdfjs-dist
@@ -714,7 +714,7 @@
 						}
 						// referansen skal frem i overskriften: «3. Andre lesning — Rom 4,1-8»
 						if (it.__ref || r) it.heading = (it.heading || '').replace(/\s*—\s*[^—]*$/, '') + ' — ' + (Array.isArray(r) ? r[it.selAlt ?? 0] || r[0] || '' : r);
-						it.__visInnhold = true; // referansen ER innholdet i referansemodus
+						it.__visInnhold = false; // kun referansen i overskriften — ingen innholdsslides/avsnitt
 					}
 				}
 			});
@@ -983,13 +983,13 @@
 										{#if erBibel(it)}
 <button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
 	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
-	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
 	{@html mdi('book-open-variant')}
 	<span>Hele teksten</span>
 	</button>
 	<button type="button" class="eksport-innhold-indi" class:av={!visBibel(si, ii, it)}
 	title={!visBibel(si, ii, it) ? 'Bare bibelreferansen brukes — klikk for hele bibelteksten' : 'Bibelreferanse'}
-	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
 	{@html mdi('book-open-variant')}
 	<span>Bibelref.</span>
 	</button>
@@ -1003,13 +1003,13 @@
 											{#if erBibel(it)}
 <button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
 	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
-	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
 	{@html mdi('book-open-variant')}
 	<span>Hele teksten</span>
 	</button>
 	<button type="button" class="eksport-innhold-indi" class:av={!visBibel(si, ii, it)}
 	title={!visBibel(si, ii, it) ? 'Bare bibelreferansen brukes — klikk for hele bibelteksten' : 'Bibelreferanse'}
-	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
 	{@html mdi('book-open-variant')}
 	<span>Bibelref.</span>
 	</button>
