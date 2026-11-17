@@ -880,12 +880,10 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .insp-avpaa-rad { margin-top: 8px; }
 
 /* PPTX-undermodulen: forhåndsvisning av slidene */
-.ppt-visning { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
-.ppt-verktoy { display: flex; flex-direction: column; gap: 8px; }
 .ppt-innst { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.ppt-hint { color: var(--muted); font-size: 12px; margin: 0; }
-.ppt-side-liste { display: flex; flex-wrap: wrap; gap: 14px; align-content: flex-start; overflow-y: auto; flex: 1; padding-bottom: 30px; }
-.ppt-side { position: relative; width: 380px; aspect-ratio: 16 / 9; background: #0D0D0F; border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; overflow: hidden; }
+.ppt-side-liste { display: flex; flex-wrap: wrap; gap: 14px; align-content: flex-start; align-content: flex-start; overflow-y: auto; flex: 1; padding-bottom: 30px; }
+#eks-ppt { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; min-height: 0; padding-bottom: 30px; }
+.ppt-side { position: relative; width: 480px; aspect-ratio: 16 / 9; background: #0D0D0F; border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; overflow: hidden; }
 .ppt-side-innhold { color: #E8E8EC; font-family: Arial, sans-serif; line-height: 1.15; white-space: pre-wrap; }
 .ppt-red { color: #FF6B5E; }
 .ppt-demp { color: #A0A0A8; font-style: italic; font-size: 0.85em; }
@@ -895,3 +893,4 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ppt-ekstra input, .ppt-ekstra textarea { font: inherit; font-size: 13px; color: var(--foreground); background: var(--background); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; resize: vertical; }
 .ppt-ekstra-slett { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 6px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; }
 .ppt-ekstra-slett:hover { background: var(--border); color: var(--foreground); }
+.eks-ppt-ekstra { width: auto !important; padding: 2px 8px; }
