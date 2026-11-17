@@ -483,8 +483,10 @@
 		const slides = [];
 		const push = (segs, big = false, blank = false) => slides.push({ big, blank, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
+		pptSlotVed = [];
 		const emitEkstra = (ekstra, slot) => {
 			pptSlidePos[slot] = slides.length;
+			pptSlotVed[slides.length] = slot;
 			const joined = flytAvsnitt(((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim());
 			const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
 			if (grupper.length) for (const grp of grupper) push(grp);
@@ -495,7 +497,8 @@
 		// blank side mellom leddene (unngå dobbelt-tom og tom først)
 		const tom = () => { if (tomSlide && slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
-		const kopi = klonMedValg(o, 'Menighet');
+		// utvalg = Menighet (delt), bibelmodus = Skjerm — samme som eksporten
+		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const seksjoner = kopi.sections ?? [];
 		for (let si = 0; si < seksjoner.length; si++) {
 			const items = seksjoner[si].items ?? [];
@@ -514,6 +517,7 @@
 				if (it.type === 'salme' && it.text) {
 					if (it.__visInnhold === false) continue; // «vis innhold» av
 					pptSlidePos[nokkel(si, ii)] = slides.length;
+					pptSlotVed[slides.length] = nokkel(si, ii);
 					const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 					vers.forEach((v) => {
 						const overskrift = heading ? heading + '\n' : '';
@@ -531,6 +535,7 @@
 				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
 				if (!joined) continue;
 				pptSlidePos[nokkel(si, ii)] = slides.length;
+				pptSlotVed[slides.length] = nokkel(si, ii);
 				for (const grp of delPptSegs(roleSegments(joined), tekstStorrelse)) push(grp);
 				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
@@ -594,6 +599,40 @@
 		setPptx('ekstra', pptEkstra);
 	}
 
+	/** Drag-drop: plasser egna slide ei etter et ledd (slot) eller etter en annen egna slide. */
+	let dragEkstra = null;
+	function flyttEkstraTil(ei, mal) {
+		const ekstra = [...pptEkstra];
+		const e = ekstra[ei];
+		if (!e) return;
+		if (mal.type === 'item') {
+			e.etter = mal.slot;
+			setPptx('ekstra', pptEkstra);
+			return;
+		}
+		// manuell målt: samme slot som målet, rett etter den i rekkefølgen
+		const malIdx = mal.idx;
+		e.etter = ekstra[malIdx].etter ?? '';
+		const [x] = ekstra.splice(ei, 1);
+		const pos = malIdx > ei ? malIdx : malIdx + 1;
+		ekstra.splice(pos, 0, x);
+		pptEkstra = ekstra;
+		setPptx('ekstra', pptEkstra);
+	}
+
+	/** Klikk på et lysbilde → scroll leddoversikten til riktig rad. */
+	function visListeRad(slot) {
+		document.querySelector('.eksport-liste [data-slot="' + slot + '"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+
+	/** Klikk på ET LYSBILDE → scroll leddoversikten til riktig ledd. */
+	let pptSlotVed = []; // slideindeks → slot (fylles i byggPptSlides)
+	function slotForSlide(idx) {
+		for (let i = Math.min(idx, pptSlotVed.length - 1); i >= 0; i--) {
+			if (pptSlotVed[i]) return pptSlotVed[i];
+		}
+		return null;
+	}
 	/** Klikk på et ledd i oversikten → scroll forhåndsvisningen til slidet. */
 	function visSlide(slot) {
 		const idx = pptSlidePos[slot];
@@ -865,7 +904,13 @@
 		<div class="eksport-kolonner">
 			<div class="eksport-liste" use:lenket>
 									{#each ekstraEtter('') as ee (ee.i)}
-						<div class="eksport-rad eksport-egen" onclick={(e) => { if (!e.target.closest('button, input, textarea')) visSlide('e' + ee.i); }}>
+						<div class="eksport-rad eksport-egen" data-slot={'e' + ee.i}
+						draggable="true"
+						onclick={(e) => { if (!e.target.closest('button, input, textarea')) visSlide('e' + ee.i); }}
+						ondragstart={(e) => { dragEkstra = ee.i; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(ee.i)); }}
+						ondragover={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) e.preventDefault(); }}
+						ondrop={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'ekstra', idx: ee.i }); dragEkstra = null; } }}
+						ondragend={() => { dragEkstra = null; }}>
 							<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
 							<div class="eks-egen-felter">
 								<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
@@ -894,7 +939,10 @@
 					<div class="sidehead eksport-seksjon" data-sec={si}>{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
 						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}
-						onclick={(e) => { if (aktiv === 'Skjerm' && !e.target.closest('button, input, label, textarea, select, a')) visSlide(nokkel(si, ii)); }}>
+						data-slot={nokkel(si, ii)}
+						onclick={(e) => { if (aktiv === 'Skjerm' && !e.target.closest('button, input, label, textarea, select, a')) visSlide(nokkel(si, ii)); }}
+						ondragover={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) e.preventDefault(); }}
+						ondrop={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'item', slot: nokkel(si, ii) }); dragEkstra = null; } }}>
 							{#if it.enabled === false}
 								<span class="eksport-fjernet-tag" title="Fjernet fra gudstjenesten i kontekstmenyen — kommer ikke med i eksport">fjernet</span>
 							{:else}
@@ -958,7 +1006,7 @@
 										</div>
 									{/if}
 	{#if aktiv === 'Skjerm'}
-						{#each ekstraEtter('nokkel(si, ii)') as ee (ee.i)}
+						{#each ekstraEtter(nokkel(si, ii)) as ee (ee.i)}
 							<div class="eksport-rad eksport-egen">
 								<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
 								<div class="eks-egen-felter">
@@ -984,7 +1032,8 @@
 			<div id="eks-ppt">
 				<div class="ppt-side-liste">
 					{#each pptSlides as slide, si (si)}
-						<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}>
+						<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}
+							onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
 							{#if !slide.blank}
 							<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
 								{#each slide.deler as del}
