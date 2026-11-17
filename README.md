@@ -26,6 +26,36 @@ Data lagres utenfor appen og overlever oppdateringer:
     npm run build        # statisk produksjonsbygg i build/
     npm run preview      # forhåndsvis produksjonsbygget
 
+## Dev-modus og Malverktøy
+
+`npm run build` og `npm run app:mac` lager **vanlige bygg**. Det finnes også en egen dev-utgave som inneholder utviklerverktøy som aldri kommer med i publiserte utgaver:
+
+    npm run electron:dev   # bygger dev-utgave og starter Electron lokalt
+    npm run build:dev      # bygger dev-utgave i build/ (starter ikke appen)
+
+Hvordan dev-utgaven holdes utenfor publiseringen:
+
+1. **Byggflagget**: `__DEV_MODE__` (settes kun av `VITE_DEV_MODE=1` i `npm run build:dev`/`electron:dev`) – uten flagget tree-shaker Vite selve verktøykoden ut av bundle'en.
+2. **Upakket-sjekk**: hovedprosessen svarer `devModus: !app.isPackaged` på `dev:tilstand`-IPC-en – en app fra en DMG-installasjon får aldri verktøyene, selv om byggget ville inneholdt dem.
+3. **CI-verifisering**: release-workflowen (`.github/workflows/release-mac.yml`) bygger kun på `v*`-tags og feiler hvis dev-modulen finnes i byggget. Dev-utgaven kan derfor ikke publiseres ved et uhell – den bygges alltid lokalt.
+
+### Malverktøy
+
+En dev-modul for å redigere **originalmalene** – de innebygde ordningene som følger med programmet. Åpnes fra «Malverktøy»-knappen i sidefeltet (vises bare i dev-utgaven).
+
+**Dette er annerledes enn vanlig malredigering**, som du kjenner fra «Maler»-siden:
+
+| | Vanlig malredigering (Maler-siden) | Malverktøy (dev) |
+|---|---|---|
+| Hva redigeres | Lokale maler (`.limal`-filer i `~/.config/Liturgi/maler/`) | Originalene i `src/lib/data.js` – kildekoden som følger appen |
+| Hvor endringen lander | I mal-filen på disk | I **prosjektet**: `src/lib/data.js` + seed-filen under `~/.config/Liturgi/maler/` |
+| Blir med i bygg? | Nei – malene er brukerdata | **Ja** – endringene følger kildekoden og neste build/release |
+| Originalen endres? | Aldri – originalene er låste; endringer lager en kopi i brukermaler | Ja – det er selve poenget; dette er verktøyet for å vedlikeholde originalene |
+
+I praksis: du åpner en originalmal fra Malverktøy-lister, redigerer den med hele den vanlige editoren (riktekst, rolle-markering, alternativer, bibliotek – samme UI som ellers), og velger «Lagre til prosjektet» i høyremenyen (eller ⌘S). Endringene skrives tilbake til `data.js` (med automatisk validering og tilbakerulling ved feil) og til seed-filen, slik at de blir med i byggeprosessen.
+
+Andre dev-konsekvenser: åpne maler dukker opp under «Åpne maler» i sidefeltet, og maler åpnet fra Malverktøy er merket med **dev**. Publiserte utgaver inneholder ingen av delene.
+
 ## Funksjoner
 
 - **Maler**: «Ordning for hovedgudstjeneste (bokmål, 2020)» og «Gudstjenestemal Bakke og Gylland 2025» er innebygd. Lag nye lokale maler («+ Ny lokal mal») eller lagre en gudstjeneste som grunnordning med «Lagre som mal».
@@ -46,6 +76,7 @@ Data lagres utenfor appen og overlever oppdateringer:
     electron/preload.cjs       – bridge til rendereren (window.liturgi)
     electron/db.cjs            – SQLite (~/.config/Liturgi/liturgi.db)
     src/lib/data.js            – de to innebygde malene (generert fra docx-filene)
+    src/lib/malverktoy.svelte.js – DEV: felles logikk for Malverktøy (åpne/lagre originalmaler)
     src/lib/store.svelte.js    – tilstand (Svelte 5 runes)
     src/lib/fileio.svelte.js   – lagre/åpne filer, siste-gudstjenester-liste, maler på disk
     src/lib/export.js          – Word/PowerPoint/PDF-eksport (docx, pptxgenjs)
