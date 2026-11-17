@@ -916,18 +916,18 @@
 											</button>
 										{/if}
 										{#if erBibel(it)}
-<div class="eks-bibel-par">
-											<button type="button" class:av={visBibel(si, ii, it)}
-												title="Hele bibelteksten brukes i eksporten"
-												onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
-												<span>Hele teksten</span>
-											</button>
-											<button type="button" class:av={!visBibel(si, ii, it)}
-												title="Bare bibelreferansen brukes i eksporten"
-												onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
-												<span>Bibelref.</span>
-											</button>
-											</div>
+<button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
+	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
+	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	{@html mdi('book-open-variant')}
+	<span>Hele teksten</span>
+	</button>
+	<button type="button" class="eksport-innhold-indi" class:av={!visBibel(si, ii, it)}
+	title={!visBibel(si, ii, it) ? 'Bare bibelreferansen brukes — klikk for hele bibelteksten' : 'Bibelreferanse'}
+	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	{@html mdi('book-open-variant')}
+	<span>Bibelref.</span>
+	</button>
 										{/if}
 									</div>
 								</div>
@@ -936,18 +936,18 @@
 						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && ((leddTekst(it) || '').trim() || (erBibel(it) && bibelrefTxt(it)))}
 										<div class="eksport-innhold-rad" class:ut={!erBibel(it) && !visTekstDel(si, ii)}>
 											{#if erBibel(it)}
-<div class="eks-bibel-par">
-												<button type="button" class:av={visBibel(si, ii, it)}
-													title="Hele bibelteksten brukes i eksporten"
-													onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
-													<span>Hele teksten</span>
-												</button>
-												<button type="button" class:av={!visBibel(si, ii, it)}
-													title="Bare bibelreferansen brukes i eksporten"
-													onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
-													<span>Bibelref.</span>
-												</button>
-												</div>
+<button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
+	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
+	onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	{@html mdi('book-open-variant')}
+	<span>Hele teksten</span>
+	</button>
+	<button type="button" class="eksport-innhold-indi" class:av={!visBibel(si, ii, it)}
+	title={!visBibel(si, ii, it) ? 'Bare bibelreferansen brukes — klikk for hele bibelteksten' : 'Bibelreferanse'}
+	onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+	{@html mdi('book-open-variant')}
+	<span>Bibelref.</span>
+	</button>
 											{:else}
 												<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
 													<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
