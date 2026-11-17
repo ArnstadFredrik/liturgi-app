@@ -20,8 +20,10 @@ export function leddTekst(it) {
 export function litHtml(text) {
 	let out = (text ?? '')
 		.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-		// {{refreng}}…{{/refreng}} — hele refrenget i kursiv (spennet beskyttes mot videre md)
-		.replace(/\{\{refreng\}\}([\s\S]*?)\{\{\/refreng\}\}/g, (m, t) => '<span class="refreng">' + t + '</span>')
+		// {{refreng}}…{{/refreng}} — hele refrenget i kursiv (spennet beskyttes mot videre md).
+		// Ledende/avluttende linjeskift trimmes — ellers blir det ekstra tomme linjer
+		// før og etter refrenget i visningen (markøren er på egen linje i kilden).
+		.replace(/\{\{refreng\}\}([\s\S]*?)\{\{\/refreng\}\}/g, (m, t) => '<span class="refreng">' + t.replace(/^\n+/, '').replace(/\n+$/, '') + '</span>')
 		.replace(/^(?:BIBELREF|FOTNOTE) \| ?(.*)$/gm, (m, t) => '<span class="fotnote">' + mdInline(t) + '</span>')
 		// hele-linje notis: @NOTAT eller @n — rød kursiv, litt mindre enn brødteksten
 		.replace(/^@(?:NOTAT|n) ?\|? ?(.+)$/gm, (m, t) => '<span class="notat">' + mdInline(t) + '</span>')
