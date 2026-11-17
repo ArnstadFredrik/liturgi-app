@@ -5,7 +5,6 @@
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
 	let datamappe = '';
-	let gudstjenester = '';
 	let jobber = false;
 	let versjon = '';
 	let bygg = '';
@@ -15,7 +14,6 @@
 		const list = await window.liturgi.listTemplates();
 		if (list.ok) {
 			datamappe = list.dirs.originaler.split('/maler/originaler')[0] || list.dirs.originaler;
-			gudstjenester = list.dirs.originaler.replace('/maler/originaler', '');
 		}
 		const info = await window.liturgi.appInfo?.();
 		if (info) { versjon = info.versjon; bygg = info.bygg; }
@@ -27,7 +25,8 @@
 		jobber = false;
 	}
 
-	// salmedatabasen (gudstjeneste.no): lagre innlogging i databasen (kryptert)
+	// salmedatabasen (gudstjeneste.no): innlogging lagres kryptert i databasen
+	let salmeKonfigurert = false;
 	let salmeUser = '';
 	let salmePass = '';
 	let salmeJobber = false;
@@ -37,8 +36,8 @@
 		if (!isElectron || !window.liturgi?.salmeStatus) return;
 		const s = await window.liturgi.salmeStatus();
 		if (s?.ok) {
+			salmeKonfigurert = !!s.konfigurert;
 			salmeUser = s.bruker ?? '';
-			salmeStatusTekst = s.konfigurert ? 'Konfigurert for ' + s.bruker : '';
 		}
 	});
 
@@ -51,9 +50,26 @@
 		salmeStatusTekst = '';
 		const r = await window.liturgi.salmeLagreLogin(salmeUser.trim(), salmePass);
 		salmeJobber = false;
-		salmeStatusTekst = r?.ok
-			? 'Lagret (passordet er kryptert)'
-			: 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
+		if (r?.ok) {
+			salmeKonfigurert = true;
+			salmePass = '';
+		} else {
+			salmeStatusTekst = 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
+		}
+	}
+
+	async function salmeLoggUt() {
+		salmeJobber = true;
+		const r = await window.liturgi.salmeLoggUt();
+		salmeJobber = false;
+		if (r?.ok) {
+			salmeKonfigurert = false;
+			salmeUser = '';
+			salmePass = '';
+			salmeStatusTekst = '';
+		} else {
+			salmeStatusTekst = 'Klarte ikke logge ut: ' + (r?.error ?? 'ukjent feil');
+		}
 	}
 </script>
 
@@ -63,59 +79,99 @@
 		<p class="inn-versjon">Versjon {versjon}{bygg ? ` · bygg ${bygg}` : ''}</p>
 	{/if}
 
-	<div class="inn-gruppe">
-		<div class="sidehead">Datamappe</div>
-		{#if isElectron}
-			<p>
-				Appens data ligger i <code>{datamappe || '~/.config/Liturgi'}</code> og overlever appoppdateringer:
-			</p>
-			<ul>
-				<li><code>{datamappe}/maler/originaler/</code> — originalmalene (følger med appen, kan ikke slettes)</li>
-				<li><code>{datamappe}/maler/brukermaler/</code> — dine lokale maler (<code>.limal</code>)</li>
-				<li><code>{datamappe}/liturgi.db</code> — SQLite: innstillinger, siste gudstjenester og biblioteket (oppslagsregister)</li>
-				<li>Gudstjenestene lagres som <code>.liturgi</code>-filer der du velger (standard <code>~/Documents/Liturgi/</code>)</li>
-			</ul>
-		{:else}
-			<p>
-				I nettleser-versjonen lagres data i nettleserens localStorage (nøkkel
-				<code>liturgi-store-v1</code>). Datamappe, bibliotek og siste-gudstjenester gjelder
-				kun Mac-appen.
-			</p>
-		{/if}
-	</div>
-
-	<div class="inn-gruppe">
-		<div class="sidehead">Biblioteket</div>
-		<p>
-			Biblioteket er et oppslagsregister over originalmalene som brukes av
-			«Hent innhold» og «Hent ledd». Det bygges automatisk ved oppstart når det
-			mangler eller mangler rader — her kan du tvinge det i gang på nytt om noe
-			ikke fungerer som det skal.
-		</p>
-		{#if isElectron}
-			<button onclick={byggPåNytt} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer biblioteket'}</button>
-		{/if}
-	</div>
-
-	<div class="inn-gruppe">
-		<div class="sidehead">Salmedatabasen (gudstjeneste.no)</div>
-		{#if isElectron}
-			<p>
-				Brukernavn og passord for din konto på gudstjeneste.no brukes når salmetekster
-				hentes inn i salmeledd. Passordet lagres kryptert i appens database.
-			</p>
-			<div class="salme-login">
-				<label for="salmeUser">Brukernavn</label>
-				<input id="salmeUser" bind:value={salmeUser} spellcheck="false" autocomplete="off" />
-				<label for="salmePass">Passord</label>
-				<input id="salmePass" type="password" bind:value={salmePass} autocomplete="new-password" />
-				<div class="salme-knapper">
-					<button onclick={lagreSalmeLogin} disabled={salmeJobber}>{salmeJobber ? 'Lagrer …' : 'Lagre'}</button>
+	<div class="inn-seksjon">
+		<div class="inn-seksjon-tittel">Generelt</div>
+		<div class="inn-kort">
+			{#if isElectron}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Datamappe</div>
+						<div class="inn-rad-beskriv">
+							Appens data ligger i <code>{datamappe || '~/.config/Liturgi'}</code> og
+							overlever appoppdateringer. Gudstjenestene lagres som
+							<code>.liturgi</code>-filer der du velger (standard
+							<code>~/Documents/Liturgi/</code>).
+						</div>
+						<div class="inn-stier">
+							<span><code>{datamappe}/maler/originaler/</code> — originalmalene (følger med appen)</span>
+							<span><code>{datamappe}/maler/brukermaler/</code> — dine lokale maler (<code>.limal</code>)</span>
+							<span><code>{datamappe}/liturgi.db</code> — innstillinger, siste gudstjenester og biblioteket</span>
+						</div>
+					</div>
 				</div>
-				{#if salmeStatusTekst}<p class="salme-status">{salmeStatusTekst}</p>{/if}
-			</div>
-		{:else}
-			<p>Salmedatabasen er kun tilgjengelig i Mac-appen.</p>
-		{/if}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Biblioteket</div>
+						<div class="inn-rad-beskriv">
+							Oppslagsregister over originalmalene, brukes av «Hent innhold» og
+							«Hent ledd». Det bygges automatisk — regenerer om noe ikke virker.
+						</div>
+					</div>
+					<button class="inn-handling" onclick={byggPåNytt} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer'}</button>
+				</div>
+			{:else}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Lagring</div>
+						<div class="inn-rad-beskriv">
+							I nettleser-versjonen lagres data i nettleserens localStorage
+							(nøkkel <code>liturgi-store-v1</code>). Datamappe, bibliotek og
+							siste gudstjenester gjelder kun Mac-appen.
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	<div class="inn-seksjon">
+		<div class="inn-seksjon-tittel">Salmedatabasen (gudstjeneste.no)</div>
+		<div class="inn-kort">
+			{#if !isElectron}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Ikke tilgjengelig</div>
+						<div class="inn-rad-beskriv">Salmedatabasen er kun tilgjengelig i Mac-appen.</div>
+					</div>
+				</div>
+			{:else if salmeKonfigurert}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Innlogget som <strong>{salmeUser}</strong></div>
+						<div class="inn-rad-beskriv">
+							Kontoen brukes når salmetekster hentes inn i salmeledd. Passordet
+							lagres kryptert i appens database.
+						</div>
+						{#if salmeStatusTekst}<div class="inn-rad-beskriv">{salmeStatusTekst}</div>{/if}
+					</div>
+					<button class="inn-handling" onclick={salmeLoggUt} disabled={salmeJobber}>
+						{salmeJobber ? 'Logger ut …' : 'Logg ut'}
+					</button>
+				</div>
+			{:else}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Innlogging</div>
+						<div class="inn-rad-beskriv">
+							Bruker og passord for din konto på gudstjeneste.no, brukes når
+							salmetekster hentes inn i salmeledd. Passordet lagres kryptert i
+							appens database.
+						</div>
+					</div>
+				</div>
+				<div class="inn-rad inn-rad-felt">
+					<div class="salme-login">
+						<label for="salmeUser">Brukernavn</label>
+						<input id="salmeUser" bind:value={salmeUser} spellcheck="false" autocomplete="off" />
+						<label for="salmePass">Passord</label>
+						<input id="salmePass" type="password" bind:value={salmePass} autocomplete="new-password" />
+						{#if salmeStatusTekst}<p class="salme-status">{salmeStatusTekst}</p>{/if}
+					</div>
+					<button class="inn-handling" onclick={lagreSalmeLogin} disabled={salmeJobber}>
+						{salmeJobber ? 'Lagrer …' : 'Lagre'}
+					</button>
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>
