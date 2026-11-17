@@ -371,29 +371,35 @@ export function delPptSegs(segs, fs) {
 	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5)));
 	const maxLinjer = Math.max(4, Math.floor(302 / (fs * 1.15)));
 	const kap = cpl * maxLinjer;
-	// flat ut segmentene — lange segmenter deles på naturlige punkter
-	const biter = [];
+	// pakk segmentene i slides — lange segmenter deles på naturlige punkter
+	// med hensyn til den LEDIGE plassen i gruppen (rolle-prefiks + tekst holdes sammen)
+	const sider = [];
+	let grp = [], lengde = 0;
+	const pushGrp = () => { if (grp.length) { sider.push(grp); grp = []; lengde = 0; } };
 	for (const s of segs) {
 		let rest = s.text;
 		if (!rest) continue;
-		while (rest.length > kap) {
-			let kutt = rest.lastIndexOf('\n', kap);
-			if (kutt < kap * 0.5) kutt = rest.lastIndexOf(' ', kap);
-			if (kutt < kap * 0.5) kutt = kap;
-			biter.push({ ...s, text: rest.slice(0, kutt) });
-			rest = rest.slice(kutt).replace(/^\n+/, '');
+		while (rest.length) {
+			const ledig = kap - lengde;
+			if (rest.length <= ledig) {
+				grp.push({ ...s, text: rest });
+				lengde += rest.length;
+				rest = '';
+			} else {
+				let kutt = rest.lastIndexOf('\n', ledig);
+				if (kutt < ledig * 0.5) kutt = rest.lastIndexOf(' ', ledig);
+				if (kutt < ledig * 0.5) kutt = ledig;
+				if (kutt <= 0) { pushGrp(); continue; }
+				grp.push({ ...s, text: rest.slice(0, kutt) });
+				lengde += kutt;
+				rest = rest.slice(kutt).replace(/^\n+/, '');
+				pushGrp();
+			}
 		}
-		if (rest) biter.push({ ...s, text: rest });
 	}
-	// pakk biter i slides
-	const sider = [];
-	let grp = [], lengde = 0;
-	for (const b of biter) {
-		if (lengde + b.text.length > kap && lengde > 0) { sider.push(grp); grp = []; lengde = 0; }
-		grp.push(b); lengde += b.text.length;
-	}
-	if (grp.length) sider.push(grp);
-	// orphan-utjevning: spinkel siste side balanseres mot nest siste
+	pushGrp();
+	// orphan-utjevning: spinkel siste side balanseres mot nest siste —
+	// store segmenter DELS underveis, ellers kan ett ord stå alene på en side
 	if (sider.length > 1) {
 		const fyll = (g) => g.reduce((a, s) => a + s.text.length, 0);
 		if (fyll(sider.at(-1)) < kap * 0.25) {
@@ -402,10 +408,16 @@ export function delPptSegs(segs, fs) {
 			const g1 = [], g2 = [];
 			let l1 = 0;
 			for (const s of alle) {
-				if (l1 + s.text.length <= halv || g1.length === 0) { g1.push(s); l1 += s.text.length; }
-				else g2.push(s);
+				if (l1 >= halv) { g2.push(s); continue; }
+				if (l1 + s.text.length <= halv) { g1.push(s); l1 += s.text.length; continue; }
+				// segmentet spenner over delepunktet — del teksten (samme formatering)
+				let k = s.text.lastIndexOf(' ', halv - l1);
+				if (k < (halv - l1) * 0.5) k = halv - l1;
+				g1.push({ ...s, text: s.text.slice(0, k) });
+				g2.push({ ...s, text: s.text.slice(k).replace(/^\s+/, '') });
+				l1 += s.text.length;
 			}
-			if (g2.length) sider.splice(sider.length - 2, 2, g1, g2);
+			if (g1.length && g2.length) sider.splice(sider.length - 2, 2, g1, g2);
 		}
 	}
 	return sider;
@@ -505,7 +517,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			if (it.type !== 'salme') {
 				// innledning + valgt alternativ + avslutning (som i Word/PDF)
 				const t = leddTekst(it);
-				if (t) lines.push(t);
+				if (lines && t) lines.push(t);
 			} else if (lines && it.alts && it.alts.length) {
 				if (it.selAlt != null) lines.push(it.alts[it.selAlt].text);
 			} else if (lines && it.text) {

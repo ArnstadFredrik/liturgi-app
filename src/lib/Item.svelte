@@ -4,6 +4,7 @@
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 	import EditableText from './EditableText.svelte';
 
 	let { it, si, ii } = $props();
@@ -18,6 +19,41 @@
 
 	function velgAlt() {
 		chooseOneModal(it.alts, it.selAlt ?? 0, (idx) => { it.selAlt = idx; markDirty(); });
+	}
+
+	// salmedatabasen (gudstjeneste.no): hent salmetekst i bakgrunnen
+	let henterSalme = $state(false);
+
+	async function hentSalmeTekst() {
+		if (henterSalme) return;
+		const nr = String(it.salmeNr ?? '').trim();
+		const tittel = String(it.salmeTittel ?? '').trim();
+		if (!nr && !tittel) { toast.error('Fyll inn salmenummer eller tittel først'); return; }
+		if (!window.liturgi?.salmeHent) { toast.error('Salmedatabasen er kun tilgjengelig i Mac-appen'); return; }
+		henterSalme = true;
+		try {
+			const r = await window.liturgi.salmeHent({
+				nr,
+				tittel,
+				dato: o.date ?? '',
+				navn: o.name ?? 'Gudstjeneste'
+			});
+			if (!r?.ok) {
+				toast.error(r?.error === 'Ikke konfigurert'
+					? 'Registrer bruker for gudstjeneste.no i Innstillinger'
+					: (r?.error ?? 'Klarte ikke hente salmen'));
+				return;
+			}
+			it.text = r.tekst;
+			if (!it.salmeTittel && r.tittel) it.salmeTittel = r.tittel;
+			it.showSalmeTekst = true;
+			markDirty();
+			toast.success('Hentet «' + r.tittel + '» fra salmedatabasen');
+		} catch (err) {
+			toast.error('Klarte ikke hente salmen: ' + (err?.message ?? err));
+		} finally {
+			henterSalme = false;
+		}
 	}
 
 	function velgIntro() {
@@ -130,6 +166,13 @@
 			<div class="salme-row">
 				<input class="nr" placeholder="Nr" spellcheck="false" bind:value={it.salmeNr} onchange={markDirty} />
 				<input class="tittel" placeholder="Salmens tittel" spellcheck="false" bind:value={it.salmeTittel} onchange={markDirty} />
+				<button
+					class="salme-hent"
+					title="Søk opp og hent salmeteksten fra Den norske kirkes salmedatabase"
+					onclick={hentSalmeTekst}
+					disabled={henterSalme}>
+					{#if henterSalme}{@html mdi('loading', 15)} Henter …{:else}{@html mdi('cloud-download', 15)} Hent tekst{/if}
+				</button>
 				<button
 					title="Legg inn / rediger salmetekst"
 					onclick={() => { it.showSalmeTekst = !showSalmeTekst; markDirty(); }}>

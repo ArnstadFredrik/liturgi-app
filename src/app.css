@@ -161,6 +161,14 @@ button.wide { width: 100%; }
 .list li.dirty .nm { font-style: italic; }
 /* «dev»-merket på åpne maler som er åpnet fra Malverktøy (dev-bygg) */
 #sidebar .dev-merke { font-size: 10px; font-weight: 600; line-height: 1; padding: 2px 5px; border-radius: 4px; background: var(--accent); color: #fff; margin-left: 6px; vertical-align: 1px; }
+/* salmedatabasen: hent-knapp i salmeraden + innstillingsfelt for gudstjeneste.no */
+.salme-hent { white-space: nowrap; }
+.salme-hent svg { vertical-align: -0.2em; }
+.salme-login { display: grid; gap: 6px; max-width: 420px; }
+.salme-login label { font-size: 12px; color: var(--muted); }
+.salme-login input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 14px; }
+.salme-knapper { margin-top: 4px; }
+.salme-status { color: var(--muted); font-size: 13px; }
 /* temaknapp (ikon) nederst i menyen */
 .sidefoot-ikoner { display: flex; justify-content: flex-end; margin-top: 4px; }
 .ikon-btn { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel2); color: var(--muted); }
@@ -896,12 +904,6 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .eks-ppt-ekstra { width: auto !important; padding: 2px 8px; }
 
 /* Bibel-enten-eller par (begge synlige, én aktiv) */
-.eks-bibel-par { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; flex: none; }
-.eks-bibel-par button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 11.5px; padding: 3px 8px; cursor: pointer; }
-.eks-bibel-par button + button { border-left: 1px solid var(--border); }
-.eks-bibel-par button:not(.av) { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
-.eks-bibel-par button.av { opacity: 0.65; }
-.eks-bibel-par button:not(.av):hover { background: var(--accent-dim); }
 /* Flytte-piler for egne slides */
 .eks-egen-flytt { display: flex; flex-direction: column; gap: 2px; flex: none; }
 .eks-egen-flytt button { width: 20px; height: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; line-height: 1; padding: 0; border-radius: 4px; }
