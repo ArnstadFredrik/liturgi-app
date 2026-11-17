@@ -87,7 +87,7 @@
 				// effekten som da RESETTER typen tilbake (type-knappene virket ikke)
 				const forhType = m.forhåndsvalgtType ?? 'gudstjeneste';
 				nyType = forhType;
-				jordpå = 'graven';
+				jordpaa = 'graven';
 				name = '';
 				date = nextSundayISO();
 				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
