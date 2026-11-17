@@ -127,6 +127,33 @@ export function litEditHtml(text) {
 	}).join('');
 }
 
+/** Teksten som vises/eksporteres for et salmeledd: hodet (@COPYRIGHT-linjene i
+ *  it.text) + valgt språkalternativ. Flerspråklige salmer lagres med språkene
+ *  som alts (label = språknavnet), én oversettelse er valgt om gangen. */
+export function salmeTekst(it) {
+	if (!it?.alts?.length) return it?.text ?? '';
+	const valgt = it.alts[it.selAlt ?? 0]?.text ?? '';
+	return (it.text ?? '').trim() ? it.text.trim() + '\n\n' + valgt : valgt;
+}
+
+/** Del en formatert salmetekst i språkalternativer: ## -overskriftene (Bokmål /
+ *  Sørsamisk / …) blir alts [{ label, text }] og hodet (@COPYRIGHT-linjene)
+ *  forblir it.text. Færre enn to språkseksjoner → { text: hele, alts: [] }. */
+export function salmeAlts(formatted) {
+	const s = formatted ?? '';
+	if (!/^## .+$/m.test(s)) return { text: s, alts: [] };
+	const deler = s.split(/^(## .+)$/m);
+	const hode = (deler[0] ?? '').trim();
+	const alts = [];
+	for (let i = 1; i < deler.length; i += 2) {
+		const label = deler[i].replace(/^## /, '').trim();
+		const tekst = (deler[i + 1] ?? '').replace(/^\n+/, '').replace(/\n+$/, '');
+		if (tekst) alts.push({ label, text: tekst });
+	}
+	if (alts.length < 2) return { text: s, alts: [] };
+	return { text: hode, alts };
+}
+
 /** Formater rå salmetekst fra gudstjeneste.no: T/M/O-hodet øverst og ©-linjene
  *  på slutten blir @COPYRIGHT-linjer (salmeinfo), «Refreng»-blokker pakkes i
  *  {{refreng}}…{{/refreng}} (kursiv), og tospråklige salmer får språkseksjonene

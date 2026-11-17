@@ -4,7 +4,7 @@
 	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
-	import { litHtml, leddTekst } from '$lib/lit.js';
+	import { litHtml, leddTekst, salmeTekst } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -517,11 +517,11 @@
 					? (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 						? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '')
 					: '';
-				if (it.type === 'salme' && it.text) {
+				if (it.type === 'salme' && salmeTekst(it)) {
 					if (it.__visInnhold === false) continue; // «vis innhold» av
 					pptSlidePos[nokkel(si, ii)] = slides.length;
 					pptSlotVed[slides.length] = nokkel(si, ii);
-					const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 					vers.forEach((v) => {
 						const overskrift = heading ? heading + '\n' : '';
 						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp);
