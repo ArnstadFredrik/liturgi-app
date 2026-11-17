@@ -36,7 +36,7 @@
 				nr,
 				tittel,
 				dato: o.date ?? '',
-				navn: o.name ?? 'Gudstjeneste'
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste'
 			});
 			if (!r?.ok) {
 				toast.error(r?.error === 'Ikke konfigurert'
