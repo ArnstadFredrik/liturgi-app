@@ -1,7 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
-	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName } from '$lib/export.js';
+	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName, roleSegments, splitChunks } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml, leddTekst } from '$lib/lit.js';
@@ -18,9 +18,20 @@
 	let aktiv = $state('Prest');
 	let valg = $state({});           // per profil per dokument: { nokkel: bool }
 	let visInnhold = $derived(app.eksVisInnhold);
+	// vis instruksjoner: per dokument (o.visInstr), default på. Menighetsprofilen
+	// tar ALDRI med instruksjoner (hardkodet i Word/PDF-undermodulen).
+	let visInstrValg = $state(true);
+	// PPTX-forhåndsvisning (undermodul): slidene som HTML
+	let pptSlides = $state([]); // [{ big, tekstStorrelse, tittelStorrelse, deler }]
 	let formater = $state({ word: true, pptx: false, pdf: false });
 	let appFormater = $state({ word: true, pptx: false, pdf: false }); // app-standard (DB)
 	let tomSlide = $state(false);
+	// PowerPoint-innstillinger (følger Menighet-profilen, men har egen konfigurasjon)
+	let pptVisTittel = $state(true);
+	let pptTekstSkala = $state(1);      // skala på brødtekst-slides (24 pt grunn)
+	let pptTittelSkala = $state(1);     // skala på tittelsliden (40 pt grunn)
+	let pptEkstra = $state([]);         // ekstra sider: { tittel, innhold }
+	let pptVisning = $state(false);     // undermodul-visning (PPTX-forhåndsvisning)
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
 	let zoomNivå = $state(1.5); // kun visning (lagres i lokalStorage) — 150 % er ny standard
@@ -173,6 +184,12 @@
 		}
 		if (o) {
 			tomSlide = o.eksportTomSlide ?? false;
+			visInstrValg = o.visInstr ?? true;
+			// PowerPoint-innstillinger (per dokument, serialiseres med .liturgi-filen)
+			pptVisTittel = o.eksportPptx?.visTittel ?? true;
+			pptTekstSkala = o.eksportPptx?.tekstSkala ?? 1;
+			pptTittelSkala = o.eksportPptx?.tittelSkala ?? 1;
+			pptEkstra = JSON.parse(JSON.stringify(o.eksportPptx?.ekstra ?? []));
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
 			formater = egne ?? { ...appFormater };
@@ -410,6 +427,77 @@
 		markDirty();
 	}
 
+	/** PowerPoint-innstillinger per dokument. */
+	function setPptx(k, v) {
+		if (!o) return;
+		o.eksportPptx = { ...(o.eksportPptx ?? {}), [k]: v };
+		markDirty();
+	}
+
+	/** Bygg slidene (samme logikk som exportPptx) til HTML-forhåndsvisning. */
+	function byggPptSlides() {
+		if (!o) { pptSlides = []; return; }
+		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 24);
+		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
+		const slides = [];
+		const push = (segs, big = false) => slides.push({ big, tekstStorrelse, tittelStorrelse, deler: typeof segs === 'string' ? [{ text: segs }] : segs });
+		push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
+		// ekstra sider (samme som i eksporten)
+		for (const ekstra of pptEkstra ?? []) {
+			if (!ekstra?.tittel && !ekstra?.innhold) continue;
+			const joined = ((ekstra.tittel ? ekstra.tittel + '\n' : '') + (ekstra.innhold ?? '')).trim();
+			if (!joined) continue;
+			for (const chunk of splitChunks(joined, 260)) push(roleSegments(chunk));
+		}
+		const kopi = klonMedValg(o, 'Menighet');
+		for (const sec of kopi.sections ?? []) {
+			for (const it of sec.items ?? []) {
+				if (!it.enabled) continue;
+				const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
+					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
+				if (it.type === 'salme' && it.text) {
+					const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+					vers.forEach((v) => {
+						const overskrift = heading ? heading + '\n' : '';
+						for (const chunk of splitChunks(overskrift + v, 280)) push(roleSegments(chunk));
+					});
+					continue;
+				}
+				const lines = [];
+				if (it.type !== 'salme') {
+					const t = leddTekst(it);
+					if (t) lines.push(t);
+				}
+				const joined = ((heading ? heading + '\n' : '') + lines.join('\n')).trim();
+				if (!joined) continue;
+				for (const chunk of splitChunks(joined, 260)) push(roleSegments(chunk));
+			}
+		}
+		pptSlides = slides;
+	}
+
+	// bygg forhåndsvisningen når undermodulen åpnes eller innstillingene endres
+	$effect(() => {
+		if (!pptVisning) return;
+		pptTekstSkala; pptTittelSkala; pptEkstra.length; o?.name; o?.date;
+		Promise.resolve().then(() => {
+			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); }
+		});
+	});
+
+	function leggTilPptSide() {
+		pptEkstra = [...pptEkstra, { tittel: '', innhold: '' }];
+		setPptx('ekstra', pptEkstra);
+	}
+	function fjernPptSide(i) {
+		pptEkstra = pptEkstra.filter((_, idx) => idx !== i);
+		setPptx('ekstra', pptEkstra);
+	}
+	function oppdaterPptSide(i, k, v) {
+		pptEkstra = pptEkstra.map((e, idx) => idx === i ? { ...e, [k]: v } : e);
+		setPptx('ekstra', pptEkstra);
+	}
+
 	/** Standardmarkering uavhengig av aktiv fane (brukes ved kloning). */
 	function standardFor(profil, it) {
 		if (profil === 'Medarbeider') return !PREKEN_RE.test(it.heading || '');
@@ -505,9 +593,11 @@
 	async function eksporterProfil(profil) {
 		const base = baseNavn(profil);
 		let n = 0;
+		// Menighetsprogrammet har aldri instruksjoner (uansett bryteren)
+		const instr = profil === 'Menighet' ? false : visInstrValg;
 		if (formater.word) {
 			let kopi = klonMedValg(o, profil);
-			const res = await exportWord(kopi, o.visInstr ?? true, base + '.docx', {
+			const res = await exportWord(kopi, instr, base + '.docx', {
 				storrelse: getInnst('storrelse', 'A5'),
 				kolonner: getInnst('kolonner', 1)
 			}, isElectron);
@@ -518,9 +608,16 @@
 			} else n++;
 		}
 		if (formater.pptx) {
-			// PowerPoint følger Menighet-utvalget og har alltid full bibeltekst
+			// PowerPoint følger Menighet-utvalget og har aldri instruksjoner
 			const kopi = klonMedValg(o, 'Menighet');
-			const res = await exportPptx(kopi, { tomSlide }, isElectron);
+			const res = await exportPptx(kopi, {
+				tomSlide,
+				showInstr: false,
+				tekstSkala: pptTekstSkala,
+				tittelSkala: pptTittelSkala,
+				ekstra: pptEkstra,
+				visTittel: pptVisTittel
+			}, isElectron);
 			if (res) {
 				const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
 				if (r.ok) { toast.success(res.filnavn + ' → ' + r.filePath); n++; }
@@ -529,7 +626,7 @@
 		}
 		if (formater.pdf && isElectron) {
 					let kopi = klonMedValg(o, profil);
-							const { base64 } = buildPdfBase64(kopi, o.visInstr ?? true, {
+							const { base64 } = buildPdfBase64(kopi, instr, {
 						storrelse: getInnst('storrelse', 'A5'),
 						kolonner: getInnst('kolonner', 1),
 						marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'),
@@ -583,6 +680,48 @@
 			<strong>{o.name}</strong>{o.date ? ` · ${datoTekst}` : ''} — velg profil til høyre, juster leddene som skal med, og eksportér.
 		</p>
 
+		{#if pptVisning}
+		<!-- PPTX-undermodul: konfigurasjon + forhåndsvisning av slidene -->
+		<div class="ppt-visning">
+			<div class="ppt-verktoy">
+				<button class="wide" onclick={() => { pptVisning = false; }}>← Tilbake til eksporten</button>
+				<div class="ppt-innst">
+					<label class="eks-chk"><input type="checkbox" checked={pptVisTittel} onchange={(e) => { pptVisTittel = e.currentTarget.checked; setPptx('visTittel', pptVisTittel); }} /> Tittelslide</label>
+					<label class="eks-chk-pt">Tekst <input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 24)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 24; setPptx('tekstSkala', pptTekstSkala); }} /></label>
+					<label class="eks-chk-pt">Tittel <input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
+				</div>
+				<p class="ppt-hint">PowerPoint følger Menighet-profilen (menighetens leddutvalg, ingen instruksjoner, full bibeltekst).</p>
+			</div>
+			<div class="ppt-side-liste">
+				{#each pptSlides as slide, si (si)}
+					<div class="ppt-side" class:stor={slide.big}>
+						<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.85}px">
+							{#each slide.deler as del}
+								<span class:ppt-red={del.red} class:ppt-demp={del.small}>{del.text}</span>
+							{/each}
+						</div>
+						<span class="ppt-side-nr">{si + 1}</span>
+					</div>
+				{/each}
+			</div>
+			{#if pptEkstra.length}
+				<div class="ppt-ekstra-liste">
+					{#each pptEkstra as ekstra, ei (ei)}
+						<div class="ppt-ekstra">
+							<input class="ppt-ekstra-tittel" placeholder="Sidetittel" value={ekstra.tittel}
+								oninput={(e) => oppdaterPptSide(ei, 'tittel', e.currentTarget.value)} />
+							<textarea class="ppt-ekstra-innhold" rows="3" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
+								value={ekstra.innhold}
+								oninput={(e) => oppdaterPptSide(ei, 'innhold', e.currentTarget.value)}></textarea>
+							<button class="ppt-ekstra-slett" title="Fjern siden" onclick={() => fjernPptSide(ei)}>×</button>
+						</div>
+					{/each}
+				</div>
+			{/if}
+			<button class="wide ppt-ny-side" onclick={leggTilPptSide}>+ Legg til ekstra side</button>
+		</div>
+		{:else}
+
 		<div class="eks-baand">
 			<div class="eks-baand-gruppe">
 				<select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
@@ -609,6 +748,7 @@
 			</div>
 			<div class="eks-baand-gruppe">
 				<label class="eks-chk"><input type="checkbox" checked={app.eksVisInnhold} onchange={(e) => { app.eksVisInnhold = e.currentTarget.checked; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }} /> Leddinnhold</label>
+				<label class="eks-chk" title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner."><input type="checkbox" checked={visInstrValg} onchange={(e) => { visInstrValg = e.currentTarget.checked; if (o) { o.visInstr = visInstrValg; markDirty(); } }} /> Instruksjoner</label>
 			</div>
 		</div>
 		<div class="eksport-kolonner">
@@ -697,6 +837,8 @@
 			</div>
 		</div>
 
+	{/if}
+
 		<aside id="eks-panel" use:portal={'#toc-side'}>
 			<div class="biblio-kort">
 				<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
@@ -719,6 +861,9 @@
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
 					{#if formater.pptx}
 						<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene</label>
+						<button class="wide" onclick={() => { pptVisning = !pptVisning; byggPptSlides(); }} title="Konfigurer og forhåndsvis PowerPoint-presentasjonen">
+							{@html mdi('presentation')} PowerPoint-visning
+						</button>
 					{/if}
 					<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
 				</div>

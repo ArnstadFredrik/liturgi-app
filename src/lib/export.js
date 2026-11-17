@@ -53,7 +53,7 @@ function flytAvsnitt(text) {
 /** Del tekst i segmenter [{text, red, small, bold, italics}] – rollemerke (f.eks. «L |»),
  *  {{r}}-markører røde, «FOTNOTE | »-linjer små/urskrift, og enkel markdown
  *  (**fet**, *urskrift*, «# overskrift», «- punkt»). */
-function roleSegments(text) {
+export function roleSegments(text) {
 	const out = [];
 	let red = false;
 	let small = false;
@@ -298,7 +298,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 	download(blob, filnavn ?? safeName(svc.name) + '.docx');
 }
 
-function splitChunks(t, n) {
+export function splitChunks(t, n) {
 	if (t.length <= n) return [t];
 	const parts = [];
 	let buf = '';
@@ -314,16 +314,20 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const pptx = new PptxGenJS();
 	pptx.layout = 'LAYOUT_16x9';
 	const tomSlide = !!valg.tomSlide;
+	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
+	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
+	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 24);
+	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
 	const addSlide = (segs, big = false) => {
 		const s = pptx.addSlide();
 		s.background = { color: '0D0D0F' };
 		// segs: tekst eller array av {text, red}
 		const parts = typeof segs === 'string'
-			? [{ text: segs, options: { fontSize: big ? 40 : 24, bold: big, color: 'E8E8EC' } }]
+			? [{ text: segs, options: { fontSize: big ? tittelStorrelse : tekstStorrelse, bold: big, color: 'E8E8EC' } }]
 			: segs.map((seg) => ({
 					text: seg.text,
 					options: {
-						fontSize: big ? 40 : 24,
+						fontSize: big ? tittelStorrelse : tekstStorrelse,
 						bold: big || !!seg.red || !!seg.bold,
 						italics: !!seg.italics || !!seg.small,
 						superscript: !!seg.sup,
@@ -337,6 +341,15 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		});
 	};
 	addSlide(svc.name + (svc.date ? '\n' + nlDate(svc.date) : '') + (svc.kirkeaar ? '\n' + svc.kirkeaar.name : ''), true);
+	// (visTittel: tittelsliden er alltid med — brukes av undermodulen for fremtidig styring)
+
+	// ekstra sider (PPTX-undermodulen): { tittel, innhold } — før leddene
+	for (const ekstra of valg.ekstra ?? []) {
+		if (!ekstra?.tittel && !ekstra?.innhold) continue;
+		const joined = ((ekstra.tittel ? ekstra.tittel + '\n' : '') + (ekstra.innhold ?? '')).trim();
+		if (!joined) continue;
+		for (const chunk of splitChunks(joined, 260)) addSlide(roleSegments(chunk));
+	}
 
 	let forrigeTom = true;
 	const leggTom = () => {
@@ -365,6 +378,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				continue;
 			}
 			let lines = [];
+			if (showInstr && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
 			if (it.type !== 'salme') {
 				// innledning + valgt alternativ + avslutning (som i Word/PDF)
 				const t = leddTekst(it);
