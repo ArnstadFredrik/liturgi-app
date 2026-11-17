@@ -19,7 +19,7 @@
 	let html = $state('');
 	let sistSer = '';               // sist serialiserte verdi (hindrer re-render ved egen skriving)
 	let sel = $state({ s: 0, e: 0 });
-	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false, liste: false });
+	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false, notat: false, liste: false });
 
 	const cls = $derived(kind === 'instr' ? 'instr' : kind === 'etikett' ? 'etikett' : 'lit-text');
 	const etikett = $derived(kind === 'etikett');
@@ -60,6 +60,7 @@
 			sup: document.queryCommandState('superscript'),
 			bibelref: el?.closest('.et-linje')?.dataset.type === 'bibelref',
 			fotnote: el?.closest('.et-linje')?.dataset.type === 'fotnote',
+			notat: el?.closest('.et-linje')?.dataset.type === 'notat',
 			liste: el?.closest('.et-linje')?.dataset.type === 'liste'
 		};
 	}
@@ -366,10 +367,12 @@
 		if (kilde) {
 			if (id === 'bibelref') veksleLinje('BIBELREF | ');
 			else if (id === 'fotnote') veksleLinje('FOTNOTE | ');
+			else if (id === 'notat') veksleLinje('@NOTAT ');
 			else vekslePar(id);
 		} else {
 			if (id === 'bibelref') rikLinje('BIBELREF | ', 'bibelref');
 			else if (id === 'fotnote') rikLinje('FOTNOTE | ', 'fotnote');
+			else if (id === 'notat') rikLinje('@NOTAT ', 'notat');
 			else if (id === 'liste') rikLinje('- ', 'liste');
 			else rikPar(id);
 		}
@@ -379,6 +382,7 @@
 		if (kilde) {
 			if (id === 'bibelref') return linjeAktiv('BIBELREF | ');
 			if (id === 'fotnote') return linjeAktiv('FOTNOTE | ');
+			if (id === 'notat') return linjeAktiv('@NOTAT ');
 			if (id === 'liste') return linjeAktiv('- ');
 			return parAktiv(id);
 		}
@@ -399,6 +403,7 @@
 				<button class="et-tool" class:paa={paa('liste')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('liste')} title="Punktliste (- tekst)">{@html mdi('format-list-bulleted', 15)}</button>
 				<button class="et-tool" class:paa={paa('bibelref')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bibelref')} title="Bibelreferanse (BIBELREF | )">{@html mdi('book-open-variant', 15)}</button>
 				<button class="et-tool" class:paa={paa('fotnote')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('fotnote')} title="Liten tekstnotis (FOTNOTE | )">{@html mdi('script-text-outline', 15)}</button>
+				<button class="et-tool" class:paa={paa('notat')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('notat')} title="Scenenotat (@NOTAT )">{@html mdi('comment-quote-outline', 15)}</button>
 				<span class="et-skiller"></span>
 				<button class="et-tool" class:paa={kilde} onmousedown={(e) => e.preventDefault()} onclick={() => byttModus(!kilde)} title={kilde ? 'Vis riktekst' : 'Vis kildekode (markdown)'}>{@html mdi('code-tags', 15)}</button>
 			{/if}
