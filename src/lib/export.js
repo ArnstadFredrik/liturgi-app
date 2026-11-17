@@ -13,7 +13,7 @@ const NOTAT_RE = /^@(?:NOTAT|n) ?\|? ?(.+)$/;  // hele avsnitt som notat: rød k
  *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
  *  Ekte avsnittskift (tom linje) beholdes. Linjer som ender med setningsslutt punktum,
  *  utropstegn, spørsmålstegn eller kolon blir også avsnittskift. */
-function flytAvsnitt(text) {
+export function flytAvsnitt(text) {
 	if (!text) return text;
 	const linjer = text.split('\n');
 	const out = [];
@@ -363,15 +363,63 @@ export function delPptSider(tekst, fs) {
 	return grupper.map((g) => g.join('\n').trim().replace(/\n{3,}/g, '\n\n')).filter(Boolean);
 }
 
+/** Del roleSegments-output i slides UTEN å miste formatering: segmentene
+ *  (fet/kursiv/rød) følger teksten, så markdown-par kan aldri bli delt midt i.
+ *  Kapasitet per slide = cpl × maxLinjer (samme mål som delPptSider). Siste side
+ *  balanseres mot nest siste hvis den blir spinkel. */
+export function delPptSegs(segs, fs) {
+	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5)));
+	const maxLinjer = Math.max(4, Math.floor(302 / (fs * 1.15)));
+	const kap = cpl * maxLinjer;
+	// flat ut segmentene — lange segmenter deles på naturlige punkter
+	const biter = [];
+	for (const s of segs) {
+		let rest = s.text;
+		if (!rest) continue;
+		while (rest.length > kap) {
+			let kutt = rest.lastIndexOf('\n', kap);
+			if (kutt < kap * 0.5) kutt = rest.lastIndexOf(' ', kap);
+			if (kutt < kap * 0.5) kutt = kap;
+			biter.push({ ...s, text: rest.slice(0, kutt) });
+			rest = rest.slice(kutt).replace(/^\n+/, '');
+		}
+		if (rest) biter.push({ ...s, text: rest });
+	}
+	// pakk biter i slides
+	const sider = [];
+	let grp = [], lengde = 0;
+	for (const b of biter) {
+		if (lengde + b.text.length > kap && lengde > 0) { sider.push(grp); grp = []; lengde = 0; }
+		grp.push(b); lengde += b.text.length;
+	}
+	if (grp.length) sider.push(grp);
+	// orphan-utjevning: spinkel siste side balanseres mot nest siste
+	if (sider.length > 1) {
+		const fyll = (g) => g.reduce((a, s) => a + s.text.length, 0);
+		if (fyll(sider.at(-1)) < kap * 0.25) {
+			const alle = [...sider.at(-2), ...sider.at(-1)];
+			const halv = Math.ceil(alle.reduce((a, s) => a + s.text.length, 0) / 2);
+			const g1 = [], g2 = [];
+			let l1 = 0;
+			for (const s of alle) {
+				if (l1 + s.text.length <= halv || g1.length === 0) { g1.push(s); l1 += s.text.length; }
+				else g2.push(s);
+			}
+			if (g2.length) sider.splice(sider.length - 2, 2, g1, g2);
+		}
+	}
+	return sider;
+}
+
 export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const pptx = new PptxGenJS();
 	pptx.layout = 'LAYOUT_16x9';
 	const tomSlide = !!valg.tomSlide;
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
 	const visLeddtitler = !!valg.visLeddtitler; // leddtitler på slidene (standard av)
-	const justering = valg.justering ?? 'left'; // tekstjustering: left | center | right
+	const justering = valg.justering ?? 'center'; // tekstjustering: left | center | right (standard senter)
 	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
-	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 24);
+	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 38); // grunn 38 pt
 	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
 	const addSlide = (segs, big = false) => {
 		const s = pptx.addSlide();
@@ -398,12 +446,16 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	addSlide(svc.name + (svc.date ? '\n' + nlDate(svc.date) : '') + (svc.kirkeaar ? '\n' + svc.kirkeaar.name : ''), true);
 	// (visTittel: tittelsliden er alltid med — brukes av undermodulen for fremtidig styring)
 
-	// egne slides (Skjerm-profilen): { tittel, innhold } — før leddene; også TOMME slides
-	for (const ekstra of valg.ekstra ?? []) {
+	// egne slides (Skjerm-profilen): { tittel, innhold, etter } — etter = leddnøkkel
+	// de kommer ETTER (tom streng = først); også TOMME slides er lov
+	const emitEkstra = (ekstra) => {
 		const joined = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
-		const chunks = delPptSider(joined, tekstStorrelse);
-		if (chunks.length) for (const chunk of chunks) addSlide(roleSegments(chunk));
+		const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
+		if (grupper.length) grupper.forEach((grp) => addSlide(grp));
 		else addSlide('');
+	};
+	for (const ekstra of (valg.ekstra ?? [])) {
+		if ((ekstra?.etter ?? '') === '') emitEkstra(ekstra);
 	}
 
 	let forrigeTom = true;
@@ -417,35 +469,55 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 
 	for (const sec of svc.sections) {
 		for (const it of sec.items) {
-			if (!it.enabled) continue;
+			if (!it.enabled) {
+				// egne slides plassert etter et deaktivert ledd kommer likevel
+				for (const ekstra of (valg.ekstra ?? [])) {
+					if ((ekstra?.etter ?? '') === svc.sections.indexOf(sec) + ':' + sec.items.indexOf(it)) {
+						const joined2 = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
+						const grupper2 = delPptSegs(roleSegments(joined2), tekstStorrelse);
+						if (grupper2.length) grupper2.forEach((grp) => addSlide(grp));
+						else addSlide('');
+					}
+				}
+				continue;
+			}
 			leggTom();
 			forrigeTom = false;
 			const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
 			if (it.type === 'salme' && it.text) {
 				// salmer: hver vers (tomlinjeseparert) på hver sin slide, overskrift med på første
+				if (it.__visInnhold === false) continue; // «vis innhold» av — bare overskriften
 				const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				vers.forEach((v, vi) => {
 					const overskrift = vi === 0 && visLeddtitler && heading ? heading + '\n' : '';
-					const chunked = delPptSider(overskrift + v, tekstStorrelse);
-					chunked.forEach((chunk) => addSlide(roleSegments(chunk)));
+					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse);
+					grupper.forEach((grp) => addSlide(grp));
 				});
+				for (const ekstra of (valg.ekstra ?? [])) {
+					if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
+				}
 				continue;
 			}
 			let lines = [];
-			if (showInstr && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
+			if (it.__visInnhold === false) lines = null; // «vis innhold» av — bare overskriften
+			if (lines && showInstr && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
 			if (it.type !== 'salme') {
 				// innledning + valgt alternativ + avslutning (som i Word/PDF)
 				const t = leddTekst(it);
 				if (t) lines.push(t);
-			} else if (it.alts && it.alts.length) {
+			} else if (lines && it.alts && it.alts.length) {
 				if (it.selAlt != null) lines.push(it.alts[it.selAlt].text);
-			} else if (it.text) {
+			} else if (lines && it.text) {
 				lines.push(it.text);
 			}
-			const joined = ((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim();
+			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim()) : (visLeddtitler && heading ? heading.trim() : '');
 			if (!joined) continue;
-			for (const chunk of delPptSider(joined, tekstStorrelse)) addSlide(roleSegments(chunk));
+			for (const grp of delPptSegs(roleSegments(joined), tekstStorrelse)) addSlide(grp);
+			// egne slides plassert etter dette leddet
+			for (const ekstra of (valg.ekstra ?? [])) {
+				if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
+			}
 		}
 	}
 	const blob = await pptx.write({ outputType: 'blob' });
