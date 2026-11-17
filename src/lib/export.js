@@ -369,6 +369,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const tomSlide = !!valg.tomSlide;
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
 	const visLeddtitler = !!valg.visLeddtitler; // leddtitler på slidene (standard av)
+	const justering = valg.justering ?? 'left'; // tekstjustering: left | center | right
 	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 24);
 	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
@@ -390,19 +391,19 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				}));
 		s.addText(parts, {
 			x: 0.6, y: 0.6, w: 8.8, h: 4.2, fontFace: 'Arial',
-			align: 'left', valign: 'top', lineSpacingMultiple: 1.15,
+			align: justering, valign: 'top', lineSpacingMultiple: 1.15,
 			autoFit: true, shrinkText: true
 		});
 	};
 	addSlide(svc.name + (svc.date ? '\n' + nlDate(svc.date) : '') + (svc.kirkeaar ? '\n' + svc.kirkeaar.name : ''), true);
 	// (visTittel: tittelsliden er alltid med — brukes av undermodulen for fremtidig styring)
 
-	// ekstra sider (PPTX-undermodulen): { tittel, innhold } — før leddene
+	// egne slides (Skjerm-profilen): { tittel, innhold } — før leddene; også TOMME slides
 	for (const ekstra of valg.ekstra ?? []) {
-		if (!ekstra?.tittel && !ekstra?.innhold) continue;
-		const joined = ((ekstra.tittel ? ekstra.tittel + '\n' : '') + (ekstra.innhold ?? '')).trim();
-		if (!joined) continue;
-		for (const chunk of delPptSider(joined, tekstStorrelse)) addSlide(roleSegments(chunk));
+		const joined = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
+		const chunks = delPptSider(joined, tekstStorrelse);
+		if (chunks.length) for (const chunk of chunks) addSlide(roleSegments(chunk));
+		else addSlide('');
 	}
 
 	let forrigeTom = true;

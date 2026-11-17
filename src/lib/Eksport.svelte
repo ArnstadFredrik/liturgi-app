@@ -32,6 +32,7 @@
 	let pptTittelSkala = $state(1);     // skala på tittelsliden (40 pt grunn)
 	let pptEkstra = $state([]);         // ekstra sider: { tittel, innhold }
 	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
+	let pptJustering = $state('left');  // tekstjustering: left | center | right
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
@@ -192,6 +193,7 @@
 			pptTittelSkala = o.eksportPptx?.tittelSkala ?? 1;
 			pptEkstra = JSON.parse(JSON.stringify(o.eksportPptx?.ekstra ?? []));
 			pptLeddtitler = o.eksportPptx?.leddtitler ?? false;
+			pptJustering = o.eksportPptx?.justering ?? 'left';
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
 			formater = egne ?? { ...appFormater };
@@ -360,11 +362,35 @@
 	/** Skal leddet vise bibelreferanse i stedet for hele teksten? (lagres med «:br»-nøkkel;
 	 *  standard: på for Menighet på lesningsledd) */
 	function visBibel(si, ii, it) {
+		if (aktiv === 'Skjerm') {
+			// Skjerm: full bibeltekst som standard; egne endringer lagres separat (eksportValg.Skjerm)
+			const v = valg['Skjerm']?.[nokkel(si, ii) + ':br'];
+			if (v !== undefined) return v;
+			return o?.eksportValg?.Skjerm?.[nokkel(si, ii) + ':br'] ?? false;
+		}
 		const v = valg[valgProfil()]?.[nokkel(si, ii) + ':br'];
 		if (v !== undefined) return v;
 		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(si, ii) + ':br'];
 		if (lagret !== undefined) return lagret;
-		return (aktiv === 'Menighet' || aktiv === 'Skjerm') && erBibel(it);
+		return aktiv === 'Menighet' && erBibel(it);
+	}
+
+	/** Enten-eller for bibelledd: Bibelreferanse (innholdet bort) ↔ Hele teksten.
+	 *  Skjerm lagrer sitt eget valg; Menighet deler som før. */
+	function byttBibelmodus(si, ii, it) {
+		const ref = !visBibel(si, ii, it);
+		if (aktiv === 'Skjerm') {
+			if (!valg['Skjerm']) valg['Skjerm'] = {};
+			valg['Skjerm'][nokkel(si, ii) + ':br'] = ref;
+			if (o) {
+				o.eksportValg = o.eksportValg ?? {};
+				o.eksportValg.Skjerm = { ...valg['Skjerm'] };
+			}
+			pptVersjon++;
+			markDirty();
+			return;
+		}
+		settDel(si, ii, ':br', ref);
 	}
 
 	/** Referansen som skal vises i overskriften (valgt alternativ eller leddteksten). */
@@ -459,12 +485,12 @@
 		// blank side mellom leddene (unngå dobbelt-tom og tom først)
 		const tom = () => { if (tomSlide && slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
-		// ekstra sider (samme deling som i eksporten)
+		// egne slides (samme deling som i eksporten) — også TOMME slides
 		for (const ekstra of pptEkstra ?? []) {
-			if (!ekstra?.tittel && !ekstra?.innhold) continue;
-			const joined = ((ekstra.tittel ? ekstra.tittel + '\n' : '') + (ekstra.innhold ?? '')).trim();
-			if (!joined) continue;
-			for (const chunk of delPptSider(joined, tekstStorrelse)) push(roleSegments(chunk));
+			const joined = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
+			const chunks = delPptSider(joined, tekstStorrelse);
+			if (chunks.length) for (const chunk of chunks) push(roleSegments(chunk));
+			else push([{ text: '' }]);
 		}
 		const kopi = klonMedValg(o, 'Menighet');
 		for (const sec of kopi.sections ?? []) {
@@ -501,7 +527,7 @@
 	// bygg forhåndsvisningen når Skjerm-profilen er aktiv eller noe endres (live)
 	$effect(() => {
 		if (aktiv !== 'Skjerm') return;
-		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; tomSlide; pptEkstra.length; pptVersjon; o?.name; o?.date;
+		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; pptJustering; tomSlide; pptEkstra.length; pptVersjon; o?.name; o?.date;
 		Promise.resolve().then(() => {
 			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); }
 		});
@@ -533,10 +559,12 @@
 	}
 
 	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
-	function klonMedValg(svc, profil) {
+	function klonMedValg(svc, profil, brProfil = null) {
 		const kopi = JSON.parse(JSON.stringify(svc));
 		// lagrede valg i filen går foran øktens midlertidige valg
 		const lagret = valg[profil] ?? o?.eksportValg?.[profil];
+		// brProfil: bibelmodus leses fra en annen profil (Skjerm — full tekst som standard)
+		const brLagret = brProfil ? (valg[brProfil] ?? o?.eksportValg?.[brProfil]) : null;
 		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
 		kopi.__visTittel = getInnst('tittel', true);
 		kopi.sections?.forEach((sec, si) => {
@@ -551,8 +579,9 @@
 				it.__visInnhold = lagret?.[nokkel(si, ii) + ':t'] !== undefined ? lagret[nokkel(si, ii) + ':t'] : true;
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
 				// og legg referansen til overskriften
-				const bref = lagret?.[nokkel(si, ii) + ':br'];
-				if (bref !== undefined ? bref : (profil === 'Menighet' && erBibel(it))) {
+				const bref = brProfil ? (brLagret?.[nokkel(si, ii) + ':br'] ?? false)
+					: (lagret?.[nokkel(si, ii) + ':br'] !== undefined ? lagret[nokkel(si, ii) + ':br'] : (profil === 'Menighet' && erBibel(it)));
+				if (bref) {
 					const r = bibelref(it);
 					if (r) {
 						if (it.alts?.length) {
@@ -565,6 +594,7 @@
 						}
 						// referansen skal frem i overskriften: «3. Andre lesning — Rom 4,1-8»
 						if (it.__ref || r) it.heading = (it.heading || '').replace(/\s*—\s*[^—]*$/, '') + ' — ' + (Array.isArray(r) ? r[it.selAlt ?? 0] || r[0] || '' : r);
+						it.__visInnhold = true; // referansen ER innholdet i referansemodus
 					}
 				}
 			});
@@ -647,7 +677,8 @@
 
 	/** PowerPoint-eksporten (Skjerm-profilen): følger Menighet-utvalget, aldri instruksjoner. */
 	async function eksporterPptx() {
-		const kopi = klonMedValg(o, 'Menighet');
+		// utvalg = Menighet (delt), bibelmodus = Skjerm (full tekst som standard)
+		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
 			tomSlide,
 			showInstr: false,
@@ -655,7 +686,8 @@
 			tittelSkala: pptTittelSkala,
 			ekstra: pptEkstra,
 			visTittel: pptVisTittel,
-			visLeddtitler: pptLeddtitler
+			visLeddtitler: pptLeddtitler,
+			justering: pptJustering
 		}, isElectron);
 		if (res) {
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -716,6 +748,11 @@
 				<div class="eks-baand-rad">
 					<label class="eks-chk-pt" title="Skriftstørrelse på slidene (pt, grunn 24)">Tekst <input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 24)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 24; setPptx('tekstSkala', pptTekstSkala); }} /></label>
 					<label class="eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt, grunn 40)">Tittel <input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
+					<select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }} title="Tekstjustering på slidene">
+						<option value="left">Venstrejustert</option>
+						<option value="center">Sentrert</option>
+						<option value="right">Høyrejustert</option>
+					</select>
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
@@ -758,6 +795,25 @@
 		</div>
 		<div class="eksport-kolonner">
 			<div class="eksport-liste" use:lenket>
+				{#if aktiv === 'Skjerm'}
+					<div class="sidehead eksport-seksjon">Egne slides</div>
+					{#each pptEkstra as ekstra, ei (ei)}
+						<div class="eksport-rad eksport-egen">
+							<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
+							<div class="eks-egen-felter">
+								<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ekstra.tittel}
+									oninput={(e) => oppdaterPptSide(ei, 'tittel', e.currentTarget.value)} />
+								<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
+									value={ekstra.innhold}
+									oninput={(e) => oppdaterPptSide(ei, 'innhold', e.currentTarget.value)}></textarea>
+							</div>
+							<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ei)}>×</button>
+						</div>
+					{/each}
+					{#if !pptEkstra.length}
+						<p class="eks-egen-tom">Ingen egne slides — «+ Ekstra side» i verktøylinjen legger til.</p>
+					{/if}
+				{/if}
 				{#if o.kind === 'service' && aktiv !== 'Skjerm'}
 					<div class="sidehead eksport-seksjon">Tittel</div>
 					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
@@ -783,7 +839,7 @@
 								<div class="eksport-rad-tekst">
 									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}{erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? ' — ' + bibelrefTxt(it) : ''}</span>
 									<div class="eksport-rad-knapper">
-										{#if !visInnhold && (leddTekst(it) || '').trim()}
+										{#if !visInnhold && !erBibel(it) && (leddTekst(it) || '').trim()}
 											<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
 												title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
 												onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
@@ -793,8 +849,8 @@
 										{/if}
 										{#if erBibel(it)}
 											<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
-												title={visBibel(si, ii, it) ? 'Bibelreferansen er med (overskriften og eventuell innholdstekst) — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
-												onclick={() => settDel(si, ii, ':br', !visBibel(si, ii, it))}>
+												title={visBibel(si, ii, it) ? 'Bibelreferansen er med — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
+												onclick={() => byttBibelmodus(si, ii, it)}>
 												{@html mdi('book-open-variant')}
 												<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
 											</button>
@@ -803,15 +859,24 @@
 								</div>
 							{/if}
 						</div>
-						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && (leddTekst(it) || '').trim()}
-							<div class="eksport-innhold-rad" class:ut={!visTekstDel(si, ii)}>
-								<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
-									<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
-									{@html mdi('text')}
-								</label>
-								<div class="eksport-innhold lit-text">{@html litHtml(leddTekst(it))}</div>
-							</div>
-						{/if}
+						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && ((leddTekst(it) || '').trim() || (erBibel(it) && bibelrefTxt(it)))}
+										<div class="eksport-innhold-rad" class:ut={!erBibel(it) && !visTekstDel(si, ii)}>
+											{#if erBibel(it)}
+												<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
+													title={visBibel(si, ii, it) ? 'Bibelreferansen er med — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
+													onclick={() => byttBibelmodus(si, ii, it)}>
+													{@html mdi('book-open-variant')}
+													<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
+												</button>
+											{:else}
+												<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
+													<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
+													{@html mdi('text')}
+												</label>
+											{/if}
+											<div class="eksport-innhold lit-text">{@html litHtml(erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? bibelrefTxt(it) : leddTekst(it))}</div>
+										</div>
+									{/if}
 					{/each}
 				{/each}
 			</div>
@@ -822,7 +887,7 @@
 					{#each pptSlides as slide, si (si)}
 						<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}>
 							{#if !slide.blank}
-							<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px">
+							<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
 								{#each slide.deler as del}
 									<span class:ppt-red={del.red} class:ppt-demp={del.small}>{del.text}</span>
 								{/each}
@@ -832,22 +897,8 @@
 						</div>
 					{/each}
 				</div>
-				{#if pptEkstra.length}
-					<div class="ppt-ekstra-liste">
-						{#each pptEkstra as ekstra, ei (ei)}
-							<div class="ppt-ekstra">
-								<input class="ppt-ekstra-tittel" placeholder="Sidetittel" value={ekstra.tittel}
-									oninput={(e) => oppdaterPptSide(ei, 'tittel', e.currentTarget.value)} />
-								<textarea class="ppt-ekstra-innhold" rows="3" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
-									value={ekstra.innhold}
-									oninput={(e) => oppdaterPptSide(ei, 'innhold', e.currentTarget.value)}></textarea>
-								<button class="ppt-ekstra-slett" title="Fjern siden" onclick={() => fjernPptSide(ei)}>×</button>
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-			{:else}
+								</div>
+							{:else}
 			<div id="eks-forhvisning">
 				<div class="eks-forh-inner" use:pinnehendelse use:lenket>
 				{#if pdfSideBilder.length === 0}
@@ -861,7 +912,7 @@
 					{/each}
 				{/if}
 				</div>
-				{#if rendrerStatus}
+{#if rendrerStatus}
 					<div class="eks-status" class:oppdatert={rendrerStatus === 'oppdatert'}>
 						{rendrerStatus === 'rendrer' ? '⏳ Rendrer sidene …' : '✓ Oppdatert'}
 					</div>
