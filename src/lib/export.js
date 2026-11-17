@@ -487,7 +487,10 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		s.addText(parts, {
 			x: 0.6, y: 0.6, w: 8.8, h: 4.2, fontFace: 'Arial',
 			align: justering, valign: 'top', lineSpacingMultiple: 1.15,
-			autoFit: true, shrinkText: true
+			// NB: kun shrinkText (normAutofit) — autoFit + shrinkText sammen skriver BÅDE
+			// <a:normAutofit/> og <a:spAutoFit/> i bodyPr, som bryter OOXML-skjemaet
+			// (kun én autofit-variant er tillatt) og får PowerPoint til å «reparere» filen.
+			shrinkText: true
 		});
 	};
 	addSlide(svc.name + (svc.date ? '\n' + nlDate(svc.date) : '') + (svc.kirkeaar ? '\n' + svc.kirkeaar.name : ''), true);
