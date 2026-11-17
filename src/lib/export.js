@@ -310,11 +310,65 @@ export function splitChunks(t, n) {
 	return parts;
 }
 
+/** Del tekst i PPT-slides som IKKE flyter utenfor kanten: linjebryting mot
+ *  bredden på en 10-tommers slide (tekstboks 8,8in ≈ 634 pt) og pakking mot
+ *  maks antall linjer (tekstboks 4,2in ≈ 302 pt, linjeavstand 1,15). Siste side
+ *  balanseres mot nest siste slik at ikke bare et par ord står alene.
+ *  Brukes av BÅDE forhåndsvisningen (Eksport.svelte) og selve eksporten. */
+export function delPptSider(tekst, fs) {
+	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5))); // tegn per linje
+	const maxLinjer = Math.max(4, Math.floor(302 / (fs * 1.15))); // linjer per side
+	// bryt avsnitt til visuelle linjer med naturlige mellomrom
+	const linjer = [];
+	for (const p of tekst.split('\n')) {
+		if (!p.trim()) { linjer.push(''); continue; }
+		if (p.length <= cpl) { linjer.push(p); continue; }
+		let rest = p;
+		while (rest.length > cpl) {
+			let kutt = rest.lastIndexOf(' ', cpl);
+			if (kutt < cpl * 0.5) kutt = cpl; // ingen naturlig break — hard klipp
+			linjer.push(rest.slice(0, kutt).trimEnd());
+			rest = rest.slice(kutt).trimStart();
+		}
+		if (rest) linjer.push(rest);
+	}
+	// pakk linjer i sider
+	const grupper = [];
+	let grp = [];
+	for (const l of linjer) {
+		if (grp.length >= maxLinjer) { grupper.push(grp); grp = []; }
+		grp.push(l);
+	}
+	if (grp.length) grupper.push(grp);
+	// orphan-utjevning: en siste side med under 3 fulle linjer balanseres mot nest sist
+	if (grupper.length > 1) {
+		const fulle = (g) => g.filter((l) => l.trim()).length;
+		if (fulle(grupper.at(-1)) < 3) {
+			const siste = grupper.pop();
+			const nestSist = grupper.pop();
+			const alle = [...nestSist, ...siste];
+			const halv = Math.ceil(alle.length / 2);
+			// helst del ved et avsnittsskift nærmest halvparten
+			let best = halv;
+			let bestD = Infinity;
+			for (let i = 1; i < alle.length; i++) {
+				if (!alle[i].trim() || !alle[i - 1].trim()) {
+					const d = Math.abs(i - halv);
+					if (d < bestD) { bestD = d; best = i; }
+				}
+			}
+			grupper.push(alle.slice(0, best), alle.slice(best));
+		}
+	}
+	return grupper.map((g) => g.join('\n').trim().replace(/\n{3,}/g, '\n\n')).filter(Boolean);
+}
+
 export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const pptx = new PptxGenJS();
 	pptx.layout = 'LAYOUT_16x9';
 	const tomSlide = !!valg.tomSlide;
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
+	const visLeddtitler = !!valg.visLeddtitler; // leddtitler på slidene (standard av)
 	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 24);
 	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
@@ -348,7 +402,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		if (!ekstra?.tittel && !ekstra?.innhold) continue;
 		const joined = ((ekstra.tittel ? ekstra.tittel + '\n' : '') + (ekstra.innhold ?? '')).trim();
 		if (!joined) continue;
-		for (const chunk of splitChunks(joined, 260)) addSlide(roleSegments(chunk));
+		for (const chunk of delPptSider(joined, tekstStorrelse)) addSlide(roleSegments(chunk));
 	}
 
 	let forrigeTom = true;
@@ -371,9 +425,9 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				// salmer: hver vers (tomlinjeseparert) på hver sin slide, overskrift med på første
 				const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				vers.forEach((v, vi) => {
-					const overskrift = vi === 0 && heading ? heading + '\n' : '';
-					const chunked = splitChunks(overskrift + v, 280);
-					chunked.forEach((chunk, ci) => addSlide(roleSegments(chunk)));
+					const overskrift = vi === 0 && visLeddtitler && heading ? heading + '\n' : '';
+					const chunked = delPptSider(overskrift + v, tekstStorrelse);
+					chunked.forEach((chunk) => addSlide(roleSegments(chunk)));
 				});
 				continue;
 			}
@@ -388,9 +442,9 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			} else if (it.text) {
 				lines.push(it.text);
 			}
-			const joined = ((heading ? heading + '\n' : '') + lines.join('\n')).trim();
+			const joined = ((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim();
 			if (!joined) continue;
-			for (const chunk of splitChunks(joined, 260)) addSlide(roleSegments(chunk));
+			for (const chunk of delPptSider(joined, tekstStorrelse)) addSlide(roleSegments(chunk));
 		}
 	}
 	const blob = await pptx.write({ outputType: 'blob' });
