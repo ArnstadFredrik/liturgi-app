@@ -1,5 +1,6 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber, AlignmentType } from 'docx';
 import PptxGenJS from 'pptxgenjs';
+import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import { leddTekst } from './lit.js';
 
@@ -461,19 +462,28 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const addSlide = (segs, big = false) => {
 		const s = pptx.addSlide();
 		s.background = { color: '0D0D0F' };
-		// segs: tekst eller array av {text, red}
+		// segs: tekst eller array av {text, red}. NB: forhåndsvisningen rendrer segmentene
+		// INLINE — linjeskift kommer KUN fra '\n'-segmentene. breakLine på hvert run ga
+		// rolle-prefikser på egne linjer og doble linjeskift i eksporten (likte ikke visningen).
 		const parts = typeof segs === 'string'
 			? [{ text: segs, options: { fontSize: big ? tittelStorrelse : tekstStorrelse, bold: big, color: 'E8E8EC' } }]
-			: segs.map((seg) => ({
-					text: seg.text,
-					options: {
-						fontSize: big ? tittelStorrelse : tekstStorrelse,
-						bold: big || !!seg.red || !!seg.bold,
-						italics: !!seg.italics || !!seg.small,
-						superscript: !!seg.sup,
-						color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: true
-					}
-				}));
+			: (() => {
+				const ut = [];
+				for (const seg of segs) {
+					if (seg.text === '\n') { if (ut.length) ut[ut.length - 1].options.breakLine = true; continue; }
+					ut.push({
+						text: seg.text,
+						options: {
+							fontSize: big ? tittelStorrelse : tekstStorrelse,
+							bold: big || !!seg.red || !!seg.bold,
+							italics: !!seg.italics || !!seg.small,
+							superscript: !!seg.sup,
+							color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: false
+						}
+					});
+				}
+				return ut;
+			})();
 		s.addText(parts, {
 			x: 0.6, y: 0.6, w: 8.8, h: 4.2, fontFace: 'Arial',
 			align: justering, valign: 'top', lineSpacingMultiple: 1.15,
@@ -484,9 +494,10 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	// (visTittel: tittelsliden er alltid med — brukes av undermodulen for fremtidig styring)
 
 	// egne slides (Skjerm-profilen): { tittel, innhold, etter } — etter = leddnøkkel
-	// de kommer ETTER (tom streng = først); også TOMME slides er lov
+	// de kommer ETTER (tom streng = først); også TOMME slides er lov.
+	// NB: flytAvsnitt — samme som forhåndsvisningen (ellers ulike linjeskift)
 	const emitEkstra = (ekstra) => {
-		const joined = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
+		const joined = flytAvsnitt(((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim());
 		const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
 		if (grupper.length) grupper.forEach((grp) => addSlide(grp));
 		else addSlide('');
@@ -504,17 +515,16 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		forrigeTom = true;
 	};
 
-	for (const sec of svc.sections) {
-		for (const it of sec.items) {
+	const seksjoner = svc.sections ?? [];
+	for (let si = 0; si < seksjoner.length; si++) {
+		const sec = seksjoner[si];
+		const items = sec.items ?? [];
+		for (let ii = 0; ii < items.length; ii++) {
+			const it = items[ii];
 			if (!it.enabled) {
 				// egne slides plassert etter et deaktivert ledd kommer likevel
 				for (const ekstra of (valg.ekstra ?? [])) {
-					if ((ekstra?.etter ?? '') === svc.sections.indexOf(sec) + ':' + sec.items.indexOf(it)) {
-						const joined2 = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
-						const grupper2 = delPptSegs(roleSegments(joined2), tekstStorrelse);
-						if (grupper2.length) grupper2.forEach((grp) => addSlide(grp));
-						else addSlide('');
-					}
+					if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
 				}
 				continue;
 			}
@@ -557,7 +567,16 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			}
 		}
 	}
-	const blob = await pptx.write({ outputType: 'blob' });
+	// pptxgenjs 4.0.1 skriver <Override> for slideMaster2..N (én per slide), men bare
+	// slideMaster1.xml eksisterer — PowerPoint krever samsvar og tilbyr «reparer filen».
+	// (LibreOffice/python-pptx er tolerante, derfor så filen grei ut i testene.)
+	// Fiks: fjern de overskytende Override-ene fra [Content_Types].xml i zip'en.
+	const zipBuf = await pptx.write({ outputType: 'arraybuffer' });
+	const zip = await JSZip.loadAsync(zipBuf);
+	let ct = await zip.file('[Content_Types].xml').async('string');
+	ct = ct.replace(/<Override PartName="\/ppt\/slideMasters\/slideMaster([2-9]\d*)\.xml"[^>]*\/>/g, '');
+	zip.file('[Content_Types].xml', ct);
+	const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
 	if (tilDisk) return { base64: await blobTilBase64(blob), filnavn: safeName(svc.name) + '.pptx' };
 	download(blob, safeName(svc.name) + '.pptx');
 }

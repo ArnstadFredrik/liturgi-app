@@ -175,49 +175,159 @@ function tilSkjemaDato(iso) {
 	return iso || '';
 }
 
-/** Registrer verk for bruk og hent den genererte tekstfilen. */
-async function registrerOgHentTekst(mediaid, dato, navn) {
-	// 1) legg i kurv
+/** Søk og velg best treff for én salme (nr først, tittel-fallback). */
+async function soekOgVelg(q) {
+	let soekRes = q.nr ? await soek({ nr: q.nr }) : { ok: true, treff: [] };
+	if (!soekRes.ok) return soekRes;
+	if (!soekRes.treff.length && q.tittel) soekRes = await soek({ tittel: q.tittel });
+	if (!soekRes.treff.length) return { ok: false, error: 'Ingen treff i salmedatabasen' };
+	return { ok: true, valgt: velgTreff(soekRes.treff, q) };
+}
+
+/** Legg ett verk i registreringskurven. NB: svaret er alltid tomt (forAjax) —
+ *  suksess sjekkes mot registreringsskjemaet i registrerValgte. */
+async function leggIKurv(mediaid) {
 	const kurv = await hent('index.cfm/medialib/doAddItemListToCart/', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		body: `cbMediaId=${mediaid}&LanguageList=1&forAjax=true&MusicSheetTypeId=0`
 	});
-	const kurvTekst = await kurv.text();
-	// 1b) hent registreringssiden (setter opp registreringsøkten)
-	const skjema = await hent('index.cfm/medialib/doPurchaseItems');
-	const skjemaSide = await skjema.text();
-	const skjemaOk = skjemaSide.includes('frmDoRegister') && skjemaSide.includes('cbMedia' + mediaid);
-	const skjemaUtdrag = skjemaSide.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-	// 2) registreringsskjema (feltene er kjent fra gudstjeneste.no-grensesnittet)
+	await kurv.text();
+}
+
+/** Registrer verk for bruk og hent den genererte tekstfilen. */
+async function registrerOgHentTekst(mediaid, dato, navn) {
+	// 1) legg i kurv
+	await leggIKurv(mediaid);
+	// 2) registreringsskjema + registrering av dette én verket
+	const regSide = await registrerValgte([mediaid], dato, navn);
+	if (!regSide.ok) return regSide;
+	// 3) finn og hent tekstfilen for dette verket
+	const sti = regSide.filer.find((f) => new RegExp('/' + mediaid + '\\.txt').test(f));
+	if (!sti) return { ok: false, error: 'Fant ikke generert tekstfil' };
+	const txt = await hent('/' + sti.replace(/^\//, ''));
+	const innhold = (await txt.text()).replace(/\r\n/g, '\n').trim();
+	if (!innhold) return { ok: false, error: 'Tekstfilen var tom' };
+	return { ok: true, tekst: innhold + '\n' };
+}
+
+/** Registrer ALLE verkene i kurven i ÉN registrering. Kalleren har lagt verkene i
+ *  kurven; her verifiseres de mot registreringsskjemaet og manglende verk settes
+ *  opp på nytt (serveren kan miste tidligere kurvlegginger), før registreringen.
+ *  Returnerer {ok, filer} — tekstfilene per verk. */
+async function registrerValgte(mediaids, dato, navn) {
+	let skjemaSide = '';
+	for (let forsok = 0; forsok < 3; forsok++) {
+		for (const m of mediaids) await leggIKurv(m);
+		const skjema = await hent('index.cfm/medialib/doPurchaseItems');
+		skjemaSide = await skjema.text();
+		if (mediaids.every((m) => skjemaSide.includes('cbMedia' + m))) break;
+	}
+	const skjemaOk = mediaids.every((m) => skjemaSide.includes('cbMedia' + m));
+	if (!skjemaOk) {
+		const funnet = [...skjemaSide.matchAll(/name="(cbMedia\d+)/g)].map((mm) => mm[1]);
+		const utdrag = skjemaSide.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+		return { ok: false, error: 'Registreringsskjemaet mangler verkene. Ventet: ' + mediaids.join(',') + ' | funnet: ' + [...new Set(funnet)].join(',') + ' | ' + utdrag.slice(0, 120) };
+	}
 	const felt = new URLSearchParams({
 		church: navn || 'Gudstjeneste',
 		period: 'on',
 		dateFrom: tilSkjemaDato(dato),
 		dateTo: '',
-		numUses: '1',
-		[`MusicSheetTypeId_${mediaid}`]: '0',
-		[`cbMedia${mediaid}`]: '-1', // alle vers
-		[`cbsheetmusic${mediaid}`]: 'on',
-		[`screen${mediaid}`]: 'portrait',
-		[`lang${mediaid}`]: 'B'
+		numUses: '1'
 	});
+	for (const mediaid of mediaids) {
+		felt.set(`MusicSheetTypeId_${mediaid}`, '0');
+		felt.set(`cbMedia${mediaid}`, '-1'); // alle vers
+		felt.set(`cbsheetmusic${mediaid}`, 'on');
+		felt.set(`screen${mediaid}`, 'portrait');
+		felt.set(`lang${mediaid}`, 'B');
+	}
 	const reg = await hent('index.cfm/medialib/doRegisterItems', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded', referer: BASE + 'index.cfm/medialib/doPurchaseItems' },
 		body: felt.toString()
 	});
 	const regSide = await reg.text();
-	if (!erInnloggetSide(regSide)) return { ok: false, error: 'Sesjonen utløpt under registrering. Kurv: ' + kurv.status + (kurvTekst.includes('Du må først logg inn') ? '(login)' : '(ok)') + ' | Skjema: ' + (skjemaOk ? 'ok' : 'mangler') + ' | Skjemaside: ' + skjemaUtdrag.slice(0, 200) + ' | RegSide: ' + regSide.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) };
-	// 3) finn den genererte tekstfilen
-	const m = regSide.match(/data\/generated\/media\/[^"']+\.txt/);
-	if (!m) return { ok: false, error: 'Fant ikke generert tekstfil' };
-	// 4) hent teksten
-	const txt = await hent('/' + m[0].replace(/^\//, ''));
-	const innhold = (await txt.text()).replace(/\r\n/g, '\n').trim();
-	if (!innhold) return { ok: false, error: 'Tekstfilen var tom' };
-	return { ok: true, tekst: innhold + '\n' };
+	if (!erInnloggetSide(regSide)) return { ok: false, error: 'Sesjonen utløpt under registrering' };
+	// genererte tekstfiler (én per verk): data/generated/media/<hash>/<mediaid>.txt
+	const filer = [...regSide.matchAll(/data\/generated\/media\/[^"']+\.txt/g)].map((m) => m[0]);
+	return { ok: true, filer };
 }
+
+/** IPC: hent salmetekst. payload = { nr, tittel, dato, navn } */
+ipcMain.handle('salme:hent', async (_e, payload = {}) => {
+	try {
+		const ses = await sikreSesjon();
+		if (!ses.ok) return { ok: false, error: ses.error };
+		const q = { nr: String(payload.nr || '').trim(), tittel: String(payload.tittel || '').trim() };
+		if (!q.nr && !q.tittel) return { ok: false, error: 'Fyll inn salmenummer eller tittel' };
+		const soekRes = await soekOgVelg(q);
+		if (!soekRes.ok) return soekRes;
+		const valgt = soekRes.valgt;
+		// 2) registrer og hent tekst
+		const reg = await registrerOgHentTekst(valgt.mediaid, payload.dato, payload.navn);
+		if (!reg.ok) return reg;
+		return {
+			ok: true,
+			tittel: valgt.title,
+			tittel2: valgt.title2,
+			tekst: reg.tekst, // hele salmeteksten fra den genererte tekstfilen
+			tekstForfatter: valgt.tekst, // «T: <navn>»
+			melodi: valgt.melodi, // «M: <navn>»
+			rettighet: valgt.rettighet,
+			mediaid: valgt.mediaid
+		};
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+/** IPC: hent FLERE salmer i ÉN registrering (én verksbruk per verk, én dato/arrangement).
+ *  payload = { dato, navn, salmer: [{ key, nr, tittel }] } → { ok, resultater: [{ key, ok, tekst, tittel, error }] } */
+ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
+	try {
+		const ses = await sikreSesjon();
+		if (!ses.ok) return { ok: false, error: ses.error };
+		const dato = payload.dato ?? '';
+		const navn = payload.navn ?? 'Gudstjeneste';
+		const resultater = [];
+		const valgte = [];
+		// 1) søk + legg alle i kurven
+		for (const s of (payload.salmer ?? [])) {
+			const q = { nr: String(s.nr || '').trim(), tittel: String(s.tittel || '').trim() };
+			if (!q.nr && !q.tittel) { resultater.push({ key: s.key, ok: false, error: 'Mangler nummer og tittel' }); continue; }
+			const soekRes = await soekOgVelg(q);
+			if (!soekRes.ok) { resultater.push({ key: s.key, ok: false, error: soekRes.error }); continue; }
+			valgte.push({ key: s.key, valgt: soekRes.valgt });
+		}
+		if (!valgte.length) return { ok: false, error: 'Ingen treff i salmedatabasen', resultater };
+		// 2) én registrering med alle verkene
+		const reg = await registrerValgte(valgte.map((v) => v.valgt.mediaid), dato, navn);
+		if (!reg.ok) return { ok: false, error: reg.error, resultater };
+		// 3) hent tekstfilen per verk
+		for (const { key, valgt } of valgte) {
+			const sti = reg.filer.find((f) => new RegExp('/' + valgt.mediaid + '\\.txt').test(f));
+			if (!sti) { resultater.push({ key, ok: false, error: 'Fant ikke tekstfil for «' + valgt.title + '»' }); continue; }
+			const txt = await hent('/' + sti.replace(/^\//, ''));
+			const innhold = (await txt.text()).replace(/\r\n/g, '\n').trim();
+			resultater.push({
+				key,
+				ok: !!innhold,
+				tekst: innhold ? innhold + '\n' : undefined,
+				tittel: valgt.title,
+				tittel2: valgt.title2,
+				tekstForfatter: valgt.tekst,
+				melodi: valgt.melodi,
+				mediaid: valgt.mediaid,
+				error: innhold ? undefined : 'Tekstfilen var tom'
+			});
+		}
+		return { ok: true, resultater };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
 
 /** IPC: lagre innlogging (passordet krypteres med Electron safeStorage). */
 ipcMain.handle('salme:lagre-login', (_e, { user, pass }) => {
@@ -253,37 +363,6 @@ ipcMain.handle('salme:logg-ut', () => {
 ipcMain.handle('salme:test-login', async () => {
 	const r = await loggInn();
 	return r;
-});
-
-/** IPC: hent salmetekst. payload = { nr, tittel, dato, navn } */
-ipcMain.handle('salme:hent', async (_e, payload = {}) => {
-	try {
-		const ses = await sikreSesjon();
-		if (!ses.ok) return { ok: false, error: ses.error };
-		const q = { nr: String(payload.nr || '').trim(), tittel: String(payload.tittel || '').trim() };
-		if (!q.nr && !q.tittel) return { ok: false, error: 'Fyll inn salmenummer eller tittel' };
-		// 1) søk — nummer først, fall tilbake til fritekst
-		let soekRes = q.nr ? await soek({ nr: q.nr }) : { ok: true, treff: [] };
-		if (!soekRes.ok) return soekRes;
-		if (!soekRes.treff.length && q.tittel) soekRes = await soek({ tittel: q.tittel });
-		if (!soekRes.treff.length) return { ok: false, error: 'Ingen treff i salmedatabasen' };
-		const valgt = velgTreff(soekRes.treff, q);
-		// 2) registrer og hent tekst
-		const reg = await registrerOgHentTekst(valgt.mediaid, payload.dato, payload.navn);
-		if (!reg.ok) return reg;
-		return {
-			ok: true,
-			tittel: valgt.title,
-			tittel2: valgt.title2,
-			tekst: reg.tekst, // hele salmeteksten fra den genererte tekstfilen
-			tekstForfatter: valgt.tekst, // «T: <navn>»
-			melodi: valgt.melodi, // «M: <navn>»
-			rettighet: valgt.rettighet,
-			mediaid: valgt.mediaid
-		};
-	} catch (err) {
-		return { ok: false, error: String(err?.message ?? err) };
-	}
 });
 
 module.exports = {};

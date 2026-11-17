@@ -7,6 +7,7 @@
 	import Maler from '$lib/Maler.svelte';
 	import Bibliotek from '$lib/Bibliotek.svelte';
 	import Eksport from '$lib/Eksport.svelte';
+	import Salmer from '$lib/Salmer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
 	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
@@ -64,6 +65,8 @@
 	<main id="main">
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
+		{:else if app.visning === 'salmer' && app.current}
+			<Salmer />
 		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}
 			<Malverktoy />
 		{:else if app.current}

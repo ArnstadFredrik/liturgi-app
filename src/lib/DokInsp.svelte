@@ -17,6 +17,7 @@
 	function onLagreTilProsjekt() { lagreTilProsjekt(); }
 
 	function tilEksport() { app.visning = 'eksport'; }
+	function tilSalmer() { app.visning = 'salmer'; }
 
 	/** Sjekk ved datoendring: gi beskjed hvis kirkeårsdagen endres. */
 	function onDatoEndret() {
@@ -102,6 +103,7 @@
 			<button class="wide" onclick={() => saveCurrentToFile()} title="Lagre som ny fil på disk">{@html mdi('lagre-som', 17)} Lagre som …</button>
 		{/if}
 		{#if app.kind === 'service'}
+			<button class="wide" onclick={tilSalmer} title="Salmeoversikt — fyll inn og hent alle salmetekstene samlet">{@html mdi('library', 16)} Salmer …</button>
 			<button class="wide" onclick={tilEksport} title="Eksport med profiler (Word, PowerPoint, PDF)">{@html mdi('download', 16)} Eksport …</button>
 		{/if}
 		<button class="wide" onclick={lukkRedigering} title="Lukk">{@html mdi('close')} Lukk</button>

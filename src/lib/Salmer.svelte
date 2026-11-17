@@ -1,0 +1,144 @@
+<script>
+	// Salmeoversikt: alle salmeleddene i gudtjenesten i én liste — fyll inn
+	// nummer og/eller tittel og hent alle tekstene i ÉN registrering.
+	import { app, markDirty } from '$lib/store.svelte.js';
+	import { formaterSalme } from '$lib/lit.js';
+	import { mdi } from '$lib/mdi.js';
+	import { toast } from 'svelte-sonner';
+
+	const o = $derived(app.current);
+
+	// rader: {si, ii, it} for hvert salmeledd i gudtjenesten
+	const salmer = $derived.by(() => {
+		const ut = [];
+		if (!o?.sections) return ut;
+		o.sections.forEach((sec, si) => {
+			(sec.items ?? []).forEach((it, ii) => {
+				if (it.type === 'salme') ut.push({ si, ii, it });
+			});
+		});
+		return ut;
+	});
+
+	const manglerTekst = (it) => !(it.text ?? '').trim();
+
+	let henter = $state(false);
+	let henterRad = $state(''); // item-id for per-rad indikator
+	let ferdigMelding = $state('');
+
+	async function hentEn(it) {
+		if (henter) return;
+		if (!String(it.salmeNr ?? '').trim() && !String(it.salmeTittel ?? '').trim()) {
+			toast.error('Fyll inn salmenummer eller tittel først');
+			return;
+		}
+		if (!window.liturgi?.salmeHent) { toast.error('Salmedatabasen er kun tilgjengelig i Mac-appen'); return; }
+		henter = true;
+		henterRad = it.id;
+		try {
+			const r = await window.liturgi.salmeHent({
+				nr: String(it.salmeNr ?? '').trim(),
+				tittel: String(it.salmeTittel ?? '').trim(),
+				dato: o.date ?? '',
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste'
+			});
+			if (!r?.ok) {
+				toast.error(r?.error === 'Ikke konfigurert' ? 'Registrer bruker for gudstjeneste.no i Innstillinger' : (r?.error ?? 'Klarte ikke hente salmen'));
+				return;
+			}
+			it.text = formaterSalme(r.tekst);
+			if (!it.salmeTittel && r.tittel) it.salmeTittel = r.tittel;
+			markDirty();
+			toast.success('Hentet «' + r.tittel + '»');
+		} finally {
+			henter = false;
+			henterRad = '';
+		}
+	}
+
+	/** Hent alle rader som mangler tekst i ÉN registrering (flere verk samtidig). */
+	async function hentAlle() {
+		if (henter) return;
+		const rene = salmer.filter(({ it }) => manglerTekst(it) && (String(it.salmeNr ?? '').trim() || String(it.salmeTittel ?? '').trim()));
+		if (!rene.length) { toast.info('Ingen salmer mangler tekst'); return; }
+		if (!window.liturgi?.salmeHentFlere) { toast.error('Salmedatabasen er kun tilgjengelig i Mac-appen'); return; }
+		henter = true;
+		ferdigMelding = '';
+		try {
+			const r = await window.liturgi.salmeHentFlere({
+				dato: o.date ?? '',
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste',
+				salmer: rene.map(({ it }) => ({
+					key: it.id,
+					nr: String(it.salmeNr ?? '').trim(),
+					tittel: String(it.salmeTittel ?? '').trim()
+				}))
+			});
+			if (!r?.ok) {
+				toast.error(r?.error === 'Ikke konfigurert' ? 'Registrer bruker for gudstjeneste.no i Innstillinger' : (r?.error ?? 'Klarte ikke hente salmene'));
+				return;
+			}
+			let antall = 0;
+			const feil = [];
+			for (const res of (r.resultater ?? [])) {
+				const rad = salmer.find(({ it }) => it.id === res.key);
+				if (!rad) continue;
+				if (res.ok) {
+					rad.it.text = formaterSalme(res.tekst);
+					if (!rad.it.salmeTittel && res.tittel) rad.it.salmeTittel = res.tittel;
+					antall++;
+				} else {
+					feil.push((rad.it.heading || '') + ': ' + (res.error ?? 'ukjent feil'));
+				}
+			}
+			if (antall) markDirty();
+			ferdigMelding = feil.length ? `Hentet ${antall} — feil: ${feil.join('; ')}` : `Hentet ${antall} ${antall === 1 ? 'salme' : 'salmer'}`;
+			if (feil.length) toast.warning(ferdigMelding);
+			else toast.success(ferdigMelding);
+		} finally {
+			henter = false;
+		}
+	}
+</script>
+
+<div id="salmer-modul">
+	<header class="sal-overhode">
+		<button class="eks-tilbake" onclick={() => { app.visning = 'hjem'; }} title="Tilbake til gudtjenesten">{@html mdi('chevron-left', 15)}</button>
+		<div class="sal-tittel">
+			<h2>Salmeoversikt</h2>
+			<span class="sal-under">{o?.name ?? ''}{o?.date ? ' · ' + o.date : ''}</span>
+		</div>
+		<div class="sal-handlinger">
+			{#if ferdigMelding}<span class="sal-ferdig">{ferdigMelding}</span>{/if}
+			<button class="wide sal-hent-alle" onclick={hentAlle} disabled={henter}
+				title="Søker og registrerer alle salmer som mangler tekst i én registrering hos gudstjeneste.no">
+				{#if henter}{@html mdi('loading', 15)} Henter …{:else}{@html mdi('cloud-download', 15)} Hent alle ({salmer.filter(({ it }) => manglerTekst(it) && (String(it.salmeNr ?? '').trim() || String(it.salmeTittel ?? '').trim())).length}){/if}
+			</button>
+		</div>
+	</header>
+
+	{#if salmer.length === 0}
+		<p class="sal-tom">Gudtjenesten har ingen salmeledd. Legg til et ledd og skift typen til «Salme», eller opprett salmeleddene her.</p>
+	{:else}
+		<div class="sal-liste">
+			{#each salmer as { si, ii, it } (it.id)}
+				<div class="sal-rad" class:hentes={henterRad === it.id}>
+					<div class="sal-rad-hode">
+						<span class="item-eyebrow">{it.heading || 'Salme'}</span>
+						{#if !manglerTekst(it)}<span class="sal-status ok">tekst hentet</span>{:else}<span class="sal-status tom">mangler tekst</span>{/if}
+					</div>
+					<div class="sal-rad-felt">
+						<input class="nr" placeholder="Nr" spellcheck="false" bind:value={it.salmeNr} onchange={markDirty} />
+						<input class="tittel" placeholder="Salmens tittel" spellcheck="false" bind:value={it.salmeTittel} onchange={markDirty} />
+						<button class="sal-hent-rad" onclick={() => hentEn(it)} disabled={henter}
+							title="Søk opp og hent denne salmen (eget verksbruk registreres)">
+							{#if henterRad === it.id}{@html mdi('loading', 14)}{:else}{@html mdi('cloud-download', 14)}{/if}
+							Hent
+						</button>
+					</div>
+				</div>
+			{/each}
+		</div>
+		<p class="sal-notis">«Hent alle» søker og registrerer salmer som mangler tekst i én samlet registrering (dato og gudtjenestetype fra gudtjenesten). Rader med tekst fra før hentes bare enkeltvis.</p>
+	{/if}
+</div>

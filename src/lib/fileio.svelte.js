@@ -729,6 +729,7 @@ export function kjorMenyId(id) {
 		case 'lagre-som': saveCurrentToFile(); break;
 		case 'lagre-som-mal': lagreSomMalFraMeny(); break;
 		case 'eksport': app.visning = 'eksport'; break;
+		case 'salmeoversikt': if (app.kind === 'service') app.visning = 'salmer'; break;
 		case 'vis-leddinnhold': app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} break;
 		case 'koblet-visning': app.eksKoblet = !app.eksKoblet; try { localStorage.setItem('eks-koblet', app.eksKoblet ? '1' : '0'); } catch {} break;
 		case 'apne-mappe': if (app.current?.filePath) window.liturgi?.apneMappe?.(app.current.filePath); break;
