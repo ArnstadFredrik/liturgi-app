@@ -1,5 +1,5 @@
 <script>
-	import { app } from '$lib/store.svelte.js';
+	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { closeModal, showModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -192,6 +192,24 @@
 	function autoKirkeaar() {
 		const k = lookupKirkeaar(date);
 		kirkeaar = k;
+		// CACHEN FØRST: har vi allerede hentet denne dagen (kommende søndag + dager
+		// mellom i dag og søndag cachet ved oppstart), brukes den umiddelbart —
+		// ingen eksterne kall og «Opprett» kan trykkes med én gang.
+		const cached = window.__kirkeaarCache?.finn?.(date, k);
+		if (cached) {
+			tekster = cached.tekster ?? null;
+			teksterStatus = cached.tekster ? 'ok' : 'laster';
+			// tekster mangler i cachen (offline ved oppstart)? hent i bakgrunnen
+			if (!cached.tekster) {
+				const req = ++teksterReq;
+				hentTekster(k.day).then((t) => {
+					if (req !== teksterReq) return;
+					tekster = t;
+					teksterStatus = t ? 'ok' : 'feil';
+				});
+			}
+			return;
+		}
 		tekster = null;
 		teksterStatus = k ? 'laster' : '';
 		const req = ++teksterReq;
@@ -222,14 +240,29 @@
 			if (!k) { tilbakeTilNyService(); return; }
 			manuellK = k;
 			kirkeaar = k;
-			tekster = null;
-			teksterStatus = 'laster';
+			// cachen først (samme mønster som autoKirkeaar)
+			const cached = window.__kirkeaarCache?.finn?.(k.date, k);
+			if (cached) {
+				tekster = cached.tekster ?? null;
+				teksterStatus = cached.tekster ? 'ok' : 'laster';
+				if (!cached.tekster) {
+					const req0 = ++teksterReq;
+					hentTekster(k.day).then((t) => {
+						if (req0 !== teksterReq) return;
+						tekster = t;
+						teksterStatus = t ? 'ok' : 'feil';
+					});
+				}
+			} else {
+				tekster = null;
+				teksterStatus = 'laster';
 				const req = ++teksterReq;
-			hentTekster(k.day).then((t) => {
-				if (req !== teksterReq) return;
-				tekster = t;
-				teksterStatus = t ? 'ok' : 'feil';
-			});
+				hentTekster(k.day).then((t) => {
+					if (req !== teksterReq) return;
+					tekster = t;
+					teksterStatus = t ? 'ok' : 'feil';
+				});
+			}
 			tilbakeTilNyService();
 		}, tilbakeTilNyService);
 	}
@@ -269,15 +302,25 @@
 				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
 			};
-			// vent på at tekstepplaget er ferdig (maks 6 s) før opprettelse
-			if (nyType === 'gudstjeneste' && kirkeaar && teksterStatus === 'laster') {
-				const t0 = Date.now();
-				const vent = () => {
-					if (teksterStatus !== 'laster' || Date.now() - t0 > 6000) opprett();
-					else setTimeout(vent, 250);
-				};
-				vent();
-			} else opprett();
+			// BAKGRUNNSOPPRETTELSE: vent IKKE på tekstepplaget — opprett umiddelbart,
+			// fyll tekstene i bakgrunnen så planleggingen kan begynne med én gang.
+			// (kirkeaar-metadatene — navn/farge/tekstrekke/referanser — er synkrone fra
+			// church-year-pakken; bare selve bibeltekstene er eksterne.)
+			if (nyType === 'gudtjeneste' && kirkeaar && teksterStatus === 'laster') {
+				// tekster kan komme i ettertid: lag dem i cachen og fyll gudstjenesten når de er der
+				const k = kirkeaar;
+				hentTekster(k.day).then((t) => {
+					window.__kirkeaarCache?.hent?.(date); // oppdater cachen (få med tekstene til neste gang)
+					// oppdater den AKTIVE gudstjenesten hvis den fortsatt matcher denne dagen/malen
+					const cur = app.current;
+					if (!cur || cur.date !== date || cur.templateName !== app.templates.find((x) => x.id === tplId)?.name) return;
+					if (t) applyKirkeaar(cur, k, t); // eksportert fra store.svelte.js — samme fyll som ved opprettelse
+				});
+				m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, null);
+				if (app.modal === forrige) closeModal();
+				return;
+			}
+			opprett();
 			return;
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);

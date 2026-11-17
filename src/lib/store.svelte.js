@@ -29,6 +29,7 @@ export const app = $state({
 	åpneMaler: [], // åpne maler for redigering: {obj, åpenMalId, dev, dirty}
 	modal: null
 });
+if (typeof window !== 'undefined') window.__app = app; // TEMP-TEST
 
 const SIDEBAR_KEY = 'liturgi-sidebar';
 export function veksleSidebar() {
