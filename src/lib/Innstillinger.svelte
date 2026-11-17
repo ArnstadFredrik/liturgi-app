@@ -26,6 +26,35 @@
 		await regenererBibliotek();
 		jobber = false;
 	}
+
+	// salmedatabasen (gudstjeneste.no): lagre innlogging i databasen (kryptert)
+	let salmeUser = '';
+	let salmePass = '';
+	let salmeJobber = false;
+	let salmeStatusTekst = '';
+
+	onMount(async () => {
+		if (!isElectron || !window.liturgi?.salmeStatus) return;
+		const s = await window.liturgi.salmeStatus();
+		if (s?.ok) {
+			salmeUser = s.bruker ?? '';
+			salmeStatusTekst = s.konfigurert ? 'Konfigurert for ' + s.bruker : '';
+		}
+	});
+
+	async function lagreSalmeLogin() {
+		if (!salmeUser.trim() || !salmePass) {
+			salmeStatusTekst = 'Fyll inn både brukernavn og passord.';
+			return;
+		}
+		salmeJobber = true;
+		salmeStatusTekst = '';
+		const r = await window.liturgi.salmeLagreLogin(salmeUser.trim(), salmePass);
+		salmeJobber = false;
+		salmeStatusTekst = r?.ok
+			? 'Lagret (passordet er kryptert)'
+			: 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
+	}
 </script>
 
 <div id="innstillinger">
@@ -65,6 +94,28 @@
 		</p>
 		{#if isElectron}
 			<button onclick={byggPåNytt} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer biblioteket'}</button>
+		{/if}
+	</div>
+
+	<div class="inn-gruppe">
+		<div class="sidehead">Salmedatabasen (gudstjeneste.no)</div>
+		{#if isElectron}
+			<p>
+				Brukernavn og passord for din konto på gudstjeneste.no brukes når salmetekster
+				hentes inn i salmeledd. Passordet lagres kryptert i appens database.
+			</p>
+			<div class="salme-login">
+				<label for="salmeUser">Brukernavn</label>
+				<input id="salmeUser" bind:value={salmeUser} spellcheck="false" autocomplete="off" />
+				<label for="salmePass">Passord</label>
+				<input id="salmePass" type="password" bind:value={salmePass} autocomplete="new-password" />
+				<div class="salme-knapper">
+					<button onclick={lagreSalmeLogin} disabled={salmeJobber}>{salmeJobber ? 'Lagrer …' : 'Lagre'}</button>
+				</div>
+				{#if salmeStatusTekst}<p class="salme-status">{salmeStatusTekst}</p>{/if}
+			</div>
+		{:else}
+			<p>Salmedatabasen er kun tilgjengelig i Mac-appen.</p>
 		{/if}
 	</div>
 </div>

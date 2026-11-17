@@ -2,7 +2,7 @@
 // lagre dem tilbake til prosjektet (src/lib/data.js + seed-filer).
 // Brukes av både Malverktøy-visningen og dokumentpanelet (DokInsp).
 import { BUILTIN_TEMPLATES } from '$lib/data.js';
-import { app } from '$lib/store.svelte.js';
+import { app, registrerÅpenMal, malEntryFor } from '$lib/store.svelte.js';
 import { toast } from 'svelte-sonner';
 
 // safeNavn er duplisert her (ikke importert fra fileio) for å unngå
@@ -35,24 +35,9 @@ export function åpneOriginal(bt) {
 	data.kind = 'template';
 	delete data.builtinKey; // unngå kollisjon med disk-malen i store-oppdateringer
 	registrerÅpenMal(data, true);
+	app.visning = 'hjem';
 	app.dirty = false;
 	toast.info('Rediger malen, og velg «Lagre til prosjektet» når du er ferdig.');
-}
-
-/** Registrer et mal-dokument som åpent (i «Åpne maler» i sidefelten). */
-export function registrerÅpenMal(obj, dev = false) {
-	obj.visInstr = obj.visInstr ?? true;
-	obj.visRoles = obj.visRoles ?? true;
-	let e = app.åpneMaler.find((x) => x.obj === obj);
-	if (!e) {
-		e = { obj, name: obj.name ?? '', dev, dirty: false };
-		app.åpneMaler.push(e);
-	} else {
-		e.dev = dev;
-	}
-	app.current = obj;
-	app.kind = 'template';
-	app.visning = 'hjem';
 }
 
 /** Fjerner felter lagt til under redigering: tomme strenger («text: ""» fra
@@ -110,7 +95,7 @@ export async function lagreTilProsjekt() {
 	}
 	o.__dirty = false;
 	app.dirty = false;
-	const e = app.åpneMaler.find((x) => x.obj === o);
+	const e = malEntryFor(o);
 	if (e) e.dirty = false;
 	toast.success('data.js oppdatert · ' + seedMelding);
 	return true;

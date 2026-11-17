@@ -313,7 +313,9 @@ app.on('second-instance', () => {
 });
 
 const PORT = 42_317;
-const BUILD = path.join(__dirname, '..', 'build');
+// LITURGI_BUILD_DIR lar dev-testing peke på en annen byggmappe (unngår kollisjon
+// når flere sesjoner bygger parallelt): LITURGI_BUILD_DIR=/tmp/devbuild electron .
+const BUILD = process.env.LITURGI_BUILD_DIR || path.join(__dirname, '..', 'build');
 
 // ---------- statisk server + bibel-proxy ----------
 const MIME = {
@@ -402,6 +404,9 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 		return { ok: false, error: 'data.js var ugyldig etter skriving (gjenopprettet): ' + err.message };
 	}
 });
+
+// Salmedatabasen (gudstjeneste.no) – login + henting av salmetekster
+require('./salmer.cjs');
 
 // ---------- mac-menylinjen ----------
 // Alle handlingene fra venstre og høyre sidemeny; dokumenthandlinger deaktivert
