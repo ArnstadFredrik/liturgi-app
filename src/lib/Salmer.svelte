@@ -23,8 +23,11 @@
 	const manglerTekst = (it) => !(it.text ?? '').trim();
 
 	let henter = $state(false);
-	let henterRad = $state(''); // item-id for per-rad indikator
+	let henterRad = $state(''); // item-id for per-rad indikator (enkeltvis henting)
+	let ventende = $state([]);  // item-id-er under henting i «Hent alle»
 	let ferdigMelding = $state('');
+
+	const venterRad = (id) => henterRad === id || ventende.includes(id);
 
 	async function hentEn(it) {
 		if (henter) return;
@@ -63,6 +66,7 @@
 		if (!rene.length) { toast.info('Ingen salmer mangler tekst'); return; }
 		if (!window.liturgi?.salmeHentFlere) { toast.error('Salmedatabasen er kun tilgjengelig i Mac-appen'); return; }
 		henter = true;
+		ventende = rene.map(({ it }) => it.id);
 		ferdigMelding = '';
 		try {
 			const r = await window.liturgi.salmeHentFlere({
@@ -97,6 +101,7 @@
 			else toast.success(ferdigMelding);
 		} finally {
 			henter = false;
+			ventende = [];
 		}
 	}
 </script>
@@ -122,7 +127,7 @@
 	{:else}
 		<div class="sal-liste">
 			{#each salmer as { si, ii, it } (it.id)}
-				<div class="sal-rad" class:hentes={henterRad === it.id}>
+				<div class="sal-rad" class:hentes={venterRad(it.id)}>
 					<div class="sal-rad-hode">
 						<span class="item-eyebrow">{it.heading || 'Salme'}</span>
 						{#if !manglerTekst(it)}<span class="sal-status ok">tekst hentet</span>{:else}<span class="sal-status tom">mangler tekst</span>{/if}
@@ -130,10 +135,9 @@
 					<div class="sal-rad-felt">
 						<input class="nr" placeholder="Nr" spellcheck="false" bind:value={it.salmeNr} onchange={markDirty} />
 						<input class="tittel" placeholder="Salmens tittel" spellcheck="false" bind:value={it.salmeTittel} onchange={markDirty} />
-						<button class="sal-hent-rad" onclick={() => hentEn(it)} disabled={henter}
+						<button class="sal-hent-rad" class:venter={venterRad(it.id)} onclick={() => hentEn(it)} disabled={henter}
 							title="Søk opp og hent denne salmen (eget verksbruk registreres)">
-							{#if henterRad === it.id}{@html mdi('loading', 14)}{:else}{@html mdi('cloud-download', 14)}{/if}
-							Hent
+							{#if venterRad(it.id)}{@html mdi('loading', 14)} Henter …{:else}{@html mdi('cloud-download', 14)} Hent{/if}
 						</button>
 					</div>
 				</div>
