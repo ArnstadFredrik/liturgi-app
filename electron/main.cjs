@@ -469,6 +469,7 @@ function byggMeny(win, st = {}) {
 		{
 			label: 'Gudstjeneste',
 			submenu: [
+				{ label: 'Salmeoversikt …', enabled: dok && erTjeneste, click: () => send('salmeoversikt') },
 				{ label: 'Eksport …', accelerator: 'CmdOrCtrl+E', enabled: dok && erTjeneste, click: () => send('eksport') },
 				{ label: 'Vis leddinnhold', type: 'checkbox', checked: !!st.visInnhold, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('vis-leddinnhold') },
 				{ label: 'Koblet visning (liste + forhåndsvisning)', type: 'checkbox', checked: st.koblet !== false, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('koblet-visning') },

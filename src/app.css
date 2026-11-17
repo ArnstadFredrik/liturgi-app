@@ -560,6 +560,32 @@ textarea {
 /* «Hent tekst»-indikatoren roterer mens salmen hentes */
 .salme-hent:disabled svg { animation: ka-spin 0.8s linear infinite; }
 
+/* Salmeoversikten (visning 'salmer') */
+#salmer-modul { max-width: 760px; margin: 40px auto 80px; padding: 0 24px; }
+.sal-overhode { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.sal-overhode .eks-tilbake { flex: none; }
+.sal-tittel { flex: 1; min-width: 0; }
+.sal-tittel h2 { margin: 0; color: var(--text); }
+.sal-under { color: var(--muted); font-size: 12px; }
+.sal-handlinger { display: flex; align-items: center; gap: 12px; }
+.sal-ferdig { color: var(--muted); font-size: 12px; }
+.sal-hent-alle { margin: 0; }
+.sal-hent-alle:disabled svg { animation: ka-spin 0.8s linear infinite; }
+.sal-tom { color: var(--muted); }
+.sal-liste { display: flex; flex-direction: column; gap: 10px; }
+.sal-rad { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+.sal-rad.hentes { opacity: .6; }
+.sal-rad-hode { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sal-status { font-size: 11px; padding: 1px 8px; border-radius: 99px; }
+.sal-status.ok { color: var(--accent); background: var(--accent-dim); }
+.sal-status.tom { color: var(--muted); background: var(--panel); border: 1px solid var(--border); }
+.sal-rad-felt { display: flex; gap: 8px; margin-top: 9px; align-items: center; }
+.sal-rad-felt .nr { width: 72px; flex: none; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; font-size: 14px; }
+.sal-rad-felt .tittel { flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 14px; }
+.sal-hent-rad { white-space: nowrap; }
+.sal-hent-rad:disabled svg { animation: ka-spin 0.8s linear infinite; }
+.sal-notis { color: var(--muted); font-size: 12px; margin-top: 16px; line-height: 1.5; }
+
 .list li.empty {
 	color: var(--muted);
 	font-style: italic;

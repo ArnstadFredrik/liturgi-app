@@ -65,6 +65,23 @@
 		chooseOneModal(it.avslutningAlts, it.selAvsl ?? 0, (idx) => { it.selAvsl = idx; markDirty(); });
 	}
 
+	/** Skift leddets type (tekst/salme/instruks/lesning/bønn) — teksten beholder. */
+	function skiftType() {
+		const typer = ['tekst', 'salme', 'instruks', 'lesning', 'bønn'].map((t) => ({ label: TYPE_LABEL[t], text: t }));
+		chooseOneModal(typer, Math.max(0, typer.findIndex((t) => t.text === it.type)), (idx) => {
+			const ny = typer[idx]?.text;
+			if (!ny || ny === it.type) return;
+			it.type = ny;
+			if (ny === 'salme') {
+				it.salmeNr = it.salmeNr ?? '';
+				it.salmeTittel = it.salmeTittel ?? '';
+				it.showSalmeTekst = it.showSalmeTekst ?? false;
+			}
+			markDirty();
+			toast.success('Leddets type er endret til ' + TYPE_LABEL[ny]);
+		});
+	}
+
 	function move(dir) {
 		const j = ii + dir;
 		if (j < 0 || j >= items.length) return;
@@ -101,6 +118,7 @@
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
+			{ label: 'Skift type …', action: skiftType },
 			'sep',
 			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
 			{ label: (o?.visRoles ?? true) ? '✓ Vis roller' : 'Vis roller', action: () => { if (o) { o.visRoles = !(o.visRoles ?? true); markDirty(); } } },
