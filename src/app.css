@@ -459,6 +459,8 @@ body.hide-roles .lit-text .role, .lit-text.plain .role { color: inherit; font-we
 .salme-row input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 13px; }
 .salme-row input.nr { width: 70px; text-align: center; }
 .salme-row input.tittel { flex: 1; }
+/* «Bytt språk»-knappen sitter rett under salmeraden — litt luft rundt */
+.salme-row + .alt-btn { margin-top: 8px; margin-bottom: 4px; }
 textarea {
 	width: 100%; background: var(--panel2); color: var(--text);
 	border: 1px solid var(--border); border-radius: 6px;
