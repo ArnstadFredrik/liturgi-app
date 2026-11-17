@@ -238,6 +238,18 @@ ipcMain.handle('salme:status', () => {
 	return { ok: true, konfigurert: !!l?.user, bruker: l?.user ?? '' };
 });
 
+/** IPC: logg ut — slett lagret innlogging og dropp sesjonen. */
+ipcMain.handle('salme:logg-ut', () => {
+	try {
+		dbSet('salmeLogin', null);
+		cookieJar = new Map();
+		innloggetTid = 0;
+		return { ok: true };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
 ipcMain.handle('salme:test-login', async () => {
 	const r = await loggInn();
 	return r;

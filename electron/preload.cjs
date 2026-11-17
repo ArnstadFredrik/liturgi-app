@@ -51,5 +51,6 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// salmedatabasen (gudstjeneste.no)
 	salmeLagreLogin: (user, pass) => ipcRenderer.invoke('salme:lagre-login', { user, pass }),
 	salmeStatus: () => ipcRenderer.invoke('salme:status'),
+	salmeLoggUt: () => ipcRenderer.invoke('salme:logg-ut'),
 	salmeHent: (payload) => ipcRenderer.invoke('salme:hent', payload),
 });
