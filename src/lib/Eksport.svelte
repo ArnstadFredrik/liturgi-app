@@ -1,7 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
-	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName, roleSegments, splitChunks, delPptSider } from '$lib/export.js';
+	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml, leddTekst } from '$lib/lit.js';
@@ -32,7 +32,7 @@
 	let pptTittelSkala = $state(1);     // skala på tittelsliden (40 pt grunn)
 	let pptEkstra = $state([]);         // ekstra sider: { tittel, innhold }
 	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
-	let pptJustering = $state('left');  // tekstjustering: left | center | right
+	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
@@ -193,7 +193,7 @@
 			pptTittelSkala = o.eksportPptx?.tittelSkala ?? 1;
 			pptEkstra = JSON.parse(JSON.stringify(o.eksportPptx?.ekstra ?? []));
 			pptLeddtitler = o.eksportPptx?.leddtitler ?? false;
-			pptJustering = o.eksportPptx?.justering ?? 'left';
+			pptJustering = o.eksportPptx?.justering ?? 'center';
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
 			formater = egne ?? { ...appFormater };
@@ -478,45 +478,61 @@
 	/** Bygg slidene (samme logikk som exportPptx) til HTML-forhåndsvisning. */
 	function byggPptSlides() {
 		if (!o) { pptSlides = []; return; }
-		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 24);
+		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
 		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
 		const slides = [];
 		const push = (segs, big = false, blank = false) => slides.push({ big, blank, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		pptSlidePos = {};
+		const emitEkstra = (ekstra, slot) => {
+			pptSlidePos[slot] = slides.length;
+			const joined = flytAvsnitt(((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim());
+			const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
+			if (grupper.length) for (const grp of grupper) push(grp);
+			else push([{ text: '' }]);
+		};
+		const egne = (slot) => (pptEkstra ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
+		for (const { e, i } of egne('')) emitEkstra(e, 'e' + i);
 		// blank side mellom leddene (unngå dobbelt-tom og tom først)
 		const tom = () => { if (tomSlide && slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
-		// egne slides (samme deling som i eksporten) — også TOMME slides
-		for (const ekstra of pptEkstra ?? []) {
-			const joined = ((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim();
-			const chunks = delPptSider(joined, tekstStorrelse);
-			if (chunks.length) for (const chunk of chunks) push(roleSegments(chunk));
-			else push([{ text: '' }]);
-		}
 		const kopi = klonMedValg(o, 'Menighet');
-		for (const sec of kopi.sections ?? []) {
-			for (const it of sec.items ?? []) {
-				if (!it.enabled) continue;
+		const seksjoner = kopi.sections ?? [];
+		for (let si = 0; si < seksjoner.length; si++) {
+			const items = seksjoner[si].items ?? [];
+			for (let ii = 0; ii < items.length; ii++) {
+				const it = items[ii];
+				if (!it.enabled) {
+					// egne slides plassert etter et deaktivert ledd kommer likevel
+					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
+					continue;
+				}
 				tom();
 				const heading = pptLeddtitler
 					? (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 						? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '')
 					: '';
 				if (it.type === 'salme' && it.text) {
+					if (it.__visInnhold === false) continue; // «vis innhold» av
+					pptSlidePos[nokkel(si, ii)] = slides.length;
 					const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 					vers.forEach((v) => {
 						const overskrift = heading ? heading + '\n' : '';
-						for (const chunk of delPptSider(overskrift + v, tekstStorrelse)) push(roleSegments(chunk));
+						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp);
 					});
+					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 					continue;
 				}
 				const lines = [];
 				if (it.type !== 'salme') {
+					if (it.__visInnhold === false) continue; // «vis innhold» av
 					const t = leddTekst(it);
 					if (t) lines.push(t);
 				}
-				const joined = ((heading ? heading + '\n' : '') + lines.join('\n')).trim();
+				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
 				if (!joined) continue;
-				for (const chunk of delPptSider(joined, tekstStorrelse)) push(roleSegments(chunk));
+				pptSlidePos[nokkel(si, ii)] = slides.length;
+				for (const grp of delPptSegs(roleSegments(joined), tekstStorrelse)) push(grp);
+				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
 		}
 		// aldri tom side til slutt
@@ -529,9 +545,62 @@
 		if (aktiv !== 'Skjerm') return;
 		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; pptJustering; tomSlide; pptEkstra.length; pptVersjon; o?.name; o?.date;
 		Promise.resolve().then(() => {
-			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); }
+			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); window.__pptErr = e?.message + '\n' + (e?.stack ?? '').slice(0, 300); }
 		});
 	});
+
+	/** Slideposisjoner for klikk-i-liste → scroll: leddnøkkel → slideindeks, 'e<i>' → egne slides. */
+	let pptSlidePos = {};
+	const regnNokler = () => {
+		const n = [];
+		o?.sections?.forEach((sec, si) => sec.items?.forEach((it, ii) => { if (it.enabled !== false) n.push(nokkel(si, ii)); }));
+		return n;
+	};
+
+	/** Egne slides for en plassering: [{ i, e }] med originalindeks (each-nøkkel). */
+	function ekstraEtter(slot) {
+		return (pptEkstra ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
+	}
+
+	/** Flytt egne slide ei én plass opp (-1) eller ned (+1) i layouten. */
+	function flyttEkstra(ei, retning) {
+		const ekstra = [...pptEkstra];
+		const e = ekstra[ei];
+		if (!e) return;
+		const nokler = regnNokler();
+		const gruppe = (slot) => ekstra.map((x, i) => ({ x, i })).filter(({ x }) => (x.etter ?? '') === slot);
+		const slot = e.etter ?? '';
+		const g = gruppe(slot);
+		const pos = g.findIndex(({ i }) => i === ei);
+		if (retning < 0) {
+			if (pos > 0) {
+				const annen = g[pos - 1].i;
+				[ekstra[ei], ekstra[annen]] = [ekstra[annen], ekstra[ei]];
+			} else if (slot !== '') {
+				const idx = nokler.indexOf(slot);
+				e.etter = idx <= 0 ? '' : nokler[idx - 1];
+			} else return; // aller øverst
+		} else {
+			if (pos < g.length - 1) {
+				const annen = g[pos + 1].i;
+				[ekstra[ei], ekstra[annen]] = [ekstra[annen], ekstra[ei]];
+			} else {
+				const idx = nokler.indexOf(slot);
+				if (idx < nokler.length - 1) e.etter = nokler[idx + 1];
+				else return; // nederst
+			}
+		}
+		pptEkstra = ekstra;
+		setPptx('ekstra', pptEkstra);
+	}
+
+	/** Klikk på et ledd i oversikten → scroll forhåndsvisningen til slidet. */
+	function visSlide(slot) {
+		const idx = pptSlidePos[slot];
+		if (idx === undefined) return;
+		const el = [...document.querySelectorAll('#eks-ppt .ppt-side')][idx];
+		el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
 
 	function leggTilPptSide() {
 		pptEkstra = [...pptEkstra, { tittel: '', innhold: '' }];
@@ -746,7 +815,7 @@
 			{#if aktiv === 'Skjerm'}
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-chk-pt" title="Skriftstørrelse på slidene (pt, grunn 24)">Tekst <input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 24)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 24; setPptx('tekstSkala', pptTekstSkala); }} /></label>
+					<label class="eks-chk-pt" title="Skriftstørrelse på slidene (pt, grunn 24)">Tekst <input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 38)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 38; setPptx('tekstSkala', pptTekstSkala); }} /></label>
 					<label class="eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt, grunn 40)">Tittel <input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
 					<select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }} title="Tekstjustering på slidene">
 						<option value="left">Venstrejustert</option>
@@ -795,25 +864,23 @@
 		</div>
 		<div class="eksport-kolonner">
 			<div class="eksport-liste" use:lenket>
-				{#if aktiv === 'Skjerm'}
-					<div class="sidehead eksport-seksjon">Egne slides</div>
-					{#each pptEkstra as ekstra, ei (ei)}
-						<div class="eksport-rad eksport-egen">
+									{#each ekstraEtter('') as ee (ee.i)}
+						<div class="eksport-rad eksport-egen" onclick={(e) => { if (!e.target.closest('button, input, textarea')) visSlide('e' + ee.i); }}>
 							<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
 							<div class="eks-egen-felter">
-								<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ekstra.tittel}
-									oninput={(e) => oppdaterPptSide(ei, 'tittel', e.currentTarget.value)} />
+								<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
+									oninput={(e) => oppdaterPptSide(ee.i, 'tittel', e.currentTarget.value)} />
 								<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
-									value={ekstra.innhold}
-									oninput={(e) => oppdaterPptSide(ei, 'innhold', e.currentTarget.value)}></textarea>
+									value={ee.e.innhold}
+									oninput={(e) => oppdaterPptSide(ee.i, 'innhold', e.currentTarget.value)}></textarea>
 							</div>
-							<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ei)}>×</button>
+							<div class="eks-egen-flytt">
+								<button title="Flytt sliden opp" onclick={() => flyttEkstra(ee.i, -1)}>↑</button>
+								<button title="Flytt sliden ned" onclick={() => flyttEkstra(ee.i, 1)}>↓</button>
+							</div>
+							<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
 						</div>
 					{/each}
-					{#if !pptEkstra.length}
-						<p class="eks-egen-tom">Ingen egne slides — «+ Ekstra side» i verktøylinjen legger til.</p>
-					{/if}
-				{/if}
 				{#if o.kind === 'service' && aktiv !== 'Skjerm'}
 					<div class="sidehead eksport-seksjon">Tittel</div>
 					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
@@ -826,7 +893,8 @@
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon" data-sec={si}>{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
-						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}>
+						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}
+						onclick={(e) => { if (aktiv === 'Skjerm' && !e.target.closest('button, input, label, textarea, select, a')) visSlide(nokkel(si, ii)); }}>
 							{#if it.enabled === false}
 								<span class="eksport-fjernet-tag" title="Fjernet fra gudstjenesten i kontekstmenyen — kommer ikke med i eksport">fjernet</span>
 							{:else}
@@ -848,12 +916,18 @@
 											</button>
 										{/if}
 										{#if erBibel(it)}
-											<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
-												title={visBibel(si, ii, it) ? 'Bibelreferansen er med — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
-												onclick={() => byttBibelmodus(si, ii, it)}>
-												{@html mdi('book-open-variant')}
-												<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
+<div class="eks-bibel-par">
+											<button type="button" class:av={visBibel(si, ii, it)}
+												title="Hele bibelteksten brukes i eksporten"
+												onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+												<span>Hele teksten</span>
 											</button>
+											<button type="button" class:av={!visBibel(si, ii, it)}
+												title="Bare bibelreferansen brukes i eksporten"
+												onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+												<span>Bibelref.</span>
+											</button>
+											</div>
 										{/if}
 									</div>
 								</div>
@@ -862,12 +936,18 @@
 						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && ((leddTekst(it) || '').trim() || (erBibel(it) && bibelrefTxt(it)))}
 										<div class="eksport-innhold-rad" class:ut={!erBibel(it) && !visTekstDel(si, ii)}>
 											{#if erBibel(it)}
-												<button type="button" class="eksport-innhold-indi eksport-bibel-indi" class:av={!visBibel(si, ii, it)}
-													title={visBibel(si, ii, it) ? 'Bibelreferansen er med — klikk for å bruke hele bibelteksten i stedet' : 'Hele bibelteksten brukes — klikk for å bruke bare bibelreferansen'}
-													onclick={() => byttBibelmodus(si, ii, it)}>
-													{@html mdi('book-open-variant')}
-													<span>{visBibel(si, ii, it) ? 'Bibelreferanse' : 'Hele teksten'}</span>
+<div class="eks-bibel-par">
+												<button type="button" class:av={visBibel(si, ii, it)}
+													title="Hele bibelteksten brukes i eksporten"
+													onclick={() => { if (!visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+													<span>Hele teksten</span>
 												</button>
+												<button type="button" class:av={!visBibel(si, ii, it)}
+													title="Bare bibelreferansen brukes i eksporten"
+													onclick={() => { if (visBibel(si, ii, it)) byttBibelmodus(si, ii, it); }}>
+													<span>Bibelref.</span>
+												</button>
+												</div>
 											{:else}
 												<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
 													<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
@@ -877,6 +957,25 @@
 											<div class="eksport-innhold lit-text">{@html litHtml(erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? bibelrefTxt(it) : leddTekst(it))}</div>
 										</div>
 									{/if}
+	{#if aktiv === 'Skjerm'}
+						{#each ekstraEtter('nokkel(si, ii)') as ee (ee.i)}
+							<div class="eksport-rad eksport-egen">
+								<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
+								<div class="eks-egen-felter">
+									<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
+										oninput={(e) => oppdaterPptSide(ee.i, 'tittel', e.currentTarget.value)} />
+									<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
+										value={ee.e.innhold}
+										oninput={(e) => oppdaterPptSide(ee.i, 'innhold', e.currentTarget.value)}></textarea>
+								</div>
+								<div class="eks-egen-flytt">
+									<button title="Flytt sliden opp" onclick={() => flyttEkstra(ee.i, -1)}>↑</button>
+									<button title="Flytt sliden ned" onclick={() => flyttEkstra(ee.i, 1)}>↓</button>
+								</div>
+								<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
+							</div>
+						{/each}
+					{/if}
 					{/each}
 				{/each}
 			</div>
@@ -889,7 +988,7 @@
 							{#if !slide.blank}
 							<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
 								{#each slide.deler as del}
-									<span class:ppt-red={del.red} class:ppt-demp={del.small}>{del.text}</span>
+									<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
 								{/each}
 							</div>
 							{/if}
