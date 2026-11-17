@@ -2,7 +2,7 @@
 	// Salmeoversikt: alle salmeleddene i gudtjenesten i én liste — fyll inn
 	// nummer og/eller tittel og hent alle tekstene i ÉN registrering.
 	import { app, markDirty } from '$lib/store.svelte.js';
-	import { formaterSalme } from '$lib/lit.js';
+	import { formaterSalme, salmeAlts } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -49,8 +49,10 @@
 				toast.error(r?.error === 'Ikke konfigurert' ? 'Registrer bruker for gudstjeneste.no i Innstillinger' : (r?.error ?? 'Klarte ikke hente salmen'));
 				return;
 			}
-			it.text = formaterSalme(r.tekst);
-			if (!it.salmeTittel && r.tittel) it.salmeTittel = r.tittel;
+			it.salmeTittel = it.salmeTittel || (r.tittel ?? '');
+			const d = salmeAlts(formaterSalme(r.tekst));
+			it.text = d.text;
+			if (d.alts.length > 1) { it.alts = d.alts; it.selAlt = 0; }
 			markDirty();
 			toast.success('Hentet «' + r.tittel + '»');
 		} finally {
@@ -88,8 +90,10 @@
 				const rad = salmer.find(({ it }) => it.id === res.key);
 				if (!rad) continue;
 				if (res.ok) {
-					rad.it.text = formaterSalme(res.tekst);
-					if (!rad.it.salmeTittel && res.tittel) rad.it.salmeTittel = res.tittel;
+					rad.it.salmeTittel = rad.it.salmeTittel || (res.tittel ?? '');
+					const d = salmeAlts(formaterSalme(res.tekst));
+					rad.it.text = d.text;
+					if (d.alts.length > 1) { rad.it.alts = d.alts; rad.it.selAlt = 0; }
 					antall++;
 				} else {
 					feil.push((rad.it.heading || '') + ': ' + (res.error ?? 'ukjent feil'));

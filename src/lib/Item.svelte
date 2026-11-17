@@ -5,7 +5,7 @@
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { formaterSalme } from '$lib/lit.js';
+	import { formaterSalme, salmeAlts } from '$lib/lit.js';
 	import EditableText from './EditableText.svelte';
 
 	let { it, si, ii } = $props();
@@ -45,8 +45,10 @@
 					: (r?.error ?? 'Klarte ikke hente salmen'));
 				return;
 			}
-			it.text = formaterSalme(r.tekst);
-			if (!it.salmeTittel && r.tittel) it.salmeTittel = r.tittel;
+			it.salmeTittel = it.salmeTittel || (r.tittel ?? '');
+			const d = salmeAlts(formaterSalme(r.tekst));
+			it.text = d.text;
+			if (d.alts.length > 1) { it.alts = d.alts; it.selAlt = 0; }
 			it.showSalmeTekst = true;
 			markDirty();
 			toast.success('Hentet «' + r.tittel + '» fra salmedatabasen');
@@ -200,7 +202,14 @@
 				</button>
 			</div>
 			{#if showSalmeTekst}
-				<EditableText bind:value={it.text} kind="lit" />
+				{#if it.alts && it.alts.length}
+					<button class="alt-btn" onclick={velgAlt} title="Velg språkversjon">
+						Bytt språk ({(it.selAlt ?? 0) + 1} av {it.alts.length}{it.alts[it.selAlt ?? 0]?.label ? ': ' + it.alts[it.selAlt ?? 0].label : ''})
+					</button>
+					<EditableText bind:value={it.alts[it.selAlt ?? 0].text} kind="lit" />
+				{:else}
+					<EditableText bind:value={it.text} kind="lit" />
+				{/if}
 			{/if}
 		{:else if it.alts && it.alts.length}
 			{#if introAltsLen}

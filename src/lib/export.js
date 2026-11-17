@@ -2,7 +2,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber,
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
-import { leddTekst } from './lit.js';
+import { leddTekst, salmeTekst } from './lit.js';
 
 const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
@@ -207,8 +207,9 @@ export function buildOutline(svc, showInstr) {
 			if (it.__visInnhold === false) continue;
 			if (showInstr && it.instr) out.push({ text: it.instr, muted: true });
 			if (it.type === 'salme') {
-				if (!it.salmeNr && !it.salmeTittel && !it.text) out.push({ text: '[Salme: settes inn]', muted: true });
-				if (it.text) out.push({ text: it.text });
+				const st = salmeTekst(it);
+				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true });
+				if (st) out.push({ text: st });
 			} else if (it.alts && it.alts.length) {
 				if (it.selAlt == null) out.push({ text: '[Velg alternativ]', muted: true });
 				else {
@@ -535,10 +536,10 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			forrigeTom = false;
 			const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
-			if (it.type === 'salme' && it.text) {
+			if (it.type === 'salme' && salmeTekst(it)) {
 				// salmer: hver vers (tomlinjeseparert) på hver sin slide, overskrift med på første
 				if (it.__visInnhold === false) continue; // «vis innhold» av — bare overskriften
-				const vers = it.text.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+				const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				vers.forEach((v, vi) => {
 					const overskrift = vi === 0 && visLeddtitler && heading ? heading + '\n' : '';
 					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse);
@@ -713,7 +714,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
-			if (it.type === 'salme') tekst = it.text ?? '';
+			if (it.type === 'salme') tekst = salmeTekst(it);
 			else if (it.selAlt == null && it.alts?.length) tekst = '[Velg alternativ]';
 			else tekst = leddTekst(it);
 			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
