@@ -223,6 +223,7 @@ export function openFromData(rawOrData, filePath) {
 function dokumentValg(data) {
 	data.visInstr = data.visInstr ?? true;
 	data.visRoles = data.visRoles ?? true;
+	data.visSalmeinfo = data.visSalmeinfo ?? true;
 }
 
 /** Bytt til en allerede åpen gudstjeneste. */

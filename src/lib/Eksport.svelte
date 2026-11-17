@@ -21,6 +21,8 @@
 	// vis instruksjoner: per dokument (o.visInstr), default på. Menighetsprofilen
 	// tar ALDRI med instruksjoner (hardkodet i Word/PDF-undermodulen).
 	let visInstrValg = $state(true);
+	// vis salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer): per dokument (o.visSalmeinfo), default på
+	let visSalmeinfoValg = $state(true);
 	// PPTX-forhåndsvisning (undermodul): slidene som HTML
 	let pptSlides = $state([]); // [{ big, tekstStorrelse, tittelStorrelse, deler }]
 	let formater = $state({ word: true, pptx: false, pdf: false });
@@ -187,6 +189,7 @@
 		if (o) {
 			tomSlide = o.eksportTomSlide ?? false;
 			visInstrValg = o.visInstr ?? true;
+			visSalmeinfoValg = o.visSalmeinfo ?? true;
 			// PowerPoint-innstillinger (per dokument, serialiseres med .liturgi-filen)
 			pptVisTittel = o.eksportPptx?.visTittel ?? true;
 			pptTekstSkala = o.eksportPptx?.tekstSkala ?? 1;
@@ -666,7 +669,7 @@
 		return true;
 	}
 
-	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
+	/** Kopi av gudtjenesten med bare valgte ledd aktivert for en profil. */
 	function klonMedValg(svc, profil, brProfil = null) {
 		const kopi = JSON.parse(JSON.stringify(svc));
 		// lagrede valg i filen går foran øktens midlertidige valg
@@ -675,11 +678,19 @@
 		const brLagret = brProfil ? (valg[brProfil] ?? o?.eksportValg?.[brProfil]) : null;
 		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
 		kopi.__visTittel = getInnst('tittel', true);
+		// salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) kan ekskluderes per dokument
+		const visSalmeinfo = visSalmeinfoValg;
+		const stripSalmeinfo = (t) => !t ? t
+			: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '').replace(/\n{3,}/g, '\n\n');
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
-				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
+				// «Fjern fra gudtjenesten» i kontekstmenyen gjelder også for eksport
 				if (original && original.enabled === false) { it.enabled = false; return; }
+				if (!visSalmeinfo) {
+					it.text = stripSalmeinfo(it.text);
+					if (it.alts?.length) it.alts.forEach((a) => { a.text = stripSalmeinfo(a.text); });
+				}
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
 				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet
@@ -898,6 +909,7 @@
 			<div class="eks-baand-gruppe">
 				<label class="eks-chk"><input type="checkbox" checked={app.eksVisInnhold} onchange={(e) => { app.eksVisInnhold = e.currentTarget.checked; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }} /> Leddinnhold</label>
 				<label class="eks-chk" title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner."><input type="checkbox" checked={visInstrValg} onchange={(e) => { visInstrValg = e.currentTarget.checked; if (o) { o.visInstr = visInstrValg; markDirty(); } }} /> Instruksjoner</label>
+				<label class="eks-chk" title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler."><input type="checkbox" checked={visSalmeinfoValg} onchange={(e) => { visSalmeinfoValg = e.currentTarget.checked; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }} /> Salmeinfo</label>
 			</div>
 			{/if}
 		</div>

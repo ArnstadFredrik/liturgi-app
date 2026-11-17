@@ -108,7 +108,7 @@
 	}}
 />
 
-<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)}>
+<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)} class:skjul-salmeinfo={!(app.current?.visSalmeinfo ?? true)}>
 	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
 	</header>

@@ -281,6 +281,7 @@ export function malEntryFor(obj) {
 export function registrerÅpenMal(obj, dev) {
 	obj.visInstr = obj.visInstr ?? true;
 	obj.visRoles = obj.visRoles ?? true;
+	obj.visSalmeinfo = obj.visSalmeinfo ?? true;
 	// NB: vanlig tellbar egenskap — ikke-tellbare (defineProperty) forsvinner gjennom
 	// $state-proxyen. Fjernes ved lagring (currentJson + malverktoy HELPER_FELTER).
 	if (!obj.__åpenMalId) obj.__åpenMalId = uid();
@@ -344,6 +345,7 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	const s = newServiceFromTemplate(tpl, include);
 	s.visInstr = true;
 	s.visRoles = true;
+	s.visSalmeinfo = true;
 	// navneforslag: tom navn → «[dato] - [gudstjeneste|Gravferd] - [Kirkeårsdag]»
 	// (kirkeårsdag bare for gudstjenester — gravferd har ingen)
 	const typeNavn = s.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste';
