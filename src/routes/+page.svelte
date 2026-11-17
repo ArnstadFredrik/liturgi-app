@@ -9,6 +9,7 @@
 	import Eksport from '$lib/Eksport.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
+	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import Kommandopalett from '$lib/Kommandopalett.svelte';
@@ -106,5 +107,6 @@
 {/key}
 
 <Kommandopalett />
+<KirkeaarCache />
 
 <svelte:window onbeforeunload={(e) => { if (app.dirty) e.preventDefault(); }} />
