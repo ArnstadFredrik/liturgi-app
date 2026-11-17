@@ -70,6 +70,48 @@ Andre dev-konsekvenser: åpne maler dukker opp under «Åpne maler» i sidefelte
 - **Eksport**: PDF (utskriftsvisning), Word (.docx) og PowerPoint (.pptx) – røde roller og liturgidesign i alle formater; fotnoter renders i alle tre.
 - **Filer**: «Lagre som …», «Åpne fil …» og dobbeltklikk på `.liturgi`-filer i Finder.
 
+## Tekstformat (markdown-syntaksen)
+
+Tekstene i ledd, maler og bibeltekster er **riktekst med liturgisk markering** — skrevet i en lett markdown-syntaks som rendres likt i redigeringsvisningen og i eksporten (Word/PDF/PowerPoint). Redigeringsfeltet viser den ferdige teksten (rediger ved klikk), og «Vis kildekode»-knappen viser den rå syntaksen.
+
+### Roller
+
+Rollemarkører («L», «ML», «M», «A», «KA», «K» eller kombinasjoner som «L/ML») vises **rødt** og kan skrives på to måter:
+
+- **Inline pakket**: `{{r}}L |{{/r}} tekst` — rollemerket er rødt, teksten fortsetter vanlig. Dette er formatet malene bruker.
+- **Hele linjen**: `L | tekst`, `ML | tekst` eller `@r | tekst` — rollemerket rødt, resten av linjen vanlig tekst.
+
+Rollenavnet kan redigeres fritt (f.eks. «Klokker/dåpsfølge |») — det som teller er teksten før `|` på linjen, eller innholdet i `{{r}}…{{/r}}`.
+
+### Linjemarkører
+
+- `BIBELREF | Rom 8,31b-35` — bibelreferanse som liten tekstnotis; brukes av eksporten til «Bibelreferanse»-bytting i menighetsprogrammet.
+- `FOTNOTE | …` — generell liten notis (samme styling som BIBELREF, men uten referanse-oppslag).
+- `@NOTAT …` (eller `@n …`) — scenenotat: rød kursiv, litt mindre; havner ikke med i menighetseksporten på samme måte som brødtekst.
+- `# Overskrift` / `## Underoverskrift` — henholdsvis nivå 1 og 2.
+- `- punkt` — punktliste (rendres med reell kul).
+
+### Inline-markdown
+
+- `**fet**` — fet
+- `*urskrift*` — kursiv
+- `^{1}` — hevet versnummer (brukes i bibeltekstene: «^{14} Han sier: …»)
+
+### Linjeskift
+
+Nye linjer rendres som linjeskift. Tomme linjer gir avsnitt. Linjer som starter med en markør (rolle, BIBELREF, FOTNOTE, @) får alltid eget avsnitt — markøren gjelder kun for sin egen linje.
+
+### Eksempel
+
+    {{r}}ML |{{/r}} Det står skrevet i evangeliet etter Matteus:
+
+    **23** Da sa Jesus til disiplene sine:
+    ^{31} Menneskesønnen skal komme i sin herlighet …
+
+    {{r}}L |{{/r}} Slik lyder det hellige evangelium.
+
+    BIBELREF | Matt 25,31-46
+
 ## Struktur
 
     electron/main.cjs          – Electron-hovedprosess (statisk server, fil-IPC, sqlite)
