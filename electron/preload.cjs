@@ -48,4 +48,8 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// DEV: malredigeringsverktøy — main-prosessen avgjør (isPackaged)
 	devTilstand: () => ipcRenderer.invoke('dev:tilstand'),
 	lagreDataJs: (mal) => ipcRenderer.invoke('dev:lagre-datajs', { mal }),
+	// salmedatabasen (gudstjeneste.no)
+	salmeLagreLogin: (user, pass) => ipcRenderer.invoke('salme:lagre-login', { user, pass }),
+	salmeStatus: () => ipcRenderer.invoke('salme:status'),
+	salmeHent: (payload) => ipcRenderer.invoke('salme:hent', payload),
 });
