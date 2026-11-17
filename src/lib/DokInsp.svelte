@@ -78,6 +78,12 @@
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{:else}
 			<span class="insp-linje">Lokal mal (grunnordning)</span>
+			<div class="insp-rad insp-avpaa-rad">
+				<button type="button" class="avpaa" role="checkbox" aria-checked={o?.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { if (o) { o.kanGudstjeneste = o.kanGudstjeneste === false; markDirty(); } }}>
+					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>
+					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+				</button>
+			</div>
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{/if}
 	</div>
