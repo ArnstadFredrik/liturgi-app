@@ -583,8 +583,20 @@ textarea {
 .sal-rad-felt .nr { width: 72px; flex: none; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; font-size: 14px; }
 .sal-rad-felt .tittel { flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 14px; }
 .sal-hent-rad { white-space: nowrap; }
-.sal-hent-rad:disabled svg { animation: ka-spin 0.8s linear infinite; }
+/* roterer KUN raden som faktisk henter — ikke alle disabled-rader */
+.sal-hent-rad.venter svg { animation: ka-spin 0.8s linear infinite; }
 .sal-notis { color: var(--muted); font-size: 12px; margin-top: 16px; line-height: 1.5; }
+
+/* av/på-brytere med ikon i eksportbåndet (erstatter avkrysningsbokser) */
+.eks-toggle {
+	display: inline-flex; align-items: center; gap: 6px;
+	padding: 3px 10px; border-radius: 99px; font-size: 12px;
+	border: 1px solid var(--border); background: var(--panel2);
+	color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.eks-toggle:hover { border-color: var(--muted); }
+.eks-toggle.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); font-weight: 500; }
+.eks-toggle svg { vertical-align: -0.2em; }
 
 .list li.empty {
 	color: var(--muted);

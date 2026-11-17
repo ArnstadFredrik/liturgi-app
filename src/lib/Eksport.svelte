@@ -532,6 +532,7 @@
 				const lines = [];
 				if (it.type !== 'salme') {
 					if (it.__visInnhold === false) continue; // «vis innhold» av
+					if (visInstrValg && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, '')); // samme som eksporten
 					const t = leddTekst(it);
 					if (t) lines.push(t);
 				}
@@ -794,13 +795,13 @@
 		return n;
 	}
 
-	/** PowerPoint-eksporten (Skjerm-profilen): følger Menighet-utvalget, aldri instruksjoner. */
+	/** PowerPoint-eksporten (Skjerm-profilen): følger Menighet-utvalget; instruksjoner per dokument. */
 	async function eksporterPptx() {
 		// utvalg = Menighet (delt), bibelmodus = Skjerm (full tekst som standard)
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
 			tomSlide,
-			showInstr: false,
+			showInstr: visInstrValg,
 			tekstSkala: pptTekstSkala,
 			tittelSkala: pptTittelSkala,
 			ekstra: pptEkstra,
@@ -876,9 +877,11 @@
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-chk" title="Leddtitler med på slidene (standard uten)"><input type="checkbox" checked={pptLeddtitler} onchange={(e) => { pptLeddtitler = e.currentTarget.checked; setPptx('leddtitler', pptLeddtitler); }} /> Leddtitler</label>
-					<label class="eks-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene</label>
-					<label class="eks-chk"><input type="checkbox" checked={pptVisTittel} onchange={(e) => { pptVisTittel = e.currentTarget.checked; setPptx('visTittel', pptVisTittel); }} /> Tittelslide</label>
+					<button class="eks-toggle" class:paa={pptLeddtitler} title="Leddtitler med på slidene (standard uten)" onclick={() => { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }}>{@html mdi('format-title', 14)} Leddtitler</button>
+					<button class="eks-toggle" class:paa={tomSlide} title="Blank side mellom leddene" onclick={() => settTomSlide(!tomSlide)}>{@html mdi('file-document-outline', 14)} Blank side</button>
+					<button class="eks-toggle" class:paa={pptVisTittel} title="Tittelslide med navn og dato" onclick={() => { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }}>{@html mdi('presentation', 14)} Tittelslide</button>
+					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
+					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>+ Ekstra side</button>
 				</div>
 			</div>
@@ -907,9 +910,11 @@
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
-				<label class="eks-chk"><input type="checkbox" checked={app.eksVisInnhold} onchange={(e) => { app.eksVisInnhold = e.currentTarget.checked; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }} /> Leddinnhold</label>
-				<label class="eks-chk" title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner."><input type="checkbox" checked={visInstrValg} onchange={(e) => { visInstrValg = e.currentTarget.checked; if (o) { o.visInstr = visInstrValg; markDirty(); } }} /> Instruksjoner</label>
-				<label class="eks-chk" title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler."><input type="checkbox" checked={visSalmeinfoValg} onchange={(e) => { visSalmeinfoValg = e.currentTarget.checked; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }} /> Salmeinfo</label>
+				<div class="eks-baand-rad">
+					<button class="eks-toggle" class:paa={app.eksVisInnhold} title="Leddinnhold i listen" onclick={() => { app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }}>{@html mdi('table-of-contents', 14)} Leddinnhold</button>
+					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }}>{@html mdi('text', 14)} Instruksjoner</button>
+					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
+				</div>
 			</div>
 			{/if}
 		</div>
