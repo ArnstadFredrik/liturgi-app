@@ -595,6 +595,25 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const marger = valg.marger ?? (hefte ? 'smal' : 'normal');
 	const mm = { w: a5 ? 148 : 210, h: a5 ? 210 : 297 };
 	const doc = new jsPDF({ unit: 'mm', format: [mm.w, mm.h] });
+	// spor: valgfri tegne-sporing for HTML-forhåndsvisningen — hvert doc.text/line
+	// registreres med posisjon (mm) og stil, så forhåndsvisningen kan rendres som
+	// SVG side for side IDENTISK med PDF-en (samme linjebrudd og paginering).
+	const spor = Array.isArray(valg.__spor) ? valg.__spor : null;
+	if (spor) {
+		const st = { size: 10.5, font: 'times', style: 'normal', color: 'rgb(20,20,20)', draw: 'rgb(180,180,180)', lw: 1 };
+
+		const haak = (fn, rec) => { const o = doc[fn].bind(doc); doc[fn] = (...a) => { rec(...a); return o(...a); }; };
+		haak('setFont', (a, b) => { st.font = a; st.style = b; });
+		haak('setFontSize', (n) => { st.size = n; });
+		haak('setTextColor', (...a) => { st.color = 'rgb(' + a.slice(0, 3).join(',') + ')'; });
+		haak('setDrawColor', (...a) => { st.draw = 'rgb(' + a.slice(0, 3).join(',') + ')'; });
+		haak('setLineWidth', (n) => { st.lw = n; });
+		haak('text', (t, x, y) => { spor.push({ type: 'text', text: String(t), x, y, size: st.size, font: st.font, style: st.style, color: st.color }); });
+		haak('line', (x1, y1, x2, y2) => { spor.push({ type: 'line', x1, y1, x2, y2, color: st.draw, width: st.lw }); });
+		haak('addPage', () => { spor.push({ type: 'side' }); });
+		haak('setPage', (i) => { spor.push({ type: 'setPage', page: i }); });
+	}
+	if (spor) spor.push({ type: 'fase', navn: 'p0' });
 	const margin = marger === 'smal' ? 10 : marger === 'bred' ? 20 : 15;
 	const kolonner = valg.kolonner === 2 ? 2 : 1;
 	const colGap = hefte ? 4 : 6;
@@ -693,6 +712,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
 		}
 	}
+	if (spor) spor.push({ type: 'fase', navn: 'p1-tittel' });
 	y += hefte ? 2.5 : 4;
 
 	for (const sec of svc.sections) {
@@ -724,7 +744,9 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			skrivSegmenter(roleSegments(flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
 			y += hefte ? 1.8 : 3;
 		}
+		if (spor) spor.push({ type: 'fase', navn: 'p2-seksjon' });
 	}
+	if (spor) spor.push({ type: 'fase', navn: 'p3-etter-seksjoner' });
 	// sidetall «side/total» i bunnen av hver side (etter at alt innhold er tegnet)
 	const totalt = doc.getNumberOfPages();
 	for (let i = 1; i <= totalt; i++) {
@@ -734,6 +756,29 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		doc.setTextColor(136, 136, 136);
 		doc.text(`${i}/${totalt}`, mm.w / 2, mm.h - 6, { align: 'center' });
 	}
+	if (spor) spor.push({ type: 'fase', navn: 'p4-etter-sidetall' });
 	const uri = doc.output('datauristring');
 	return { base64: String(uri).split(',')[1] ?? '', doc };
+}
+
+/** Bygg PDF-layouten (samme motor som buildPdfBase64) og returner sidene som
+ *  tegneoperasjoner i mm — forhåndsvisningen renderer dem som SVG side for side,
+ *  identisk med den eksporterte PDF-en (samme linjebrudd og paginering), uten
+ *  pdf.js-rasterisering. */
+export function byggPdfSider(svc, showInstr, valg = {}) {
+	const spor = [];
+	buildPdfBase64(svc, showInstr, { ...valg, __spor: spor });
+	const a4 = valg.storrelse === 'A4';
+	const mm = { w: a4 ? 210 : 148, h: a4 ? 297 : 210 };
+	// spill av op-ene med sideindeks-sporing: 'side' (addPage) → neste side,
+	// 'setPage' → hopp til side (sidetallsopsene mot slutten)
+	const perSide = [];
+	let cur = 0;
+	for (const op of spor) {
+		if (op.type === 'side') { cur++; continue; }
+		if (op.type === 'setPage') { cur = op.page - 1; continue; }
+		if (op.type === 'fase') { continue; }
+		(perSide[cur] ??= []).push(op);
+	}
+	return { sider: perSide.map((ops) => ({ ops: ops ?? [], w: mm.w, h: mm.h })), w: mm.w, h: mm.h };
 }

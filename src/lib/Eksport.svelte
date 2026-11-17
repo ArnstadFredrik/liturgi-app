@@ -1,7 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
-	import { exportWord, exportPptx, buildPdfBase64, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
+	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { litHtml, leddTekst, salmeTekst } from '$lib/lit.js';
@@ -222,74 +222,37 @@
 		return { destroy() { node.remove(); } };
 	}
 
-	/** Forhåndsvisning: den EKTE eksporten (buildPdfBase64) rendres side for side
-	 *  med pdf.js — visningen er garantert identisk med eksporten.
-	 *  Første runde rendres raskt i lav oppløsning (sidene dukker opp fortløpende),
-	 *  deretter skjerpes hver side i bakgrunnen og byttes inn når den er klar. */
-	let pdfSideBilder = $state([]); // dataURL per side
-	let rendrerStatus = $state(''); // '' | 'rendrer' | 'oppdatert' — toast over visningen
+	/** Forhåndsvisning: PDF-layouten bygges av SAMME motor som eksporten
+	 *  (buildPdfBase64 med tegnesporing) og rendres som SVG side for side —
+	 *  identiske linjebrudd og paginering, uten pdf.js-rasterisering. */
+	let pdfSider = $state([]); // { w, h, ops: [{ type: 'text'|'line', … }] } per side
+	let rendrerStatus = $state(''); // '' | 'oppdatert' — toast over visningen
 	let innstVersjon = $state(0); // økes ved setInnst — garanterer at forhåndsvisningen re-rendrer
 	$effect(() => {
 		innstVersjon; // avhengighet: re-render når sideinnstillingene endres
-		if (aktiv === 'Skjerm') { pdfSideBilder = []; rendrerStatus = ''; return; }
-		if (!o || app.kind !== 'service') { pdfSideBilder = []; rendrerStatus = ''; return; }
-		let død = false;
-		rendrerStatus = 'rendrer'; // gamle sidene beholdes synlige til de erstattes
-		(async () => {
-			try {
-				const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
-				const kopi = klonMedValg(o, aktiv);
-				const { doc } = buildPdfBase64(kopi, aktiv === 'Menighet' ? false : visInstrValg, valg);
-				const mod = await import('pdfjs-dist');
-				const pdfjsLib = mod.pdfjsLib ?? mod; // chunk-eksporten heter ikke alltid pdfjsLib
-				// ekte worker: Vite bygger worker-filen fra pdfjs-dist
-				const worker = new Worker(new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url), { type: 'module' });
-				pdfjsLib.GlobalWorkerOptions.workerPort = worker;
-				const buf = doc.output('arraybuffer');
-				const pdf = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
-				const sideTekster = []; // for Avsnitt → side-kartlegging i eksportmodulen
-				// 1. runde: rask, lav oppløsning — sidene vises fortløpende
-				for (let i = 1; i <= pdf.numPages; i++) {
-					const side = await pdf.getPage(i);
-					const viewport = side.getViewport({ scale: 1.4 });
-					const c = document.createElement('canvas');
-					c.width = viewport.width; c.height = viewport.height;
-					await side.render({ canvasContext: c.getContext('2d'), viewport }).promise;
-					const tc = await side.getTextContent();
-					sideTekster.push(tc.items.map((x) => x.str).join(' '));
-					if (død) return;
-					if (i - 1 < pdfSideBilder.length) pdfSideBilder[i - 1] = c.toDataURL('image/jpeg', 0.85);
-					else pdfSideBilder.push(c.toDataURL('image/jpeg', 0.85));
-				}
-				if (død) return;
-				pdfSideBilder.length = pdf.numPages; // gamle sider utover nye antall fjernes
-				rendrerStatus = 'oppdatert';
-				setTimeout(() => { if (!død) rendrerStatus = ''; }, 1500);
-				// kartlegg avsnittstitler til sidenummer (brukes av Avsnitt-listen i høyremenyen)
-				const kart = {};
-				(app.current?.sections ?? []).forEach((sec, i) => {
-					const t = (sec.title || '').replace(/\s+/g, ' ').trim();
-					if (t.length < 2) return;
-					const idx = sideTekster.findIndex((txt) => txt.replace(/\s+/g, ' ').includes(t));
-					if (idx >= 0) kart[i] = idx + 1;
-				});
-				window.__eksSecSider = kart;
-				// 2. runde i bakgrunnen: skarp versjon per side (skalerer til 250 % zoom på retina), byttes inn fortløpende
-				for (let i = 1; i <= pdf.numPages; i++) {
-					if (død) return;
-					const side = await pdf.getPage(i);
-					const viewport = side.getViewport({ scale: 3 });
-					const c = document.createElement('canvas');
-					c.width = viewport.width; c.height = viewport.height;
-					await side.render({ canvasContext: c.getContext('2d'), viewport }).promise;
-					if (død) return;
-					pdfSideBilder[i - 1] = c.toDataURL('image/jpeg', 0.85);
-				}
-			} catch (e) {
-				if (!død) { console.error('Forhåndsvisning feilet:', e); rendrerStatus = ''; }
-			}
-		})();
-		return () => { død = true; };
+		if (aktiv === 'Skjerm') { pdfSider = []; rendrerStatus = ''; return; }
+		if (!o || app.kind !== 'service') { pdfSider = []; rendrerStatus = ''; return; }
+		try {
+			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
+			// NB: les RESULTATET, aldri pdfSider-state her — effekten skriver pdfSider,
+			// så å lese den i samme effekt gir en uendelig effekt-loop.
+			const sider = byggPdfSider(klonMedValg(o, aktiv), aktiv === 'Menighet' ? false : visInstrValg, valg).sider;
+			pdfSider = sider;
+			// Avsnitt → side-kartlegging (brukes av Avsnitt-listen i høyremenyen)
+			const kart = {};
+			(app.current?.sections ?? []).forEach((sec, i) => {
+				const t = (sec.title || '').replace(/\s+/g, ' ').trim();
+				if (t.length < 2) return;
+				const idx = sider.findIndex((side) => side.ops.some((op) => op.type === 'text' && op.text.replace(/\s+/g, ' ').includes(t)));
+				if (idx >= 0) kart[i] = idx + 1;
+			});
+			window.__eksSecSider = kart;
+			rendrerStatus = 'oppdatert';
+			setTimeout(() => { rendrerStatus = ''; }, 1500);
+		} catch (e) {
+			console.error('Forhåndsvisning feilet:', e);
+			rendrerStatus = '';
+		}
 	});
 
 	function nokkel(si, ii) { return si + ':' + ii; }
@@ -1066,12 +1029,20 @@
 							{:else}
 			<div id="eks-forhvisning">
 				<div class="eks-forh-inner" use:pinnehendelse use:lenket>
-				{#if pdfSideBilder.length === 0}
+				{#if pdfSider.length === 0}
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
-					{#each pdfSideBilder as bilde, si}
+					{#each pdfSider as side, si}
 						<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'} style="width: {250 * zoomNivå}px">
-							<img src={bilde} alt="Side {si + 1}" draggable="false" style="width: {250 * zoomNivå}px" />
+							<svg class="eks-pdf-svg" viewBox="0 0 {side.w} {side.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side {si + 1}" style="width: {250 * zoomNivå}px; display: block; background: white">
+								{#each side.ops as op}
+									{#if op.type === 'text'}
+									<text x={op.x} y={op.y} font-size={op.size} font-family={op.font === 'helvetica' ? 'Helvetica, Arial, sans-serif' : '"Times New Roman", Times, serif'} fill={op.color} font-weight={op.style === 'bold' || op.style === 'bolditalic' ? 'bold' : 'normal'} font-style={op.style === 'italic' || op.style === 'bolditalic' ? 'italic' : 'normal'} xml:space="preserve">{op.text}</text>
+									{:else if op.type === 'line'}
+									<line x1={op.x1} y1={op.y1} x2={op.x2} y2={op.y2} stroke={op.color} stroke-width={op.width} />
+									{/if}
+								{/each}
+							</svg>
 							<span class="eks-side-nr">{si + 1}</span>
 						</div>
 					{/each}
