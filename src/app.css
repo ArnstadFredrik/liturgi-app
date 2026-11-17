@@ -327,6 +327,7 @@ button.wide { width: 100%; }
 }
 .eks-side.a4 { width: 290px; min-height: 410px; }
 .eks-side img { display: block; width: 100%; height: auto; transform-origin: top center; }
+.eks-side svg.eks-pdf-svg { display: block; width: 100%; height: auto; }
 .eks-zoom { display: flex; align-items: center; gap: 10px; }
 .eks-side-nr { position: absolute; bottom: 6px; right: 10px; font-size: 9px; color: #999; background: rgba(248, 245, 238, 0.8); padding: 0 4px; border-radius: 3px; }
 .eks-forhvisning-lader { color: var(--muted); font-size: 13px; padding: 20px; }
