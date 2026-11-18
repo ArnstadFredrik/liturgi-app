@@ -345,9 +345,11 @@
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
 			<span class="ka-nett" class:off={!online}>{online ? 'Online — bibeltekster hentes fra bibel.no' : 'Offline — viser kun referanser'}</span>
-			<button class="ka-forberedelse" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>
-				{@html mdi('pencil', 14)} Prekenforberedelse
-			</button>
+			{#if app.forbAktiv}
+				<button class="ka-forberedelse" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>
+					{@html mdi('pencil', 14)} Prekenforberedelse
+				</button>
+			{/if}
 		</div>
 
 		<div class="ka-sok">

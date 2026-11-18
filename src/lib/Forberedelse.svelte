@@ -93,7 +93,8 @@
 	function byttVim() {
 		vim = !vim;
 		vimSt = nyVimTilstand();
-		try { localStorage.setItem('forb-vim', vim ? '1' : '0'); } catch {}
+		if (isElectron) { window.liturgi.dbSet('vimModus', vim ? '1' : '0').catch(() => {}); }
+		else { try { localStorage.setItem('forb-vim', vim ? '1' : '0'); } catch {} }
 	}
 	function synkGutter() {
 		if (linjeTa && gutterEl) gutterEl.scrollTop = linjeTa.scrollTop;
@@ -107,6 +108,16 @@
 	let dirty = $derived(tekst !== lagretTekst);
 
 	onMount(async () => {
+		// vim-modus: persisteres i databasen
+		if (isElectron) {
+			try {
+				const r = await window.liturgi.dbGet('vimModus');
+				vim = (r?.value ?? '0') === '1';
+				vimSt = nyVimTilstand();
+			} catch { /* db utilgjengelig */ }
+		} else {
+			try { vim = localStorage.getItem('forb-vim') === '1'; } catch {}
+		}
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
 		mappe = r?.ok ? (r.value ?? '') : '';
@@ -229,14 +240,15 @@
 							<button class:sel={visning === 'hybrid'} onclick={() => visning = 'hybrid'} title="Hybrid: markdown-kilderedigering med riktekst-styling; merkene synlige på linjen du redigerer">Hybrid</button>
 							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'} title="Kilde: ren markdown med syntax-highlight (vim: aktiver vim-bryteren)">Kilde</button>
 						</div>
-						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
-						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
+						<span class="fb-skiller"></span>
+						<button class="fb-vim" class:sel={vim} title="Vim-bindinger (kilde + hybrid): hj/k/l, i/a/o, x, dd/yy/p, :w" onclick={byttVim}>vim</button>
+						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
 					<div class="fb-felter">
 						{#if visning !== 'kilde'}
-							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={vim} vimSt={vimSt} vimLagre={lagre} />
+							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={vim} vimSt={vimSt} vimLagre={lagre} mdModus={true} />
 						{:else}
 							<div class="fb-kilde-rad">
 								{#if vim}

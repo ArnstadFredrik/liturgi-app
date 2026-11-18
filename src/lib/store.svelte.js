@@ -25,6 +25,7 @@ export const app = $state({
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar høyre sidemeny (TOC / prosjekt-tre)
 	portalToc: false, // en modul (Forberedelse) viser innhold i høyre sidemeny
+	forbAktiv: true, // prekenforberedelse-modulen på/av (innstillinger)
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
@@ -161,6 +162,10 @@ export let pendingLocalTemplates = [];
 
 
 export function loadStore() {
+	// prekenforberedelse på/av (innstillinger)
+	window.liturgi?.dbGet?.('prekenforberedelseAktiv')?.then?.((r) => {
+		app.forbAktiv = (r?.value ?? '1') !== '0';
+	});
 	if (isElectron) {
 		// maler: innebygde + lokale fra ~/.config/Liturgi/maler (lastes async av fileio)
 		// gamle lokale maler i localStorage migreres til maler-mappen én gang

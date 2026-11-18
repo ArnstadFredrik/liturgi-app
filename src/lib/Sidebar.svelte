@@ -171,18 +171,17 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = 'hjem'; }}>
 			{@html mdi('home')} Hjem
 		</button>
-		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'maler' ? 'hjem' : 'maler'; }}>
-			{@html mdi('maler')} Maler
-		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'bibliotek' ? 'hjem' : 'bibliotek'; }}>
 			{@html mdi('library')} Bibliotek
 		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'kirkeaar' ? 'hjem' : 'kirkeaar'; }}>
 			{@html mdi('calendar-edit')} Kirkeåret
 		</button>
-		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'forberedelse' ? 'hjem' : 'forberedelse'; }}>
-			{@html mdi('pencil')} Prekenforberedelse
-		</button>
+		{#if app.forbAktiv}
+			<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'forberedelse' ? 'hjem' : 'forberedelse'; }}>
+				{@html mdi('pencil')} Prekenforberedelse
+			</button>
+		{/if}
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			{@html mdi('cog')} Innstillinger
 		</button>
@@ -195,7 +194,6 @@
 				{@html mdi('pencil')} Malverktøy
 			</button>
 		{/if}
-		<button class="wide" onclick={openFileToStore} title="Åpne en lagret liturgi-fil">{@html mdi('folder-open-outline')} Åpne fil …</button>
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
 			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}
 		</button>

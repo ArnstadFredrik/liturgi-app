@@ -5,7 +5,7 @@
 	import { litHtml, litEditHtml, litLinjeHtml, litLinjeMerkerHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false , vimAktiv = false, vimSt = null, vimLagre = null } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false , vimAktiv = false, vimSt = null, vimLagre = null, mdModus = false } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	$effect(() => {
@@ -48,6 +48,143 @@
 	/** DOM-linje → markdown (samme regler som serialiser()). */
 	function linjeMd(le) {
 		return [...le.childNodes].map(mdFraNode).join('');
+	}
+
+	/* ---------- MD-VERKTØY (ren markdown-modus) ---------- */
+
+	/** DOM-seleksjon/textarea-seleksjon → absolutt offset i value. */
+	function mdSeleksjon() {
+		if (kilde || etikett) {
+			if (!ta) return null;
+			return { s: ta.selectionStart, e: ta.selectionEnd };
+		}
+		if (!rikel) return null;
+		const s = window.getSelection();
+		if (!s || s.rangeCount === 0) return null;
+		const a = domTilVerdi(s.getRangeAt(0).startContainer, s.getRangeAt(0).startOffset);
+		const b = domTilVerdi(s.getRangeAt(0).endContainer, s.getRangeAt(0).endOffset);
+		if (a == null || b == null) return null;
+		return { s: Math.min(a, b), e: Math.max(a, b) };
+	}
+
+	function domTilVerdi(node, offset) {
+		const el = node.nodeType === 3 ? node.parentElement : node;
+		const le = el?.closest('.et-linje');
+		if (!le) return null;
+		const linje = +(le.dataset.linje ?? -1);
+		if (linje < 0) return null;
+		const pre = document.createRange();
+		pre.selectNodeContents(le);
+		try { pre.setEnd(node, offset); } catch { return null; }
+		const off = pre.toString().length;
+		const linjeStart = value.split('\n').slice(0, linje).reduce((a, l) => a + l.length + 1, 0);
+		const verdLinje = value.split('\n')[linje] ?? '';
+		const prefiksLen = (verdLinje.match(/^(?:#{1,6} |[-*+>] |\d+[.)] )?/)?.[0] ?? '').length;
+		return linjeStart + prefiksLen + off;
+	}
+
+	/** Sett ny verdi + caret (absolutt value-offset → (linje, kol)). */
+	function mdSett(ny, s, e) {
+		value = ny;
+		sistSer = ny;
+		const linjer = ny.split('\n');
+		let acc = 0, nl = 0, nk = 0;
+		for (let i = 0; i < linjer.length; i++) {
+			const L = linjer[i].length;
+			if (s <= acc + L) { nl = i; nk = s - acc; break; }
+			acc += L + 1;
+		}
+		if (kilde || etikett) {
+			ta.value = ny;
+			ta.setSelectionRange(s, e ?? s);
+		} else {
+			const pl = (linjer[nl].match(/^(?:#{1,6} |[-*+>] |\d+[.)] )?/)?.[0] ?? '').length;
+			venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+			if (hybrid) merkerVersjon++;
+			html = litEditHtml(ny, hybrid ? merkerIdx : -1);
+		}
+		if (dirty) markDirty();
+	}
+
+	/** Omslutt utvalget med markdown-merker (eller fjern eksisterende). */
+	function mdPar(open, close = open) {
+		const sel = mdSeleksjon();
+		if (!sel) return;
+		const { s, e } = sel;
+		const v = value;
+		const foran = v.slice(Math.max(0, s - open.length), s) === open;
+		const bak = v.slice(e, e + close.length) === close;
+		if (foran && bak) {
+			mdSett(v.slice(0, s - open.length) + v.slice(s, e) + v.slice(e + close.length), s - open.length, e - open.length);
+		} else if (s !== e) {
+			mdSett(v.slice(0, s) + open + v.slice(s, e) + close + v.slice(e), s + open.length, e + open.length);
+		} else {
+			mdSett(v.slice(0, s) + open + close + v.slice(e), s + open.length);
+		}
+	}
+
+	/** Linjeprefiks-toggle (##, - , 1. , > , - [ ]) på berørte linjer. */
+	function mdLinje(prefiks, nummerert = false) {
+		const sel = mdSeleksjon();
+		if (!sel) return;
+		const ls = value.lastIndexOf('\n', sel.s - 1) + 1;
+		let le = value.indexOf('\n', sel.e); if (le === -1) le = value.length;
+		const linjer = value.slice(ls, le).split('\n');
+		const re = nummerert ? /^\s*\d+[.)] / : new RegExp('^' + prefiks.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+		const alle = linjer.every((l) => re.test(l) || !l.trim());
+		let nr = 1;
+		const nyBlokk = linjer.map((l) => {
+			if (alle) return l.replace(re, '').replace(/^ /, '');
+			const p = nummerert ? `${nr++}. ` : prefiks;
+			return p + l;
+		}).join('\n');
+		mdSett(value.slice(0, ls) + nyBlokk + value.slice(le), ls + (alle ? 0 : prefiks.length));
+	}
+
+	function mdKnapp(id) {
+		if (id === 'mdFet') mdPar('**');
+		else if (id === 'mdKursiv') mdPar('*');
+		else if (id === 'mdStrike') mdPar('~~');
+		else if (id === 'mdMark') mdPar('==');
+		else if (id === 'mdKode') mdPar('`');
+		else if (id === 'mdH1') mdLinje('# ');
+		else if (id === 'mdH2') mdLinje('## ');
+		else if (id === 'mdH3') mdLinje('### ');
+		else if (id === 'mdPunkt') mdLinje('- ');
+		else if (id === 'mdNummerert') mdLinje('', true);
+		else if (id === 'mdOppgave') mdLinje('- [ ] ');
+		else if (id === 'mdSitat') mdLinje('> ');
+		else if (id === 'mdLenke') {
+			const sel = mdSeleksjon();
+			if (!sel) return;
+			const txt = value.slice(sel.s, sel.e) || 'tekst';
+			mdSett(value.slice(0, sel.s) + '[' + txt + '](url)' + value.slice(sel.e), sel.s + txt.length + 3, sel.s + txt.length + 6);
+		}
+		else if (id === 'mdKodeblokk') {
+			const sel = mdSeleksjon();
+			if (!sel) return;
+			const ls = value.lastIndexOf('\n', sel.s - 1) + 1;
+			mdSett(value.slice(0, ls) + '```\n' + value.slice(ls, sel.e) + '\n```' + value.slice(sel.e), ls + 4);
+		}
+		else if (id === 'mdSkille') {
+			const sel = mdSeleksjon();
+			if (!sel) return;
+			mdSett(value.slice(0, sel.s) + '\n---\n' + value.slice(sel.e), sel.s + 1);
+		}
+	}
+
+	/** Snarveier i md-modus (⌘-kombinasjoner). */
+	function mdSnarvei(e) {
+		if (!mdModus || !(e.metaKey || e.ctrlKey)) return false;
+		const k = e.key.toLowerCase();
+		if (k === 'b') { e.preventDefault(); mdKnapp('mdFet'); return true; }
+		if (k === 'i') { e.preventDefault(); mdKnapp('mdKursiv'); return true; }
+		if (k === 'e') { e.preventDefault(); mdKnapp('mdKode'); return true; }
+		if (e.shiftKey && k === 'x') { e.preventDefault(); mdKnapp('mdStrike'); return true; }
+		if (e.shiftKey && k === 'h') { e.preventDefault(); mdKnapp('mdMark'); return true; }
+		if (e.shiftKey && k === 'l') { e.preventDefault(); mdKnapp('mdLenke'); return true; }
+		if (e.altKey && ['1', '2', '3'].includes(e.key)) { e.preventDefault(); mdKnapp('mdH' + e.key); return true; }
+		return false;
 	}
 
 	/** HYBRID: merket linje + blokk-regioner. Blokker (kode/tabell/hr/setext)
@@ -540,7 +677,27 @@
 {#if editing}
 	<div class="et-edit">
 		<div class="et-tools">
-			{#if !etikett}
+			{#if mdModus}
+				<!-- markdown-verktøylinje: ren .md-kompatibel syntaks med snarveier -->
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdFet')} title="Fet (⌘B)">{@html mdi('format-bold', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdKursiv')} title="Kursiv (⌘I)">{@html mdi('format-italic', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdStrike')} title="Gjennomstreking (⌘⇧X)">{@html mdi('format-strikethrough', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdMark')} title="Utheving (⌘⇧H)">{@html mdi('marker', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdKode')} title="Kode (⌘E)">{@html mdi('code-tags', 15)}</button>
+				<span class="et-skiller"></span>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdH1')} title="Overskrift 1 (⌘⌥1)">{@html mdi('format-header-1', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdH2')} title="Overskrift 2 (⌘⌥2)">{@html mdi('format-header-2', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdH3')} title="Overskrift 3 (⌘⌥3)">{@html mdi('format-header-3', 15)}</button>
+				<span class="et-skiller"></span>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdPunkt')} title="Punktliste">{@html mdi('format-list-bulleted', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdNummerert')} title="Nummerert liste">{@html mdi('format-list-numbered', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdOppgave')} title="Oppgaveliste (- [ ])">{@html mdi('checkbox-marked-outline', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdSitat')} title="Sitat (> )">{@html mdi('format-quote-open', 15)}</button>
+				<span class="et-skiller"></span>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdLenke')} title="Lenke (⌘⇧L)">{@html mdi('link-variant', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdKodeblokk')} title="Kodeblokk (``` )">{@html mdi('code-braces', 15)}</button>
+				<button class="et-tool" onmousedown={(e) => e.preventDefault()} onclick={() => mdKnapp('mdSkille')} title="Skillelinje (---)">{@html mdi('minus', 15)}</button>
+			{:else if !etikett}
 				<button class="et-tool" class:paa={paa('rolle')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('rolle')} title={'Rolle (hele linjen: prefiks, ellers {{r}}-markering)'}>{@html mdi('account-voice', 15)}</button>
 				<button class="et-tool" class:paa={paa('bold')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bold')} title="Fet (**tekst**)">{@html mdi('format-bold', 15)}</button>
 				<button class="et-tool" class:paa={paa('italic')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('italic')} title="Utskrift (*tekst*)">{@html mdi('format-italic', 15)}</button>
@@ -566,7 +723,7 @@
 				onmouseup={oppdaterTilstand}
 				oninput={oppdaterTilstand}
 				onfocus={oppdaterTilstand}
-				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if (mdSnarvei(e)) return; if (e.key === 'Escape') done(); }}
 			></textarea>
 		{:else}
 			<div
@@ -576,7 +733,7 @@
 				spellcheck="false"
 				oninput={rikOppdatert}
 				onbeforeinput={rikBeforeInput}
-				onkeydown={(e) => { if (hybrid && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if (mdSnarvei(e)) return; if (hybrid && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
 		{/if}
 	</div>

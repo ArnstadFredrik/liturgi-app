@@ -2,16 +2,24 @@
 	import { onMount } from 'svelte';
 	import { regenererBibliotek } from '$lib/fileio.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
+	import { app } from '$lib/store.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
 	let datamappe = '';
 	let jobber = false;
+	let innFane = $state('generelt'); // generelt | prekenforberedelse
+	let forbAktiv = $state(true); // hele prekenforberedelse-modulen på/av
 	let versjon = '';
 	let bygg = '';
 
 	onMount(async () => {
 		if (!isElectron) return;
+		try {
+			const fa = await window.liturgi.dbGet('prekenforberedelseAktiv');
+			forbAktiv = (fa?.value ?? '1') !== '0';
+			app.forbAktiv = forbAktiv;
+		} catch { /* db utilgjengelig */ }
 		const list = await window.liturgi.listTemplates();
 		if (list.ok) {
 			datamappe = list.dirs.originaler.split('/maler/originaler')[0] || list.dirs.originaler;
@@ -69,6 +77,12 @@
 		forbMappe = r?.ok ? (r.value ?? '') : '';
 	});
 
+	function settForbAktiv(v) {
+		forbAktiv = v;
+		app.forbAktiv = v;
+		window.liturgi.dbSet('prekenforberedelseAktiv', v ? '1' : '0').catch(() => {});
+	}
+
 	async function velgForbMappe() {
 		const r = await window.liturgi.forbVelgMappe();
 		if (!r?.ok || !r.sti || r.sti === forbMappe) return;
@@ -120,10 +134,17 @@
 
 <div id="innstillinger">
 	<h2>Innstillinger</h2>
+	<div class="inn-faner">
+		<div class="fb-visning-velger">
+			<button class:sel={innFane === 'generelt'} onclick={() => innFane = 'generelt'}>Generelt</button>
+			<button class:sel={innFane === 'prekenforberedelse'} onclick={() => innFane = 'prekenforberedelse'}>Prekenforberedelse</button>
+		</div>
+	</div>
 	{#if versjon}
 		<p class="inn-versjon">Versjon {versjon}{bygg ? ` · bygg ${bygg}` : ''}</p>
 	{/if}
 
+	{#if innFane === 'generelt'}
 	<div class="inn-seksjon">
 		<div class="inn-seksjon-tittel">Generelt</div>
 		<div class="inn-kort">
@@ -164,36 +185,6 @@
 							siste gudstjenester gjelder kun Mac-appen.
 						</div>
 					</div>
-				</div>
-			{/if}
-		</div>
-	</div>
-
-	<div class="inn-seksjon">
-		<div class="inn-seksjon-tittel">Prekenforberedelse</div>
-		<div class="inn-kort">
-			{#if !isElectron}
-				<div class="inn-rad">
-					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Ikke tilgjengelig</div>
-						<div class="inn-rad-beskriv">Prekenforberedelser er kun tilgjengelig i Mac-appen.</div>
-					</div>
-				</div>
-			{:else}
-				<div class="inn-rad">
-					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Mappe for prekenforberedelser</div>
-						<div class="inn-rad-beskriv">
-							{#if forbMappe}
-								Prosjektene dine ligger i <code>{forbMappe}</code>.
-							{:else}
-								Ikke valgt ennå — standardmappen (<code>~/Documents/Liturgi/forberedelse</code>)
-								foreslås første gang du starter en prekenforberedelse fra Kirkeåret.
-							{/if}
-							Endrer du mappen spørres du om innholdet skal flyttes til den nye plassen.
-						</div>
-					</div>
-					<button class="inn-handling" onclick={velgForbMappe} disabled={forbJobber}>{forbJobber ? 'Lagrer …' : 'Velg mappe …'}</button>
 				</div>
 			{/if}
 		</div>
@@ -249,4 +240,49 @@
 			{/if}
 		</div>
 	</div>
+
+	{:else}
+		<div class="inn-seksjon">
+			<div class="inn-seksjon-tittel">Prekenforberedelse</div>
+			<div class="inn-kort">
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Aktiver prekenforberedelser</div>
+						<div class="inn-rad-beskriv">
+							Slår av/på hele modulen: knappen i sidemenyen og knappen i
+							Kirkeåret skjules når modulen er av. Filene dine røres ikke.
+						</div>
+					</div>
+					<button class="inn-handling" class:av={!forbAktiv} onclick={() => settForbAktiv(!forbAktiv)}>
+						{forbAktiv ? 'På' : 'Av'}
+					</button>
+				</div>
+			{#if !isElectron}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Ikke tilgjengelig</div>
+						<div class="inn-rad-beskriv">Prekenforberedelser er kun tilgjengelig i Mac-appen.</div>
+					</div>
+				</div>
+			{:else}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Mappe for prekenforberedelser</div>
+						<div class="inn-rad-beskriv">
+							{#if forbMappe}
+								Prosjektene dine ligger i <code>{forbMappe}</code>.
+							{:else}
+								Ikke valgt ennå — standardmappen (<code>~/Documents/Liturgi/forberedelse</code>)
+								foreslås første gang du starter en prekenforberedelse fra Kirkeåret.
+							{/if}
+							Endrer du mappen spørres du om innholdet skal flyttes til den nye plassen.
+						</div>
+					</div>
+					<button class="inn-handling" onclick={velgForbMappe} disabled={forbJobber}>{forbJobber ? 'Lagrer …' : 'Velg mappe …'}</button>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	{/if}
 </div>

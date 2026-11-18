@@ -1126,3 +1126,8 @@ sub { font-size: 0.75em; }
 /* hybride blokker i editoren */
 .et-rik .md-pre, .et-rik .md-tabell, .et-rik .md-sitat { cursor: text; }
 .et-rik .et-linje .md-h { display: inline; }
+
+/* innstillinger: faner + av/på */
+.inn-faner { margin: 6px 0 14px; }
+.inn-handling.av { background: var(--panel2, var(--border)); color: var(--muted); }
+.biblio-faner { margin-bottom: 8px; }
