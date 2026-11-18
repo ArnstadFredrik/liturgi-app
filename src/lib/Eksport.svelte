@@ -375,6 +375,16 @@
 		return def;
 	}
 
+	/** Samme som getInnst, men for en vilkårlig profil — brukes av eksportløkken slik at
+	 *  «Eksportér alle» overholder hver profils egne valg (ikke den aktive profilen). */
+	function getInnstP(profil, k, def) {
+		if (o?.eksportInnst?.[profil]?.[k] !== undefined) return o.eksportInnst[profil][k];
+		if (k === 'kolonner') return profil === 'Menighet' ? 2 : 1;
+		if (k === 'storrelse') return 'A5';
+		if (k === 'marger') return profil === 'Menighet' ? 'smal' : 'normal';
+		return def;
+	}
+
 	/** Er leddet med i den aktive profilen? */
 	function erMed(si, ii, it) {
 		const v = valg[valgProfil()]?.[nokkel(si, ii)];
@@ -905,9 +915,9 @@
 		if (formater.word) {
 			let kopi = klonMedValg(o, profil);
 			const res = await exportWord(kopi, instr, base + '.docx', {
-				storrelse: getInnst('storrelse', 'A5'),
-				kolonner: getInnst('kolonner', 1),
-				visAvsnittstitler: getInnst('visAvsnittstitler', true)
+				storrelse: getInnstP(profil, 'storrelse', 'A5'),
+				kolonner: getInnstP(profil, 'kolonner', 1),
+				visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)
 			}, isElectron);
 			if (res) {
 				const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -916,13 +926,13 @@
 			} else n++;
 		}
 		if (formater.pdf && isElectron) {
-					let kopi = klonMedValg(o, profil);
-							const { base64 } = buildPdfBase64(kopi, instr, {
-						storrelse: getInnst('storrelse', 'A5'),
-						kolonner: getInnst('kolonner', 1),
-						marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'),
-						tittel: getInnst('tittel', true),
-						visAvsnittstitler: getInnst('visAvsnittstitler', true)
+						let kopi = klonMedValg(o, profil);
+								const { base64 } = buildPdfBase64(kopi, instr, {
+						storrelse: getInnstP(profil, 'storrelse', 'A5'),
+						kolonner: getInnstP(profil, 'kolonner', 1),
+						marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
+						tittel: getInnstP(profil, 'tittel', true),
+						visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 			if (r.ok) { toast.success('PDF: ' + r.filePath); n++; }
