@@ -23,7 +23,8 @@ export const app = $state({
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	forbAapneSti: null, // Forberedelse: fil som skal åpnes når modulen åpnes fra Kirkeåret
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
-	tocSkjult: false, // skjulbar avsnittsliste (TOC)
+	tocSkjult: false, // skjulbar høyre sidemeny (TOC / prosjekt-tre)
+	portalToc: false, // en modul (Forberedelse) viser innhold i høyre sidemeny
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()

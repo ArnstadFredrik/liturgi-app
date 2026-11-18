@@ -1,10 +1,10 @@
 <script>
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { markDirty } from '$lib/store.svelte.js';
-	import { litHtml, litEditHtml, litLinjeHtml } from '$lib/lit.js';
+	import { litHtml, litEditHtml, litLinjeHtml, litLinjeMerkerHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true } = $props(); // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	$effect(() => {
@@ -26,9 +26,10 @@
 
 	function start() {
 		editing = true;
+		merkerIdx = -1;
 		sistSer = value;
 		html = litEditHtml(value);
-		tick(() => {
+		tick().then(() => {
 			const el = kilde || etikett ? ta : rikel;
 			el?.focus();
 			if (el && el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length);
@@ -43,7 +44,84 @@
 
 	/* ---------- tilstand for knappene ---------- */
 
+	/** DOM-linje → markdown (samme regler som serialiser()). */
+	function linjeMd(le) {
+		return [...le.childNodes].map(mdFraNode).join('');
+	}
+
+	/** HYBRID: merke-linjen velges ved linjeskifte (merkerVersjon trigger en
+	 *  Svelte-styrt re-rendering av html — ingen manuell DOM-kirurgi), og caret-en
+	 *  gjenopprettes på samme visuelle posisjon etterpå. */
+	let merkerIdx = -1;
+	let merkerVersjon = $state(0);
+	let venterCaret = null; // { off } — tekst-offset i linjen ved byttet
+
+	function oppdaterMerkerLinje() {
+		if (!hybrid || kilde || !rikel || !editing) return;
+		const s = window.getSelection();
+		const node = s?.anchorNode;
+		const le = node && rikel.contains(node) ? ((node.nodeType === 3 ? node.parentElement : node)?.closest('.et-linje')) : null;
+		if (!le) return;
+		const idx = [...rikel.children].indexOf(le);
+		if (idx === merkerIdx) return;
+		const off = (() => {
+			if (!s || s.rangeCount === 0) return 0;
+			const r = s.getRangeAt(0);
+			const pre = document.createRange();
+			pre.selectNodeContents(le);
+			try { pre.setEnd(r.startContainer, r.startOffset); } catch { return 0; }
+			return pre.toString().length;
+		})();
+		venterCaret = { off };
+		merkerIdx = idx;
+		merkerVersjon++;
+	}
+
+	/** Gjenopprett caret-en i merke-linjen etter re-renderingen. */
+	$effect(() => {
+		if (!hybrid || kilde || !editing) return;
+		void merkerVersjon;
+		if (merkerIdx < 0 || !venterCaret) return;
+		const { off } = venterCaret;
+		venterCaret = null;
+		const idx = merkerIdx;
+		// dobbel tick: første flush (html-endringen) må være ferdig FØR caret plasseres
+		tick().then(() => tick().then(() => {
+			const le = rikel?.children[idx];
+			if (!le) return;
+			const nySel = window.getSelection();
+			if (!nySel) return;
+			// off er målt på innholdet (merkene er ikke-redigerbare og hoppes over) —
+			// samme telling gjelder i den nye linjen, ingen prefiks-justering nødvendig
+			const nyOff = Math.min(off, le.textContent.length);
+			const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
+				acceptNode: (n) => n.parentElement?.closest('.mrk') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+			});
+			let n, acc = 0, plassert = false;
+			while ((n = w.nextNode())) {
+				if (acc + n.textContent.length >= nyOff) {
+					const r = document.createRange();
+					r.setStart(n, Math.min(nyOff - acc, n.textContent.length));
+					r.collapse(true);
+					nySel.removeAllRanges();
+					nySel.addRange(r);
+					plassert = true;
+					break;
+				}
+				acc += n.textContent.length;
+			}
+			if (!plassert || !le.contains(nySel.anchorNode)) {
+				const r = document.createRange();
+				r.selectNodeContents(le);
+				r.collapse(true);
+				nySel.removeAllRanges();
+				nySel.addRange(r);
+			}
+		}));
+	});
+
 	function oppdaterTilstand() {
+		oppdaterMerkerLinje();
 		if (kilde || etikett) {
 			if (ta) sel = { s: ta.selectionStart ?? 0, e: ta.selectionEnd ?? 0 };
 			return;
@@ -75,8 +153,20 @@
 	$effect(() => {
 		if (value !== sistSer) {
 			sistSer = value;
+			merkerIdx = -1;
 			if (editing && !kilde && !etikett) html = litEditHtml(value);
 		}
+	});
+
+	/** Hybrid: merket linje i html-en — Svelte-eid re-rendering (untrack: verdi-
+	 *  endringer ved egen skriving må IKKE re-rendere, caret'en skal stå stille). */
+	$effect(() => {
+		if (kilde || !editing) return;
+		void merkerVersjon;
+		if (!hybrid) merkerIdx = -1;
+		untrack(() => {
+			html = litEditHtml(value, hybrid ? merkerIdx : -1);
+		});
 	});
 
 	/* ---------- serialisering: DOM → markdown ---------- */
@@ -87,6 +177,7 @@
 		if (n.tagName === 'BR') return '\n';
 		const cl = n.classList;
 		if (cl.contains('chip')) return '';
+		if (cl.contains('mrk')) return ''; // hybrid: merkene representeres av data-prefiks/strong
 		const indre = [...n.childNodes].map(mdFraNode).join('');
 		const tag = n.tagName;
 		if (tag === 'B' || tag === 'STRONG') return '**' + indre + '**';
@@ -137,8 +228,9 @@
 				try { pre.setEnd(r.startContainer, r.startOffset); } catch { return { idx, off: 0 }; }
 				return { idx, off: pre.toString().length };
 			})();
-			html = litEditHtml(v);
+			html = litEditHtml(v, hybrid ? merkerIdx : -1);
 			sistSer = v;
+			if (hybrid && caret) venterCaret = { off: caret.off };
 			// gjenopprett caret på samme visuelle posisjon i samme linje
 			if (caret && caret.idx >= 0 && rikel.children[caret.idx]) {
 				const le = rikel.children[caret.idx];
@@ -351,11 +443,12 @@
 	function byttModus(tilKilde) {
 		if (tilKilde === kilde) return;
 		if (!tilKilde) {
+			merkerIdx = -1;
 			sistSer = value;
 			html = litEditHtml(value);
 		}
 		kilde = tilKilde;
-		tick(() => {
+		tick().then(() => {
 			const el = kilde ? ta : rikel;
 			el?.focus();
 			oppdaterTilstand();
