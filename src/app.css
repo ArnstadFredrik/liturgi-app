@@ -1094,3 +1094,35 @@ svg.sf-ikon { vertical-align: -0.35em; }
 #toc-side .fb-tre { flex: 1; border: none; background: transparent; padding: 4px 2px; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
 #toc-side .fb-tre .fb-tre-hode { padding: 0 4px; }
 #toc-side .fb-tom { padding: 10px 8px; }
+
+/* ---------- markdown-motor: blokker + utvidet syntax ---------- */
+.md-tabell { border-collapse: collapse; margin: 0.5em 0; font-size: 0.95em; }
+.md-tabell th, .md-tabell td { border: 1px solid var(--border); padding: 4px 10px; }
+.md-tabell th { background: var(--panel2, var(--border)); font-weight: 600; }
+.md-pre { background: var(--panel2, var(--border)); border-radius: 6px; padding: 10px 12px; overflow-x: auto; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12.5px; margin: 0.5em 0; }
+.md-kode { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.92em; background: var(--panel2, var(--border)); border-radius: 3px; padding: 0 4px; }
+.md-sitat { border-left: 3px solid var(--accent); margin: 0.5em 0; padding: 2px 0 2px 12px; color: var(--muted); }
+.md-hr { border: none; border-top: 1px solid var(--border); margin: 0.8em 0; }
+.md-liste { margin: 0.3em 0; padding-left: 1.4em; }
+.md-liste li { margin: 0.15em 0; }
+.md-oppgave input { accent-color: var(--accent); margin-right: 4px; }
+.md-lenke { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.md-bilde { max-width: 100%; border-radius: 6px; }
+.md-fotnote-ref { color: var(--accent); font-size: 0.8em; }
+.md-fotnoter { font-size: 0.88em; color: var(--muted); margin-top: 1em; }
+.md-fotnote-nr { color: var(--accent); }
+del { opacity: 0.7; }
+mark { background: color-mix(in srgb, var(--accent) 30%, transparent); color: inherit; border-radius: 2px; padding: 0 2px; }
+sub { font-size: 0.75em; }
+/* kilde-highlight: nye klasser */
+.hl-strike { text-decoration: line-through; opacity: 0.7; }
+.hl-mark { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+.hl-sub { opacity: 0.75; font-size: 0.9em; }
+.hl-lenke { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.hl-fnref, .hl-fn { color: var(--accent); }
+.hl-kodelinje { font-family: ui-monospace, 'SF Mono', Menlo, monospace; color: var(--muted); }
+.hl-hr { color: var(--muted); }
+.hl-h2t { font-weight: 600; }
+/* hybride blokker i editoren */
+.et-rik .md-pre, .et-rik .md-tabell, .et-rik .md-sitat { cursor: text; }
+.et-rik .et-linje .md-h { display: inline; }

@@ -1,10 +1,11 @@
 <script>
 	import { tick, untrack } from 'svelte';
+	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { markDirty } from '$lib/store.svelte.js';
 	import { litHtml, litEditHtml, litLinjeHtml, litLinjeMerkerHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false , vimAktiv = false, vimSt = null, vimLagre = null } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	$effect(() => {
@@ -49,53 +50,104 @@
 		return [...le.childNodes].map(mdFraNode).join('');
 	}
 
-	/** HYBRID: merke-linjen velges ved linjeskifte (merkerVersjon trigger en
-	 *  Svelte-styrt re-rendering av html — ingen manuell DOM-kirurgi), og caret-en
-	 *  gjenopprettes på samme visuelle posisjon etterpå. */
-	let merkerIdx = -1;
+	/** HYBRID: merket linje + blokk-regioner. Blokker (kode/tabell/hr/setext)
+	 *  rendres som ekte elementer når markøren er utenfor dem, og som rå linjer
+	 *  når markøren er inni dem (Obsidian-modellen). Alt via Svelte-styrt
+	 *  re-rendering (merkerVersjon) — ingen manuell DOM-kirurgi. */
+	let merkerIdx = -1; // linjen med synlige merker
 	let merkerVersjon = $state(0);
-	let venterCaret = null; // { off } — tekst-offset i linjen ved byttet
+	let venterCaret = null; // { linje, kol } — kol = innholdsoffset i linjen
+
+	/** HYBRID + VIM: kjør vim-motoren mot råverdien via en shim
+	 *  (value/selectionStart/End) — map caret'en tilbake til (linje, kol). */
+	function hybridVim(e) {
+		if (!vimSt || !vimAktiv) return false;
+		const s = window.getSelection();
+		const node = s?.anchorNode;
+		const el = node && rikel.contains(node) ? (node.nodeType === 3 ? node.parentElement : node) : null;
+		const le = el?.closest('.et-linje') ?? null;
+		if (!le) return false;
+		const linje = +(le.dataset.linje ?? -1);
+		if (linje < 0) return false;
+		const verdiLinjer = value.split('\n');
+		const pre = document.createRange();
+		pre.selectNodeContents(le);
+		try { pre.setEnd(s.getRangeAt(0).startContainer, s.getRangeAt(0).startOffset); } catch { }
+		const off = pre.toString().length; // innholdsoffset (uten prefiks/chips)
+		const verdLinje = verdiLinjer[linje] ?? '';
+		const domTekst = le.textContent.length;
+		const prefiksLen = Math.max(0, verdLinje.length - domTekst);
+		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + prefiksLen + off;
+		const shim = {
+			_v: value, _p: abs,
+			get value() { return this._v; },
+			set value(v) { this._v = v; },
+			get selectionStart() { return this._p; },
+			set selectionStart(p) { this._p = p; },
+			get selectionEnd() { return this._p; },
+			set selectionEnd(p) { this._p = p; },
+			setSelectionRange(a) { this._p = a; },
+			dispatchEvent() {},
+			focus() {}
+		};
+		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre });
+		if (!konsumert) return true;
+		e.preventDefault();
+		const nyLinjer = shim._v.split('\n');
+		let acc = 0, nl = 0, nk = 0, funnet = false;
+		for (let i = 0; i < nyLinjer.length; i++) {
+			const L = nyLinjer[i].length;
+			if (shim._p <= acc + L) { nl = i; nk = shim._p - acc; funnet = true; break; }
+			acc += L + 1;
+		}
+		if (!funnet) { nl = nyLinjer.length - 1; nk = nyLinjer[nl].length; }
+		const pl = nyLinjer[nl].match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
+		venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+		merkerIdx = nl;
+		value = shim._v;
+		sistSer = shim._v;
+		merkerVersjon++;
+		if (dirty) markDirty();
+		return true;
+	}
 
 	function oppdaterMerkerLinje() {
 		if (!hybrid || kilde || !rikel || !editing) return;
 		const s = window.getSelection();
 		const node = s?.anchorNode;
-		const le = node && rikel.contains(node) ? ((node.nodeType === 3 ? node.parentElement : node)?.closest('.et-linje')) : null;
-		if (!le) return;
-		const idx = [...rikel.children].indexOf(le);
-		if (idx === merkerIdx) return;
+		const el = node && rikel.contains(node) ? (node.nodeType === 3 ? node.parentElement : node) : null;
+		const le = el?.closest('.et-linje') ?? null;
+		const L = le ? +(le.dataset.linje ?? -1) : -1;
+		if (L < 0) return;
 		const off = (() => {
-			if (!s || s.rangeCount === 0) return 0;
+			if (!le || !s || s.rangeCount === 0) return 0;
 			const r = s.getRangeAt(0);
 			const pre = document.createRange();
 			pre.selectNodeContents(le);
 			try { pre.setEnd(r.startContainer, r.startOffset); } catch { return 0; }
 			return pre.toString().length;
 		})();
-		venterCaret = { off };
-		merkerIdx = idx;
+		if (L === merkerIdx) return;
+		venterCaret = { linje: L, kol: off };
+		merkerIdx = L;
 		merkerVersjon++;
 	}
 
-	/** Gjenopprett caret-en i merke-linjen etter re-renderingen. */
+	/** Gjenopprett caret-en i (linje, kol) etter re-renderingen. */
 	$effect(() => {
 		if (!hybrid || kilde || !editing) return;
 		void merkerVersjon;
 		if (merkerIdx < 0 || !venterCaret) return;
-		const { off } = venterCaret;
+		const { linje, kol } = venterCaret;
 		venterCaret = null;
-		const idx = merkerIdx;
-		// dobbel tick: første flush (html-endringen) må være ferdig FØR caret plasseres
 		tick().then(() => tick().then(() => {
-			const le = rikel?.children[idx];
+			const le = rikel?.querySelector(`[data-linje="${linje}"]`);
 			if (!le) return;
 			const nySel = window.getSelection();
 			if (!nySel) return;
-			// off er målt på innholdet (merkene er ikke-redigerbare og hoppes over) —
-			// samme telling gjelder i den nye linjen, ingen prefiks-justering nødvendig
-			const nyOff = Math.min(off, le.textContent.length);
+			const nyOff = Math.min(kol, le.textContent.length);
 			const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
-				acceptNode: (n) => n.parentElement?.closest('.mrk') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+				acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
 			});
 			let n, acc = 0, plassert = false;
 			while ((n = w.nextNode())) {
@@ -119,6 +171,7 @@
 			}
 		}));
 	});
+
 
 	function oppdaterTilstand() {
 		oppdaterMerkerLinje();
@@ -523,7 +576,7 @@
 				spellcheck="false"
 				oninput={rikOppdatert}
 				onbeforeinput={rikBeforeInput}
-				onkeydown={(e) => { if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if (hybrid && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
 		{/if}
 	</div>

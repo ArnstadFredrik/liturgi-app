@@ -112,14 +112,26 @@ function inlineEditHtml(t) {
 	return mdInline(s);
 }
 
-/** Inline-markdown med SYNLIGE merker (hybrid): fet/kursiv/kode vises med
- *  dempede ** / * / ` -merker i samme stil og størrelse. */
+/** Inline-markdown med SYNLIGE merker (hybrid): full inline-støtte — fet/kursiv
+ *  (inkl. __ _ ***) merkes med dempede symboler, kode, strike, highlight, sub,
+ *  lenker, bilder, autolink, fotnotereferanser og escaping (\c). */
 function inlineMerkerHtml2(t) {
 	return t
 		.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>')
-		.replace(/\*\*([^*]+)\*\*/g, '<strong data-mrk="**">$1</strong>')
-		.replace(/(^|[^*<])\*([^*\n]+)\*(?!\*)/g, '$1<em data-mrk="*">$2</em>')
-		.replace(/`([^`]+)`/g, '<span class="md-kode" data-mrk="`">$1</span>');
+		.replace(/\*\*\*([^*\n]+)\*\*\*/g, '<strong data-mrk="***"><em>$1</em></strong>')
+		.replace(/___([^_\n]+)___/g, '<strong data-mrk="___"><em>$1</em></strong>')
+		.replace(/\*\*([^*\n]+)\*\*/g, '<strong data-mrk="**">$1</strong>')
+		.replace(/__([^_\n]+)__/g, '<strong data-mrk="__">$1</strong>')
+		.replace(/(^|[^*\w<])\*([^*\n]+)\*(?!\*)/g, '$1<em data-mrk="*">$2</em>')
+		.replace(/(^|[^_\w<])_([^_\n]+)_/g, '$1<em data-mrk="_">$2</em>')
+		.replace(/~~([^~\n]+)~~/g, '<del data-mrk="~~">$1</del>')
+		.replace(/==([^=\n]+)==/g, '<mark data-mrk="==">$1</mark>')
+		.replace(/(^|[^~\w<])~([^~\n]+)~/g, '$1<sub data-mrk="~">$2</sub>')
+		.replace(/`([^`]+)`/g, '<span class="md-kode" data-mrk="`">$1</span>')
+		.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<span class="md-lenke" data-mrk="![]()">![</span>$1<span class="md-lenke">]($2)</span>')
+		.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<span data-mrk="[]()">[</span><span class="md-lenke">$1</span><span data-mrk="[]()">]($2)</span>')
+		.replace(/(^|[\s(])(https?:\/\/[^\s<&)]+)/g, '$1<span class="md-lenke">$2</span>')
+		.replace(/\[\^([^\]\s]+)\]/g, '<sup class="md-fotnote-ref" data-mrk="[^]">^$1</sup>');
 }
 
 function inlineMerkerHtml(t) {
@@ -145,9 +157,12 @@ export function litLinjeMerkerHtml(linje) {
 }
 
 function merkerLinje(type, prefiks, klasse, innhold) {
-	const indre = klasse ? `<span class="${klasse}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold);
-	const mrk = prefiks ? ` data-mrk="${escapeHtml(prefiks)}"` : '';
-	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}"${mrk}>${indre}</div>`;
+	// data-mrk på det INDRE spanet → ::before er inline på SAMME linje som teksten
+	// (en blokk md-h-span ellers dytter merket opp på egen linje)
+	const indre = klasse
+		? `<span class="${klasse}"${prefiks ? ` data-mrk="${escapeHtml(prefiks)}"` : ''}>${inlineMerkerHtml(innhold)}</span>`
+		: (prefiks ? `<span data-mrk="${escapeHtml(prefiks)}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold));
+	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}">${indre}</div>`;
 }
 
 /** Hele teksten som redigerings-HTML (én div per linje). Linjer inne i en
@@ -156,12 +171,13 @@ function merkerLinje(type, prefiks, klasse, innhold) {
 export function litEditHtml(text, merkerIdx = -1) {
 	let iRefreng = false;
 	return (text ?? '').split('\n').map((l, i) => {
+		const linjeDiv = (html) => html.replace('<div class="et-linje"', `<div class="et-linje" data-linje="${i}"`);
 		if (/^\{\{\/?refreng\}\}/.test(l)) {
 			iRefreng = l.trim() !== '{{/refreng}}';
-			return litLinjeHtml(l);
+			return linjeDiv(litLinjeHtml(l));
 		}
-		if (iRefreng) return linjeEditHtml('refreng-inn', '', '', l);
-		return i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l);
+		if (iRefreng) return linjeDiv(linjeEditHtml('refreng-inn', '', '', l));
+		return linjeDiv(i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l));
 	}).join('');
 }
 
