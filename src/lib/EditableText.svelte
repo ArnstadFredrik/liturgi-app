@@ -100,7 +100,7 @@
 			ta.setSelectionRange(s, e ?? s);
 		} else {
 			const pl = (linjer[nl].match(/^(?:#{1,6} |[-*+>] |\d+[.)] )?/)?.[0] ?? '').length;
-			venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+			venterCaret = { linje: nl, kol: nk - pl }; // negativ kol = inne i prefiks-merket (redigerbar tekst)
 			if (hybrid) merkerVersjon++;
 			html = litEditHtml(ny, hybrid ? merkerIdx : -1);
 		}
@@ -216,10 +216,10 @@
 		});
 		let n, acc = 0;
 		while ((n = w.nextNode())) {
-			if (acc + n.textContent.length >= kol) return { node: n, off: Math.min(kol - acc, n.textContent.length) };
-			acc += n.textContent.length;
+			if (acc + n.textContent.length >= kol) return { node: n, off: Math.max(0, Math.min(kol - acc, n.textContent.length)) };
 		}
-		return n ? { node: n, off: n.textContent.length } : null;
+		// tom linje (ingen tekstnoder): posisjon i selve linje-div-en
+		return n ? { node: n, off: Math.max(0, Math.min(kol - acc, n.textContent.length)) } : { node: le, off: 0 };
 	}
 
 	/** Plasser blokkmarkøren (thick cursor) over tegnet ved caret'en i normal modus. */
@@ -266,7 +266,7 @@ function trykkUndo() {
 					const pre = document.createRange();
 					pre.selectNodeContents(le);
 					try { pre.setEnd(r.startContainer, r.startOffset); } catch { }
-					ko = Math.max(0, pre.toString().length - prefiksLen(li));
+					ko = pre.toString().length - prefiksLen(li);
 				}
 			}
 		} catch { }
@@ -351,18 +351,28 @@ function angre() {
 			const tilLK = (pos) => {
 				let acc = 0;
 				for (let i = 0; i < linjer.length; i++) {
-					if (pos <= acc + linjer[i].length) return { linje: i, kol: Math.max(0, pos - acc - Math.min(prefiksLen(i), pos - acc)) };
+					if (pos <= acc + linjer[i].length) return { linje: i, kol: pos - acc - Math.min(prefiksLen(i), pos - acc) };
 					acc += linjer[i].length + 1;
 				}
 				return { linje: linjer.length - 1, kol: 0 };
 			};
-			visVent = { a: tilLK(spenn.start), b: tilLK(spenn.slutt), fremover: vimSt.vAnker < shim._p };
+			if (vimSt.modus === 'vline') {
+				// hele linjer: første linjes start → siste linjes slutt.
+				// slutt - 1: visSpenn inkluderer linjeskiftet (+1) — ellers lander
+				// slutt-mappingen på NESTE linje
+				const la = Math.min(tilLK(spenn.start).linje, tilLK(spenn.slutt - 1).linje);
+				const lb = Math.max(tilLK(spenn.start).linje, tilLK(spenn.slutt - 1).linje);
+				visVent = { a: { linje: la, kol: 0 }, b: { linje: lb, kol: 1e9 }, fremover: true };
+			} else {
+				visVent = { a: tilLK(spenn.start), b: tilLK(spenn.slutt), fremover: vimSt.vAnker < shim._p };
+			}
 			venterCaret = null;
 		} else {
-			venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+			venterCaret = { linje: nl, kol: nk - pl }; // negativ kol = inne i prefiks-merket (redigerbar tekst)
 			visVent = null;
 		}
-		merkerIdx = nl;
+		// i visual/v-line fryses merkerIdx — å flytte merket re-rendrer html og sletter utvalget
+		if (vimSt.modus !== 'visual' && vimSt.modus !== 'vline') merkerIdx = nl;
 		value = shim._v;
 		sistSer = shim._v;
 		merkerVersjon++;
@@ -376,6 +386,9 @@ function angre() {
 
 	function oppdaterMerkerLinje() {
 		if (!hybrid || kilde || !rikel || !editing) return;
+		// i visual/v-line: ingen merker-linje-swap — re-renderingen ellers SLETTER
+		// utvalget som nettopp ble plassert (vim-uthevingen overlever da)
+		if (vimAktiv && vimSt && (vimSt.modus === 'visual' || vimSt.modus === 'vline')) return;
 		const s = window.getSelection();
 		const node = s?.anchorNode;
 		const el = node && rikel.contains(node) ? (node.nodeType === 3 ? node.parentElement : node) : null;
@@ -392,7 +405,7 @@ function angre() {
 		})();
 		if (L === merkerIdx) return;
 		// off målt i DOM: merker-linjen inneholder prefiksen som tekst — trekk den fra
-		venterCaret = { linje: L, kol: Math.max(0, off - prefiksLen(L)) };
+		venterCaret = { linje: L, kol: off - prefiksLen(L) };
 		merkerIdx = L;
 		merkerVersjon++;
 	}
@@ -406,6 +419,7 @@ function angre() {
 			visVent = null;
 			// rAF-retry: utvalget må settes ETTER at {@html} er skrevet til DOM-en
 			const plasserUtvalg = (forsok) => {
+				try {
 				const a = domPos(v.a.linje, v.a.kol);
 				const b = domPos(v.b.linje, v.b.kol);
 				if (!a || !b) { if (forsok < 12) requestAnimationFrame(() => plasserUtvalg(forsok + 1)); return; }
@@ -415,11 +429,12 @@ function angre() {
 				const s = window.getSelection();
 				s.removeAllRanges();
 				s.addRange(r);
-				if (r.collapsed && !v.kollapsOK && forsok < 12) {
+				if (r.collapsed && forsok < 12) {
 					requestAnimationFrame(() => plasserUtvalg(forsok + 1));
 					return;
 				}
 				plasserBlokk();
+				} catch { if (forsok < 12) requestAnimationFrame(() => plasserUtvalg(forsok + 1)); }
 			};
 			plasserUtvalg(0);
 			return;
@@ -480,7 +495,10 @@ function angre() {
 		void merkerVersjon;
 		if (!hybrid) merkerIdx = -1;
 		untrack(() => {
-			html = litEditHtml(value, hybrid ? merkerIdx : -1);
+			const ny = litEditHtml(value, hybrid ? merkerIdx : -1);
+			// identisk html → IKKE skriv: innerHTML-skrivingen sletter ellers utvalget
+			// (f.eks. vim-visual-uthevingen) selv om innholdet er uendret
+			if (ny !== html) html = ny;
 		});
 	});
 

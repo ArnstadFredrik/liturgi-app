@@ -560,6 +560,9 @@ textarea {
 /* «Vis salmeinfo» av: @COPYRIGHT-linjene skjules i visning og redigering */
 #editor.skjul-salmeinfo .copyright,
 #editor.skjul-salmeinfo .et-linje[data-type='copyright'] { display: none; }
+/* salmeinfo skjult: HELE linjen (blokken) som bare inneholder @COPYRIGHT-info
+   skal bort — ellers står det igjen tomme linjer i forhåndsvisningen */
+#editor.skjul-salmeinfo :is(p, div, li):has(> .copyright:only-child) { display: none; }
 /* «Hent tekst»-indikatoren roterer mens salmen hentes */
 .salme-hent:disabled svg { animation: ka-spin 0.8s linear infinite; }
 
