@@ -4,6 +4,8 @@
 	import { litHtml } from '$lib/lit.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { mdi } from '$lib/mdi.js';
+	import Maler from './Maler.svelte';
+	let bibliotekFane = $state('bibliotek');
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -104,8 +106,17 @@
 </script>
 
 <div id="biblio-side">
+	{#if bibliotekFane === 'maler'}
+		<Maler />
+	{:else}
 	<div id="biblio-hode">
-		<h2>Bibliotek</h2>
+		<div class="biblio-faner">
+		<div class="fb-visning-velger">
+			<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
+			<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
+		</div>
+	</div>
+	<h2>Bibliotek</h2>
 		<p class="maler-ingress">
 			Søk i originalene og dine egne ledd, og legg inn nytt innhold. Eget innhold
 			organiseres i mapper og tagger, og røres ikke av «Regenerer biblioteket».
@@ -212,4 +223,7 @@
 			</div>
 		</div>
 	{/if}
+{:else}
+	<Maler />
+{/if}
 </div>
