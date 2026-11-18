@@ -967,10 +967,10 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .eks-ppt-ekstra { width: auto !important; padding: 2px 8px; }
 
 /* Bibel-enten-eller par (begge synlige, én aktiv) */
-/* Flytte-piler for egne slides */
-.eks-egen-flytt { display: flex; flex-direction: column; gap: 2px; flex: none; }
-.eks-egen-flytt button { width: 20px; height: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; line-height: 1; padding: 0; border-radius: 4px; }
-.eks-egen-flytt button:hover { background: var(--border); color: var(--foreground); }
+/* Grip-håndtak (drag-indikator) på venstre side av manuelle slides — flytting skjer også via høyreklikkmenyen */
+.eks-egen-grep { flex: none; display: flex; align-items: center; color: var(--muted); cursor: grab; opacity: 0.75; }
+.eks-egen-grep:hover { color: var(--foreground); opacity: 1; }
+.eks-egen-grep svg { pointer-events: none; }
 /* Markdown-formatering i slide-forhåndsvisningen */
 .ppt-bold { font-weight: 700; }
 .ppt-kursiv { font-style: italic; }
