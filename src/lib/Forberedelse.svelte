@@ -3,6 +3,8 @@
 	import { app as appStore } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import EditableText from './EditableText.svelte';
+	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount } from 'svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -22,8 +24,35 @@
 	let lagretTekst = $state('');
 	let jobber = $state(false);
 	let feil = $state('');
-	// Obsidian-lignende visning: delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
+	// Obsidian-lignende visning: hybrid riktekst, delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
 	let visning = $state('dele');
+	// vim-binding (kilde-modus) — valget persisteres i localStorage
+	let vim = $state(false);
+	let vimSt = $state(nyVimTilstand());
+	let linjeTa = $state(null); // tekstfelt-element (scroll-synk for linjenumrene)
+	let gutterEl = $state(null);
+	let linjenumre = $derived(Array.from({ length: Math.max(1, (tekst ?? '').split('\n').length) }, (_, i) => i + 1));
+	function byttVim() {
+		vim = !vim;
+		vimSt = nyVimTilstand();
+		try { localStorage.setItem('forb-vim', vim ? '1' : '0'); } catch {}
+	}
+	function synkGutter() {
+		if (linjeTa && gutterEl) gutterEl.scrollTop = linjeTa.scrollTop;
+	}
+	function vimTast(e) {
+		if (!vim || visning !== 'kilde') return;
+		if (vimKeydown(e, linjeTa, vimSt, { lagre })) e.preventDefault();
+	}
+	function chipPaaLinje() {
+		// hybrid: chips/tags vises kun på linjen markøren står i
+		if (visning !== 'riktekst') return;
+		const el = document.querySelector('.fb-riktekst .et-linje.markor');
+		document.querySelectorAll('.fb-riktekst .et-linje.markor').forEach((x) => x.classList.remove('markor'));
+		const sel = window.getSelection?.();
+		const linje = sel?.anchorNode?.parentElement?.closest('.et-linje');
+		if (linje) linje.classList.add('markor');
+	}
 
 	let dirty = $derived(tekst !== lagretTekst);
 	let forhandsvisningHtml = $derived(litHtml(tekst ?? ''));
@@ -180,18 +209,40 @@
 						<span class="fb-filnavn">{valgtSti.slice(mappe.length + 1) || valgtSti}</span>
 						{#if dirty}<span class="fb-dirty">ulagret</span>{/if}
 						<div class="fb-visning-velger">
+							<button class:sel={visning === 'riktekst'} onclick={() => visning = 'riktekst'} title="Hybrid: markdown formateres fortløpende (Obsidian live preview)">Riktekst</button>
 							<button class:sel={visning === 'dele'} onclick={() => visning = 'dele'}>Delt</button>
 							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'}>Kilde</button>
 							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
 						</div>
+						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
+						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : 'NORMAL')}</span>{/if}
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
-					<div class="fb-felter" class:dele={visning === 'dele'}>
-						{#if visning !== 'forhandsvisning'}
-							<textarea class="fb-kilde" bind:value={tekst} spellcheck="true" placeholder="Skriv her …"></textarea>
+					<div class="fb-felter" class:dele={visning === 'dele'} class:rik={visning === 'riktekst'}>
+						{#if visning === 'riktekst'}
+							<div class="fb-riktekst" onselectionchange={chipPaaLinje} onkeyup={chipPaaLinje} onclick={chipPaaLinje}>
+								<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" />
+							</div>
+						{:else if visning !== 'forhandsvisning'}
+							<div class="fb-kilde-rad">
+								{#if vim}
+									<div class="fb-gutter" bind:this={gutterEl}>
+										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
+									</div>
+								{/if}
+								<textarea
+									class="fb-kilde"
+									bind:this={linjeTa}
+									bind:value={tekst}
+									spellcheck="false"
+									placeholder="Skriv her …"
+									onscroll={synkGutter}
+									onkeydown={vimTast}
+								></textarea>
+							</div>
 						{/if}
-						{#if visning !== 'kilde'}
+						{#if visning === 'dele' || visning === 'forhandsvisning'}
 							<div class="fb-forhandsvisning lit-text">{@html forhandsvisningHtml}</div>
 						{/if}
 					</div>
