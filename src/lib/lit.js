@@ -28,7 +28,7 @@ export function litHtml(text) {
 		// hele-linje notis: @NOTAT eller @n — rød kursiv, litt mindre enn brødteksten
 		.replace(/^@(?:NOTAT|n) ?\|? ?(.+)$/gm, (m, t) => '<span class="notat">' + mdInline(t) + '</span>')
 		// hele-linje salmeinfo (T/M/O-hode og ©-linjer): @COPYRIGHT eller @c — samme stil som fotnote
-		.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.+)$/gm, (m, t) => '<span class="copyright">' + mdInline(t) + '</span>')
+		.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.+)$/gm, (m, t) => '<span class="copyright">' + mdInline(t) + '</span><br class="br-info">')
 		// rene rolleprefiks-linjer: «L |», «ML |», «L/ML |», «KA/L |» osv. → rolle merket rødt, resten inline
 		.replace(/^(L\/ML|ML\/L|L\/M|KA\/L|L|ML|M|A|KA|K)(\s*\| ?)/gm, '<span class="role">$1 |</span> ')
 		.replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '<span class="role">' + mdInline(t) + '</span>')
@@ -39,6 +39,9 @@ export function litHtml(text) {
 		.replace(/^# ?(.+)$/gm, (m, t) => '<span class="md-h">' + mdInline(t) + '</span>')
 		.replace(/^- (.+)$/gm, (m, t) => '<span class="md-li"><span class="md-bullet">–</span>' + mdInline(t) + '</span>')
 		.replace(/\n/g, '<br>');
+	// tomme linjer etter skjult salmeinfo: <br> rett etter br-info kollapses — br-info
+	// og dens <br> skjules av CSS når salmeinfo er av, kjeden må bort i HTML-en
+	out = out.replace(/(<br class="br-info">)(<br>)+/g, '$1');
 	return mdInlineOutsideTags(out);
 }
 
