@@ -1,9 +1,8 @@
 <script>
-	import { litHtml } from '$lib/lit.js';
 	import { app as appStore } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import Hybrid from './Hybrid.svelte';
+	import EditableText from './EditableText.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
 	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount } from 'svelte';
@@ -14,6 +13,19 @@
 	// mappe fra databasen (nøkkel 'prekenforberedelseMappe')
 	let mappe = $state('');
 	let klar = $state(false);
+
+	/** Portal: flytt prosjekt-treet inn i høyre sidemenyen (#toc-side) mens modulen er åpen. */
+	function portal(node, target) {
+		document.querySelector(target)?.appendChild(node);
+		return { destroy() { node.remove(); } };
+	}
+
+	$effect(() => {
+		if (!mappe) return;
+		appStore.portalToc = true; // vis høyre sidemenyen
+		if (appStore.tocSkjult) appStore.tocSkjult = false;
+		return () => { appStore.portalToc = false; };
+	});
 
 	// tre + editor (barn lastes LAZY per mapper — én IPC per utvidelse)
 	let entries = $state([]); // [{ navn, sti, mappe }] — toppnivå
@@ -29,7 +41,7 @@
 	/** Relativ filsti (under prosjektmappen) til filnavn-visningen. */
 	let valgtRel = $state('');
 	// Obsidian-lignende visning: hybrid riktekst, delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
-	let visning = $state('dele'); // hybrid | dele | kilde | forhandsvisning
+	let visning = $state('hybrid'); // riktekst | hybrid | kilde
 	// vim-binding (kilde-modus) — valget persisteres i localStorage
 	let vim = $state(false);
 	let vimSt = $state(nyVimTilstand());
@@ -91,7 +103,6 @@
 	}
 
 	let dirty = $derived(tekst !== lagretTekst);
-	let forhandsvisningHtml = $derived(litHtml(tekst ?? ''));
 
 	onMount(async () => {
 		if (!isElectron) return;
@@ -212,20 +223,19 @@
 						<span class="fb-filnavn" title={valgtSti}>{valgtRel}</span>
 						{#if dirty}<span class="fb-dirty">ulagret</span>{/if}
 						<div class="fb-visning-velger">
-							<button class:sel={visning === 'hybrid'} onclick={() => visning = 'hybrid'} title="Hybrid (Obsidian live preview): riktekst, markdown synlig på linjen du redigerer">Hybrid</button>
-							<button class:sel={visning === 'dele'} onclick={() => visning = 'dele'}>Delt</button>
-							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'}>Kilde</button>
-							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
+							<button class:sel={visning === 'riktekst'} onclick={() => visning = 'riktekst'} title="Riktekst: formater som i et tekstbehandler-program">Riktekst</button>
+							<button class:sel={visning === 'hybrid'} onclick={() => visning = 'hybrid'} title="Hybrid: markdown-kilderedigering med riktekst-styling; merkene synlige på linjen du redigerer">Hybrid</button>
+							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'} title="Kilde: ren markdown med syntax-highlight (vim: aktiver vim-bryteren)">Kilde</button>
 						</div>
 						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
 						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
-					<div class="fb-felter" class:dele={visning === 'dele'}>
-						{#if visning === 'hybrid'}
-							<Hybrid bind:value={tekst} nokkel={valgtSti} />
-						{:else if visning !== 'forhandsvisning'}
+					<div class="fb-felter">
+						{#if visning !== 'kilde'}
+							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} />
+						{:else}
 							<div class="fb-kilde-rad">
 								{#if vim}
 									<div class="fb-gutter" bind:this={gutterEl}>
@@ -252,9 +262,6 @@
 									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
 								</div>
 							</div>
-						{/if}
-						{#if visning === 'dele' || visning === 'forhandsvisning'}
-							<div class="fb-forhandsvisning lit-text">{@html forhandsvisningHtml}</div>
 						{/if}
 					</div>
 				{/if}

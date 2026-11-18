@@ -112,18 +112,56 @@ function inlineEditHtml(t) {
 	return mdInline(s);
 }
 
+/** Inline-markdown med SYNLIGE merker (hybrid): fet/kursiv/kode vises med
+ *  dempede ** / * / ` -merker i samme stil og størrelse. */
+function inlineMerkerHtml2(t) {
+	return t
+		.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>')
+		.replace(/\*\*([^*]+)\*\*/g, '<strong data-mrk="**">$1</strong>')
+		.replace(/(^|[^*<])\*([^*\n]+)\*(?!\*)/g, '$1<em data-mrk="*">$2</em>')
+		.replace(/`([^`]+)`/g, '<span class="md-kode" data-mrk="`">$1</span>');
+}
+
+function inlineMerkerHtml(t) {
+	let s = escapeHtml(t);
+	s = s.replace(/\{\{r\}\}([\s\S]*?)\{\{\/r\}\}/g, (m, x) => '<span class="role">' + inlineMerkerHtml2(x) + '</span>');
+	return inlineMerkerHtml2(s);
+}
+
+/** Hybrid-linje: riktekst-styling, men linjens markdown-prefiks (##, -, BIBELREF | …)
+ *  vises dempet i samme stil og størrelse. data-prefiks beholdes — EditableTexts
+ *  serialisering hopper over .mrk-spans, så verdien blir uendret. */
+export function litLinjeMerkerHtml(linje) {
+	let m;
+	if (/^\{\{\/?refreng\}\}/.test(linje)) return litLinjeHtml(linje); // blokkmarkør-chips som før
+	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return merkerLinje('bibelref', 'BIBELREF | ', 'fotnote', m[2]);
+	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return merkerLinje('fotnote', 'FOTNOTE | ', 'fotnote', m[2]);
+	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return merkerLinje('notat', '@NOTAT ', 'notat', m[1]);
+	if ((m = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/.exec(linje))) return merkerLinje('copyright', '@COPYRIGHT ', 'copyright', m[1]);
+	if ((m = /^(## ?)(.*)$/.exec(linje))) return merkerLinje('h2', m[1], 'md-h md-h2', m[2]);
+	if ((m = /^(# ?)(.*)$/.exec(linje))) return merkerLinje('h1', m[1], 'md-h', m[2]);
+	if ((m = /^(- ?)(.*)$/.exec(linje))) return merkerLinje('liste', m[1], 'md-li', m[2]);
+	return merkerLinje('tekst', '', '', linje);
+}
+
+function merkerLinje(type, prefiks, klasse, innhold) {
+	const indre = klasse ? `<span class="${klasse}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold);
+	const mrk = prefiks ? ` data-mrk="${escapeHtml(prefiks)}"` : '';
+	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}"${mrk}>${indre}</div>`;
+}
+
 /** Hele teksten som redigerings-HTML (én div per linje). Linjer inne i en
  *  {{refreng}}-blokk vises i kursiv (span.refreng); start-/sluttmarkørene vises
  *  som chips. */
-export function litEditHtml(text) {
+export function litEditHtml(text, merkerIdx = -1) {
 	let iRefreng = false;
-	return (text ?? '').split('\n').map((l) => {
+	return (text ?? '').split('\n').map((l, i) => {
 		if (/^\{\{\/?refreng\}\}/.test(l)) {
 			iRefreng = l.trim() !== '{{/refreng}}';
 			return litLinjeHtml(l);
 		}
 		if (iRefreng) return linjeEditHtml('refreng-inn', '', '', l);
-		return litLinjeHtml(l);
+		return i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l);
 	}).join('');
 }
 

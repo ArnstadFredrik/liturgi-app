@@ -57,7 +57,7 @@
 	}
 </script>
 
-<div id="app" class:sidebar-skjult={app.sidebarSkjult} class:toc-skjult={app.tocSkjult}>
+<div id="app" class:sidebar-skjult={app.sidebarSkjult} class:toc-skjult={app.tocSkjult} class:toc-aktiv={!!app.current || app.portalToc}>
 	<button class="ikon-btn sidebar-toggle" onclick={veksleSidebar}
 		title={app.sidebarSkjult ? 'Vis sidemenyen' : 'Skjul sidemenyen'}>
 		{@html mdi(app.sidebarSkjult ? 'menu-open' : 'page-layout-sidebar-left', 18)}
@@ -88,24 +88,26 @@
 			<Welcome />
 		{/if}
 	</main>
-	{#if app.current}
+	{#if app.current || app.portalToc}
 		<button class="ikon-btn toc-toggle" class:aaapen={!app.tocSkjult} onclick={veksleToc}
 			title={app.tocSkjult ? 'Vis dokumentpanelet' : 'Skjul dokumentpanelet'}>
 			{@html mdi(app.tocSkjult ? 'menu-open' : 'page-layout-sidebar-right', 18)}
 		</button>
-		<aside id="toc-side">
-			{#if app.current.sections && app.current.sections.length > 1}
-				<div class="sidehead">Avsnitt</div>
-				<ul class="list">
-					{#each app.current.sections as sec, i (i)}
-						<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
-					{/each}
-				</ul>
-				<hr class="side-skiller" />
-			{/if}
-			<DokInsp />
-		</aside>
 	{/if}
+	<aside id="toc-side">
+		{#if app.current?.sections && app.current.sections.length > 1}
+			<div class="sidehead">Avsnitt</div>
+			<ul class="list">
+				{#each app.current.sections as sec, i (i)}
+					<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
+				{/each}
+			</ul>
+			<hr class="side-skiller" />
+		{/if}
+		{#if app.current}
+			<DokInsp />
+		{/if}
+	</aside>
 </div>
 
 {#key (app.modal?.type ?? '') + ':' + (app.modal?.id ?? '')}

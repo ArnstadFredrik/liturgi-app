@@ -609,6 +609,7 @@ textarea {
 }
 
 /* ---------- TOC-side ---------- */
+#app:not(.toc-aktiv) #toc-side { display: none; }
 #toc-side {
 	width: 175px; min-width: 175px;
 	background: var(--panel);
@@ -1083,3 +1084,13 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* ---------- prosjekt-tre i høyre sidemeny ---------- */
 #toc-side .fb-tre { padding: 4px 0 0 0; border: none; background: transparent; }
 
+
+/* hybrid: dempede markdown-merker — CSS-pseudo-elementer (aldri i DOM-teksten,
+ * aldri caret-mål, aldri med i serialiseringen) */
+[data-mrk] { position: relative; }
+[data-mrk]::before { content: attr(data-mrk); color: var(--muted); opacity: 0.55; }
+.md-kode { font-family: ui-monospace, 'SF Mono', Menlo, monospace; background: var(--panel2, var(--border)); border-radius: 3px; padding: 0 3px; }
+/* prosjekt-tre i høyre sidemeny (portal) */
+#toc-side .fb-tre { flex: 1; border: none; background: transparent; padding: 4px 2px; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+#toc-side .fb-tre .fb-tre-hode { padding: 0 4px; }
+#toc-side .fb-tom { padding: 10px 8px; }
