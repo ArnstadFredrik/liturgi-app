@@ -106,16 +106,17 @@
 </script>
 
 <div id="biblio-side">
+	<div id="biblio-hode">
+		<div class="biblio-faner">
+			<div class="fb-visning-velger">
+				<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
+				<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
+			</div>
+		</div>
+	</div>
 	{#if bibliotekFane === 'maler'}
 		<Maler />
 	{:else}
-	<div id="biblio-hode">
-		<div class="biblio-faner">
-		<div class="fb-visning-velger">
-			<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
-			<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
-		</div>
-	</div>
 	<h2>Bibliotek</h2>
 		<p class="maler-ingress">
 			Søk i originalene og dine egne ledd, og legg inn nytt innhold. Eget innhold
@@ -128,7 +129,6 @@
 				<button onclick={() => eksporterBibliotek(brukerrader)} title="Eksporter alt eget innhold til JSON">{@html mdi('download')} Eksportér eget innhold</button>
 			{/if}
 		</div>
-	</div>
 
 	{#if !isElectron}
 		<p class="maler-ingress">Biblioteket gjelder kun Mac-appen (SQLite).</p>

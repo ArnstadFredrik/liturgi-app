@@ -287,7 +287,7 @@ function limInn(st, ta, etter) {
 
 // ---------- visual-hjelp ----------
 
-function visSpenn(st, v, pos) {
+export function visSpenn(st, v, pos) {
 	let start = Math.min(st.vAnker, pos);
 	let slutt = Math.max(st.vAnker, pos);
 	if (st.modus === 'vline') {
@@ -373,7 +373,7 @@ export function vimKeydown(e, ta, st, ekstra = {}) {
 		if (K === 'Escape') { e.preventDefault(); const p = Math.min(st.vAnker, ta.selectionStart); ta.setSelectionRange(p, p); st.modus = 'normal'; return true; }
 		if (K === ':') { e.preventDefault(); st.kommando = ':'; return true; }
 		if (K.length === 1 && /[0-9]/.test(K)) { e.preventDefault(); st.teller += K; return true; }
-		if (K === 'u') { e.preventDefault(); document.execCommand('undo'); visOppdater(st, ta); return true; }
+		if (K === 'u') { e.preventDefault(); if (ekstra.undo) ekstra.undo(); else document.execCommand('undo'); visOppdater(st, ta); return true; }
 		// bevegelse utvider utvalget
 		const res = motion(st, ta.value, ta.selectionStart, K);
 		if (res === undefined) return false;
@@ -534,7 +534,7 @@ export function vimKeydown(e, ta, st, ekstra = {}) {
 		}
 		case 'p': e.preventDefault(); limInn(st, ta, true); return true;
 		case 'P': e.preventDefault(); limInn(st, ta, false); return true;
-		case 'u': e.preventDefault(); document.execCommand('undo'); return true;
+		case 'u': e.preventDefault(); if (ekstra.undo) ekstra.undo(); else document.execCommand('undo'); return true;
 		case 'J': {
 			e.preventDefault();
 			const v = ta.value;

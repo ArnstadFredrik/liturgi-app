@@ -1,6 +1,6 @@
 <script>
 	import { tick, untrack } from 'svelte';
-	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
+	import { nyVimTilstand, vimKeydown, visSpenn } from '$lib/vim.js';
 	import { markDirty } from '$lib/store.svelte.js';
 	import { litHtml, litEditHtml, litLinjeHtml, litLinjeMerkerHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -85,6 +85,7 @@
 
 	/** Sett ny verdi + caret (absolutt value-offset → (linje, kol)). */
 	function mdSett(ny, s, e) {
+		trykkUndo();
 		value = ny;
 		sistSer = ny;
 		const linjer = ny.split('\n');
@@ -200,6 +201,104 @@
 		return value.split('\n')[linje]?.match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
 	}
 
+	// ---------- vim: blokkmarkør + visual-utheving + undo ----------
+	let editEl = $state(null);   // .et-edit-omslaget (for blokkmarkørens koordinater)
+	let blokkVis = $state(null); // { venstre, topp, bredde, hoyde } — normal-modus-markøren
+	let visVent = null;          // { a, b, fremover } — visual-utvalg som gjenopprettes etter render
+	let undoStakk = [];          // { verdi, linje, kol } — egne snapshots (u / ⌘Z)
+
+	/** DOM-posisjon for (linje, kol) — kol = innholdsoffset uten prefiks/chips. */
+	function domPos(linje, kol) {
+		const le = rikel?.querySelector(`[data-linje="${linje}"]`);
+		if (!le) return null;
+		const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
+			acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+		});
+		let n, acc = 0;
+		while ((n = w.nextNode())) {
+			if (acc + n.textContent.length >= kol) return { node: n, off: Math.min(kol - acc, n.textContent.length) };
+			acc += n.textContent.length;
+		}
+		return n ? { node: n, off: n.textContent.length } : null;
+	}
+
+	/** Plasser blokkmarkøren (thick cursor) over tegnet ved caret'en i normal modus. */
+function plasserBlokk() {
+		blokkVis = null;
+		if (!vimAktiv || kilde || !editing || !rikel || !editEl) return;
+		if (!vimSt || vimSt.modus !== 'normal') return;
+const s = window.getSelection();
+		if (!s || s.rangeCount === 0 || !rikel.contains(s.anchorNode)) return;
+		const r0 = s.getRangeAt(0);
+		const node = r0.startContainer, off = r0.startOffset;
+		let rect = null;
+		if (node.nodeType === 3 && off < node.length) {
+			const r2 = document.createRange();
+			r2.setStart(node, off);
+			r2.setEnd(node, off + 1);
+			rect = r2.getBoundingClientRect();
+		} else {
+			const rects = r0.getClientRects();
+			rect = rects.length ? rects[rects.length - 1] : null;
+		}
+if (!rect || (!rect.width && !rect.height)) return;
+		const er = editEl.getBoundingClientRect();
+		blokkVis = {
+			venstre: rect.left - er.left,
+			topp: rect.top - er.top,
+			bredde: Math.max(rect.width, 5),
+			hoyde: Math.max(rect.height, 14)
+		};
+	}
+
+function trykkUndo() {
+		const v = value;
+		if (undoStakk.length && undoStakk[undoStakk.length - 1].verdi === v) return;
+		let li = 0, ko = 0;
+		try {
+			const s = window.getSelection();
+			if (s?.rangeCount && rikel?.contains(s.anchorNode)) {
+				const r = s.getRangeAt(0);
+				const el = (n) => (n.nodeType === 3 ? n.parentElement : n);
+				const le = el(r.startContainer)?.closest('.et-linje');
+				if (le) {
+					li = +(le.dataset.linje ?? 0);
+					const pre = document.createRange();
+					pre.selectNodeContents(le);
+					try { pre.setEnd(r.startContainer, r.startOffset); } catch { }
+					ko = Math.max(0, pre.toString().length - prefiksLen(li));
+				}
+			}
+		} catch { }
+undoStakk.push({ verdi: v, linje: li, kol: ko });
+		if (undoStakk.length > 100) undoStakk.shift();
+	}
+
+	/** u / ⌘Z: gjenopprett forrige snapshot. */
+function angre() {
+		// hopp over snapshots identiske med nåværende verdi (u trykker også snapshot)
+		let e = null;
+		while (undoStakk.length) {
+			const k = undoStakk.pop();
+			if (k.verdi !== value) { e = k; break; }
+		}
+		if (!e) return false;
+		// avbryt ventende konvertering — dens DOM-serialisering ellers overskriver angret verdi
+		clearTimeout(konvTid);
+		konvTid = null;
+		// UTSETT til etter flush-stormen: markDirty → forelder re-render → bind:value
+		// pusher ellers den GAMLE verdien tilbake og angret verdi overskrives
+		setTimeout(() => {
+			value = e.verdi;
+			sistSer = e.verdi;
+			merkerIdx = hybrid ? e.linje : -1;
+			merkerVersjon++;
+			venterCaret = { linje: Math.min(e.linje, value.split('\n').length - 1), kol: e.kol };
+			if (dirty) markDirty();
+		}, 0);
+		return true;
+	}
+
 	/** HYBRID + VIM: kjør vim-motoren mot råverdien via en shim
 	 *  (value/selectionStart/End) — map caret'en tilbake til (linje, kol). */
 	function hybridVim(e) {
@@ -218,8 +317,8 @@
 		const off = pre.toString().length; // innholdsoffset (uten prefiks/chips)
 		const verdLinje = verdiLinjer[linje] ?? '';
 		const domTekst = le.textContent.length;
-		const prefiksLen = Math.max(0, verdLinje.length - domTekst);
-		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + prefiksLen + off;
+		const linjePl = Math.max(0, verdLinje.length - domTekst); // skygger ellers komponentens prefiksLen-funksjon
+		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + linjePl + off;
 		const shim = {
 			_v: value, _p: abs,
 			get value() { return this._v; },
@@ -228,12 +327,13 @@
 			set selectionStart(p) { this._p = p; },
 			get selectionEnd() { return this._p; },
 			set selectionEnd(p) { this._p = p; },
-			setSelectionRange(a) { this._p = a; },
+			setSelectionRange(a, b, dir) { this._p = dir === 'backward' ? b : a; },
 			dispatchEvent() {},
 			focus() {}
 		};
-		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre });
-		if (!konsumert) return true;
+		trykkUndo();
+		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre, undo: angre });
+		if (!konsumert) { undoStakk.pop(); return true; }
 		e.preventDefault();
 		const nyLinjer = shim._v.split('\n');
 		let acc = 0, nl = 0, nk = 0, funnet = false;
@@ -244,7 +344,24 @@
 		}
 		if (!funnet) { nl = nyLinjer.length - 1; nk = nyLinjer[nl].length; }
 		const pl = nyLinjer[nl].match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
-		venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+		if (vimSt.modus === 'visual' || vimSt.modus === 'vline') {
+			// visual: vis utvalget i DOM (anker ↔ caret), ikke bare caret
+			const spenn = visSpenn(vimSt, shim._v, shim._p);
+			const linjer = shim._v.split('\n');
+			const tilLK = (pos) => {
+				let acc = 0;
+				for (let i = 0; i < linjer.length; i++) {
+					if (pos <= acc + linjer[i].length) return { linje: i, kol: Math.max(0, pos - acc - Math.min(prefiksLen(i), pos - acc)) };
+					acc += linjer[i].length + 1;
+				}
+				return { linje: linjer.length - 1, kol: 0 };
+			};
+			visVent = { a: tilLK(spenn.start), b: tilLK(spenn.slutt), fremover: vimSt.vAnker < shim._p };
+			venterCaret = null;
+		} else {
+			venterCaret = { linje: nl, kol: Math.max(0, nk - pl) };
+			visVent = null;
+		}
 		merkerIdx = nl;
 		value = shim._v;
 		sistSer = shim._v;
@@ -254,7 +371,6 @@
 			// riktekst: verdi-endringen må re-rendere html-en (hybrid gjør det via merkerVersjon)
 			html = litEditHtml(shim._v, -1);
 		}
-		planleggKonvertering();
 		return true;
 	}
 
@@ -285,43 +401,38 @@
 	$effect(() => {
 		if (kilde || !editing) return;
 		void merkerVersjon;
-		if (merkerIdx < 0 || !venterCaret) return;
+		if (visVent) {
+			const v = visVent;
+			visVent = null;
+			// rAF-retry: utvalget må settes ETTER at {@html} er skrevet til DOM-en
+			const plasserUtvalg = (forsok) => {
+				const a = domPos(v.a.linje, v.a.kol);
+				const b = domPos(v.b.linje, v.b.kol);
+				if (!a || !b) { if (forsok < 12) requestAnimationFrame(() => plasserUtvalg(forsok + 1)); return; }
+				const r = document.createRange();
+				if (v.fremover) { r.setStart(a.node, a.off); r.setEnd(b.node, b.off); }
+				else { r.setStart(b.node, b.off); r.setEnd(a.node, a.off); }
+				const s = window.getSelection();
+				s.removeAllRanges();
+				s.addRange(r);
+				if (r.collapsed && !v.kollapsOK && forsok < 12) {
+					requestAnimationFrame(() => plasserUtvalg(forsok + 1));
+					return;
+				}
+				plasserBlokk();
+			};
+			plasserUtvalg(0);
+			return;
+		}
+		if (!venterCaret) return;
 		const { linje, kol } = venterCaret;
 		venterCaret = null;
-		tick().then(() => tick().then(() => {
-			const le = rikel?.querySelector(`[data-linje="${linje}"]`);
-			if (!le) return;
-			const nySel = window.getSelection();
-			if (!nySel) return;
-			const nyOff = Math.min(prefiksLen(linje) + kol, le.textContent.length);
-			const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
-				acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-			});
-			let n, acc = 0, plassert = false;
-			while ((n = w.nextNode())) {
-				if (acc + n.textContent.length >= nyOff) {
-					const r = document.createRange();
-					r.setStart(n, Math.min(nyOff - acc, n.textContent.length));
-					r.collapse(true);
-					nySel.removeAllRanges();
-					nySel.addRange(r);
-					plassert = true;
-					break;
-				}
-				acc += n.textContent.length;
-			}
-			if (!plassert || !le.contains(nySel.anchorNode)) {
-				const r = document.createRange();
-				r.selectNodeContents(le);
-				r.collapse(true);
-				nySel.removeAllRanges();
-				nySel.addRange(r);
-			}
-		}));
+		requestAnimationFrame(() => plasserCaretMedRetry(linje, prefiksLen(linje) + kol));
 	});
 
 
 	function oppdaterTilstand() {
+		plasserBlokk();
 		oppdaterMerkerLinje();
 		if (kilde || etikett) {
 			if (ta) sel = { s: ta.selectionStart ?? 0, e: ta.selectionEnd ?? 0 };
@@ -350,6 +461,9 @@
 		return () => document.removeEventListener('selectionchange', oppdaterTilstand);
 	});
 
+	$effect(() => {
+		const v = value;
+	});
 	// ekstrene verdiendringer (fyllLesning osv.) → re-render riktekst
 	$effect(() => {
 		if (value !== sistSer) {
@@ -407,6 +521,45 @@
 	// fullførte *kursiv*-/**fet**-blokker som skrives, konverteres til em/strong
 	// (debounced) med caret-gjenoppretting på samme visuelle posisjon
 	let konvTid = null;
+
+	/** Plasser caret-en i linje `idx` (children-indeks) på tekst-offset `off`,
+	 *  med rAF-retry — {@html}-skrivingen flusher ETTER effektene, så den gamle
+	 *  synkrone plasseringen landet på GAMMEL DOM og caret'en døde. */
+	function plasserCaretMedRetry(idx, off, forsok = 0) {
+		const le = rikel?.children[idx];
+		if (!le) { if (forsok < 12) requestAnimationFrame(() => plasserCaretMedRetry(idx, off, forsok + 1)); return; }
+		const s = window.getSelection();
+		if (!s) return;
+		const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
+			acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+		});
+		let n, acc = 0, plassert = false;
+		while ((n = w.nextNode())) {
+			if (acc + n.textContent.length >= off) {
+				const r = document.createRange();
+				r.setStart(n, Math.min(off - acc, n.textContent.length));
+				r.collapse(true);
+				s.removeAllRanges();
+				s.addRange(r);
+				plassert = true;
+				break;
+			}
+			acc += n.textContent.length;
+		}
+		if (!plassert) {
+			const r = document.createRange();
+			r.selectNodeContents(le);
+			r.collapse(false);
+			s.removeAllRanges();
+			s.addRange(r);
+			plassert = true;
+		}
+		if (le.contains(s.anchorNode)) {
+			plasserBlokk();
+		} else if (forsok < 12) {
+			requestAnimationFrame(() => plasserCaretMedRetry(idx, off, forsok + 1));
+		}
+	}
 	function planleggKonvertering() {
 		clearTimeout(konvTid);
 		konvTid = setTimeout(() => {
@@ -430,31 +583,9 @@
 			})();
 			html = litEditHtml(v, hybrid ? merkerIdx : -1);
 			sistSer = v;
-			if (hybrid && caret) venterCaret = { off: caret.off };
-			// gjenopprett caret på samme visuelle posisjon i samme linje
-			if (caret && caret.idx >= 0 && rikel.children[caret.idx]) {
-				const le = rikel.children[caret.idx];
-				const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT);
-				let n, acc = 0, plassert = false;
-				while ((n = w.nextNode())) {
-					if (acc + n.textContent.length >= caret.off) {
-						const r = document.createRange();
-						r.setStart(n, Math.min(caret.off - acc, n.textContent.length));
-						r.collapse(true);
-						s.removeAllRanges();
-						s.addRange(r);
-						plassert = true;
-						break;
-					}
-					acc += n.textContent.length;
-				}
-				if (!plassert) {
-					const r = document.createRange();
-					r.selectNodeContents(le);
-					r.collapse(false);
-					s.removeAllRanges();
-					s.addRange(r);
-				}
+			// gjenopprett caret på samme visuelle posisjon i samme linje (etter flush)
+			if (caret && caret.idx >= 0) {
+				requestAnimationFrame(() => plasserCaretMedRetry(caret.idx, caret.off));
 			}
 		}, 700);
 	}
@@ -685,7 +816,7 @@
 </script>
 
 {#if editing}
-	<div class="et-edit">
+	<div class="et-edit" bind:this={editEl}>
 		<div class="et-tools">
 			{#if mdModus}
 				<!-- markdown-verktøylinje: ren .md-kompatibel syntaks med snarveier -->
@@ -738,13 +869,23 @@
 		{:else}
 			<div
 				class="et-rik lit-text"
+				class:et-vim-normal={vimAktiv && vimSt?.modus === 'normal'}
 				bind:this={rikel}
 				contenteditable="true"
 				spellcheck="false"
 				oninput={rikOppdatert}
 				onbeforeinput={rikBeforeInput}
-				onkeydown={(e) => { if (mdSnarvei(e)) return; if (!kilde && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); angre(); return; } if (mdSnarvei(e)) return; if (!kilde && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
+		{/if}
+		{#if vimAktiv && !kilde && !etikett && vimSt}
+			<div class="et-statuslinje">
+				<span class="et-status-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'I' : vimSt.modus === 'visual' ? 'V' : vimSt.modus === 'vline' ? 'V-B' : 'N')}</span>
+				<span class="et-status-info">vim</span>
+			</div>
+		{/if}
+		{#if blokkVis}
+			<div class="et-blokk" style="left:{blokkVis.venstre}px;top:{blokkVis.topp}px;width:{blokkVis.bredde}px;height:{blokkVis.hoyde}px"></div>
 		{/if}
 	</div>
 {:else}

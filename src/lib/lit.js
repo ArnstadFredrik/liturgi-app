@@ -146,6 +146,15 @@ function inlineMerkerHtml(t) {
 export function litLinjeMerkerHtml(linje) {
 	let m;
 	if (/^\{\{\/?refreng\}\}/.test(linje)) return litLinjeHtml(linje); // blokkmarkør-chips som før
+	if ((m = /^\s*\|(.+)\|\s*$/.exec(linje))) {
+		// tabellrad: cellene i .md-td-bokser, pipe-markene som redigerbar mrk-tekst
+		const celler = m[1].split('|');
+		const cellerHtml = celler.map((c) => {
+			const sep = /^\s*:?-{3,}:?\s*$/.test(c);
+			return `<span class="mrk">|</span><span class="md-td${sep ? ' md-td-sep' : ''}">${inlineMerkerHtml(c)}</span>`;
+		}).join('') + '<span class="mrk">|</span>';
+		return `<div class="et-linje" data-type="tabell" data-prefiks="">${cellerHtml}</div>`;
+	}
 	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return merkerLinje('bibelref', 'BIBELREF | ', 'fotnote', m[2]);
 	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return merkerLinje('fotnote', 'FOTNOTE | ', 'fotnote', m[2]);
 	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return merkerLinje('notat', '@NOTAT ', 'notat', m[1]);

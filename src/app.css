@@ -1140,3 +1140,14 @@ sub { font-size: 0.75em; }
 /* hybrid: merkene som redigerbar tekst (v3) */
 .mrk { color: color-mix(in srgb, var(--muted) 78%, transparent); font-family: inherit; }
 .mrk::selection { background: var(--accent); color: var(--accent-fg, #fff); }
+
+/* vim i EditableText: blokkmarkør, statuslinje */
+.et-edit { position: relative; }
+.et-rik.et-vim-normal { caret-color: transparent; }
+.et-blokk { position: absolute; background: var(--accent); opacity: 0.4; border-radius: 2px; pointer-events: none; z-index: 5; }
+.et-statuslinje { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 2px 8px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+.et-statuslinje .et-status-modus { background: var(--accent); color: var(--accent-fg, #fff); border-radius: 3px; padding: 0 6px; font-weight: 600; min-width: 18px; text-align: center; }
+.et-statuslinje .et-status-modus.ins { background: var(--ok, #3a7d44); }
+/* hybrid: formaterte tabellrader */
+.md-td { display: inline-block; border: 1px solid var(--border); padding: 1px 10px; margin: 1px 0; border-radius: 3px; }
+.md-td-sep { color: color-mix(in srgb, var(--muted) 60%, transparent); background: color-mix(in srgb, var(--border) 35%, transparent); }

@@ -96,9 +96,26 @@
 	function synkGutter() {
 		if (linjeTa && gutterEl) gutterEl.scrollTop = linjeTa.scrollTop;
 	}
+	let kildeUndo = []; // forrige verdier (u / ⌘Z) — beforeinput fangerer den gamle
+	function kildeUndoTrykk() {
+		kildeUndo.push(tekst);
+		if (kildeUndo.length > 100) kildeUndo.shift();
+	}
+	function kildeAngre() {
+		const v = kildeUndo.pop();
+		if (v === undefined) return;
+		tekst = v;
+		requestAnimationFrame(() => {
+			if (!linjeTa) return;
+			const p = Math.min(linjeTa.value.length, linjeTa.value.length);
+			linjeTa.setSelectionRange(p, p);
+			oppdaterMarkor();
+		});
+	}
 	function vimTast(e) {
 		if (!vim || visning !== 'kilde') return;
-		if (vimKeydown(e, linjeTa, vimSt, { lagre })) e.preventDefault();
+		if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); kildeAngre(); return; }
+		if (vimKeydown(e, linjeTa, vimSt, { lagre, undo: kildeAngre })) e.preventDefault();
 		requestAnimationFrame(oppdaterMarkor);
 	}
 
