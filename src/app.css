@@ -1019,10 +1019,26 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-editor-hode { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
 .fb-filnavn { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fb-dirty { font-size: 10px; font-weight: 600; color: #c0392b; border: 1px solid #c0392b; border-radius: 8px; padding: 1px 7px; }
-.fb-visning-velger { display: inline-flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
-.fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
-.fb-visning-velger button + button { border-left: 1px solid var(--border); }
-.fb-visning-velger button.sel { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.fb-visning-velger { display: inline-flex; gap: 2px; background: var(--panel2, var(--border)); border-radius: 8px; padding: 2px; }
+.fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 11.5px; padding: 3px 10px; cursor: pointer; border-radius: 6px; }
+.fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
+.fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
+/* vim-bryter + modus-badge */
+.fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }
+.fb-vim.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.fb-vim-modus { font-size: 10.5px; font-weight: 600; letter-spacing: 0.4px; color: var(--accent); }
+.fb-vim-modus.ins { color: #4e7a3c; }
+/* kildemodus: linjenumre + editor */
+.fb-kilde-rad { display: flex; flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--background); }
+.fb-gutter { flex: 0 0 auto; padding: 12px 6px 12px 10px; background: var(--panel2, var(--border)); color: var(--muted); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.6; text-align: right; overflow: hidden; user-select: none; min-width: 34px; }
+.fb-linjenr { min-height: 19.2px; }
+.fb-linjenr.ins { color: var(--accent); }
+.fb-kilde-rad .fb-kilde { flex: 1; border: none; border-radius: 0; }
+/* hybrid riktekst: chips/tags kun på markørlinjen */
+.fb-riktekst { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; background: var(--background); }
+.fb-riktekst .et-linje:not(.markor) .chip { visibility: hidden; }
+.fb-riktekst .et-edit, .fb-riktekst .et-tools { border: none; background: transparent; }
+.fb-felter.rik > * { flex: 1 1 100%; }
 .fb-lagre { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--panel2, transparent); color: var(--foreground); cursor: pointer; }
 .fb-lagre:disabled { opacity: 0.5; cursor: default; }
 .fb-feil { color: #c0392b; font-size: 12px; }
