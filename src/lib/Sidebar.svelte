@@ -180,6 +180,9 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'kirkeaar' ? 'hjem' : 'kirkeaar'; }}>
 			{@html mdi('calendar-edit')} Kirkeåret
 		</button>
+		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'forberedelse' ? 'hjem' : 'forberedelse'; }}>
+			{@html mdi('pencil')} Prekenforberedelse
+		</button>
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			{@html mdi('cog')} Innstillinger
 		</button>

@@ -54,8 +54,8 @@ export function closeModal() {
 }
 
 /** Bekreftelses-modal med to valg (f.eks. «Behold» / «Oppdater»). ok() = bekreft. */
-export function valgModal(title, message, okLabel, cancelLabel, ok) {
-	showModal({ type: 'valg', title, message, okLabel, cancelLabel, ok });
+export function valgModal(title, message, okLabel, cancelLabel, ok, onAvbryt) {
+	showModal({ type: 'valg', title, message, okLabel, cancelLabel, ok, onAvbryt });
 }
 
 /** Manuelt valg av kirkeårsdag. ok(k) med fullt kirkeårsobjekt; onAvbryt kalles ved Avbryt. */

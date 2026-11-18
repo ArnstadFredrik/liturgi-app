@@ -21,6 +21,7 @@ export const app = $state({
 	servicesDir: '', // Electron: stien til tjenestemappen
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
+	forbAapneSti: null, // Forberedelse: fil som skal åpnes når modulen åpnes fra Kirkeåret
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar avsnittsliste (TOC)
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)

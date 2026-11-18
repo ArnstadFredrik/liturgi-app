@@ -10,6 +10,7 @@
 	import Salmer from '$lib/Salmer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
+	import Forberedelse from '$lib/Forberedelse.svelte';
 	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
@@ -79,6 +80,8 @@
 			<Eksport />
 		{:else if app.visning === 'kirkeaar'}
 			<Kirkeaar />
+		{:else if app.visning === 'forberedelse'}
+			<Forberedelse />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
 		{:else}
