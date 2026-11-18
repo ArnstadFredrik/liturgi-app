@@ -31,7 +31,45 @@
 	let vimSt = $state(nyVimTilstand());
 	let linjeTa = $state(null); // tekstfelt-element (scroll-synk for linjenumrene)
 	let gutterEl = $state(null);
+	let blokkEl = $state(null); // blokkmarkør-overlay (normal/visual)
+	let maalEl = $state(null); // skjult speil for å måle markørposisjonen
+	let blokkPos = $state({ vis: false, x: 0, y: 0, w: 0, h: 0 });
+
+	/** Plasser blokkmarkøren over tegnet markøren står på (normal/visual). */
+	function oppdaterMarkor() {
+		if (!linjeTa || !maalEl) { blokkPos = { ...blokkPos, vis: false }; return; }
+		const aktiver = vim && visning === 'kilde' && vimSt.modus !== 'insert';
+		if (!aktiver) { blokkPos = { ...blokkPos, vis: false }; return; }
+		const ta = linjeTa;
+		const pos = Math.min(ta.selectionStart ?? 0, (ta.value ?? '').length);
+		// speil med identiske fonter/mål — tekst fram til markøren + merket tegn
+		const tegn = ta.value[pos] ?? ' ';
+		maalEl.style.width = Math.max(0, ta.clientWidth - 24) + 'px'; // 24 = textarea-padding
+		maalEl.textContent = '';
+		const foran = document.createTextNode(ta.value.slice(0, pos));
+		const merke = document.createElement('span');
+		merke.textContent = tegn === '\n' ? ' ' : tegn;
+		maalEl.appendChild(foran);
+		maalEl.appendChild(merke);
+		const boks = merke.getBoundingClientRect();
+		const maalBoks = maalEl.getBoundingClientRect();
+		blokkPos = {
+			vis: true,
+			x: boks.left - maalBoks.left - ta.scrollLeft,
+			y: boks.top - maalBoks.top - ta.scrollTop,
+			w: Math.max(boks.width, 8),
+			h: boks.height
+		};
+	}
+	let markorKlasse = $derived(vimSt.modus === 'insert' ? 'ins' : vimSt.modus === 'visual' || vimSt.modus === 'vline' ? 'vis' : 'norm');
 	let linjenumre = $derived(Array.from({ length: Math.max(1, (tekst ?? '').split('\n').length) }, (_, i) => i + 1));
+	$effect(() => { visning; vim; vimSt.modus; requestAnimationFrame(oppdaterMarkor); });
+	$effect(() => {
+		if (!vim || visning !== 'kilde') return;
+		const paa = (e) => requestAnimationFrame(oppdaterMarkor);
+		document.addEventListener('selectionchange', paa);
+		return () => document.removeEventListener('selectionchange', paa);
+	});
 	function byttVim() {
 		vim = !vim;
 		vimSt = nyVimTilstand();
@@ -43,6 +81,7 @@
 	function vimTast(e) {
 		if (!vim || visning !== 'kilde') return;
 		if (vimKeydown(e, linjeTa, vimSt, { lagre })) e.preventDefault();
+		requestAnimationFrame(oppdaterMarkor);
 	}
 	function chipPaaLinje() {
 		// hybrid: chips/tags vises kun på linjen markøren står i
@@ -215,7 +254,7 @@
 							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
 						</div>
 						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
-						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : 'NORMAL')}</span>{/if}
+						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
@@ -231,15 +270,24 @@
 										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
 									</div>
 								{/if}
-								<textarea
-									class="fb-kilde"
-									bind:this={linjeTa}
-									bind:value={tekst}
-									spellcheck="false"
-									placeholder="Skriv her …"
-									onscroll={synkGutter}
-									onkeydown={vimTast}
-								></textarea>
+								<div class="fb-kilde-innpakning">
+									<textarea
+										class="fb-kilde"
+										class:vim-norm={vim && vimSt.modus !== 'insert'}
+										bind:this={linjeTa}
+										bind:value={tekst}
+										spellcheck="false"
+										placeholder="Skriv her …"
+										onscroll={() => { synkGutter(); requestAnimationFrame(oppdaterMarkor); }}
+										onkeydown={vimTast}
+										oninput={() => requestAnimationFrame(oppdaterMarkor)}
+										onclick={() => requestAnimationFrame(oppdaterMarkor)}
+									></textarea>
+									{#if blokkPos.vis}
+										<div class="fb-blok-markor {markorKlasse}" bind:this={blokkEl} style="left:{blokkPos.x}px; top:{blokkPos.y}px; width:{blokkPos.w}px; height:{blokkPos.h}px;"></div>
+									{/if}
+									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
+								</div>
 							</div>
 						{/if}
 						{#if visning === 'dele' || visning === 'forhandsvisning'}

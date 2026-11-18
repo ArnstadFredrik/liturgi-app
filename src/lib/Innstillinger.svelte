@@ -87,14 +87,19 @@
 				'Flytt innholdet',
 				'Behold gamle filer',
 				async () => {
-					const m = await window.liturgi.forbMigrer(gammel, r.sti);
-					if (!m?.ok) { forbJobber = false; return; }
-					await lagreNy();
+					try {
+						const m = await window.liturgi.forbMigrer(gammel, r.sti);
+						if (m?.ok) await lagreNy();
+					} finally {
+						forbJobber = false; // spinneren skal aldri henge, uansett feil
+					}
 				},
-				lagreNy
+				async () => {
+					try { await lagreNy(); } finally { forbJobber = false; }
+				}
 			);
 		} else {
-			await lagreNy();
+			try { await lagreNy(); } catch (err) { console.error('Kunne ikke lagre mappevalg:', err); } finally { forbJobber = false; }
 		}
 	}
 

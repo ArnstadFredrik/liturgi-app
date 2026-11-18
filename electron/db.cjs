@@ -13,6 +13,8 @@ function openDb() {
 	fs.mkdirSync(dir, { recursive: true });
 	db = new Database(path.join(dir, 'liturgi.db'));
 	db.pragma('journal_mode = WAL');
+	// vent på lås i stedet for å kaste SQLITE_BUSY ved samtidige skrivere (f.eks. eksterne verktøy)
+	db.pragma('busy_timeout = 5000');
 	db.exec(`
 		CREATE TABLE IF NOT EXISTS settings (
 			key TEXT PRIMARY KEY,
