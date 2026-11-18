@@ -25,7 +25,8 @@ export const app = $state({
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar høyre sidemeny (TOC / prosjekt-tre)
 	portalToc: false, // en modul (Forberedelse) viser innhold i høyre sidemeny
-	forbAktiv: true, // prekenforberedelse-modulen på/av (innstillinger)
+	forbModul: false, // prekenforberedelse-modulen (Kirkeåret kan generere mapper/filer) — standard AV
+	forbRediger: false, // prekenforberedelse-modulen i sidemenyen (redigeringsmodulen) — standard AV
 	vimModus: false, // global vim-binding i redigeringsfeltene
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
@@ -171,9 +172,13 @@ export let pendingLocalTemplates = [];
 
 export function loadStore() {
 	// prekenforberedelse på/av (innstillinger)
-	window.liturgi?.dbGet?.('prekenforberedelseAktiv')?.then?.((r) => {
-		app.forbAktiv = (r?.value ?? '1') !== '0';
+	window.liturgi?.dbGet?.('forbModul')?.then?.((r) => {
+		app.forbModul = (r?.value ?? '0') === '1';
 	});
+	window.liturgi?.dbGet?.('forbRediger')?.then?.((r) => {
+		app.forbRediger = (r?.value ?? '0') === '1';
+	});
+	window.liturgi?.dbSet?.('prekenforberedelseAktiv', null)?.catch?.(() => {}); // gammel nøkkel ryddes
 	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {
 		app.vimModus = (r?.value ?? '0') === '1';
 	});

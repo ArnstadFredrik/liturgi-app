@@ -12,7 +12,8 @@
 	const kortSti = (sti) => (sti || '').replace(/^\/Users\/[^/]+(?=\/|$)/, '~');
 	let jobber = false;
 	let innFane = $state('generelt'); // generelt | prekenforberedelse
-	let forbAktiv = $state(true); // hele prekenforberedelse-modulen på/av
+	let forbModul = $state(false); // Kirkeårets generering + prekenforberedelse-knappen
+	let forbRediger = $state(false); // modulen i sidemenyen (redigeringsmodulen)
 	let vimAktiv = $state(false); // global vim-modus
 	let versjon = '';
 	let bygg = '';
@@ -20,9 +21,12 @@
 	onMount(async () => {
 		if (!isElectron) return;
 		try {
-			const fa = await window.liturgi.dbGet('prekenforberedelseAktiv');
-			forbAktiv = (fa?.value ?? '1') !== '0';
-			app.forbAktiv = forbAktiv;
+const fm = await window.liturgi.dbGet('forbModul');
+			forbModul = (fm?.value ?? '0') === '1';
+			app.forbModul = forbModul;
+			const fr = await window.liturgi.dbGet('forbRediger');
+			forbRediger = (fr?.value ?? '0') === '1';
+			app.forbRediger = forbRediger;
 			const vm = await window.liturgi.dbGet('vimModus');
 			vimAktiv = app.vimModus = (vm?.value ?? '0') === '1';
 		} catch { /* db utilgjengelig */ }
@@ -94,10 +98,18 @@
 		window.liturgi.dbSet('vimModus', v ? '1' : '0').catch(() => {});
 	}
 
-	function settForbAktiv(v) {
-		forbAktiv = v;
-		app.forbAktiv = v;
-		window.liturgi.dbSet('prekenforberedelseAktiv', v ? '1' : '0').catch(() => {});
+function settForbModul(v) {
+		forbModul = v;
+		app.forbModul = v;
+		window.liturgi.dbSet('forbModul', v ? '1' : '0').catch(() => {});
+		// modulen av → redigeringsmodulen kan ikke være på
+		if (!v && forbRediger) settForbRediger(false);
+	}
+
+	function settForbRediger(v) {
+		forbRediger = v;
+		app.forbRediger = v;
+		window.liturgi.dbSet('forbRediger', v ? '1' : '0').catch(() => {});
 	}
 
 	async function velgForbMappe() {
@@ -276,14 +288,27 @@
 			<div class="inn-kort">
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Aktiver prekenforberedelser</div>
+						<div class="inn-rad-tittel">Prekenforberedelse-modulen</div>
 						<div class="inn-rad-beskriv">
-							Slår av/på hele modulen: knappen i sidemenyen og knappen i
-							Kirkeåret skjules når modulen er av. Filene dine røres ikke.
+							Gjør modulen tilgjengelig: knappen «Prekenforberedelse» i
+							Kirkeårsoversikten kan generere mapper og filer til
+							kirkeårsdagen. Filene dine røres ikke.
 						</div>
 					</div>
-					<button class="inn-handling" class:av={!forbAktiv} onclick={() => settForbAktiv(!forbAktiv)}>
-						{forbAktiv ? 'På' : 'Av'}
+					<button class="inn-handling" class:av={!forbModul} onclick={() => settForbModul(!forbModul)}>
+						{forbModul ? 'På' : 'Av'}
+					</button>
+				</div>
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Redigeringsmodulen</div>
+						<div class="inn-rad-beskriv">
+							Viser «Prekenforberedelse» i sidemenyen, med redigering av
+							notat, preken og tekster. Krever at modulen er på.
+						</div>
+					</div>
+					<button class="inn-handling" class:av={!forbRediger} disabled={!forbModul} onclick={() => settForbRediger(!forbRediger)}>
+						{forbRediger ? 'På' : 'Av'}
 					</button>
 				</div>
 			{#if !isElectron}
