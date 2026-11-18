@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { regenererBibliotek } from '$lib/fileio.svelte.js';
+	import { valgModal } from '$lib/modal.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -55,6 +56,45 @@
 			salmePass = '';
 		} else {
 			salmeStatusTekst = 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
+		}
+	}
+
+	// prekenforberedelser: mappe (db-nøkkel 'prekenforberedelseMappe') + migrering
+	let forbMappe = $state('');
+	let forbJobber = $state(false);
+
+	onMount(async () => {
+		if (!isElectron) return;
+		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
+		forbMappe = r?.ok ? (r.value ?? '') : '';
+	});
+
+	async function velgForbMappe() {
+		const r = await window.liturgi.forbVelgMappe();
+		if (!r?.ok || !r.sti || r.sti === forbMappe) return;
+		const gammel = forbMappe;
+		forbJobber = true;
+		const lagreNy = async () => {
+			await window.liturgi.dbSet('prekenforberedelseMappe', r.sti);
+			forbMappe = r.sti;
+			forbJobber = false;
+		};
+		if (gammel) {
+			// gammel mappe finnes — spør om innholdet skal flyttes til den nye plassen
+			valgModal(
+				'Flytte innholdet?',
+				`Vil du flytte innholdet i «${gammel}» til «${r.sti}»? Den gamle mappen fjernes hvis den blir tom.`,
+				'Flytt innholdet',
+				'Behold gamle filer',
+				async () => {
+					const m = await window.liturgi.forbMigrer(gammel, r.sti);
+					if (!m?.ok) { forbJobber = false; return; }
+					await lagreNy();
+				},
+				lagreNy
+			);
+		} else {
+			await lagreNy();
 		}
 	}
 
@@ -119,6 +159,36 @@
 							siste gudstjenester gjelder kun Mac-appen.
 						</div>
 					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	<div class="inn-seksjon">
+		<div class="inn-seksjon-tittel">Prekenforberedelse</div>
+		<div class="inn-kort">
+			{#if !isElectron}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Ikke tilgjengelig</div>
+						<div class="inn-rad-beskriv">Prekenforberedelser er kun tilgjengelig i Mac-appen.</div>
+					</div>
+				</div>
+			{:else}
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Mappe for prekenforberedelser</div>
+						<div class="inn-rad-beskriv">
+							{#if forbMappe}
+								Prosjektene dine ligger i <code>{forbMappe}</code>.
+							{:else}
+								Ikke valgt ennå — standardmappen (<code>~/Documents/Liturgi/forberedelse</code>)
+								foreslås første gang du starter en prekenforberedelse fra Kirkeåret.
+							{/if}
+							Endrer du mappen spørres du om innholdet skal flyttes til den nye plassen.
+						</div>
+					</div>
+					<button class="inn-handling" onclick={velgForbMappe} disabled={forbJobber}>{forbJobber ? 'Lagrer …' : 'Velg mappe …'}</button>
 				</div>
 			{/if}
 		</div>

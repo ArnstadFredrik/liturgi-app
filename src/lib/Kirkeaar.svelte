@@ -258,6 +258,78 @@
 		return litHtml(innhold);
 	}
 
+	/** Prekenforberedelse: opprett prosjekt for valgt dag og åpne modulen. */
+	const REKKE_NAVN = { I: 'Første', II: 'Andre', III: 'Tredje' };
+	function datoTekst(iso) {
+		const d = new Date(iso + 'T12:00:00');
+		const dager = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
+		const mnd = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+		return dager[d.getDay()] + ' ' + d.getDate() + '. ' + mnd[d.getMonth()] + ' ' + d.getFullYear();
+	}
+	function byggNotat(dag) {
+		const linjer = [
+			'# ' + dag.name,
+			'',
+			'- **Dato:** ' + datoTekst(dag.date),
+			'- **Liturgisk farge:** ' + (dag.color || '—'),
+			'- **Tekstrekke:** ' + (dag.series || '—') + (dag.periodInfo ? ' · ' + dag.periodInfo : ''),
+			'',
+			'## Tekster',
+			'- **Første lesning:** ' + (dag.L1 || '—'),
+			'- **Andre lesning:** ' + (dag.L2 || '—'),
+			'- **Evangelium:** ' + (dag.E || '—'),
+			''
+		];
+		if (dag.prayer) linjer.push('## Dagens bønn', '', dag.prayer, '');
+		linjer.push('## Salmer', '', '| Nr | Tittel | Liturgi |', '|----|--------|---------|', '|    |        |         |', '', '## Notater', '');
+		return linjer.join('\n');
+	}
+	function byggMeditasjon(dag, t) {
+		const linjer = ['# Tekstmeditasjon — ' + dag.name, ''];
+		const del = (tittel, ref, txt) => {
+			// tekstene er objekter { title, text } (hentTekster) — ikke rå strenger
+			const ren = txt ? ((txt.title ? '**' + txt.title + '**\n' : '') + (txt.text ?? '')) : '';
+			linjer.push('## ' + tittel + (ref ? ' — ' + ref : ''), '');
+			linjer.push(ren || '*Teksten er ikke hentet — åpne Kirkeåret med nettforbindelse og prøv igjen.*', '');
+		};
+		del('Evangelium', dag.E, t?.E);
+		del('Første lesning', dag.L1, t?.L1);
+		del('Andre lesning', dag.L2, t?.L2);
+		return linjer.join('\n');
+	}
+	async function prekenforberedelse() {
+		if (!valgtDag) return;
+		let mappe = '';
+		if (isElectron) {
+			const r = await window.liturgi.dbGet('prekenforberedelseMappe');
+			mappe = r?.ok ? (r.value ?? '') : '';
+			if (!mappe) {
+				// første gang: dialogen foreslår standardmappen og lar brukeren velge annen
+				const v = await window.liturgi.forbVelgMappe();
+				if (!v?.ok) return;
+				mappe = v.sti;
+				await window.liturgi.dbSet('prekenforberedelseMappe', mappe);
+			}
+		} else return;
+		const start = church_startYear(valgtDag.date) ?? new Date(valgtDag.date).getFullYear();
+		const rekke = REKKE_NAVN[valgtDag.series] ?? (valgtDag.series || 'Første');
+		const aaMappe = start + '-' + (start + 1) + ' - ' + rekke + ' Rekke';
+		const r = await window.liturgi.forbLagProsjekt({
+			mappe,
+			dagNavn: aaMappe + '/' + valgtDag.name,
+			filer: {
+				'notat.md': byggNotat(valgtDag),
+				'preken.md': '# Preken — ' + valgtDag.name + '\n\n',
+				'tekstmeditasjon.md': byggMeditasjon(valgtDag, valgtTekster)
+			}
+		});
+		if (!r?.ok) return;
+		app.forbAapneSti = r.sti + '/notat.md';
+		app.current = null;
+		app.kind = null;
+		app.visning = 'forberedelse';
+	}
+
 	/** Undertittel: dato · liturgisk farge · tekstrekke. */
 	function undertittel(dag) {
 		const deler = [dag.date];
@@ -272,6 +344,9 @@
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
 			<span class="ka-nett" class:off={!online}>{online ? 'Online — bibeltekster hentes fra bibel.no' : 'Offline — viser kun referanser'}</span>
+			<button class="ka-forberedelse" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>
+				Prekenforberedelse
+			</button>
 		</div>
 
 		<div class="ka-sok">

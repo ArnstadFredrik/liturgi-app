@@ -48,6 +48,13 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// DEV: malredigeringsverktøy — main-prosessen avgjør (isPackaged)
 	devTilstand: () => ipcRenderer.invoke('dev:tilstand'),
 	lagreDataJs: (mal) => ipcRenderer.invoke('dev:lagre-datajs', { mal }),
+	// prekenforberedelser: mappe-tre, filer og prosjekt-oppsett
+	forbVelgMappe: (defaultSti) => ipcRenderer.invoke('forb:velg-mappe', { defaultSti }),
+	forbMappe: (p) => ipcRenderer.invoke('forb:mappe', { path: p }),
+	forbLesFil: (p) => ipcRenderer.invoke('forb:les-fil', { path: p }),
+	forbLagreFil: (p, tekst) => ipcRenderer.invoke('forb:lagre-fil', { path: p, tekst }),
+	forbLagProsjekt: (payload) => ipcRenderer.invoke('forb:lag-prosjekt', payload),
+	forbMigrer: (fra, til) => ipcRenderer.invoke('forb:migrer', { fra, til }),
 	// salmedatabasen (gudstjeneste.no)
 	salmeLagreLogin: (user, pass) => ipcRenderer.invoke('salme:lagre-login', { user, pass }),
 	salmeStatus: () => ipcRenderer.invoke('salme:status'),

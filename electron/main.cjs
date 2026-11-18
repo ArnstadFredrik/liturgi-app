@@ -166,6 +166,103 @@ ipcMain.handle('rec:list', () => { try { return { ok: true, list: recList() }; }
 ipcMain.handle('rec:touch', (_e, { path: p, name, date }) => { try { recTouch(p, name, date); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:remove', (_e, { path: p }) => { try { recRemove(p); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:counts', () => { try { return { ok: true, counts: bibCounts() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+
+// ---------- prekenforberedelser: mappe-tre, filer og prosjekt-oppsett ----------
+const FORB_STD = () => path.join(app.getPath('documents'), 'Liturgi', 'forberedelse');
+const forbMappeLagret = () => dbGet('prekenforberedelseMappe') || '';
+
+/** Katalog-oppføring: mapper + .md-filer (ikke skjulte). */
+function forbListe(dir) {
+	const ut = [];
+	for (const navn of fs.readdirSync(dir).sort((a, b) => a.localeCompare(b, 'nb'))) {
+		if (navn.startsWith('.')) continue;
+		const full = path.join(dir, navn);
+		const st = fs.statSync(full);
+		if (st.isDirectory()) ut.push({ navn, sti: full, mappe: true, children: forbListe(full) });
+		else if (navn.toLowerCase().endsWith('.md')) ut.push({ navn, sti: full, mappe: false });
+	}
+	return ut;
+}
+
+ipcMain.handle('forb:velg-mappe', async (_e, { defaultSti }) => {
+	try {
+		const win = BrowserWindow.getFocusedWindow();
+		const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+			title: 'Velg mappe for prekenforberedelser',
+			defaultPath: defaultSti || forbMappeLagret() || FORB_STD(),
+			properties: ['openDirectory', 'createDirectory']
+		});
+		if (canceled || !filePaths?.length) return { ok: false, canceled: true };
+		return { ok: true, sti: filePaths[0] };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+ipcMain.handle('forb:mappe', (_e, { path: p }) => {
+	try {
+		const mappe = forbMappeLagret() || p;
+		if (!mappe || !fs.existsSync(mappe)) return { ok: true, entries: [], tom: true };
+		return { ok: true, entries: forbListe(p || mappe) };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+ipcMain.handle('forb:les-fil', (_e, { path: p }) => {
+	try {
+		return { ok: true, tekst: fs.readFileSync(p, 'utf8'), mtime: fs.statSync(p).mtimeMs };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+ipcMain.handle('forb:lagre-fil', (_e, { path: p, tekst }) => {
+	try {
+		fs.mkdirSync(path.dirname(p), { recursive: true });
+		fs.writeFileSync(p, tekst, 'utf8');
+		return { ok: true, mtime: fs.statSync(p).mtimeMs };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+ipcMain.handle('forb:lag-prosjekt', (_e, { mappe, dagNavn, filer }) => {
+	try {
+		const dagMappe = path.join(mappe, dagNavn);
+		fs.mkdirSync(dagMappe, { recursive: true });
+		const laget = [];
+		for (const [navn, innhold] of Object.entries(filer ?? {})) {
+			const full = path.join(dagMappe, navn);
+			if (!fs.existsSync(full)) {
+				fs.writeFileSync(full, innhold, 'utf8');
+				laget.push(navn);
+			}
+		}
+		return { ok: true, sti: dagMappe, laget };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
+ipcMain.handle('forb:migrer', (_e, { fra, til }) => {
+	try {
+		if (!fra || !til || fra === til) return { ok: true, antall: 0 };
+		fs.mkdirSync(til, { recursive: true });
+		let antall = 0;
+		if (fs.existsSync(fra)) {
+			for (const navn of fs.readdirSync(fra)) {
+				fs.renameSync(path.join(fra, navn), path.join(til, navn));
+				antall++;
+			}
+			// gammel mappe fjernes bare hvis den nå er tom (aldri slette innhold)
+			try { fs.rmdirSync(fra); } catch { /* ikke tom — beholdes */ }
+		}
+		return { ok: true, antall };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
 ipcMain.handle('bib:user:list', () => { try { return { ok: true, rows: bibUserList() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:user:add', (_e, r) => { try { return { ok: true, id: bibUserAdd(r) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:user:update', (_e, { id, r }) => { try { bibUserUpdate(id, r); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
