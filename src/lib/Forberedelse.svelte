@@ -12,8 +12,10 @@
 	let mappe = $state('');
 	let klar = $state(false);
 
-	// tre + editor
-	let entries = $state([]); // [{ navn, sti, mappe, children }]
+	// tre + editor (barn lastes LAZY per mapper — én IPC per utvidelse)
+	let entries = $state([]); // [{ navn, sti, mappe }] — toppnivå
+	let barn = $state({}); // sti → [{ navn, sti, mappe }] (lastet ved utvidelse)
+	let lasterBarn = $state({}); // sti → true underlasting
 	let aapneMapper = $state({}); // sti → true/false
 	let valgtSti = $state('');
 	let tekst = $state('');
@@ -60,15 +62,29 @@
 		await lastTre();
 	}
 
-	function toggleMappe(sti) {
-		aapneMapper = { ...aapneMapper, [sti]: !aapneMapper[sti] };
+	async function toggleMappe(sti) {
+		const aapne = !aapneMapper[sti];
+		aapneMapper = { ...aapneMapper, [sti]: aapne };
+		if (aapne && barn[sti] === undefined) {
+			lasterBarn = { ...lasterBarn, [sti]: true };
+			const r = await window.liturgi.forbMappe(sti);
+			barn = { ...barn, [sti]: r?.ok ? (r.entries ?? []) : [] };
+			lasterBarn = { ...lasterBarn, [sti]: false };
+		}
+	}
+
+	/** Barn til en mapper-rad: lastede, eller tom liste mens de lastes. */
+	function barnFor(e) {
+		return barn[e.sti] ?? [];
 	}
 
 	/** Ulagrede endringer → spør om å forkaste (løser med true/false). */
 	function bekreftForkast() {
 		return new Promise((resolve) => {
 			if (!dirty) return resolve(true);
-			valgModal('Ulagrede endringer', 'Du har endringer i «' + (valgtSti.split('/').pop() ?? '') + '» som ikke er lagret. Forkaste dem?', 'Forkast', 'Fortsett redigering', () => resolve(true));
+			let svart = false;
+			const svar = (v) => { if (!svart) { svart = true; resolve(v); } };
+			valgModal('Ulagrede endringer', 'Du har endringer i «' + (valgtSti.split('/').pop() ?? '') + '» som ikke er lagret. Forkaste dem?', 'Forkast', 'Fortsett redigering', () => svar(true), () => svar(false));
 		});
 	}
 
@@ -129,23 +145,29 @@
 					<p class="fb-ingress">Opprett prosjekter fra <strong>Kirkeåret</strong>-modulen.</p>
 				</div>
 				{/if}
-				{#snippet tre(liste, nivaa)}
-					{#each liste as e (e.sti)}
-						{#if e.mappe}
-							<button class="fb-mappe" style="padding-left: {8 + nivaa * 14}px" onclick={() => toggleMappe(e.sti)}>
-								{@html mdi('folder-open-outline', 15)} {e.navn}
-							</button>
-							{#if aapneMapper[e.sti]}
-								{@render tre(e.children ?? [], nivaa + 1)}
+				{#snippet rad(e, nivaa)}
+					{#if e.mappe}
+						<button class="fb-mappe" style="padding-left: {8 + nivaa * 14}px" onclick={() => toggleMappe(e.sti)}>
+							{@html mdi(aapneMapper[e.sti] ? 'folder-open-outline' : 'folder-outline', 15)} {e.navn}
+						</button>
+						{#if aapneMapper[e.sti]}
+							{#if lasterBarn[e.sti]}
+								<p class="fb-laster" style="padding-left: {8 + (nivaa + 1) * 14}px">Laster …</p>
+							{:else}
+								{#each barnFor(e) as b (b.sti)}
+									{@render rad(b, nivaa + 1)}
+								{/each}
 							{/if}
-						{:else}
-							<button class="fb-fil" class:sel={valgtSti === e.sti} style="padding-left: {8 + nivaa * 14 + 4}px" onclick={() => aapneFil(e.sti)}>
-								{@html mdi('file-document-outline', 14)} {e.navn.replace(/\.md$/i, '')}
-							</button>
 						{/if}
-					{/each}
+					{:else}
+						<button class="fb-fil" class:sel={valgtSti === e.sti} style="padding-left: {8 + nivaa * 14 + 4}px" onclick={() => aapneFil(e.sti)}>
+							{@html mdi('file-document-outline', 14)} {e.navn.replace(/\.md$/i, '')}
+						</button>
+					{/if}
 				{/snippet}
-				{@render tre(entries, 0)}
+				{#each entries as e (e.sti)}
+					{@render rad(e, 0)}
+				{/each}
 			</div>
 			<div class="fb-editor">
 				{#if !valgtSti}

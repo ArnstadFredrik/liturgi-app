@@ -171,14 +171,18 @@ ipcMain.handle('bib:counts', () => { try { return { ok: true, counts: bibCounts(
 const FORB_STD = () => path.join(app.getPath('documents'), 'Liturgi', 'forberedelse');
 const forbMappeLagret = () => dbGet('prekenforberedelseMappe') || '';
 
-/** Katalog-oppføring: mapper + .md-filer (ikke skjulte). */
+/** Katalog-oppføring ÉN mapper-nivå om gangen (lazyes i treet): mapper + .md-filer.
+ *  Ingen rekursjon og ingen symlink-following — en stor mappe (eller en sky-mappe
+ *  med aliaser) kan ellers fryse appen i minutter ved mount/oppdatering. */
 function forbListe(dir) {
 	const ut = [];
 	for (const navn of fs.readdirSync(dir).sort((a, b) => a.localeCompare(b, 'nb'))) {
 		if (navn.startsWith('.')) continue;
 		const full = path.join(dir, navn);
-		const st = fs.statSync(full);
-		if (st.isDirectory()) ut.push({ navn, sti: full, mappe: true, children: forbListe(full) });
+		let st;
+		try { st = fs.lstatSync(full); } catch { continue; } // f.eks. forsvunnet fil
+		if (st.isSymbolicLink()) continue; // aldri følg lenker (loop- og skymappe-vern)
+		if (st.isDirectory()) ut.push({ navn, sti: full, mappe: true });
 		else if (navn.toLowerCase().endsWith('.md')) ut.push({ navn, sti: full, mappe: false });
 	}
 	return ut;
