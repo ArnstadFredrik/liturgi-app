@@ -755,12 +755,13 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	if (spor) spor.push({ type: 'fase', navn: 'p3-etter-seksjoner' });
 	// sidetall «side/total» i bunnen av hver side (etter at alt innhold er tegnet)
 	const totalt = doc.getNumberOfPages();
+	const sidetallY = mm.h - (marger === 'smal' ? 3.5 : 6); // smal marg → sidetallet litt lenger ned
 	for (let i = 1; i <= totalt; i++) {
 		doc.setPage(i);
 		doc.setFont('times', 'normal');
 		doc.setFontSize(9);
 		doc.setTextColor(136, 136, 136);
-		doc.text(`${i}/${totalt}`, mm.w / 2, mm.h - 6, { align: 'center' });
+		doc.text(`${i}/${totalt}`, mm.w / 2, sidetallY, { align: 'center' });
 	}
 	if (spor) spor.push({ type: 'fase', navn: 'p4-etter-sidetall' });
 	const uri = doc.output('datauristring');
