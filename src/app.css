@@ -562,9 +562,10 @@ textarea {
 #editor.skjul-salmeinfo .et-linje[data-type='copyright'] { display: none; }
 /* salmeinfo skjult: HELE elementet som bare består av @COPYRIGHT-info.
    (display:none på spanet alene lar linje-wrapperen stå igjen som tom linje) */
-#editor.skjul-salmeinfo :is(p, div, li):has(> .copyright:only-child),
-#editor.skjul-salmeinfo .lit-text > div:has(> .copyright:only-child),
-#editor.skjul-salmeinfo .copyright:only-child { display: none; }
+/* salmeinfo skjult: copyright-linjene OG deres linjeskift skjules (ellers
+   står tomme linjer igjen — <br>-elementene er ikke skjult av span-skjuling) */
+#editor.skjul-salmeinfo .copyright { display: none; }
+#editor.skjul-salmeinfo .br-info { display: none; }
 /* salmeinfo skjult: HELE linjen (blokken) som bare inneholder @COPYRIGHT-info
    skal bort — ellers står det igjen tomme linjer i forhåndsvisningen */
 #editor.skjul-salmeinfo :is(p, div, li):has(> .copyright:only-child) { display: none; }
@@ -967,6 +968,10 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ppt-flyt-zoom { position: sticky; bottom: 12px; align-self: center; display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.18); z-index: 5; }
 /* indikator: første side i et nytt ledd — accentlinje langs venstre kant */
 .ppt-side.ledd-start::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
+/* mørke slides: accenten (#6c9bd1 lys / #3a5f8a mørk tema) er for like den svarte
+   bakgrunnen — bruk en lysere blå på markøren uavhengig av app-temaet */
+.ppt-side.ledd-start::before { background: #8FC7FF; }
+.ppt-side.lys.ledd-start::before { background: #C0392B; }
 .ppt-side { position: relative; width: 480px; aspect-ratio: 16 / 9; background: #0D0D0F; border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; overflow: hidden; }
 /* lys bakgrunn: hvite slides med mørk tekst (rolle-rød og grå tilpasset) */
 .ppt-side.lys { background: #FFFFFF; }
