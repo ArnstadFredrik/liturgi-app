@@ -149,6 +149,33 @@
 			inner.scrollTo({ top: Math.max(0, el.offsetTop - inner.offsetTop - 8), behavior: 'smooth' });
 		}
 	};
+	/** PRINT-profilene: klikk på et ledd → rull PDF-forhåndsvisningen til leddets side. */
+	function visSide(slot) {
+		const side = window.__eksLeddSider?.[slot];
+		if (!side) return;
+		kobletLås = Date.now() + 900;
+		rullTil([...document.querySelectorAll('#eks-forhvisning .eks-side')][side - 1]);
+	}
+	/** PRINT-profilene: klikk på en side → rull leddlisten til leddet på den siden. */
+	function visSideRad(sideNr) {
+		const kart = window.__eksLeddSider ?? {};
+		let best = null;
+		for (const [slot, p] of Object.entries(kart)) {
+			if (p <= sideNr && (best == null || p > kart[best])) best = slot;
+		}
+		if (!best) {
+			// fall tilbake til seksjonen
+			const skart = window.__eksSecSider ?? {};
+			for (const [s, p] of Object.entries(skart)) if (p <= sideNr && (best == null || p > skart[best])) best = 'sec:' + s;
+		}
+		if (best == null) return;
+		kobletLås = Date.now() + 900;
+		hoppOver.liste = true;
+		const el = best.startsWith('sec:')
+			? document.querySelector('.eksport-seksjon[data-sec="' + best.slice(4) + '"]')
+			: document.querySelector('.eksport-liste [data-slot="' + best + '"]');
+		rullTil(el);
+	}
 	function pinnehendelse(node, tilZoom = null) {
 		let avstand = null;
 		let start = null; // {x, y, scrollX, scrollY} for panning
@@ -278,13 +305,26 @@
 			pdfSider = sider;
 			// Avsnitt → side-kartlegging (brukes av Avsnitt-listen i høyremenyen)
 			const kart = {};
+			const leddKart = {}; // 'si:ii' → side (klikk på ledd → rull til siden)
 			(app.current?.sections ?? []).forEach((sec, i) => {
 				const t = (sec.title || '').replace(/\s+/g, ' ').trim();
-				if (t.length < 2) return;
-				const idx = sider.findIndex((side) => side.ops.some((op) => op.type === 'text' && op.text.replace(/\s+/g, ' ').includes(t)));
-				if (idx >= 0) kart[i] = idx + 1;
+				let fra = 0;
+				if (t.length >= 2) {
+					const idx = sider.findIndex((side) => side.ops.some((op) => op.type === 'text' && op.text.replace(/\s+/g, ' ').includes(t)));
+					if (idx >= 0) { kart[i] = idx + 1; fra = idx; }
+				}
+				// per-ledd: første side (fra seksjonens side og utover) med leddets overskrift
+				(sec.items ?? []).forEach((it, ii) => {
+					if (it.enabled === false) return;
+					const h = (it.heading || '').replace(/\s+/g, ' ').trim();
+					if (h.length < 2) return;
+					for (let p = fra; p < sider.length; p++) {
+						if (sider[p].ops.some((op) => op.type === 'text' && op.text.replace(/\s+/g, ' ').includes(h))) { leddKart[i + ':' + ii] = p + 1; break; }
+					}
+				});
 			});
 			window.__eksSecSider = kart;
+			window.__eksLeddSider = leddKart;
 			rendrerStatus = 'oppdatert';
 			setTimeout(() => { rendrerStatus = ''; }, 1500);
 		} catch (e) {
@@ -1060,7 +1100,7 @@
 					{#each sec.items as it, ii (nokkel(si, ii))}
 						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}
 						data-slot={nokkel(si, ii)}
-						onclick={(e) => { if (aktiv === 'Skjerm' && !e.target.closest('button, input, label, textarea, select, a')) visSlide(nokkel(si, ii)); }}
+						onclick={(e) => { if (e.target.closest('button, input, label, textarea, select, a')) return; if (aktiv === 'Skjerm') visSlide(nokkel(si, ii)); else visSide(nokkel(si, ii)); }}
 						oncontextmenu={(e) => menyLedd(e, si, ii)}
 						ondragover={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) e.preventDefault(); }}
 						ondrop={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'item', slot: nokkel(si, ii) }); dragEkstra = null; } }}>
@@ -1154,7 +1194,7 @@
 
 						{#if aktiv === 'Skjerm'}
 			<div id="eks-ppt" use:pinnehendelse={pptZoomTil} use:lenket>
-				<div class="ppt-side-liste">
+				<div class="ppt-side-liste" use:lenket>
 					{#each pptSlides as slide, si (si)}
 						<div class="ppt-rad">
 							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank} class:ledd-start={slide.leddStart} class:lys={slide.lys}
@@ -1193,7 +1233,8 @@
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
 					{#each pdfSider as side, si}
-						<div class="eks-side" style="width: {side.w * PX_PER_MM * zoomNivå}px">
+						<div class="eks-side" style="width: {side.w * PX_PER_MM * zoomNivå}px"
+							onclick={() => { if (aktiv !== 'Skjerm') visSideRad(si + 1); }}>
 							<svg class="eks-pdf-svg" viewBox="0 0 {side.w} {side.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side {si + 1}" style="width: {side.w * PX_PER_MM * zoomNivå}px; display: block; background: white">
 								{#each side.ops as op}
 									{#if op.type === 'text'}
