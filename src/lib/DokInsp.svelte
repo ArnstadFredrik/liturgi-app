@@ -34,7 +34,7 @@
 
 	async function oppdaterInnhold(k) {
 		try {
-			const tekster = await hentTekster(k.day, await lesTeksterCache());
+			const tekster = await hentTekster(k.day, await lesTeksterCache(), k.series);
 			applyKirkeaar(o, k, tekster);
 			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
 			markDirty();

@@ -162,7 +162,7 @@
 		aapne = { L1: false, L2: false, E: false };
 		let t = null;
 		if (online) {
-			try { t = await hentTekster(dag.day, await lesTeksterCache()); } catch { t = null; }
+			try { t = await hentTekster(dag.day, await lesTeksterCache(), dag.series); } catch { t = null; }
 		}
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
 		valgtTekster = t;
