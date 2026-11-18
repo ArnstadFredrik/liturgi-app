@@ -5,7 +5,7 @@
 	import EditableText from './EditableText.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
 	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const STANDARD = '~/Documents/Liturgi/forberedelse';
@@ -23,7 +23,9 @@
 	$effect(() => {
 		if (!mappe) return;
 		appStore.portalToc = true; // vis høyre sidemenyen
-		if (appStore.tocSkjult) appStore.tocSkjult = false;
+		// untrack: tocSkjult skal IKKE være en avhengighet (ellers overskriver
+		// effekten brukerens åpne/lukk-klikk)
+		untrack(() => { if (appStore.tocSkjult) appStore.tocSkjult = false; });
 		return () => { appStore.portalToc = false; };
 	});
 
@@ -234,7 +236,7 @@
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
 					<div class="fb-felter">
 						{#if visning !== 'kilde'}
-							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} />
+							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={vim} vimSt={vimSt} vimLagre={lagre} />
 						{:else}
 							<div class="fb-kilde-rad">
 								{#if vim}
