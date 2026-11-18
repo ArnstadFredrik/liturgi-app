@@ -539,10 +539,11 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			forrigeTom = false;
 			const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
+			const notat = it.pptNotat ?? heading; // egendefinert slidenotat (notatvisningen) går foran overskriften
 			if (it.type === 'salme' && salmeTekst(it)) {
 				// salmer: hver vers (tomlinjeseparert) på hver sin slide, overskrift med på første
 				if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
-					addSlide('', false, heading);
+					addSlide('', false, notat);
 					for (const ekstra of (valg.ekstra ?? [])) {
 						if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
 					}
@@ -552,7 +553,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				vers.forEach((v, vi) => {
 					const overskrift = vi === 0 && visLeddtitler && heading ? heading + '\n' : '';
 					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse);
-					grupper.forEach((grp, gi) => addSlide(grp, false, vi === 0 && gi === 0 ? heading : ''));
+					grupper.forEach((grp, gi) => addSlide(grp, false, vi === 0 && gi === 0 ? notat : ''));
 				});
 				for (const ekstra of (valg.ekstra ?? [])) {
 					if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
@@ -574,8 +575,8 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				lines.push(it.text);
 			}
 			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim()) : (visLeddtitler && heading ? heading.trim() : '');
-			if (!joined) { addSlide('', false, heading); }
-			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) addSlide(grp, false, gi === 0 ? heading : '');
+			if (!joined) { addSlide('', false, notat); }
+			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) addSlide(grp, false, gi === 0 ? notat : '');
 			// egne slides plassert etter dette leddet
 			for (const ekstra of (valg.ekstra ?? [])) {
 				if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
