@@ -3,6 +3,7 @@
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
 	import { litHtml } from '$lib/lit.js';
+	import { mdi } from '$lib/mdi.js';
 	import { app } from '$lib/store.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
