@@ -35,6 +35,7 @@
 	let pptTittelSkala = $state(1);     // skala på tittelsliden (40 pt grunn)
 	let pptEkstra = $state([]);         // ekstra sider: { tittel, innhold }
 	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
+	let pptLys = $state(false);         // lys bakgrunn på slidene (standard mørk)
 	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
@@ -78,9 +79,23 @@
 	function fraForhvisning() {
 		if (!app.eksKoblet || Date.now() < kobletLås) return;
 		if (hoppOver.visning) { hoppOver.visning = false; return; }
-		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
 		const liste = document.querySelector('.eksport-liste');
-		if (!inner || !liste) return;
+		if (!liste) return;
+		if (aktiv === 'Skjerm') {
+			// lysbildene ↔ leddlisten: finn øverste synlige slide → slotten → raden
+			const sider = [...document.querySelectorAll('#eks-ppt .ppt-side')];
+			if (!sider.length) return;
+			const vp = sider[0].parentElement.getBoundingClientRect();
+			let idx = 0;
+			sider.forEach((s, i) => { if (s.getBoundingClientRect().top <= vp.top + 40) idx = i; });
+			const slot = slotForSlide(idx);
+			if (!slot) return;
+			const rad = liste.querySelector('.eksport-rad[data-slot="' + slot + '"]');
+			if (rad) { hoppOver.liste = true; rullTil(rad); }
+			return;
+		}
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		if (!inner) return;
 		const topp = inner.scrollTop + 40;
 		const kart = window.__eksSecSider ?? {};
 		let sec = null;
@@ -95,10 +110,23 @@
 	function fraListe() {
 		if (!app.eksKoblet || Date.now() < kobletLås) return;
 		if (hoppOver.liste) { hoppOver.liste = false; return; }
-		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
 		const liste = document.querySelector('.eksport-liste');
-		if (!inner || !liste) return;
+		if (!liste) return;
 		const topp = liste.scrollTop + 40;
+		if (aktiv === 'Skjerm') {
+			// leddlisten ↔ lysbildene: finn øverste synlige leddrad → slotten → sliden
+			let slot = null;
+			for (const rad of liste.querySelectorAll('.eksport-rad[data-slot]')) {
+				if (rad.offsetTop - liste.offsetTop <= topp && pptSlidePos[rad.dataset.slot] !== undefined) slot = rad.dataset.slot;
+			}
+			if (slot == null) return;
+			const idx = pptSlidePos[slot];
+			const el = [...document.querySelectorAll('#eks-ppt .ppt-side')][idx];
+			if (el) { hoppOver.visning = true; rullTil(el); }
+			return;
+		}
+		const inner = document.querySelector('#eks-forhvisning .eks-forh-inner');
+		if (!inner) return;
 		let sec = null;
 		for (const hode of liste.querySelectorAll('.eksport-seksjon[data-sec]')) {
 			if (hode.offsetTop - liste.offsetTop <= topp) sec = +hode.dataset.sec;
@@ -204,6 +232,7 @@
 			pptTittelSkala = o.eksportPptx?.tittelSkala ?? 1;
 			pptEkstra = JSON.parse(JSON.stringify(o.eksportPptx?.ekstra ?? []));
 			pptLeddtitler = o.eksportPptx?.leddtitler ?? false;
+			pptLys = o.eksportPptx?.lysBakgrunn ?? false;
 			pptJustering = o.eksportPptx?.justering ?? 'center';
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
@@ -456,7 +485,7 @@
 		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
 		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
 		const slides = [];
-		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, lys: pptLys, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
 		const emitEkstra = (ekstra, slot) => {
@@ -675,10 +704,11 @@
 
 	/** Klikk på et lysbilde → scroll leddoversikten til riktig rad. */
 	function visListeRad(slot) {
-		document.querySelector('.eksport-liste [data-slot="' + slot + '"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		kobletLås = Date.now() + 900;
+		rullTil(document.querySelector('.eksport-liste [data-slot="' + slot + '"]'));
 	}
 
-	/** Klikk på ET LYSBILDE → scroll leddoversikten til riktig ledd. */
+	/** Klikk på et ledd i oversikten → scroll forhåndsvisningen til slidet. */
 	let pptSlotVed = []; // slideindeks → slot (fylles i byggPptSlides)
 	function slotForSlide(idx) {
 		for (let i = Math.min(idx, pptSlotVed.length - 1); i >= 0; i--) {
@@ -690,8 +720,20 @@
 	function visSlide(slot) {
 		const idx = pptSlidePos[slot];
 		if (idx === undefined) return;
-		const el = [...document.querySelectorAll('#eks-ppt .ppt-side')][idx];
-		el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		kobletLås = Date.now() + 900;
+		rullTil([...document.querySelectorAll('#eks-ppt .ppt-side')][idx]);
+	}
+	/** Scroll ETTERDET: kun innenfor forhåndsvisningsruten (første rullbare forfar) — aldri
+	 *  vinduet (scrollIntoView rullet hele siden, slik at top-bar-en forsvant). */
+	function rullTil(el) {
+		if (!el) return;
+		for (let n = el.parentElement; n; n = n.parentElement) {
+			const st = getComputedStyle(n);
+			if (n.scrollHeight > n.clientHeight + 2 && /(auto|scroll)/.test(st.overflowY)) {
+				n.scrollTop += el.getBoundingClientRect().top - n.getBoundingClientRect().top - 8;
+				return;
+			}
+		}
 	}
 
 	function leggTilPptSide() {
@@ -861,7 +903,8 @@
 			ekstra: pptEkstra,
 			visTittel: pptVisTittel,
 			visLeddtitler: pptLeddtitler,
-			justering: pptJustering
+			justering: pptJustering,
+			lysBakgrunn: pptLys
 		}, isElectron);
 		if (res) {
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -936,6 +979,7 @@
 					<button class="eks-toggle" class:paa={pptVisTittel} title="Tittelslide med navn og dato" onclick={() => { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }}>{@html mdi('presentation', 14)} Tittelslide</button>
 					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
 					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
+					<button class="eks-toggle" class:paa={pptLys} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
 					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>+ Ekstra side</button>
 				</div>
@@ -1109,11 +1153,11 @@
 			</div>
 
 						{#if aktiv === 'Skjerm'}
-			<div id="eks-ppt" use:pinnehendelse={pptZoomTil}>
+			<div id="eks-ppt" use:pinnehendelse={pptZoomTil} use:lenket>
 				<div class="ppt-side-liste">
 					{#each pptSlides as slide, si (si)}
 						<div class="ppt-rad">
-							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank} class:ledd-start={slide.leddStart}
+							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank} class:ledd-start={slide.leddStart} class:lys={slide.lys}
 								style="width: {480 * pptZoom}px"
 								title={slide.leddStart ? 'Første side i leddet' + (slide.notat ? ': ' + slide.notat : '') : undefined}
 								onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
