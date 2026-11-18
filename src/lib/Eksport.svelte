@@ -1031,7 +1031,7 @@
 					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
 					<button class="eks-toggle" class:paa={pptLys} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
 					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
-					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>+ Ekstra side</button>
+					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
 				</div>
 			</div>
 			{:else}

@@ -999,8 +999,13 @@ svg.sf-ikon { vertical-align: -0.35em; }
 #app:has(#forberedelse) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
 #forberedelse { display: flex; flex-direction: column; max-width: 1100px; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
 .fb-ingress { color: var(--muted); font-size: 13px; }
-.fb-oppsett { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 20px; }
-.fb-hovedknapp { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--accent-dim); color: var(--accent); cursor: pointer; font-weight: 600; }
+	.fb-oppsett { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: auto 0; padding: 40px 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); text-align: center; max-width: 520px; align-self: center; }
+	.fb-oppsett-ikon { color: var(--accent); opacity: 0.9; }
+	.fb-oppsett-tittel { font-size: 15px; font-weight: 600; }
+.fb-hovedknapp { display: inline-flex; align-items: center; gap: 7px; font: inherit; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent-dim); color: var(--accent); cursor: pointer; font-weight: 600; }
+.fb-hovedknapp:hover { background: var(--accent); color: var(--bg, #fff); }
+.fb-tom { display: flex; flex-direction: column; gap: 4px; padding: 18px 10px; }
+.fb-editor-tom { align-items: flex-start; padding: 26px 12px; }
 .fb-kolonner { display: flex; gap: 16px; flex: 1; min-height: 0; margin-top: 14px; }
 .fb-tre { flex: 0 0 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 8px 6px; }
 .fb-tre-hode { display: flex; align-items: center; justify-content: space-between; padding: 2px 8px 8px; }
@@ -1009,7 +1014,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-fil { color: var(--muted); }
 .fb-fil.sel { background: var(--accent-dim); color: var(--accent); }
 .fb-fil:hover, .fb-mappe:hover { background: var(--panel2, var(--border)); }
-.fb-tom { color: var(--muted); font-size: 12px; font-style: italic; padding: 6px 8px; }
+
 .fb-editor { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 12px 14px; }
 .fb-editor-hode { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
 .fb-filnavn { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

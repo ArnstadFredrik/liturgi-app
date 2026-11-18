@@ -107,22 +107,27 @@
 		<p class="fb-ingress">Laster …</p>
 	{:else if !mappe}
 		<div class="fb-oppsett">
+			<div class="fb-oppsett-ikon">{@html mdi('notebook', 34)}</div>
+			<div class="fb-oppsett-tittel">Prekenforberedelse</div>
 			<p class="fb-ingress">
-				Velg mappen for prekenforberedelsene dine. Standard er
+				Velg mappen der prosjektene skal ligge. Standard er
 				<code>{STANDARD}</code> — du kan velge en annen mappe i dialogen.
 				Valget lagres og kan endres i innstillingene.
 			</p>
-			<button class="fb-hovedknapp" onclick={velgMappe}>Velg mappe …</button>
+			<button class="fb-hovedknapp" onclick={velgMappe}>{@html mdi('folder-open-outline', 16)} Velg mappe …</button>
 		</div>
 	{:else}
 		<div class="fb-kolonner">
 			<div class="fb-tre">
 				<div class="fb-tre-hode">
 					<span class="sidehead">Prosjekter</span>
-					<button class="ikon-btn" title="Oppdater mappen" onclick={lastTre}>{@html mdi('loading', 15)}</button>
+					<button class="ikon-btn" title="Oppdater mappen" onclick={lastTre}>{@html mdi('refresh', 15)}</button>
 				</div>
 				{#if !entries.length}
-					<p class="fb-tom">Mappen er tom. Opprett prosjekter fra Kirkeåret-modulen.</p>
+					<div class="fb-tom">
+					<p class="fb-ingress">Mappen er tom.</p>
+					<p class="fb-ingress">Opprett prosjekter fra <strong>Kirkeåret</strong>-modulen.</p>
+				</div>
 				{/if}
 				{#snippet tre(liste, nivaa)}
 					{#each liste as e (e.sti)}
@@ -144,7 +149,10 @@
 			</div>
 			<div class="fb-editor">
 				{#if !valgtSti}
-					<p class="fb-ingress">Velg en fil i listen — eller opprett et prosjekt fra Kirkeåret-modulen.</p>
+					<div class="fb-tom fb-editor-tom">
+						<p class="fb-ingress">Velg en fil i listen.</p>
+						<p class="fb-ingress">Nye prosjekter opprettes fra <strong>Kirkeåret</strong>-modulen.</p>
+					</div>
 				{:else}
 					<div class="fb-editor-hode">
 						<span class="fb-filnavn">{valgtSti.slice(mappe.length + 1) || valgtSti}</span>
@@ -154,7 +162,7 @@
 							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'}>Kilde</button>
 							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
 						</div>
-						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{jobber ? 'Lagrer …' : '💾 Lagre'}</button>
+						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
 					<div class="fb-felter" class:dele={visning === 'dele'}>
