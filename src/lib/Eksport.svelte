@@ -226,6 +226,7 @@
 	 *  (buildPdfBase64 med tegnesporing) og rendres som SVG side for side —
 	 *  identiske linjebrudd og paginering, uten pdf.js-rasterisering. */
 	let pdfSider = $state([]); // { w, h, ops: [{ type: 'text'|'line', … }] } per side
+	const PX_PER_MM = 250 / 148; // forhåndsvisningsskala: A5-kortet er 250 px bredt ved zoom 1
 	let rendrerStatus = $state(''); // '' | 'oppdatert' — toast over visningen
 	let innstVersjon = $state(0); // økes ved setInnst — garanterer at forhåndsvisningen re-rendrer
 	$effect(() => {
@@ -1033,11 +1034,11 @@
 					<p class="eks-forhvisning-lader">Rendrer forhåndsvisning …</p>
 				{:else}
 					{#each pdfSider as side, si}
-						<div class="eks-side" class:a4={getInnst('storrelse', 'A5') === 'A4'} style="width: {250 * zoomNivå}px">
-							<svg class="eks-pdf-svg" viewBox="0 0 {side.w} {side.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side {si + 1}" style="width: {250 * zoomNivå}px; display: block; background: white">
+						<div class="eks-side" style="width: {side.w * PX_PER_MM * zoomNivå}px">
+							<svg class="eks-pdf-svg" viewBox="0 0 {side.w} {side.h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side {si + 1}" style="width: {side.w * PX_PER_MM * zoomNivå}px; display: block; background: white">
 								{#each side.ops as op}
 									{#if op.type === 'text'}
-									<text x={op.x} y={op.y} font-size={op.size} font-family={op.font === 'helvetica' ? 'Helvetica, Arial, sans-serif' : '"Times New Roman", Times, serif'} fill={op.color} font-weight={op.style === 'bold' || op.style === 'bolditalic' ? 'bold' : 'normal'} font-style={op.style === 'italic' || op.style === 'bolditalic' ? 'italic' : 'normal'} xml:space="preserve">{op.text}</text>
+									<text x={op.x} y={op.y} font-size={op.size * 0.35278} font-family={op.font === 'helvetica' ? 'Helvetica, Arial, sans-serif' : '"Times New Roman", Times, serif'} fill={op.color} font-weight={op.style === 'bold' || op.style === 'bolditalic' ? 'bold' : 'normal'} font-style={op.style === 'italic' || op.style === 'bolditalic' ? 'italic' : 'normal'} xml:space="preserve">{op.text}</text>
 									{:else if op.type === 'line'}
 									<line x1={op.x1} y1={op.y1} x2={op.x2} y2={op.y2} stroke={op.color} stroke-width={op.width} />
 									{/if}
