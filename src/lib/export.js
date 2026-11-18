@@ -456,21 +456,28 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const pptx = new PptxGenJS();
 	pptx.layout = 'LAYOUT_16x9';
 	const tomSlide = !!valg.tomSlide;
+	const lys = !!valg.lysBakgrunn; // lys bakgrunn: hvite slides med mørk tekst (teksten forblir lesbar)
+	// farger: mørk standard, lys variant med tilpasset rød/grå
+	const fBakgrunn = lys ? 'FFFFFF' : '0D0D0F';
+	const fTekst = lys ? '1A1A1E' : 'E8E8EC';
+	const fRod = lys ? 'C0392B' : 'FF6B5E';
+	const fGraa = lys ? '666666' : 'A0A0A8';
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
 	const visLeddtitler = !!valg.visLeddtitler; // leddtitler på slidene (standard av)
 	const justering = valg.justering ?? 'center'; // tekstjustering: left | center | right (standard senter)
 	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 38); // grunn 38 pt
 	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
-	const addSlide = (segs, big = false, notat = '') => {
+	const addSlide = (segs, big = false, notat = '', blank = false) => {
 		const s = pptx.addSlide();
-		s.background = { color: '0D0D0F' };
+		s.background = { color: fBakgrunn };
 		if (notat) s.addNotes(notat);
+		if (blank) return; // tom mellomside — ingen tekst
 		// segs: tekst eller array av {text, red}. NB: forhåndsvisningen rendrer segmentene
 		// INLINE — linjeskift kommer KUN fra '\n'-segmentene. breakLine på hvert run ga
 		// rolle-prefikser på egne linjer og doble linjeskift i eksporten (likte ikke visningen).
 		const parts = typeof segs === 'string'
-			? [{ text: segs, options: { fontSize: big ? tittelStorrelse : tekstStorrelse, bold: big, color: 'E8E8EC' } }]
+			? [{ text: segs, options: { fontSize: big ? tittelStorrelse : tekstStorrelse, bold: big, color: fTekst } }]
 			: (() => {
 				const ut = [];
 				for (const seg of segs) {
@@ -482,7 +489,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 							bold: big || !!seg.red || !!seg.bold,
 							italics: !!seg.italics || !!seg.small,
 							superscript: !!seg.sup,
-							color: seg.red ? 'FF6B5E' : seg.small ? 'A0A0A8' : 'E8E8EC', breakLine: false
+							color: seg.red ? fRod : seg.small ? fGraa : fTekst, breakLine: false
 						}
 					});
 				}
@@ -518,7 +525,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 		// blank side mellom leddene (unngå dobbeltom)
 		if (!tomSlide || forrigeTom) return;
 		const s = pptx.addSlide();
-		s.background = { color: '0D0D0F' };
+		s.background = { color: fBakgrunn };
 		forrigeTom = true;
 	};
 
