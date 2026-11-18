@@ -186,8 +186,9 @@ export function nlDate(d) {
 	});
 }
 
-/** Flat oversikt for eksport: [{heading, text, instr, empty}] */
-export function buildOutline(svc, showInstr) {
+/** Flat oversikt for eksport: [{heading, text, instr, empty}]
+ *  valg.visAvsnittstitler === false → hoveddel-overskriftene (h2) utelates. */
+export function buildOutline(svc, showInstr, valg = {}) {
 	const out = [];
 	if (svc.__visTittel !== false) {
 		out.push({ heading: 'h1', text: svc.name });
@@ -196,6 +197,7 @@ export function buildOutline(svc, showInstr) {
 	}
 
 	for (const sec of svc.sections) {
+		if (valg.visAvsnittstitler === false) continue;
 		out.push({ heading: 'h2', text: sec.title });
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
@@ -237,7 +239,7 @@ const blobTilBase64 = (blob) => new Promise((res) => {
 });
 
 export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = false) {
-	const outline = buildOutline(svc, showInstr);
+	const outline = buildOutline(svc, showInstr, valg);
 	// layouten skal samsvare med PDF-eksporten (se buildPdfBase64):
 	// sorte fete sans-overskrifter (Arial = PDFs Helvetica), Times-brødtekst,
 	// røde rollemerker, grå små fotnoter, samme mellomrom (mm → twips: 1 mm ≈ 56,7)
@@ -711,20 +713,24 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		if (svc.date || svc.kirkeaar?.name) {
 			skrivLinjer([svc.date ? nlDate(svc.date) : '', svc.kirkeaar?.name ?? ''].filter(Boolean).join(' · '), { gray: true, italics: true, size: S(10) });
 		}
+		y += hefte ? 2.5 : 4; // kun når tittelen faktisk er tegnet (ellers ekstra luft over første ledd)
 	}
 	if (spor) spor.push({ type: 'fase', navn: 'p1-tittel' });
-	y += hefte ? 2.5 : 4;
 
+	// hoveddel-overskriftene («Forberedelse», «Hoveddel» …) kan utelates fra siden
+	const visAvsnittstitler = valg.visAvsnittstitler !== false;
 	for (const sec of svc.sections) {
-		y += hefte ? 4 : 8; // luft over hoveddel-overskriften (ny seksjon)
+		y += hefte ? 4 : (visAvsnittstitler ? 8 : 4); // luft før seksjonen (mindre når overskriften utelates)
 		nySideHvisNodvendig(12);
-		skrivLinjer(sec.title, { bold: true, size: S(11, 'hoveddel'), sans: true });
-		// horisontal linje under hoveddel-overskriften (skiller den fra leddoverskriftene)
-		const linjeY = y + 1;
-		doc.setDrawColor(180, 180, 180);
-		doc.setLineWidth(0.3);
-		doc.line(x0(), linjeY, x0() + colW, linjeY);
-		y = linjeY + (hefte ? 1 : 1.5);
+		if (visAvsnittstitler) {
+			skrivLinjer(sec.title, { bold: true, size: S(11, 'hoveddel'), sans: true });
+			// horisontal linje under hoveddel-overskriften (skiller den fra leddoverskriftene)
+			const linjeY = y + 1;
+			doc.setDrawColor(180, 180, 180);
+			doc.setLineWidth(0.3);
+			doc.line(x0(), linjeY, x0() + colW, linjeY);
+			y = linjeY + (hefte ? 1 : 1.5);
+		}
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
