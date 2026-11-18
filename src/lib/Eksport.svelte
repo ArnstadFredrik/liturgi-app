@@ -449,7 +449,7 @@
 		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
 		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
 		const slides = [];
-		const push = (segs, big = false, blank = false) => slides.push({ big, blank, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		const push = (segs, big = false, blank = false, notat = '') => slides.push({ big, blank, notat, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
 		const emitEkstra = (ekstra, slot) => {
@@ -478,34 +478,40 @@
 					continue;
 				}
 				tom();
-				const heading = pptLeddtitler
-					? (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
-						? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '')
-					: '';
+				// rå overskrift (uavhengig av «Leddtitler») — brukes i slidenotatet
+				const raaHeading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
+					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
+				const heading = pptLeddtitler ? raaHeading : '';
 				if (it.type === 'salme' && salmeTekst(it)) {
-					if (it.__visInnhold === false) continue; // «vis innhold» av
 					pptSlidePos[nokkel(si, ii)] = slides.length;
 					pptSlotVed[slides.length] = nokkel(si, ii);
+					if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
+						push([{ text: '' }], false, false, raaHeading);
+						for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
+						continue;
+					}
 					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
-					vers.forEach((v) => {
+					vers.forEach((v, vi) => {
 						const overskrift = heading ? heading + '\n' : '';
-						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp);
+						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? raaHeading : '');
 					});
 					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 					continue;
 				}
+				// NB: valgte ledd kommer ALLTID med — selv når valgene (innhold av, ingen leddtitler)
+				// gjør slidet tomt; overskriften havner da i slidenotatet.
 				const lines = [];
-				if (it.type !== 'salme') {
-					if (it.__visInnhold === false) continue; // «vis innhold» av
+				const innholdAv = it.__visInnhold === false;
+				if (it.type !== 'salme' && !innholdAv) {
 					if (visInstrValg && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, '')); // samme som eksporten
 					const t = leddTekst(it);
 					if (t) lines.push(t);
 				}
 				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
-				if (!joined) continue;
 				pptSlidePos[nokkel(si, ii)] = slides.length;
 				pptSlotVed[slides.length] = nokkel(si, ii);
-				for (const grp of delPptSegs(roleSegments(joined), tekstStorrelse)) push(grp);
+				if (!joined) { push([{ text: '' }], false, false, raaHeading); }
+				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? raaHeading : '');
 				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
 		}
@@ -1076,6 +1082,9 @@
 									<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
 								{/each}
 							</div>
+							{/if}
+							{#if slide.notat}
+							<span class="ppt-side-notat" title={'Notat: ' + slide.notat}>{@html mdi('script-text-outline', 12)}</span>
 							{/if}
 							<span class="ppt-side-nr">{si + 1}</span>
 						</div>
