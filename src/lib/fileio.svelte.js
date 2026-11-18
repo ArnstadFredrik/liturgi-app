@@ -720,7 +720,7 @@ function lagreSomMalFraMeny() {
 }
 
 /** Kjør en meny-handling (brukes av mac-menyen og Cmd+K-kommandopaletten). */
-export function kjorMenyId(id) {
+export async function kjorMenyId(id) {
 	switch (id) {
 		case 'ny-gudstjeneste': nyGudtjenesteFraMeny(); break;
 		case 'ny-gravferd': nyGudtjenesteFraMeny('gravferd'); break;
@@ -740,6 +740,14 @@ export function kjorMenyId(id) {
 		case 'kirkeaar': app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
 		case 'veksle-vim': veksleVim(); break;
+		case 'forb-modul': app.forbModul = true; app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
+		case 'forb-apne-mappe': {
+			const r = await window.liturgi?.dbGet?.('prekenforberedelseMappe');
+			const m = r?.ok ? (r.value ?? '') : '';
+			if (m) await window.liturgi.apneMappe(m);
+			else { app.current = null; app.kind = null; app.visning = 'innstillinger'; }
+			break;
+		}
 		case 'veksle-sidebar': veksleSidebar(); break;
 		case 'veksle-toc': veksleToc(); break;
 		case 'tema': toggleTheme(); break;

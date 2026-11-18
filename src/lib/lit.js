@@ -37,7 +37,7 @@ export function litHtml(text) {
 	out = out
 		.replace(/^## ?(.+)$/gm, (m, t) => '<span class="md-h md-h2">' + mdInline(t) + '</span>')
 		.replace(/^# ?(.+)$/gm, (m, t) => '<span class="md-h">' + mdInline(t) + '</span>')
-		.replace(/^- (.+)$/gm, (m, t) => '<span class="md-li"><span class="md-bullet">•</span>' + mdInline(t) + '</span>')
+		.replace(/^- (.+)$/gm, (m, t) => '<span class="md-li"><span class="md-bullet">–</span>' + mdInline(t) + '</span>')
 		.replace(/\n/g, '<br>');
 	return mdInlineOutsideTags(out);
 }
@@ -169,7 +169,7 @@ function merkerLinje(type, prefiks, klasse, innhold) {
 	// prefiksen er REDIGERBAR TEKST (mrk-span) — serialiseres som en del av linjen
 	const prefiksHtml = prefiks ? `<span class="mrk">${escapeHtml(prefiks)}</span>` : '';
 	const indre = klasse ? `<span class="${klasse}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold);
-	const chip = type === 'liste' ? '<span class="chip md-bullet">•</span>' : '';
+	const chip = ''; // liste-prefiksen («- ») er allerede synlig som mrk-tekst — ingen ekstra bullet
 	// data-prefiks tom: prefiksen serialiseres som mrk-tekst (ellers dobler den)
 	return `<div class="et-linje" data-type="${type}" data-prefiks="">${prefiksHtml}${chip}${indre}</div>`;
 }

@@ -4,7 +4,9 @@
 	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
+	import { toast } from 'svelte-sonner';
 	import { app } from '$lib/store.svelte.js';
+	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -298,6 +300,15 @@
 		del('Andre lesning', dag.L2, t?.L2);
 		return linjer.join('\n');
 	}
+	/** Åpne prekenforberedelse-mappen i Finder (hvis den er valgt). */
+	async function apneForbMappe() {
+		if (!isElectron) return;
+		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
+		const mappe = r?.ok ? (r.value ?? '') : '';
+		if (!mappe) { toast.info('Velg mappe for prekenforberedelser i Innstillinger først'); return; }
+		await window.liturgi.apneMappe(mappe);
+	}
+
 	async function prekenforberedelse() {
 		if (!valgtDag) return;
 		let mappe = '';
@@ -340,7 +351,10 @@
 	}
 </script>
 
-<div id="kirkeaar-modul">
+<div id="kirkeaar-modul" oncontextmenu={(e) => { e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
+			{ label: 'Prekenforberedelse', action: () => prekenforberedelse(), disabled: !valgtDag },
+			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() }
+		]); }}>
 	<div class="ka-hoved">
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
@@ -350,6 +364,9 @@
 					{@html mdi('pencil', 14)} Prekenforberedelse
 				</button>
 			{/if}
+			<button class="ka-forberedelse" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>
+				{@html mdi('folder-open-outline', 14)} Åpne mappe
+			</button>
 		</div>
 
 		<div class="ka-sok">
