@@ -121,7 +121,7 @@
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				<button onclick={() => addItem(si)}>+ ledd</button>
-				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>🗑</button>
+				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>{@html mdi("delete-outline", 14)}</button>
 			</div>
 			<div class="sec-items">
 				{#each sec.items as it, ii (it.id)}

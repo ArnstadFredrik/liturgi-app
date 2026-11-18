@@ -560,6 +560,11 @@ textarea {
 /* «Vis salmeinfo» av: @COPYRIGHT-linjene skjules i visning og redigering */
 #editor.skjul-salmeinfo .copyright,
 #editor.skjul-salmeinfo .et-linje[data-type='copyright'] { display: none; }
+/* salmeinfo skjult: HELE elementet som bare består av @COPYRIGHT-info.
+   (display:none på spanet alene lar linje-wrapperen stå igjen som tom linje) */
+#editor.skjul-salmeinfo :is(p, div, li):has(> .copyright:only-child),
+#editor.skjul-salmeinfo .lit-text > div:has(> .copyright:only-child),
+#editor.skjul-salmeinfo .copyright:only-child { display: none; }
 /* salmeinfo skjult: HELE linjen (blokken) som bare inneholder @COPYRIGHT-info
    skal bort — ellers står det igjen tomme linjer i forhåndsvisningen */
 #editor.skjul-salmeinfo :is(p, div, li):has(> .copyright:only-child) { display: none; }
@@ -1154,3 +1159,8 @@ sub { font-size: 0.75em; }
 /* hybrid: formaterte tabellrader */
 .md-td { display: inline-block; border: 1px solid var(--border); padding: 1px 10px; margin: 1px 0; border-radius: 3px; }
 .md-td-sep { color: color-mix(in srgb, var(--muted) 60%, transparent); background: color-mix(in srgb, var(--border) 35%, transparent); }
+
+/* salmeledd: litt mer luft over redigeringsverktøylinjen (tekstledd har
+   overskrift/eyebrow som gir naturlig avstand — salmeleddet har ikke det) */
+.item-body > .et-edit:first-child .et-tools,
+.item-body > .salme-knapper ~ .et-edit .et-tools { margin-top: 8px; }

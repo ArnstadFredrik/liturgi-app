@@ -823,7 +823,8 @@
 		// salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) kan ekskluderes per dokument
 		const visSalmeinfo = visSalmeinfoValg;
 		const stripSalmeinfo = (t) => !t ? t
-			: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '').replace(/\n{3,}/g, '\n\n');
+			: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '')
+				.replace(/\n{2,}/g, '\n').replace(/^\n+/, '').replace(/\n+$/, '');
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
@@ -916,7 +917,8 @@
 			let kopi = klonMedValg(o, profil);
 			const res = await exportWord(kopi, instr, base + '.docx', {
 				storrelse: getInnstP(profil, 'storrelse', 'A5'),
-				kolonner: getInnstP(profil, 'kolonner', 1),
+				kolonner: getInnstP(profil, 'kolonner', profil === 'Menighet' ? 2 : 1),
+				marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
 				visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)
 			}, isElectron);
 			if (res) {
@@ -929,7 +931,7 @@
 						let kopi = klonMedValg(o, profil);
 								const { base64 } = buildPdfBase64(kopi, instr, {
 						storrelse: getInnstP(profil, 'storrelse', 'A5'),
-						kolonner: getInnstP(profil, 'kolonner', 1),
+						kolonner: getInnstP(profil, 'kolonner', profil === 'Menighet' ? 2 : 1),
 						marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
 						tittel: getInnstP(profil, 'tittel', true),
 						visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)

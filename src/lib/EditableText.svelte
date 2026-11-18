@@ -20,12 +20,18 @@
 	let html = $state('');
 	let sistSer = '';               // sist serialiserte verdi (hindrer re-render ved egen skriving)
 	let sel = $state({ s: 0, e: 0 });
-	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false, notat: false, liste: false });
+	let rikPaa = $state({ rolle: false, bold: false, italic: false, sup: false, bibelref: false, fotnote: false, notat: false, liste: false, refreng: false });
 
 	const cls = $derived(kind === 'instr' ? 'instr' : kind === 'etikett' ? 'etikett' : 'lit-text');
 	const etikett = $derived(kind === 'etikett');
 
-	function start() {
+function start() {
+		// auto-ferdig: lukk ev. annen redigering som er åpen (teksten oppdateres
+		// fortløpende, så «Ferdig»-klikk per ledd er unødvendig)
+		if (window.__etAktiv && window.__etAktiv !== api && !window.__etAktiv.__gone) {
+			try { window.__etAktiv.done?.(); } catch { }
+		}
+		window.__etAktiv = api;
 		editing = true;
 		merkerIdx = -1;
 		sistSer = value;
@@ -40,6 +46,7 @@
 
 	function done() {
 		editing = false;
+		if (window.__etAktiv === api) window.__etAktiv = null;
 		if (dirty) markDirty();
 	}
 
@@ -728,6 +735,11 @@ function angre() {
 		return !!parOmslutter(v, s, e, PAR[id].open, PAR[id].close);
 	}
 
+	function paaKilde(id) {
+		if (id === 'refreng') return value.includes('{{refreng}}');
+		return false;
+	}
+
 	function linjeAktiv(prefiks) {
 		if (!ta) return false;
 		const v = ta.value, { s, e } = sel;
@@ -804,14 +816,44 @@ function angre() {
 		});
 	}
 
+	/** Refreng: pakk utvalget (eller linjen) i {{refreng}} … {{/refreng}} — fjern hvis allerede pakket. */
+	function veksleRefreng() {
+		if (kilde || etikett) {
+			const t = value;
+			if (t.includes('{{refreng}}')) {
+				value = t.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+			} else {
+				value = '{{refreng}}\n' + t.trim() + '\n{{/refreng}}';
+			}
+			sistSer = value;
+			markDirty();
+			html = litEditHtml(value);
+			return;
+		}
+		// riktekst: serialiser, veksle i verdien, re-render
+		const v = serialiser();
+		if (v == null) return;
+		if (v.includes('{{refreng}}')) {
+			value = v.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+		} else {
+			value = '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
+		}
+		sistSer = value;
+		merkerIdx = -1;
+		merkerVersjon++;
+		if (dirty) markDirty();
+	}
+
 	function knapp(id) {
 		if (etikett) return;
 		if (kilde) {
+			if (id === 'refreng') veksleRefreng();
 			if (id === 'bibelref') veksleLinje('BIBELREF | ');
 			else if (id === 'fotnote') veksleLinje('FOTNOTE | ');
 			else if (id === 'notat') veksleLinje('@NOTAT ');
 			else vekslePar(id);
 		} else {
+			if (id === 'refreng') veksleRefreng();
 			if (id === 'bibelref') rikLinje('BIBELREF | ', 'bibelref');
 			else if (id === 'fotnote') rikLinje('FOTNOTE | ', 'fotnote');
 			else if (id === 'notat') rikLinje('@NOTAT ', 'notat');
@@ -831,6 +873,10 @@ function angre() {
 		return rikPaa[id];
 	}
 
+	// identitet for auto-ferdig-mekanismen (start/done globalt)
+	const api = { done, get __gone() { return unmountet; } };
+	let unmountet = false;
+	$effect(() => () => { unmountet = true; if (window.__etAktiv === api) window.__etAktiv = null; });
 </script>
 
 {#if editing}
@@ -863,6 +909,7 @@ function angre() {
 				<button class="et-tool" class:paa={paa('sup')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('sup')} title={'Hevet versnummer (^{12})'}>{@html mdi('format-superscript', 15)}</button>
 				<span class="et-skiller"></span>
 				<button class="et-tool" class:paa={paa('liste')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('liste')} title="Punktliste (- tekst)">{@html mdi('format-list-bulleted', 15)}</button>
+				<button class="et-tool" class:paa={kilde ? paaKilde('refreng') : rikPaa.refreng} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('refreng')} title="Refreng (&amp;#123;&amp;#123;refreng&#125;&#125; … &#123;&#123;/refreng&#125;&#125;)">{@html mdi('repeat', 15)}</button>
 				<button class="et-tool" class:paa={paa('bibelref')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('bibelref')} title="Bibelreferanse (BIBELREF | )">{@html mdi('book-open-variant', 15)}</button>
 				<button class="et-tool" class:paa={paa('fotnote')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('fotnote')} title="Liten tekstnotis (FOTNOTE | )">{@html mdi('script-text-outline', 15)}</button>
 				<button class="et-tool" class:paa={paa('notat')} onmousedown={(e) => e.preventDefault()} onclick={() => knapp('notat')} title="Scenenotat (@NOTAT )">{@html mdi('comment-quote-outline', 15)}</button>

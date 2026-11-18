@@ -460,7 +460,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	// farger: mørk standard, lys variant med tilpasset rød/grå
 	const fBakgrunn = lys ? 'FFFFFF' : '0D0D0F';
 	const fTekst = lys ? '1A1A1E' : 'E8E8EC';
-	const fRod = lys ? 'C0392B' : 'FF6B5E';
+	const fRod = lys ? 'D93A2B' : 'FF6B5E'; // lys app-modus men mørke slides: sterkere rød (kontrast mot svart)
 	const fGraa = lys ? '666666' : 'A0A0A8';
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
 	const visLeddtitler = !!valg.visLeddtitler; // leddtitler på slidene (standard av)
