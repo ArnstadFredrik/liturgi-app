@@ -1007,6 +1007,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-tom { display: flex; flex-direction: column; gap: 4px; padding: 18px 10px; }
 .fb-editor-tom { align-items: flex-start; padding: 26px 12px; }
 .fb-kolonner { display: flex; gap: 16px; flex: 1; min-height: 0; margin-top: 14px; }
+.fb-kolonner .fb-editor { flex: 1; min-width: 0; }
+.fb-kolonner .fb-tre { flex: 0 0 230px; width: 230px; border-left: 1px solid var(--border); padding: 6px 0 0 12px; overflow-y: auto; }
 .fb-tre { flex: 0 0 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card); padding: 8px 6px; }
 .fb-tre-hode { display: flex; align-items: center; justify-content: space-between; padding: 2px 8px 8px; }
 .fb-mappe, .fb-fil { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; font: inherit; font-size: 12.5px; padding: 5px 8px; border: none; background: transparent; color: var(--foreground); cursor: pointer; border-radius: 6px; }
@@ -1056,3 +1058,28 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* Kirkeåret: prekenforberedelse-knappen */
 .ka-forberedelse { margin-left: auto; font: inherit; font-size: 12px; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--accent-dim); color: var(--accent); cursor: pointer; font-weight: 600; }
 .ka-forberedelse:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- syntax-highlight i kilde-modus (804 - hybrid-runden) ---------- */
+.fb-hl { position: absolute; inset: 0; margin: 0; padding: 12px; pointer-events: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: break-word; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.55; color: var(--foreground); }
+.fb-kilde.gjennomsiktig { color: transparent; background: transparent; caret-color: var(--foreground); }
+.hl-h { color: var(--accent); font-weight: 600; }
+.hl-q { color: var(--muted); font-style: italic; }
+.hl-tbl { color: var(--muted); }
+.hl-mkt { color: var(--accent); opacity: 0.75; }
+.hl-b { font-weight: 600; }
+.hl-i { font-style: italic; }
+.hl-kode { font-family: ui-monospace, 'SF Mono', Menlo, monospace; background: var(--panel2, var(--border)); border-radius: 3px; }
+.hl-chip { color: var(--accent); }
+.hl-rol { color: #c0392b; }
+/* ---------- hybrid-visning (Obsidian live preview) ---------- */
+.hyb { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; background: var(--background); }
+.hyb-linje { min-height: 1.45em; }
+.hyb-linje.hyb-tom { color: var(--muted); }
+.hyb-aktiv-rad { position: relative; }
+.hyb-hl { position: absolute; inset: 0; margin: 0; pointer-events: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: break-word; color: var(--foreground); }
+.hyb-aktiv { position: relative; display: block; width: 100%; border: none; background: transparent; color: transparent; caret-color: var(--foreground); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.55; padding: 0; margin: 0; resize: none; overflow: hidden; outline: none; white-space: pre-wrap; overflow-wrap: break-word; }
+.hyb-hl { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.55; padding: 0; }
+.hyb-aktiv .hl-h { font-weight: 600; }
+/* ---------- prosjekt-tre i høyre sidemeny ---------- */
+#toc-side .fb-tre { padding: 4px 0 0 0; border: none; background: transparent; }
+
