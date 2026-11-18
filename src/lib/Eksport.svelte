@@ -38,6 +38,11 @@
 	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
+	let pptZoom = $state(1);            // zoom på lysbildevisningen (localStorage ppt-zoom)
+	try {
+		const z = localStorage.getItem('ppt-zoom');
+		if (z !== null) pptZoom = Math.min(2, Math.max(0.5, +z || 1));
+	} catch {}
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
 	let zoomNivå = $state(1.5); // kun visning (lagres i lokalStorage) — 150 % er ny standard
@@ -450,7 +455,7 @@
 		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
 		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
 		const slides = [];
-		const push = (segs, big = false, blank = false, notat = '', notatSlot = '') => slides.push({ big, blank, notat, notatSlot, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
 		const emitEkstra = (ekstra, slot) => {
@@ -488,14 +493,14 @@
 					pptSlidePos[nokkel(si, ii)] = slides.length;
 					pptSlotVed[slides.length] = nokkel(si, ii);
 					if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
-						push([{ text: '' }], false, false, notat, nokkel(si, ii));
+						push([{ text: '' }], false, false, notat, nokkel(si, ii), true);
 						for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 						continue;
 					}
 					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 					vers.forEach((v, vi) => {
 						const overskrift = heading ? heading + '\n' : '';
-						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? notat : '', vi === 0 ? nokkel(si, ii) : '');
+						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? notat : '', vi === 0 ? nokkel(si, ii) : '', vi === 0);
 					});
 					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 					continue;
@@ -512,8 +517,8 @@
 				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
 				pptSlidePos[nokkel(si, ii)] = slides.length;
 				pptSlotVed[slides.length] = nokkel(si, ii);
-				if (!joined) { push([{ text: '' }], false, false, notat, nokkel(si, ii)); }
-				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? notat : '', gi === 0 ? nokkel(si, ii) : '');
+				if (!joined) { push([{ text: '' }], false, false, notat, nokkel(si, ii), true); }
+				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? notat : '', gi === 0 ? nokkel(si, ii) : '', gi === 0);
 				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
 		}
@@ -639,6 +644,21 @@
 			{ label: 'Ny side over leddet', action: () => nyPptSideVed(nokkel(si, ii), 'over') },
 			{ label: 'Ny side under leddet', action: () => nyPptSideVed(nokkel(si, ii), 'under') }
 		]);
+	}
+
+	/** Zoom på lysbildevisningen — første synlige slide holder seg synlig. */
+	function pptZoomTil(v) {
+		const liste = document.querySelector('.ppt-side-liste');
+		let anker = null;
+		if (liste) {
+			const st = liste.getBoundingClientRect();
+			for (const s of liste.querySelectorAll('.ppt-side')) {
+				if (s.getBoundingClientRect().bottom > st.top) { anker = s; break; }
+			}
+		}
+		pptZoom = Math.min(2, Math.max(0.5, Math.round(v * 100) / 100));
+		try { localStorage.setItem('ppt-zoom', String(pptZoom)); } catch {}
+		requestAnimationFrame(() => anker?.scrollIntoView({ block: 'start' }));
 	}
 
 	/** Lagre egendefinert slidenotat på leddet (brukes av notatvisningens notatfelt). */
@@ -1089,10 +1109,12 @@
 				<div class="ppt-side-liste">
 					{#each pptSlides as slide, si (si)}
 						<div class="ppt-rad">
-							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}
+							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank} class:ledd-start={slide.leddStart}
+								style="width: {480 * pptZoom}px"
+								title={slide.leddStart ? 'Første side i leddet' + (slide.notat ? ': ' + slide.notat : '') : undefined}
 								onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
 								{#if !slide.blank}
-								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
+								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67 * pptZoom}px; text-align: {pptJustering}">
 									{#each slide.deler as del}
 										<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
 									{/each}
@@ -1109,7 +1131,12 @@
 							{/if}
 						</div>
 					{/each}
-				</div>
+					</div>
+					<div class="ppt-flyt-zoom">
+					<button class="ikon-btn" title="Zoom ut" onclick={() => pptZoomTil(pptZoom - 0.15)}>−</button>
+					<span>{Math.round(pptZoom * 100)} %</span>
+					<button class="ikon-btn" title="Zoom inn" onclick={() => pptZoomTil(pptZoom + 0.15)}>+</button>
+					</div>
 								</div>
 							{:else}
 			<div id="eks-forhvisning">
