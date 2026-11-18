@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import church from 'church-year';
-	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
+	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { app } from '$lib/store.svelte.js';
@@ -162,7 +162,7 @@
 		aapne = { L1: false, L2: false, E: false };
 		let t = null;
 		if (online) {
-			try { t = await hentTekster(dag.day); } catch { t = null; }
+			try { t = await hentTekster(dag.day, await lesTeksterCache()); } catch { t = null; }
 		}
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
 		valgtTekster = t;

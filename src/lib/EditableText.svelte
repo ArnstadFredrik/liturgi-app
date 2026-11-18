@@ -195,6 +195,11 @@
 	let merkerVersjon = $state(0);
 	let venterCaret = null; // { linje, kol } — kol = innholdsoffset i linjen
 
+	/** Lengden på linjeprefiksen (# , - , BIBELREF | …) i verdivisning-linjen. */
+	function prefiksLen(linje) {
+		return value.split('\n')[linje]?.match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
+	}
+
 	/** HYBRID + VIM: kjør vim-motoren mot råverdien via en shim
 	 *  (value/selectionStart/End) — map caret'en tilbake til (linje, kol). */
 	function hybridVim(e) {
@@ -245,6 +250,11 @@
 		sistSer = shim._v;
 		merkerVersjon++;
 		if (dirty) markDirty();
+		if (!hybrid) {
+			// riktekst: verdi-endringen må re-rendere html-en (hybrid gjør det via merkerVersjon)
+			html = litEditHtml(shim._v, -1);
+		}
+		planleggKonvertering();
 		return true;
 	}
 
@@ -265,14 +275,15 @@
 			return pre.toString().length;
 		})();
 		if (L === merkerIdx) return;
-		venterCaret = { linje: L, kol: off };
+		// off målt i DOM: merker-linjen inneholder prefiksen som tekst — trekk den fra
+		venterCaret = { linje: L, kol: Math.max(0, off - prefiksLen(L)) };
 		merkerIdx = L;
 		merkerVersjon++;
 	}
 
 	/** Gjenopprett caret-en i (linje, kol) etter re-renderingen. */
 	$effect(() => {
-		if (!hybrid || kilde || !editing) return;
+		if (kilde || !editing) return;
 		void merkerVersjon;
 		if (merkerIdx < 0 || !venterCaret) return;
 		const { linje, kol } = venterCaret;
@@ -282,7 +293,7 @@
 			if (!le) return;
 			const nySel = window.getSelection();
 			if (!nySel) return;
-			const nyOff = Math.min(kol, le.textContent.length);
+			const nyOff = Math.min(prefiksLen(linje) + kol, le.textContent.length);
 			const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
 				acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
 			});
@@ -367,7 +378,6 @@
 		if (n.tagName === 'BR') return '\n';
 		const cl = n.classList;
 		if (cl.contains('chip')) return '';
-		if (cl.contains('mrk')) return ''; // hybrid: merkene representeres av data-prefiks/strong
 		const indre = [...n.childNodes].map(mdFraNode).join('');
 		const tag = n.tagName;
 		if (tag === 'B' || tag === 'STRONG') return '**' + indre + '**';
@@ -733,7 +743,7 @@
 				spellcheck="false"
 				oninput={rikOppdatert}
 				onbeforeinput={rikBeforeInput}
-				onkeydown={(e) => { if (mdSnarvei(e)) return; if (hybrid && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if (mdSnarvei(e)) return; if (!kilde && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
 		{/if}
 	</div>

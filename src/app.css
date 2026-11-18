@@ -1131,3 +1131,12 @@ sub { font-size: 0.75em; }
 .inn-faner { margin: 6px 0 14px; }
 .inn-handling.av { background: var(--panel2, var(--border)); color: var(--muted); }
 .biblio-faner { margin-bottom: 8px; }
+
+/* vim-statuslinje nederst i redigeringsvinduet */
+.fb-statuslinje { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 3px 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); background: color-mix(in srgb, var(--panel, var(--card)) 60%, transparent); }
+.fb-statuslinje .fb-vim-modus { background: var(--accent); color: var(--accent-fg, #fff); border-radius: 3px; padding: 1px 7px; font-weight: 600; }
+.fb-statuslinje .fb-vim-modus.ins { background: var(--ok, #3a7d44); }
+.fb-statuslinje .fb-status-fil { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* hybrid: merkene som redigerbar tekst (v3) */
+.mrk { color: color-mix(in srgb, var(--muted) 78%, transparent); font-family: inherit; }
+.mrk::selection { background: var(--accent); color: var(--accent-fg, #fff); }

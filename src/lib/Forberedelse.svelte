@@ -1,11 +1,12 @@
 <script>
-	import { app as appStore } from '$lib/store.svelte.js';
+	import { app as appStore, veksleVim } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import EditableText from './EditableText.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
 	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount, untrack } from 'svelte';
+	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const STANDARD = '~/Documents/Liturgi/forberedelse';
@@ -45,8 +46,9 @@
 	// Obsidian-lignende visning: hybrid riktekst, delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
 	let visning = $state('hybrid'); // riktekst | hybrid | kilde
 	// vim-binding (kilde-modus) — valget persisteres i localStorage
-	let vim = $state(false);
+	let vim = $derived(appStore.vimModus); // global bryter (menylinje/kontekstmeny/innstillinger)
 	let vimSt = $state(nyVimTilstand());
+	$effect(() => { if (appStore.vimModus) vimSt = nyVimTilstand(); });
 	let linjeTa = $state(null); // tekstfelt-element (scroll-synk for linjenumrene)
 	let gutterEl = $state(null);
 	let hlEl = $state(null); // syntax-highlight-laget bak tekstarealet
@@ -90,12 +92,7 @@
 		document.addEventListener('selectionchange', paa);
 		return () => document.removeEventListener('selectionchange', paa);
 	});
-	function byttVim() {
-		vim = !vim;
-		vimSt = nyVimTilstand();
-		if (isElectron) { window.liturgi.dbSet('vimModus', vim ? '1' : '0').catch(() => {}); }
-		else { try { localStorage.setItem('forb-vim', vim ? '1' : '0'); } catch {} }
-	}
+
 	function synkGutter() {
 		if (linjeTa && gutterEl) gutterEl.scrollTop = linjeTa.scrollTop;
 	}
@@ -129,6 +126,12 @@
 				const sti = appStore.forbAapneSti;
 				appStore.forbAapneSti = null;
 				await aapneFil(sti);
+			} else {
+				// sist åpne dokument (db) — gjenopprett når modulen åpnes
+				try {
+					const sist = await window.liturgi.dbGet('prekenforberedelseSist');
+					if (sist?.value) await aapneFil(sist.value);
+				} catch { /* db utilgjengelig */ }
 			}
 		}
 	});
@@ -178,7 +181,8 @@
 	}
 
 	async function aapneFil(sti) {
-	valgtRel = sti.startsWith(mappe + '/') ? sti.slice(mappe.length + 1) : sti.split('/').slice(-2).join('/');
+		if (isElectron) window.liturgi.dbSet('prekenforberedelseSist', sti).catch(() => {});
+		valgtRel = sti.startsWith(mappe + '/') ? sti.slice(mappe.length + 1) : sti.split('/').slice(-2).join('/');
 		if (sti === valgtSti) return;
 		if (dirty && !(await bekreftForkast())) return;
 		const r = await window.liturgi.forbLesFil(sti);
@@ -241,14 +245,14 @@
 							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'} title="Kilde: ren markdown med syntax-highlight (vim: aktiver vim-bryteren)">Kilde</button>
 						</div>
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
-						<span class="fb-skiller"></span>
-						<button class="fb-vim" class:sel={vim} title="Vim-bindinger (kilde + hybrid): hj/k/l, i/a/o, x, dd/yy/p, :w" onclick={byttVim}>vim</button>
-						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
-					<div class="fb-felter">
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<div class="fb-felter" oncontextmenu={(e) => { e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
+						{ label: appStore.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', action: () => veksleVim() }
+					]); }}>
 						{#if visning !== 'kilde'}
-							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={vim} vimSt={vimSt} vimLagre={lagre} mdModus={true} />
+							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={appStore.vimModus} vimSt={vimSt} vimLagre={lagre} mdModus={true} />
 						{:else}
 							<div class="fb-kilde-rad">
 								{#if vim}
@@ -277,6 +281,13 @@
 								</div>
 							</div>
 						{/if}
+					</div>
+				{/if}
+				{#if vim}
+					<div class="fb-statuslinje">
+						<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>
+						<span class="fb-status-fil">{valgtRel || '—'}</span>
+						<span class="fb-status-rom">markdown</span>
 					</div>
 				{/if}
 			</div>

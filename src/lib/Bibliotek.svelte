@@ -223,7 +223,5 @@
 			</div>
 		</div>
 	{/if}
-{:else}
-	<Maler />
-{/if}
+	{/if}
 </div>

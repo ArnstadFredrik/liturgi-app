@@ -60,7 +60,7 @@
 		if (!k?.day) return;
 		// plassholder i cachen umiddelbart (unngår dobbelthenting i parallell)
 		cache[dato] = { k, tekster: null };
-		const tekster = navigator.onLine ? await hentTekster(k.day) : null;
+		const tekster = navigator.onLine ? await hentTekster(k.day, await lesTeksterCache()) : null;
 		cache[dato] = { k, tekster };
 		await lagreCache();
 	}

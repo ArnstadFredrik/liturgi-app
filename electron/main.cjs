@@ -558,6 +558,7 @@ function byggMeny(win, st = {}) {
 			submenu: [
 				{ label: 'Sidemeny', accelerator: 'CmdOrCtrl+\\', click: () => send('veksle-sidebar') },
 				{ label: 'Dokumentpanel', accelerator: 'CmdOrCtrl+Alt+\\', click: () => send('veksle-toc') },
+				{ label: 'Vim-modus', type: 'checkbox', checked: !!st.vim, click: () => send('veksle-vim') },
 				{ type: 'separator' },
 				{ label: 'Hjem', accelerator: 'CmdOrCtrl+1', click: () => send('hjem') },
 				{ label: 'Maler', accelerator: 'CmdOrCtrl+2', click: () => send('maler') },

@@ -26,6 +26,7 @@ export const app = $state({
 	tocSkjult: false, // skjulbar høyre sidemeny (TOC / prosjekt-tre)
 	portalToc: false, // en modul (Forberedelse) viser innhold i høyre sidemeny
 	forbAktiv: true, // prekenforberedelse-modulen på/av (innstillinger)
+	vimModus: false, // global vim-binding i redigeringsfeltene
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
@@ -44,6 +45,13 @@ try {
 } catch {}
 
 const TOC_KEY = 'liturgi-toc';
+/** Global vim-modus: brukes av menylinjen, kontekstmenyen og innstillingene. */
+export function veksleVim() {
+	app.vimModus = !app.vimModus;
+	if (isElectron) window.liturgi?.dbSet?.('vimModus', app.vimModus ? '1' : '0');
+	else { try { localStorage.setItem('vim-modus', app.vimModus ? '1' : '0'); } catch {} }
+}
+
 export function veksleToc() {
 	app.tocSkjult = !app.tocSkjult;
 	localStorage.setItem(TOC_KEY, app.tocSkjult ? 'skjult' : 'vis');
@@ -165,6 +173,9 @@ export function loadStore() {
 	// prekenforberedelse på/av (innstillinger)
 	window.liturgi?.dbGet?.('prekenforberedelseAktiv')?.then?.((r) => {
 		app.forbAktiv = (r?.value ?? '1') !== '0';
+	});
+	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {
+		app.vimModus = (r?.value ?? '0') === '1';
 	});
 	if (isElectron) {
 		// maler: innebygde + lokale fra ~/.config/Liturgi/maler (lastes async av fileio)
