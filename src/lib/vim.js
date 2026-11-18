@@ -127,7 +127,8 @@ function motion(st, v, pos, K) {
 	switch (K) {
 		case 'h': case 'ArrowLeft':
 			st.kolOensket = null;
-			return { pos: Math.max(0, pos - teller), linewise: false, inklusiv: false };
+			// vim: h stopper på linjestart (pakker ikke til forrige linje)
+			return { pos: lOff(linjer, li) + Math.max(0, ko - teller), linewise: false, inklusiv: false };
 		case 'l': case 'ArrowRight': case ' ':
 			st.kolOensket = null;
 			return { pos: Math.min(v.length - 1, pos + teller), linewise: false, inklusiv: false };

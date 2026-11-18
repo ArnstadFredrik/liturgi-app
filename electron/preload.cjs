@@ -60,5 +60,6 @@ contextBridge.exposeInMainWorld('liturgi', {
 	salmeStatus: () => ipcRenderer.invoke('salme:status'),
 	salmeLoggUt: () => ipcRenderer.invoke('salme:logg-ut'),
 	salmeHent: (payload) => ipcRenderer.invoke('salme:hent', payload),
+	salmeTestLogin: () => ipcRenderer.invoke('salme:test-login'),
 	salmeHentFlere: (payload) => ipcRenderer.invoke('salme:hent-flere', payload),
 });

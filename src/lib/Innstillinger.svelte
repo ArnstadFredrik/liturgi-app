@@ -7,6 +7,9 @@
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
 	let datamappe = '';
+
+	/** Vis baner relative til hjemmekatalogen (~) — db-en lagrer absolutt bane. */
+	const kortSti = (sti) => (sti || '').replace(/^\/Users\/[^/]+(?=\/|$)/, '~');
 	let jobber = false;
 	let innFane = $state('generelt'); // generelt | prekenforberedelse
 	let forbAktiv = $state(true); // hele prekenforberedelse-modulen på/av
@@ -61,13 +64,18 @@
 		salmeJobber = true;
 		salmeStatusTekst = '';
 		const r = await window.liturgi.salmeLagreLogin(salmeUser.trim(), salmePass);
-		salmeJobber = false;
-		if (r?.ok) {
-			salmeKonfigurert = true;
-			salmePass = '';
-		} else {
+		if (!r?.ok) {
+			salmeJobber = false;
 			salmeStatusTekst = 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
+			return;
 		}
+		// verifiser mot gudstjeneste.no med én gang — brukeren får ekte tilbakemelding
+		salmeStatusTekst = 'Logger inn mot gudstjeneste.no …';
+		const t = await window.liturgi.salmeTestLogin?.();
+		salmeJobber = false;
+		salmeKonfigurert = true;
+		salmePass = '';
+		salmeStatusTekst = t?.ok ? 'Innlogging verifisert ✓' : 'Lagret, men innlogging feilet: ' + (t?.error ?? 'ukjent feil');
 	}
 
 	// prekenforberedelser: mappe (db-nøkkel 'prekenforberedelseMappe') + migrering
@@ -162,15 +170,15 @@
 					<div class="inn-rad-tekst">
 						<div class="inn-rad-tittel">Datamappe</div>
 						<div class="inn-rad-beskriv">
-							Appens data ligger i <code>{datamappe || '~/.config/Liturgi'}</code> og
+							Appens data ligger i <code>{datamappe ? kortSti(datamappe) : '~/.config/Liturgi'}</code> og
 							overlever appoppdateringer. Gudstjenestene lagres som
 							<code>.liturgi</code>-filer der du velger (standard
 							<code>~/Documents/Liturgi/</code>).
 						</div>
 						<div class="inn-stier">
-							<span><code>{datamappe}/maler/originaler/</code> — originalmalene (følger med appen)</span>
-							<span><code>{datamappe}/maler/brukermaler/</code> — dine lokale maler (<code>.limal</code>)</span>
-							<span><code>{datamappe}/liturgi.db</code> — innstillinger, siste gudstjenester og biblioteket</span>
+							<span><code>{kortSti(datamappe)}/maler/originaler/</code> — originalmalene (følger med appen)</span>
+							<span><code>{kortSti(datamappe)}/maler/brukermaler/</code> — dine lokale maler (<code>.limal</code>)</span>
+							<span><code>{kortSti(datamappe)}/liturgi.db</code> — innstillinger, siste gudstjenester og biblioteket</span>
 						</div>
 					</div>
 				</div>
@@ -291,7 +299,7 @@
 						<div class="inn-rad-tittel">Mappe for prekenforberedelser</div>
 						<div class="inn-rad-beskriv">
 							{#if forbMappe}
-								Prosjektene dine ligger i <code>{forbMappe}</code>.
+								Prosjektene dine ligger i <code>{kortSti(forbMappe) || 'ikke valgt'}</code>.
 							{:else}
 								Ikke valgt ennå — standardmappen (<code>~/Documents/Liturgi/forberedelse</code>)
 								foreslås første gang du starter en prekenforberedelse fra Kirkeåret.
