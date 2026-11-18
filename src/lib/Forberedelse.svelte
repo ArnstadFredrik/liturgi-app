@@ -3,7 +3,8 @@
 	import { app as appStore } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import EditableText from './EditableText.svelte';
+	import Hybrid from './Hybrid.svelte';
+	import { uthev } from '$lib/markdown-uthev.js';
 	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount } from 'svelte';
 
@@ -24,13 +25,18 @@
 	let lagretTekst = $state('');
 	let jobber = $state(false);
 	let feil = $state('');
+
+	/** Relativ filsti (under prosjektmappen) til filnavn-visningen. */
+	let valgtRel = $state('');
 	// Obsidian-lignende visning: hybrid riktekst, delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
-	let visning = $state('dele');
+	let visning = $state('dele'); // hybrid | dele | kilde | forhandsvisning
 	// vim-binding (kilde-modus) — valget persisteres i localStorage
 	let vim = $state(false);
 	let vimSt = $state(nyVimTilstand());
 	let linjeTa = $state(null); // tekstfelt-element (scroll-synk for linjenumrene)
 	let gutterEl = $state(null);
+	let hlEl = $state(null); // syntax-highlight-laget bak tekstarealet
+	let hlHtml = $derived(uthev(tekst));
 	let blokkEl = $state(null); // blokkmarkør-overlay (normal/visual)
 	let maalEl = $state(null); // skjult speil for å måle markørposisjonen
 	let blokkPos = $state({ vis: false, x: 0, y: 0, w: 0, h: 0 });
@@ -82,15 +88,6 @@
 		if (!vim || visning !== 'kilde') return;
 		if (vimKeydown(e, linjeTa, vimSt, { lagre })) e.preventDefault();
 		requestAnimationFrame(oppdaterMarkor);
-	}
-	function chipPaaLinje() {
-		// hybrid: chips/tags vises kun på linjen markøren står i
-		if (visning !== 'riktekst') return;
-		const el = document.querySelector('.fb-riktekst .et-linje.markor');
-		document.querySelectorAll('.fb-riktekst .et-linje.markor').forEach((x) => x.classList.remove('markor'));
-		const sel = window.getSelection?.();
-		const linje = sel?.anchorNode?.parentElement?.closest('.et-linje');
-		if (linje) linje.classList.add('markor');
 	}
 
 	let dirty = $derived(tekst !== lagretTekst);
@@ -157,6 +154,7 @@
 	}
 
 	async function aapneFil(sti) {
+	valgtRel = sti.startsWith(mappe + '/') ? sti.slice(mappe.length + 1) : sti.split('/').slice(-2).join('/');
 		if (sti === valgtSti) return;
 		if (dirty && !(await bekreftForkast())) return;
 		const r = await window.liturgi.forbLesFil(sti);
@@ -202,7 +200,66 @@
 		</div>
 	{:else}
 		<div class="fb-kolonner">
-			<div class="fb-tre">
+
+			<div class="fb-editor">
+				{#if !valgtSti}
+					<div class="fb-tom fb-editor-tom">
+						<p class="fb-ingress">Velg en fil i listen.</p>
+						<p class="fb-ingress">Nye prosjekter opprettes fra <strong>Kirkeåret</strong>-modulen.</p>
+					</div>
+				{:else}
+					<div class="fb-editor-hode">
+						<span class="fb-filnavn" title={valgtSti}>{valgtRel}</span>
+						{#if dirty}<span class="fb-dirty">ulagret</span>{/if}
+						<div class="fb-visning-velger">
+							<button class:sel={visning === 'hybrid'} onclick={() => visning = 'hybrid'} title="Hybrid (Obsidian live preview): riktekst, markdown synlig på linjen du redigerer">Hybrid</button>
+							<button class:sel={visning === 'dele'} onclick={() => visning = 'dele'}>Delt</button>
+							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'}>Kilde</button>
+							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
+						</div>
+						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
+						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
+						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
+					</div>
+					{#if feil}<p class="fb-feil">{feil}</p>{/if}
+					<div class="fb-felter" class:dele={visning === 'dele'}>
+						{#if visning === 'hybrid'}
+							<Hybrid bind:value={tekst} nokkel={valgtSti} />
+						{:else if visning !== 'forhandsvisning'}
+							<div class="fb-kilde-rad">
+								{#if vim}
+									<div class="fb-gutter" bind:this={gutterEl}>
+										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
+									</div>
+								{/if}
+								<div class="fb-kilde-innpakning">
+									<pre class="fb-hl" bind:this={hlEl} aria-hidden="true">{@html hlHtml}</pre>
+									<textarea
+										class="fb-kilde gjennomsiktig"
+										class:vim-norm={vim && vimSt.modus !== 'insert'}
+										bind:this={linjeTa}
+										bind:value={tekst}
+										spellcheck="false"
+										placeholder="Skriv her …"
+										onscroll={() => { synkGutter(); if (hlEl) hlEl.scrollTop = linjeTa.scrollTop; requestAnimationFrame(oppdaterMarkor); }}
+										onkeydown={vimTast}
+										oninput={() => requestAnimationFrame(oppdaterMarkor)}
+										onclick={() => requestAnimationFrame(oppdaterMarkor)}
+									></textarea>
+									{#if blokkPos.vis}
+										<div class="fb-blok-markor {markorKlasse}" bind:this={blokkEl} style="left:{blokkPos.x}px; top:{blokkPos.y}px; width:{blokkPos.w}px; height:{blokkPos.h}px;"></div>
+									{/if}
+									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
+								</div>
+							</div>
+						{/if}
+						{#if visning === 'dele' || visning === 'forhandsvisning'}
+							<div class="fb-forhandsvisning lit-text">{@html forhandsvisningHtml}</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+			<aside class="fb-tre" use:portal={'#toc-side'}>
 				<div class="fb-tre-hode">
 					<span class="sidehead">Prosjekter</span>
 					<button class="ikon-btn" title="Oppdater mappen" onclick={lastTre}>{@html mdi('refresh', 15)}</button>
@@ -236,66 +293,7 @@
 				{#each entries as e (e.sti)}
 					{@render rad(e, 0)}
 				{/each}
-			</div>
-			<div class="fb-editor">
-				{#if !valgtSti}
-					<div class="fb-tom fb-editor-tom">
-						<p class="fb-ingress">Velg en fil i listen.</p>
-						<p class="fb-ingress">Nye prosjekter opprettes fra <strong>Kirkeåret</strong>-modulen.</p>
-					</div>
-				{:else}
-					<div class="fb-editor-hode">
-						<span class="fb-filnavn">{valgtSti.slice(mappe.length + 1) || valgtSti}</span>
-						{#if dirty}<span class="fb-dirty">ulagret</span>{/if}
-						<div class="fb-visning-velger">
-							<button class:sel={visning === 'riktekst'} onclick={() => visning = 'riktekst'} title="Hybrid: markdown formateres fortløpende (Obsidian live preview)">Riktekst</button>
-							<button class:sel={visning === 'dele'} onclick={() => visning = 'dele'}>Delt</button>
-							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'}>Kilde</button>
-							<button class:sel={visning === 'forhandsvisning'} onclick={() => visning = 'forhandsvisning'}>Forhåndsvisning</button>
-						</div>
-						<button class="fb-vim" class:sel={vim} title="Vim-bindinger i kildemodus (hj/k/l, i/a/o, x, dd/yy/p, :w)" onclick={byttVim}>vim</button>
-						{#if vim}<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>{/if}
-						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
-					</div>
-					{#if feil}<p class="fb-feil">{feil}</p>{/if}
-					<div class="fb-felter" class:dele={visning === 'dele'} class:rik={visning === 'riktekst'}>
-						{#if visning === 'riktekst'}
-							<div class="fb-riktekst" onselectionchange={chipPaaLinje} onkeyup={chipPaaLinje} onclick={chipPaaLinje}>
-								<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" />
-							</div>
-						{:else if visning !== 'forhandsvisning'}
-							<div class="fb-kilde-rad">
-								{#if vim}
-									<div class="fb-gutter" bind:this={gutterEl}>
-										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
-									</div>
-								{/if}
-								<div class="fb-kilde-innpakning">
-									<textarea
-										class="fb-kilde"
-										class:vim-norm={vim && vimSt.modus !== 'insert'}
-										bind:this={linjeTa}
-										bind:value={tekst}
-										spellcheck="false"
-										placeholder="Skriv her …"
-										onscroll={() => { synkGutter(); requestAnimationFrame(oppdaterMarkor); }}
-										onkeydown={vimTast}
-										oninput={() => requestAnimationFrame(oppdaterMarkor)}
-										onclick={() => requestAnimationFrame(oppdaterMarkor)}
-									></textarea>
-									{#if blokkPos.vis}
-										<div class="fb-blok-markor {markorKlasse}" bind:this={blokkEl} style="left:{blokkPos.x}px; top:{blokkPos.y}px; width:{blokkPos.w}px; height:{blokkPos.h}px;"></div>
-									{/if}
-									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
-								</div>
-							</div>
-						{/if}
-						{#if visning === 'dele' || visning === 'forhandsvisning'}
-							<div class="fb-forhandsvisning lit-text">{@html forhandsvisningHtml}</div>
-						{/if}
-					</div>
-				{/if}
-			</div>
+			</aside>
 		</div>
 	{/if}
 </div>
