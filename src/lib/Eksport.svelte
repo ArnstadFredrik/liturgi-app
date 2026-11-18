@@ -234,7 +234,7 @@
 		if (aktiv === 'Skjerm') { pdfSider = []; rendrerStatus = ''; return; }
 		if (!o || app.kind !== 'service') { pdfSider = []; rendrerStatus = ''; return; }
 		try {
-			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
+			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), visAvsnittstitler: getInnst('visAvsnittstitler', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 			// NB: les RESULTATET, aldri pdfSider-state her — effekten skriver pdfSider,
 			// så å lese den i samme effekt gir en uendelig effekt-loop.
 			const sider = byggPdfSider(klonMedValg(o, aktiv), aktiv === 'Menighet' ? false : visInstrValg, valg).sider;
@@ -736,7 +736,8 @@
 			let kopi = klonMedValg(o, profil);
 			const res = await exportWord(kopi, instr, base + '.docx', {
 				storrelse: getInnst('storrelse', 'A5'),
-				kolonner: getInnst('kolonner', 1)
+				kolonner: getInnst('kolonner', 1),
+				visAvsnittstitler: getInnst('visAvsnittstitler', true)
 			}, isElectron);
 			if (res) {
 				const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -750,7 +751,8 @@
 						storrelse: getInnst('storrelse', 'A5'),
 						kolonner: getInnst('kolonner', 1),
 						marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'),
-						tittel: getInnst('tittel', true)
+						tittel: getInnst('tittel', true),
+						visAvsnittstitler: getInnst('visAvsnittstitler', true)
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 			if (r.ok) { toast.success('PDF: ' + r.filePath); n++; }
@@ -913,6 +915,12 @@
 						<input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} title="gudstjenestenavn og dato med i eksporten" />
 						<div class="eksport-rad-tekst">
 							<span class="eksport-rad-nm">{o.name}{o.date ? ' · ' + datoTekst : ''}</span>
+						</div>
+					</div>
+					<div class="eksport-rad" class:med={getInnst('visAvsnittstitler', true)}>
+						<input type="checkbox" checked={getInnst('visAvsnittstitler', true)} onchange={(e) => setInnst('visAvsnittstitler', e.currentTarget.checked)} title="hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" />
+						<div class="eksport-rad-tekst">
+							<span class="eksport-rad-nm">Hoveddeltitler</span>
 						</div>
 					</div>
 				{/if}
