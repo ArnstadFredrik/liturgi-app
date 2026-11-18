@@ -121,7 +121,7 @@
 			inner.scrollTo({ top: Math.max(0, el.offsetTop - inner.offsetTop - 8), behavior: 'smooth' });
 		}
 	};
-	function pinnehendelse(node) {
+	function pinnehendelse(node, tilZoom = null) {
 		let avstand = null;
 		let start = null; // {x, y, scrollX, scrollY} for panning
 		const bruk = (e) => e.ctrlKey || e.metaKey;
@@ -141,7 +141,8 @@
 		const hjul = (e) => {
 			if (!bruk(e)) return; // vanlig scroll skal forbli vanlig scroll
 			e.preventDefault();
-			zoom(Math.min(2.5, Math.max(0.4, zoomNivå * (1 - e.deltaY * 0.004))));
+			const f = Math.min(2.5, Math.max(0.4, (tilZoom ? pptZoom : zoomNivå) * (1 - e.deltaY * 0.004)));
+			if (tilZoom) tilZoom(f); else zoom(f);
 		};
 		node.addEventListener('wheel', hjul, { passive: false });
 		node.addEventListener('pointerdown', ned);
@@ -1105,7 +1106,7 @@
 			</div>
 
 						{#if aktiv === 'Skjerm'}
-			<div id="eks-ppt">
+			<div id="eks-ppt" use:pinnehendelse={pptZoomTil}>
 				<div class="ppt-side-liste">
 					{#each pptSlides as slide, si (si)}
 						<div class="ppt-rad">
