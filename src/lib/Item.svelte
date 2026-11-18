@@ -7,6 +7,10 @@
 	import { mdi } from '$lib/mdi.js';
 	import { formaterSalme, salmeAlts } from '$lib/lit.js';
 	import EditableText from './EditableText.svelte';
+	import { nyVimTilstand } from '$lib/vim.js';
+	import { veksleVim } from '$lib/store.svelte.js';
+	let vimSt = nyVimTilstand();
+	$effect(() => { if (app.vimModus) vimSt = nyVimTilstand(); });
 
 	let { it, si, ii } = $props();
 
@@ -113,6 +117,7 @@
 		e.preventDefault();
 		const o = app.current;
 		openContextMenu(e.clientX, e.clientY, [
+			{ label: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', action: () => veksleVim() },
 			{ label: 'Flytt opp', action: () => move(-1), disabled: ii === 0 },
 			{ label: 'Flytt ned', action: () => move(1), disabled: ii === items.length - 1 },
 			'sep',
@@ -206,16 +211,16 @@
 					<button class="alt-btn" onclick={velgAlt} title="Velg språkversjon">
 						Bytt språk ({(it.selAlt ?? 0) + 1} av {it.alts.length}{it.alts[it.selAlt ?? 0]?.label ? ': ' + it.alts[it.selAlt ?? 0].label : ''})
 					</button>
-					<EditableText bind:value={it.alts[it.selAlt ?? 0].text} kind="lit" />
+					<EditableText bind:value={it.alts[it.selAlt ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 				{:else}
-					<EditableText bind:value={it.text} kind="lit" />
+					<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 				{/if}
 			{/if}
 		{:else if it.alts && it.alts.length}
 			{#if introAltsLen}
 				<div class="alt-gruppe-tittel">Innledning</div>
 				<div class="alt-cur">
-					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" />
+					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgIntro()}>
 						Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
 					</button>
@@ -223,12 +228,12 @@
 			{/if}
 			{#if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
-				<EditableText bind:value={it.text} kind="lit" />
+				<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 			{/if}
 			<div class="alt-gruppe-tittel">Alternativer</div>
 			{@const sel = it.alts[it.selAlt ?? 0]}
 			<div class="alt-cur">
-				<EditableText bind:value={sel.text} kind="lit" />
+				<EditableText bind:value={sel.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 				<button class="alt-btn" onclick={() => velgAlt()}>
 					Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
 				</button>
@@ -236,14 +241,14 @@
 			{#if avslAltsLen}
 				<div class="alt-gruppe-tittel">Avslutning</div>
 				<div class="alt-cur">
-					<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" />
+					<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgAvsl()}>
 						Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
 					</button>
 				</div>
 			{/if}
 		{:else}
-			<EditableText bind:value={it.text} kind="lit" />
+			<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 		{/if}
 	</div>
 </div>

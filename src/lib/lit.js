@@ -112,26 +112,26 @@ function inlineEditHtml(t) {
 	return mdInline(s);
 }
 
-/** Inline-markdown med SYNLIGE merker (hybrid): full inline-støtte — fet/kursiv
- *  (inkl. __ _ ***) merkes med dempede symboler, kode, strike, highlight, sub,
- *  lenker, bilder, autolink, fotnotereferanser og escaping (\c). */
+/** Inline-markdown med SYNLIGE merker (hybrid): merkene er REDIGERBAR TEKST i
+ *  .mrk-spans (dempet stil) — backspace kan slette dem, og formateringen følger
+ *  ved neste linje-render. Styling span (.md-b/.md-i/…) beholder riktekst-uttrykket. */
 function inlineMerkerHtml2(t) {
 	return t
 		.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>')
-		.replace(/\*\*\*([^*\n]+)\*\*\*/g, '<strong data-mrk="***"><em>$1</em></strong>')
-		.replace(/___([^_\n]+)___/g, '<strong data-mrk="___"><em>$1</em></strong>')
-		.replace(/\*\*([^*\n]+)\*\*/g, '<strong data-mrk="**">$1</strong>')
-		.replace(/__([^_\n]+)__/g, '<strong data-mrk="__">$1</strong>')
-		.replace(/(^|[^*\w<])\*([^*\n]+)\*(?!\*)/g, '$1<em data-mrk="*">$2</em>')
-		.replace(/(^|[^_\w<])_([^_\n]+)_/g, '$1<em data-mrk="_">$2</em>')
-		.replace(/~~([^~\n]+)~~/g, '<del data-mrk="~~">$1</del>')
-		.replace(/==([^=\n]+)==/g, '<mark data-mrk="==">$1</mark>')
-		.replace(/(^|[^~\w<])~([^~\n]+)~/g, '$1<sub data-mrk="~">$2</sub>')
-		.replace(/`([^`]+)`/g, '<span class="md-kode" data-mrk="`">$1</span>')
-		.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<span class="md-lenke" data-mrk="![]()">![</span>$1<span class="md-lenke">]($2)</span>')
-		.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<span data-mrk="[]()">[</span><span class="md-lenke">$1</span><span data-mrk="[]()">]($2)</span>')
+		.replace(/\*\*\*([^*\n]+)\*\*\*/g, '<span class="mrk">***</span><span class="md-b md-i">$1</span><span class="mrk">***</span>')
+		.replace(/\*\*([^*\n]+)\*\*/g, '<span class="mrk">**</span><span class="md-b">$1</span><span class="mrk">**</span>')
+		.replace(/(^|[^*\w<])\*([^*\n]+)\*(?!\*)/g, '$1<span class="mrk">*</span><span class="md-i">$2</span><span class="mrk">*</span>')
+		.replace(/___([^_\n]+)___/g, '<span class="mrk">___</span><span class="md-b md-i">$1</span><span class="mrk">___</span>')
+		.replace(/__([^_\n]+)__/g, '<span class="mrk">__</span><span class="md-b">$1</span><span class="mrk">__</span>')
+		.replace(/(^|[^_\w<])_([^_\n]+)_/g, '$1<span class="mrk">_</span><span class="md-i">$2</span><span class="mrk">_</span>')
+		.replace(/~~([^~\n]+)~~/g, '<span class="mrk">~~</span><span class="md-strike">$1</span><span class="mrk">~~</span>')
+		.replace(/==([^=\n]+)==/g, '<span class="mrk">==</span><span class="md-mark">$1</span><span class="mrk">==</span>')
+		.replace(/(^|[^~\w<])~([^~\n]+)~/g, '$1<span class="mrk">~</span><span class="md-sub">$2</span><span class="mrk">~</span>')
+		.replace(/`([^`]+)`/g, '<span class="mrk">`</span><span class="md-kode">$1</span><span class="mrk">`</span>')
+		.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<span class="mrk">![</span><span class="md-lenke">$1</span><span class="mrk">]($2)</span>')
+		.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<span class="mrk">[</span><span class="md-lenke">$1</span><span class="mrk">]($2)</span>')
 		.replace(/(^|[\s(])(https?:\/\/[^\s<&)]+)/g, '$1<span class="md-lenke">$2</span>')
-		.replace(/\[\^([^\]\s]+)\]/g, '<sup class="md-fotnote-ref" data-mrk="[^]">^$1</sup>');
+		.replace(/\[\^([^\]\s]+)\]/g, '<span class="mrk">[^</span><sup class="md-fotnote-ref">$1</sup><span class="mrk">]</span>');
 }
 
 function inlineMerkerHtml(t) {
@@ -157,12 +157,12 @@ export function litLinjeMerkerHtml(linje) {
 }
 
 function merkerLinje(type, prefiks, klasse, innhold) {
-	// data-mrk på det INDRE spanet → ::before er inline på SAMME linje som teksten
-	// (en blokk md-h-span ellers dytter merket opp på egen linje)
-	const indre = klasse
-		? `<span class="${klasse}"${prefiks ? ` data-mrk="${escapeHtml(prefiks)}"` : ''}>${inlineMerkerHtml(innhold)}</span>`
-		: (prefiks ? `<span data-mrk="${escapeHtml(prefiks)}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold));
-	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}">${indre}</div>`;
+	// prefiksen er REDIGERBAR TEKST (mrk-span) — serialiseres som en del av linjen
+	const prefiksHtml = prefiks ? `<span class="mrk">${escapeHtml(prefiks)}</span>` : '';
+	const indre = klasse ? `<span class="${klasse}">${inlineMerkerHtml(innhold)}</span>` : inlineMerkerHtml(innhold);
+	const chip = type === 'liste' ? '<span class="chip md-bullet">•</span>' : '';
+	// data-prefiks tom: prefiksen serialiseres som mrk-tekst (ellers dobler den)
+	return `<div class="et-linje" data-type="${type}" data-prefiks="">${prefiksHtml}${chip}${indre}</div>`;
 }
 
 /** Hele teksten som redigerings-HTML (én div per linje). Linjer inne i en

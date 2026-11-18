@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -739,6 +739,7 @@ export function kjorMenyId(id) {
 		case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
 		case 'kirkeaar': app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
+		case 'veksle-vim': veksleVim(); break;
 		case 'veksle-sidebar': veksleSidebar(); break;
 		case 'veksle-toc': veksleToc(); break;
 		case 'tema': toggleTheme(); break;

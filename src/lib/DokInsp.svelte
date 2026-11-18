@@ -3,7 +3,7 @@
 	import { saveCurrent, lukkRedigering } from '$lib/fileio.svelte.js';
 	import { lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
 	import { valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
-	import { lookupKirkeaar, hentTekster } from '$lib/kirkeaar.js';
+	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -34,7 +34,7 @@
 
 	async function oppdaterInnhold(k) {
 		try {
-			const tekster = await hentTekster(k.day);
+			const tekster = await hentTekster(k.day, await lesTeksterCache());
 			applyKirkeaar(o, k, tekster);
 			o.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
 			markDirty();

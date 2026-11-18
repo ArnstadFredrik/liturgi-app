@@ -10,6 +10,7 @@
 	let jobber = false;
 	let innFane = $state('generelt'); // generelt | prekenforberedelse
 	let forbAktiv = $state(true); // hele prekenforberedelse-modulen på/av
+	let vimAktiv = $state(false); // global vim-modus
 	let versjon = '';
 	let bygg = '';
 
@@ -19,6 +20,8 @@
 			const fa = await window.liturgi.dbGet('prekenforberedelseAktiv');
 			forbAktiv = (fa?.value ?? '1') !== '0';
 			app.forbAktiv = forbAktiv;
+			const vm = await window.liturgi.dbGet('vimModus');
+			vimAktiv = app.vimModus = (vm?.value ?? '0') === '1';
 		} catch { /* db utilgjengelig */ }
 		const list = await window.liturgi.listTemplates();
 		if (list.ok) {
@@ -76,6 +79,12 @@
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
 		forbMappe = r?.ok ? (r.value ?? '') : '';
 	});
+
+	function settVim(v) {
+		vimAktiv = v;
+		app.vimModus = v;
+		window.liturgi.dbSet('vimModus', v ? '1' : '0').catch(() => {});
+	}
 
 	function settForbAktiv(v) {
 		forbAktiv = v;
@@ -174,6 +183,18 @@
 						</div>
 					</div>
 					<button class="inn-handling" onclick={byggPåNytt} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer'}</button>
+				</div>
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Vim-modus</div>
+						<div class="inn-rad-beskriv">
+							Vim-bindinger i alle redigeringsfelt (normal/insert, hj/k/l,
+							dd/yy/p osv.). Byttes også i menylinjen og kontekstmenyen.
+						</div>
+					</div>
+					<button class="inn-handling" class:av={!vimAktiv} onclick={() => settVim(!vimAktiv)}>
+						{vimAktiv ? 'På' : 'Av'}
+					</button>
 				</div>
 			{:else}
 				<div class="inn-rad">

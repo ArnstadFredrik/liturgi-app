@@ -57,9 +57,27 @@ export function kirkeaarDager(dateISO) {
  * URL-mønster: /nettbibelen/kirkearets-tekster/nb-2024/{startår}/{dag-id}
  * Returnerer { E, L1, L2, F } der hver er { ref, title, text } – eller null.
  */
-export async function hentTekster(day) {
+/** Bibeltekst-cache (db 'kirkeaarTekster') — gjenbrukes offline og raskere ved gjenåpning. */
+export async function lesTeksterCache() {
+	try {
+		const r = await window.liturgi?.dbGet?.('kirkeaarTekster');
+		if (r?.value) { try { return JSON.parse(r.value); } catch { return {}; } }
+	} catch { /* db utilgjengelig */ }
+	return {};
+}
+
+function lagreTeksterCache(cache) {
+	if (!cache) return;
+	try {
+		window.liturgi?.dbSet?.('kirkeaarTekster', JSON.stringify(cache));
+	} catch { /* db utilgjengelig */ }
+}
+
+export async function hentTekster(day, cache) {
 	if (!day?.id || !day?.years) return null;
 	const startYear = day.years.split('-')[0];
+	const noekkel = `${startYear}/${day.id}`;
+	if (cache && cache[noekkel]) return cache[noekkel];
 	try {
 		const r = await fetch(
 			`/api/bibel/kirkearets-tekster/nb-2024/${startYear}/${day.id}`
@@ -89,7 +107,9 @@ export async function hentTekster(day) {
 			if (!body) return null;
 			return { ref, title, text: body };
 		};
-		return { E: grab('E'), L1: grab('L1'), L2: grab('L2'), F: grab('F') };
+		const res = { E: grab('E'), L1: grab('L1'), L2: grab('L2'), F: grab('F') };
+		if (cache && (res.E || res.L1)) { cache[noekkel] = res; lagreTeksterCache(cache); }
+		return res;
 	} catch {
 		return null;
 	}
