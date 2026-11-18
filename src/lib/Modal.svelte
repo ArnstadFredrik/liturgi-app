@@ -202,7 +202,7 @@
 			// tekster mangler i cachen (offline ved oppstart)? hent i bakgrunnen
 			if (!cached.tekster) {
 				const req = ++teksterReq;
-				lesTeksterCache().then((c) => hentTekster(k.day, c)).then((t) => {
+				lesTeksterCache().then((c) => hentTekster(k.day, c, k.series)).then((t) => {
 					if (req !== teksterReq) return;
 					tekster = t;
 					teksterStatus = t ? 'ok' : 'feil';

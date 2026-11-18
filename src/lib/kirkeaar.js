@@ -73,10 +73,12 @@ function lagreTeksterCache(cache) {
 	} catch { /* db utilgjengelig */ }
 }
 
-export async function hentTekster(day, cache) {
+export async function hentTekster(day, cache, rekke) {
 	if (!day?.id || !day?.years) return null;
 	const startYear = day.years.split('-')[0];
-	const noekkel = `${startYear}/${day.id}`;
+	// rekken med i nøkkelen: (kirkeår, dag, tekstrekke) — rekken følger normalt
+	// av kirkeåret, men lagres eksplisitt slik at koblingen er entydig
+	const noekkel = `${startYear}/${day.id}${rekke ? '@' + rekke : ''}`;
 	if (cache && cache[noekkel]) return cache[noekkel];
 	try {
 		const r = await fetch(
@@ -108,7 +110,7 @@ export async function hentTekster(day, cache) {
 			return { ref, title, text: body };
 		};
 		const res = { E: grab('E'), L1: grab('L1'), L2: grab('L2'), F: grab('F') };
-		if (cache && (res.E || res.L1)) { cache[noekkel] = res; lagreTeksterCache(cache); }
+		if (cache && (res.E || res.L1)) { cache[noekkel] = { rekke: rekke || null, ...res }; lagreTeksterCache(cache); }
 		return res;
 	} catch {
 		return null;
