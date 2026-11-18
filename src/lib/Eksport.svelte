@@ -743,9 +743,12 @@
 				}
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(profil, it);
-				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet
+				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet.
+				// NB: «:t» er ikke eksponert for bibelledd (Hele teksten/Bibelref. erstatter den),
+				// så et stalte «:t»: false må ikke stripppe bibelteksten når «Hele teksten» er valgt.
+				const erB = erBibel(it);
 				it.__visOverskrift = it.enabled;
-				it.__visInnhold = lagret?.[nokkel(si, ii) + ':t'] !== undefined ? lagret[nokkel(si, ii) + ':t'] : true;
+				it.__visInnhold = (!erB && lagret?.[nokkel(si, ii) + ':t'] !== undefined) ? lagret[nokkel(si, ii) + ':t'] : true;
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
 				// og legg referansen til overskriften
 				const bref = brProfil ? (brLagret?.[nokkel(si, ii) + ':br'] ?? false)
