@@ -9,7 +9,8 @@ let db = null;
 
 function openDb() {
 	if (db) return db;
-	const dir = path.join(os.homedir(), '.config', 'Liturgi');
+	// LITURGI_DB_DIR: test-instanser kan bruke egen db og røre aldri brukerens
+	const dir = process.env.LITURGI_DB_DIR || path.join(os.homedir(), '.config', 'Liturgi');
 	fs.mkdirSync(dir, { recursive: true });
 	db = new Database(path.join(dir, 'liturgi.db'));
 	db.pragma('journal_mode = WAL');
