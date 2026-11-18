@@ -4,6 +4,7 @@
 	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
+	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { litHtml, leddTekst, salmeTekst } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
@@ -588,6 +589,50 @@
 		setPptx('ekstra', pptEkstra);
 	}
 
+	/** Ny manuell side rett over/under en eksisterende manuell side (samme plassering i rekkefølgen). */
+	function nyPptSideNær(ei, plass) {
+		const ekstra = [...(pptEkstra ?? [])];
+		const e = ekstra[ei];
+		if (!e) return;
+		ekstra.splice(plass === 'over' ? ei : ei + 1, 0, { tittel: '', innhold: '', etter: e.etter ?? '' });
+		pptEkstra = ekstra;
+		setPptx('ekstra', pptEkstra);
+	}
+	/** Ny manuell side over/under et ledd (slot) — «over» plasserer den etter forrige ledd. */
+	function nyPptSideVed(slot, plass) {
+		let etter = slot;
+		if (plass === 'over') {
+			const nokler = regnNokler();
+			const idx = nokler.indexOf(slot);
+			etter = idx <= 0 ? '' : nokler[idx - 1];
+		}
+		pptEkstra = [...(pptEkstra ?? []), { tittel: '', innhold: '', etter }];
+		setPptx('ekstra', pptEkstra);
+	}
+
+	/** Høyreklikkmeny for en manuell side: flytting + ny side over/under + fjern. */
+	function menyEkstra(e, ei) {
+		e.preventDefault();
+		openContextMenu(e.clientX, e.clientY, [
+			{ label: 'Flytt sliden opp', action: () => flyttEkstra(ei, -1) },
+			{ label: 'Flytt sliden ned', action: () => flyttEkstra(ei, 1) },
+			'sep',
+			{ label: 'Ny side over', action: () => nyPptSideNær(ei, 'over') },
+			{ label: 'Ny side under', action: () => nyPptSideNær(ei, 'under') },
+			'sep',
+			{ label: 'Fjern sliden', action: () => fjernPptSide(ei), danger: true }
+		]);
+	}
+	/** Høyreklikkmeny for et ledd (Skjerm): ny manuell side over/under leddet. */
+	function menyLedd(e, si, ii) {
+		if (aktiv !== 'Skjerm') return;
+		e.preventDefault();
+		openContextMenu(e.clientX, e.clientY, [
+			{ label: 'Ny side over leddet', action: () => nyPptSideVed(nokkel(si, ii), 'over') },
+			{ label: 'Ny side under leddet', action: () => nyPptSideVed(nokkel(si, ii), 'under') }
+		]);
+	}
+
 	/** Klikk på et lysbilde → scroll leddoversikten til riktig rad. */
 	function visListeRad(slot) {
 		document.querySelector('.eksport-liste [data-slot="' + slot + '"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -890,10 +935,12 @@
 						<div class="eksport-rad eksport-egen" data-slot={'e' + ee.i}
 						draggable="true"
 						onclick={(e) => { if (!e.target.closest('button, input, textarea')) visSlide('e' + ee.i); }}
+						oncontextmenu={(e) => menyEkstra(e, ee.i)}
 						ondragstart={(e) => { dragEkstra = ee.i; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(ee.i)); }}
 						ondragover={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) e.preventDefault(); }}
 						ondrop={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'ekstra', idx: ee.i }); dragEkstra = null; } }}
 						ondragend={() => { dragEkstra = null; }}>
+							<span class="eks-egen-grep" title="Dra for å flytte sliden">{@html mdi('drag-vertical')}</span>
 							<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
 							<div class="eks-egen-felter">
 								<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
@@ -901,10 +948,6 @@
 								<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
 									value={ee.e.innhold}
 									oninput={(e) => oppdaterPptSide(ee.i, 'innhold', e.currentTarget.value)}></textarea>
-							</div>
-							<div class="eks-egen-flytt">
-								<button title="Flytt sliden opp" onclick={() => flyttEkstra(ee.i, -1)}>↑</button>
-								<button title="Flytt sliden ned" onclick={() => flyttEkstra(ee.i, 1)}>↓</button>
 							</div>
 							<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
 						</div>
@@ -930,6 +973,7 @@
 						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}
 						data-slot={nokkel(si, ii)}
 						onclick={(e) => { if (aktiv === 'Skjerm' && !e.target.closest('button, input, label, textarea, select, a')) visSlide(nokkel(si, ii)); }}
+						oncontextmenu={(e) => menyLedd(e, si, ii)}
 						ondragover={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) e.preventDefault(); }}
 						ondrop={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'item', slot: nokkel(si, ii) }); dragEkstra = null; } }}>
 							{#if it.enabled === false}
@@ -996,20 +1040,23 @@
 									{/if}
 	{#if aktiv === 'Skjerm'}
 						{#each ekstraEtter(nokkel(si, ii)) as ee (ee.i)}
-							<div class="eksport-rad eksport-egen">
-								<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
-								<div class="eks-egen-felter">
-									<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
-										oninput={(e) => oppdaterPptSide(ee.i, 'tittel', e.currentTarget.value)} />
-									<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
-										value={ee.e.innhold}
-										oninput={(e) => oppdaterPptSide(ee.i, 'innhold', e.currentTarget.value)}></textarea>
-								</div>
-								<div class="eks-egen-flytt">
-									<button title="Flytt sliden opp" onclick={() => flyttEkstra(ee.i, -1)}>↑</button>
-									<button title="Flytt sliden ned" onclick={() => flyttEkstra(ee.i, 1)}>↓</button>
-								</div>
-								<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
+							<div class="eksport-rad eksport-egen" data-slot={'e' + ee.i}
+							draggable="true"
+							oncontextmenu={(e) => menyEkstra(e, ee.i)}
+							ondragstart={(e) => { dragEkstra = ee.i; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(ee.i)); }}
+							ondragover={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) e.preventDefault(); }}
+							ondrop={(e) => { if (dragEkstra !== null && dragEkstra !== ee.i) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'ekstra', idx: ee.i }); dragEkstra = null; } }}
+							ondragend={() => { dragEkstra = null; }}>
+									<span class="eks-egen-grep" title="Dra for å flytte sliden">{@html mdi('drag-vertical')}</span>
+									<span class="eks-egen-merke" title="Manuelt lagt til slide">manuell</span>
+									<div class="eks-egen-felter">
+										<input class="ppt-ekstra-tittel" placeholder="Sidetittel (kan stå tom)" value={ee.e.tittel}
+											oninput={(e) => oppdaterPptSide(ee.i, 'tittel', e.currentTarget.value)} />
+										<textarea class="ppt-ekstra-innhold" rows="2" placeholder="Innhold — tekst til siden (rolle-markering i rødt støttes)"
+											value={ee.e.innhold}
+											oninput={(e) => oppdaterPptSide(ee.i, 'innhold', e.currentTarget.value)}></textarea>
+									</div>
+									<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
 							</div>
 						{/each}
 					{/if}
