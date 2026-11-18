@@ -37,6 +37,7 @@
 	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
 	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
+	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
 	let eksporterer = $state(false);
 	let nyProfilNavn = $state('');
 	let zoomNivå = $state(1.5); // kun visning (lagres i lokalStorage) — 150 % er ny standard
@@ -449,7 +450,7 @@
 		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
 		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
 		const slides = [];
-		const push = (segs, big = false, blank = false, notat = '') => slides.push({ big, blank, notat, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		const push = (segs, big = false, blank = false, notat = '', notatSlot = '') => slides.push({ big, blank, notat, notatSlot, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
 		const emitEkstra = (ekstra, slot) => {
@@ -482,18 +483,19 @@
 				const raaHeading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
 				const heading = pptLeddtitler ? raaHeading : '';
+				const notat = it.pptNotat ?? raaHeading; // egendefinert notat går foran overskriften
 				if (it.type === 'salme' && salmeTekst(it)) {
 					pptSlidePos[nokkel(si, ii)] = slides.length;
 					pptSlotVed[slides.length] = nokkel(si, ii);
 					if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
-						push([{ text: '' }], false, false, raaHeading);
+						push([{ text: '' }], false, false, notat, nokkel(si, ii));
 						for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 						continue;
 					}
 					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 					vers.forEach((v, vi) => {
 						const overskrift = heading ? heading + '\n' : '';
-						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? raaHeading : '');
+						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? notat : '', vi === 0 ? nokkel(si, ii) : '');
 					});
 					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 					continue;
@@ -510,8 +512,8 @@
 				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
 				pptSlidePos[nokkel(si, ii)] = slides.length;
 				pptSlotVed[slides.length] = nokkel(si, ii);
-				if (!joined) { push([{ text: '' }], false, false, raaHeading); }
-				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? raaHeading : '');
+				if (!joined) { push([{ text: '' }], false, false, notat, nokkel(si, ii)); }
+				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? notat : '', gi === 0 ? nokkel(si, ii) : '');
 				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
 		}
@@ -637,6 +639,17 @@
 			{ label: 'Ny side over leddet', action: () => nyPptSideVed(nokkel(si, ii), 'over') },
 			{ label: 'Ny side under leddet', action: () => nyPptSideVed(nokkel(si, ii), 'under') }
 		]);
+	}
+
+	/** Lagre egendefinert slidenotat på leddet (brukes av notatvisningens notatfelt). */
+	function settSlideNotat(slide, v) {
+		const m = /^(\d+):(\d+)$/.exec(slide.notatSlot ?? '');
+		if (!m || !o) return;
+		const it = o.sections?.[+m[1]]?.items?.[+m[2]];
+		if (!it) return;
+		it.pptNotat = v;
+		markDirty();
+		// ingen pptVersjon-økning: o-avlesningen i effekten bygger om, og feltet beholder fokus
 	}
 
 	/** Klikk på et lysbilde → scroll leddoversikten til riktig rad. */
@@ -899,6 +912,7 @@
 					<button class="eks-toggle" class:paa={pptVisTittel} title="Tittelslide med navn og dato" onclick={() => { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }}>{@html mdi('presentation', 14)} Tittelslide</button>
 					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
 					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
+					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>+ Ekstra side</button>
 				</div>
 			</div>
@@ -1074,19 +1088,25 @@
 			<div id="eks-ppt">
 				<div class="ppt-side-liste">
 					{#each pptSlides as slide, si (si)}
-						<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}
-							onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
-							{#if !slide.blank}
-							<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
-								{#each slide.deler as del}
-									<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
-								{/each}
+						<div class="ppt-rad">
+							<div class="ppt-side" class:stor={slide.big} class:tom={slide.blank}
+								onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
+								{#if !slide.blank}
+								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67}px; text-align: {pptJustering}">
+									{#each slide.deler as del}
+										<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
+									{/each}
+								</div>
+								{/if}
+								{#if slide.notat}
+								<span class="ppt-side-notat" title={'Notat: ' + slide.notat}>{@html mdi('script-text-outline', 12)}</span>
+								{/if}
+								<span class="ppt-side-nr">{si + 1}</span>
 							</div>
+							{#if visNotater}
+								<textarea class="ppt-notat-felt" placeholder={slide.notatSlot ? 'Notat …' : 'Knyttes til leddet'} readonly={!slide.notatSlot}
+									value={slide.notat} oninput={(e) => settSlideNotat(slide, e.currentTarget.value)}></textarea>
 							{/if}
-							{#if slide.notat}
-							<span class="ppt-side-notat" title={'Notat: ' + slide.notat}>{@html mdi('script-text-outline', 12)}</span>
-							{/if}
-							<span class="ppt-side-nr">{si + 1}</span>
 						</div>
 					{/each}
 				</div>
