@@ -462,9 +462,10 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	// skriftskala (valg.tekstSkala/valg.tittelSkala = multiplikator; grunn 24/40 pt)
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 38); // grunn 38 pt
 	const tittelStorrelse = Math.round((valg.tittelSkala ?? 1) * 40);
-	const addSlide = (segs, big = false) => {
+	const addSlide = (segs, big = false, notat = '') => {
 		const s = pptx.addSlide();
 		s.background = { color: '0D0D0F' };
+		if (notat) s.addNotes(notat);
 		// segs: tekst eller array av {text, red}. NB: forhåndsvisningen rendrer segmentene
 		// INLINE — linjeskift kommer KUN fra '\n'-segmentene. breakLine på hvert run ga
 		// rolle-prefikser på egne linjer og doble linjeskift i eksporten (likte ikke visningen).
@@ -540,18 +541,26 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
 			if (it.type === 'salme' && salmeTekst(it)) {
 				// salmer: hver vers (tomlinjeseparert) på hver sin slide, overskrift med på første
-				if (it.__visInnhold === false) continue; // «vis innhold» av — bare overskriften
+				if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
+					addSlide('', false, heading);
+					for (const ekstra of (valg.ekstra ?? [])) {
+						if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
+					}
+					continue;
+				}
 				const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				vers.forEach((v, vi) => {
 					const overskrift = vi === 0 && visLeddtitler && heading ? heading + '\n' : '';
 					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse);
-					grupper.forEach((grp) => addSlide(grp));
+					grupper.forEach((grp, gi) => addSlide(grp, false, vi === 0 && gi === 0 ? heading : ''));
 				});
 				for (const ekstra of (valg.ekstra ?? [])) {
 					if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
 				}
 				continue;
 			}
+			// NB: valgte ledd kommer ALLTID med — selv når valgene (innhold av, ingen leddtitler)
+			// gjør slidet tomt; overskriften havner da i slidenotatet.
 			let lines = [];
 			if (it.__visInnhold === false) lines = null; // «vis innhold» av — bare overskriften
 			if (lines && showInstr && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
@@ -565,8 +574,8 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				lines.push(it.text);
 			}
 			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim()) : (visLeddtitler && heading ? heading.trim() : '');
-			if (!joined) continue;
-			for (const grp of delPptSegs(roleSegments(joined), tekstStorrelse)) addSlide(grp);
+			if (!joined) { addSlide('', false, heading); }
+			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) addSlide(grp, false, gi === 0 ? heading : '');
 			// egne slides plassert etter dette leddet
 			for (const ekstra of (valg.ekstra ?? [])) {
 				if ((ekstra?.etter ?? '') === si + ':' + ii) emitEkstra(ekstra);
