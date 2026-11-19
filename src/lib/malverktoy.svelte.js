@@ -2,7 +2,7 @@
 // lagre dem tilbake til prosjektet (src/lib/data.js + seed-filer).
 // Brukes av både Malverktøy-visningen og dokumentpanelet (DokInsp).
 import { BUILTIN_TEMPLATES } from '$lib/data.js';
-import { app, registrerÅpenMal, malEntryFor } from '$lib/store.svelte.js';
+import { app, registrerÅpenMal, malEntryFor, syncDirty } from '$lib/store.svelte.js';
 import { toast } from 'svelte-sonner';
 
 // safeNavn er duplisert her (ikke importert fra fileio) for å unngå
@@ -133,6 +133,17 @@ export async function lagreTilProsjekt() {
 	app.dirty = false;
 	const e = malEntryFor(o);
 	if (e) e.dirty = false;
+	syncDirty();
+	// EditableText-flush etter lagringen kan sette dirty igjen (markDirty på
+	// siste input-event) — slukk den i et tick så ikke «ulagrede endringer»
+	// dukker opp rett etter vellykket lagring
+	setTimeout(() => {
+		o.__dirty = false;
+		app.dirty = false;
+		const e2 = malEntryFor(o);
+		if (e2) e2.dirty = false;
+		syncDirty();
+	}, 60);
 	toast.success('data.js oppdatert · ' + seedMelding);
 	return true;
 }
