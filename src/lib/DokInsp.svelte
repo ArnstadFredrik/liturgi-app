@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty, applyKirkeaar } from '$lib/store.svelte.js';
-	import { saveCurrent, lukkRedigering } from '$lib/fileio.svelte.js';
+	import { saveCurrent, lukkRedigering, erOriginalMal } from '$lib/fileio.svelte.js';
 	import { lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
 	import { valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
@@ -15,6 +15,32 @@
 	}
 
 	function onLagreTilProsjekt() { lagreTilProsjekt(); }
+
+	/** NATIV høyremeny for TOC-panelet/DokInsp (macOS Menu.popup).
+	 *  Punktene kjøres via kjorMenyId — samme rute som menylinjen. */
+	function natMeny(e) {
+		e.preventDefault();
+		if (!window.liturgi?.visNatMeny) return;
+		const punkter = [];
+		if (app.kind === 'service') {
+			punkter.push({ id: 'lagre', label: 'Lagre', enabled: true });
+			punkter.push({ id: 'lagre-som', label: 'Lagre som …' });
+			punkter.push({ id: 'lagre-som-mal', label: 'Lagre som mal' });
+			punkter.push('sep');
+			punkter.push({ id: 'salmeoversikt', label: 'Salmeoversikt …' });
+		punkter.push({ id: 'eksport', label: 'Eksport …' });
+			if (o?.filePath) punkter.push({ id: 'apne-mappe', label: 'Åpne mappe' });
+		} else if (o?.__devMal) {
+			punkter.push({ id: 'lagre', label: 'Lagre til prosjektet' });
+			punkter.push({ id: 'lagre-som-kopi', label: 'Lagre som kopi' });
+		} else {
+			punkter.push({ id: erOriginalMal(o) ? 'lagre-som-kopi' : 'lagre', label: erOriginalMal(o) ? 'Lagre som kopi' : 'Lagre' });
+			punkter.push({ id: 'lagre-som', label: 'Lagre som …' });
+		}
+		punkter.push('sep');
+		punkter.push({ id: 'lukk-dok', label: 'Lukk dokument' });
+		window.liturgi.visNatMeny(punkter);
+	}
 
 	function tilEksport() { app.visning = 'eksport'; }
 	function tilSalmer() { app.visning = 'salmer'; }
@@ -61,7 +87,7 @@
 	}
 </script>
 
-<div class="insp-gruppe">
+<div class="insp-gruppe" oncontextmenu={natMeny}>
 	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudtjeneste'}</div>
 	{#if app.kind === 'service'}
 		<div class="insp-rad">
