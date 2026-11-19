@@ -167,6 +167,22 @@ ipcMain.handle('rec:touch', (_e, { path: p, name, date }) => { try { recTouch(p,
 ipcMain.handle('rec:remove', (_e, { path: p }) => { try { recRemove(p); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:counts', () => { try { return { ok: true, counts: bibCounts(), sig: bibSig() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 
+// NATIV kontekstmeny (macOS-stil, Menu.popup): renderer sender en punktliste
+// [{ id, label, enabled }] eller 'sep' — klikk sendes tilbake som meny:handling
+// og kjøres av rendererens kjorMenyId (samme rute som menylinjen).
+ipcMain.handle('ctx:nativ', (e, punkter) => {
+	try {
+		const mal = (punkter ?? [])
+			.map((p) => (p === 'sep' ? { type: 'separator' } : p))
+			.filter((p) => p && (p.type === 'separator' || (p.label && p.id)))
+			.map((p) => (p.type === 'separator'
+				? p
+				: { label: p.label, enabled: p.enabled !== false, click: () => e.sender.send('meny:handling', p.id) }));
+		Menu.buildFromTemplate(mal).popup({ window: BrowserWindow.fromWebContents(e.sender) });
+		return { ok: true };
+	} catch (err) { return { ok: false, error: String(err?.message ?? err) }; }
+});
+
 // ---------- prekenforberedelser: mappe-tre, filer og prosjekt-oppsett ----------
 const FORB_STD = () => path.join(app.getPath('documents'), 'Liturgi', 'forberedelse');
 const forbMappeLagret = () => dbGet('prekenforberedelseMappe') || '';

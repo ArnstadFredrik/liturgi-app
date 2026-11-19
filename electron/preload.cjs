@@ -24,6 +24,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// bibliotek: oppslagsregister over hovedgudstjenesten (sqlite)
 	bibSync: (source, entries) => ipcRenderer.invoke('bib:sync', { source, entries }),
 	bibCounts: () => ipcRenderer.invoke('bib:counts'),
+	visNatMeny: (punkter) => ipcRenderer.invoke('ctx:nativ', punkter),
 	bibUserList: () => ipcRenderer.invoke('bib:user:list'),
 	bibUserAdd: (r) => ipcRenderer.invoke('bib:user:add', r),
 	bibUserUpdate: (id, r) => ipcRenderer.invoke('bib:user:update', { id, r }),
