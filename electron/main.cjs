@@ -735,6 +735,17 @@ function createWindow(port) {
 			preload: path.join(__dirname, 'preload.cjs')
 		}
 	});
+	// diagnostikk: alle renderer-konsollmeldinger → stdout
+	win.webContents.on('console-message', (_e, level, message, line, sourceId) => {
+		console.log('[renderer]', level, message.slice(0, 300), sourceId.split('/').pop() + ':' + line);
+	});
+	win.webContents.on('did-finish-load', () => {
+		win.webContents.executeJavaScript(`window.addEventListener('error', (e) => console.error('WINDOW-ERROR:', e.message, e.filename, e.lineno, e.colno, e.error && e.error.stack ? e.error.stack.slice(0, 3000) : '')); window.addEventListener('unhandledrejection', (e) => console.error('WINDOW-REJ:', String(e.reason && e.reason.stack || e.reason).slice(0, 3000)));`).catch(() => {});
+	});
+	win.webContents.on('render-process-gone', (_e, d) => {
+		console.log('[RENDER-PROSESS BORT]', JSON.stringify(d).slice(0, 300));
+	});
+
 	byggMeny(win);
 	win.loadURL(`http://localhost:${port}/`);
 	// merknad: filer som åpnes ved oppstart leveres når rendereren melder 'liturgi:renderer-ready'

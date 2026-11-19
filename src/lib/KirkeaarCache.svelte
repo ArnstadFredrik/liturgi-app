@@ -7,7 +7,7 @@
 	 * gudstjenesten umiddelbart uten eksterne kall.
 	 */
 	import { onMount } from 'svelte';
-	import { lookupKirkeaar, hentTekster, kirkeaarDager } from '$lib/kirkeaar.js';
+	import { lookupKirkeaar, hentTekster, kirkeaarDager, lesTeksterCache } from '$lib/kirkeaar.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 

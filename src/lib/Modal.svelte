@@ -3,7 +3,7 @@
 	import { closeModal, showModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
-	import { lookupKirkeaar, hentTekster, kirkeaarDager } from '$lib/kirkeaar.js';
+	import { lookupKirkeaar, hentTekster, kirkeaarDager, lesTeksterCache } from '$lib/kirkeaar.js';
 
 	const m = $derived(app.modal);
 	// Alle felt settes i $state-INIT: +page keyer <Modal /> på type+id, så komponenten
