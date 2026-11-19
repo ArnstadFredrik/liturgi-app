@@ -21,7 +21,7 @@
 
 	// mac-menylinjen: dokumenthandlinger av/på etter tilstand
 	$effect(() => {
-		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath, vim: app.vimModus, forbModul: app.forbModul, forbRediger: app.forbRediger });
+		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath, vim: app.vimModus, forbModul: app.forbModul, forbRediger: app.forbRediger, eks: app.eksMenyTilstand });
 	});
 
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)

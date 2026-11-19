@@ -752,6 +752,7 @@ export async function kjorMenyId(id) {
 		case 'veksle-sidebar': veksleSidebar(); break;
 		case 'veksle-toc': veksleToc(); break;
 		case 'tema': toggleTheme(); break;
+		default: if (id.startsWith('eks:')) { window.__eksMeny?.(id); return; } break;
 	}
 }
 

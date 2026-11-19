@@ -280,10 +280,75 @@
 	const datoTekst = $derived(o?.date ? nlDate(o.date) : '');
 
 	// menylinje/kontekstmeny: «Vis navn» og «Hovedtitler» (print-profilene)
+	function eksMeny(x, y) {
+		const chk = (b) => !!b;
+		if (aktiv === 'Skjerm') {
+			openContextMenu(x, y, [
+				{ label: 'Leddtitler', checked: chk(pptLeddtitler), action: () => window.__eksMeny('eks:leddtitler') },
+				{ label: 'Blank side mellom ledd', checked: chk(tomSlide), action: () => window.__eksMeny('eks:blank') },
+				{ label: 'Tittelslide', checked: chk(pptVisTittel), action: () => window.__eksMeny('eks:tittelslide') },
+				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
+				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
+				{ label: 'Lys bakgrunn', checked: chk(pptLys), action: () => window.__eksMeny('eks:lys') },
+				'sep',
+				{ label: 'Justering', submenu: [
+					{ label: 'Venstrejustert', checked: pptJustering === 'left', action: () => window.__eksMeny('eks:justering:left') },
+					{ label: 'Sentrert', checked: pptJustering === 'center', action: () => window.__eksMeny('eks:justering:center') },
+					{ label: 'Høyrejustert', checked: pptJustering === 'right', action: () => window.__eksMeny('eks:justering:right') }
+				] }
+			]);
+		} else {
+			openContextMenu(x, y, [
+				{ label: 'Vis navn', checked: chk(getInnst('tittel', true)), action: () => window.__eksMeny('eks:tittel') },
+				{ label: 'Hovedtitler', checked: chk(getInnst('visAvsnittstitler', true)), action: () => window.__eksMeny('eks:avsnitt') },
+				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
+				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
+				'sep',
+				{ label: 'Format', submenu: [
+					{ label: 'A4', checked: getInnst('storrelse', 'A5') === 'A4', action: () => window.__eksMeny('eks:format:A4') },
+					{ label: 'A5', checked: getInnst('storrelse', 'A5') === 'A5', action: () => window.__eksMeny('eks:format:A5') }
+				] },
+				{ label: 'Kolonner', submenu: [
+					{ label: '1 kolonne', checked: getInnst('kolonner', 1) === 1, action: () => window.__eksMeny('eks:kolonner:1') },
+					{ label: '2 kolonner', checked: getInnst('kolonner', 1) === 2, action: () => window.__eksMeny('eks:kolonner:2') }
+				] },
+				{ label: 'Marger', submenu: [
+					{ label: 'Bred', checked: getInnst('marger', 'normal') === 'bred', action: () => window.__eksMeny('eks:marger:bred') },
+					{ label: 'Normal', checked: getInnst('marger', 'normal') === 'normal', action: () => window.__eksMeny('eks:marger:normal') },
+					{ label: 'Smal', checked: getInnst('marger', 'normal') === 'smal', action: () => window.__eksMeny('eks:marger:smal') }
+				] },
+				{ label: 'Avstand', submenu: [
+					{ label: 'Tett', checked: getInnst('avstand', 'normal') === 'tett', action: () => window.__eksMeny('eks:avstand:tett') },
+					{ label: 'Normal', checked: getInnst('avstand', 'normal') === 'normal', action: () => window.__eksMeny('eks:avstand:normal') },
+					{ label: 'Luftig', checked: getInnst('avstand', 'normal') === 'luft', action: () => window.__eksMeny('eks:avstand:luft') }
+				] }
+			]);
+		}
+	}
+
 	window.__eksMeny = (id) => {
-		if (id === 'eks-tittel') setInnst('tittel', !getInnst('tittel', true));
-		else if (id === 'eks-avsnitt') setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true));
+		// format 'eks:<nokkel>' (bryter) eller 'eks:<nokkel>:<verdi>' (valg)
+		const [, nk, v] = id.split(':');
+		if (nk === 'tittel') setInnst('tittel', !getInnst('tittel', true));
+		else if (nk === 'avsnitt') setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true));
+		else if (nk === 'instr') { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }
+		else if (nk === 'salmeinfo') { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }
+		else if (nk === 'format') setInnst('storrelse', v);
+		else if (nk === 'kolonner') setInnst('kolonner', +v);
+		else if (nk === 'marger') setInnst('marger', v);
+		else if (nk === 'avstand') setInnst('avstand', v);
+		else if (nk === 'leddtitler') { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }
+		else if (nk === 'blank') settTomSlide(!tomSlide);
+		else if (nk === 'tittelslide') { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }
+		else if (nk === 'lys') { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }
+		else if (nk === 'justering') { pptJustering = v; setPptx('justering', pptJustering); }
 	};
+	// menylinje-tilstand: valgene (sjekkbokser/radioer i Eksportvalg-menyen)
+	$effect(() => {
+		app.eksMenyTilstand = aktiv === 'Skjerm'
+			? { skjerm: true, leddtitler: pptLeddtitler, blank: tomSlide, tittelslide: pptVisTittel, instr: visInstrValg, salmeinfo: visSalmeinfoValg, lys: pptLys, justering: pptJustering }
+			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), instr: visInstrValg, salmeinfo: visSalmeinfoValg, format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
+	});
 	$effect(() => () => { window.__eksMeny = null; });
 
 	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
@@ -778,7 +843,15 @@
 		const idx = pptSlidePos[slot];
 		if (idx === undefined) return;
 		kobletLås = Date.now() + 900;
-		rullTil([...document.querySelectorAll('#eks-ppt .ppt-side')][idx]);
+		const el = [...document.querySelectorAll('#eks-ppt .ppt-side')][idx];
+		rullTil(el);
+		// kort puls på slidet så det er lett å se hvor man landet
+		if (el) {
+			el.classList.remove('ppt-puls');
+			void el.offsetWidth; // restart animasjonen
+			el.classList.add('ppt-puls');
+			setTimeout(() => el.classList.remove('ppt-puls'), 1200);
+		}
 	}
 	/** Scroll ETTERDET: kun innenfor forhåndsvisningsruten (første rullbare forfar) — aldri
 	 *  vinduet (scrollIntoView rullet hele siden, slik at top-bar-en forsvant). */
@@ -959,6 +1032,7 @@
 		// utvalg = Menighet (delt), bibelmodus = Skjerm (full tekst som standard)
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
+			filnavn: baseNavn('Skjerm') + '.pptx',
 			tomSlide,
 			showInstr: visInstrValg,
 			tekstSkala: pptTekstSkala,
@@ -1008,10 +1082,7 @@
 	}
 </script>
 
-<div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
-				{ label: (getInnst('tittel', true) ? '✓ ' : '') + 'Vis navn', action: () => setInnst('tittel', !getInnst('tittel', true)) },
-				{ label: (getInnst('visAvsnittstitler', true) ? '✓ ' : '') + 'Hovedtitler', action: () => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true)) }
-			]); }}>
+<div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
 	<h2>
 		<button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button>
 		Eksport
@@ -1029,8 +1100,8 @@
 			{#if aktiv === 'Skjerm'}
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-chk-pt" title="Skriftstørrelse på slidene (pt, grunn 24)">Tekst <input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 38)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 38; setPptx('tekstSkala', pptTekstSkala); }} /></label>
-					<label class="eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt, grunn 40)">Tittel <input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
+					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 38)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 38; setPptx('tekstSkala', pptTekstSkala); }} /></label>
+					<label class="eks-felt eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt)"><span>Tittel</span><input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
 					<select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }} title="Tekstjustering på slidene">
 						<option value="left">Venstrejustert</option>
 						<option value="center">Sentrert</option>
@@ -1052,33 +1123,30 @@
 			</div>
 			{:else}
 			<div class="eks-baand-gruppe">
-				<select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
+				<div class="eks-felt"><span>Format</span><select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
 					<option value="A4">A4</option>
 					<option value="A5">A5</option>
-				</select>
-				<select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}>
+				</select></div>
+				<div class="eks-felt"><span>Kolonner</span><select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}>
 					<option value="1">1 kolonne</option>
 					<option value="2">2 kolonner</option>
-				</select>
-				<select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF">
+				</select></div>
+				<div class="eks-felt"><span>Marger</span><select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF">
 					<option value="bred">Bred marg</option>
 					<option value="normal">Normal marg</option>
 					<option value="smal">Smal marg</option>
-				</select>
-			</div>
-			<div class="eks-baand-rad" style="margin-top: 6px;">
-				<span class="eks-baand-label">Avstand</span>
-				<select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft før/etter ledd i visning, Word og PDF">
+				</select></div>
+				<div class="eks-felt"><span>Avstand</span><select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft før/etter ledd i visning, Word og PDF">
 					<option value="tett">Tett</option>
 					<option value="normal">Normal</option>
 					<option value="luft">Luftig</option>
-				</select>
+				</select></div>
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-chk-pt">Hov. <input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
-					<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
-					<label class="eks-chk-pt">Tekst <input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></label>
+					<label class="eks-felt eks-chk-pt"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
+					<label class="eks-felt eks-chk-pt"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
+					<label class="eks-felt eks-chk-pt"><span>Tekst</span><input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></label>
 					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>↺</button>
 				</div>
 			</div>

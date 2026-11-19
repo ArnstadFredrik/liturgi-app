@@ -300,6 +300,11 @@ button.wide { width: 100%; }
 .eks-baand-gruppe { display: flex; align-items: center; gap: 9px; padding: 0 12px; border-right: 1px solid var(--border); }
 .eks-baand-gruppe:last-child { border-right: none; margin-left: auto; }
 .eks-baand-rad { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+/* 4+5) eksport-verktøylinjen: label OVER kontrollen, ensartet liten stil */
+.eks-felt { display: flex; flex-direction: column; gap: 3px; }
+.eks-felt > span { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.eks-felt select { width: 100%; }
+.eks-felt.eks-chk-pt input[type='number'] { width: 58px; }
 .eks-baand .sidehead { flex: 0 0 auto; }
 .eks-baand .eks-tilbakestill { width: auto; padding: 4px 10px; font-size: 12.5px; }
 .eks-baand .ikon-btn { padding: 3px 6px; }
@@ -498,6 +503,10 @@ textarea {
 .ctx-item:hover:not(:disabled) { background: var(--accent-dim); }
 .ctx-item:disabled { color: var(--muted); opacity: 0.5; cursor: default; }
 .ctx-item.danger { color: var(--danger); }
+/* undermeny i kontekstmenyen (eksportvalg m.m.) */
+.ctx-item.ctx-sub { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ctx-item.ctx-sub .ctx-pil { font-size: 10px; opacity: 0.6; }
+.ctx-submenu { margin: 2px 0 4px 14px; padding-left: 6px; border-left: 2px solid var(--border); display: flex; flex-direction: column; }
 .ctx-sep { height: 1px; background: var(--border); margin: 4px 6px; }
 
 /* bibliotek-søk i modal */
@@ -761,9 +770,9 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 .et-rik .et-linje { min-height: 1.35em; }
 /* punktliste: samme linjeavstand i redigering som i visningen (md-li er
    inline i redigering men block i visning — gi listelinjene lik høyde) */
-.et-rik .et-linje[data-type='liste'] { min-height: 0; line-height: 1.45; }
+.et-rik .et-linje[data-type='liste'] { min-height: 0; line-height: 1.6; }
 .et-rik .rline { color: var(--role); }
-.et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: 13px; line-height: inherit; }
+.et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: inherit; line-height: inherit; }
 /* lister: prikk og tekst på samme linje (md-li-spanene bruker hengende innrykk i visning) */
 .et-rik .et-linje[data-type='liste'] .md-li { display: inline; padding: 0; text-indent: 0; }
 .et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }
@@ -1180,3 +1189,11 @@ sub { font-size: 0.75em; }
    overskrift/eyebrow som gir naturlig avstand — salmeleddet har ikke det) */
 .item-body > .et-edit:first-child .et-tools,
 .item-body > .salme-knapper ~ .et-edit .et-tools { margin-top: 8px; }
+
+/* 8) kort puls på lysbildet man navigerer til i Skjerm-profilen */
+@keyframes ppt-puls-anim {
+	0% { box-shadow: 0 0 0 0 rgba(108, 155, 209, 0.0); }
+	25% { box-shadow: 0 0 0 4px rgba(108, 155, 209, 0.55); }
+	100% { box-shadow: 0 0 0 0 rgba(108, 155, 209, 0.0); }
+}
+.ppt-side.ppt-puls { animation: ppt-puls-anim 1s ease-out; }

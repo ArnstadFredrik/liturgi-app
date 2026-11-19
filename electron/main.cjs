@@ -512,6 +512,52 @@ require('./salmer.cjs');
 // ---------- mac-menylinjen ----------
 // Alle handlingene fra venstre og høyre sidemeny; dokumenthandlinger deaktivert
 // uten åpne dokument (renderer melder tilstand på 'app:meny-tilstand').
+// alle eksportverktøylinje-valgene som menylinje-submeny (6)
+function eksMenyMal(st, send) {
+	const t = st.eks ?? {};
+	if (t.skjerm) {
+		return [
+			{ label: 'Leddtitler', type: 'checkbox', checked: !!t.leddtitler, click: () => send('eks:leddtitler') },
+			{ label: 'Blank side mellom ledd', type: 'checkbox', checked: !!t.blank, click: () => send('eks:blank') },
+			{ label: 'Tittelslide', type: 'checkbox', checked: !!t.tittelslide, click: () => send('eks:tittelslide') },
+			{ label: 'Instruksjoner', type: 'checkbox', checked: !!t.instr, click: () => send('eks:instr') },
+			{ label: 'Salmeinfo', type: 'checkbox', checked: !!t.salmeinfo, click: () => send('eks:salmeinfo') },
+			{ label: 'Lys bakgrunn', type: 'checkbox', checked: !!t.lys, click: () => send('eks:lys') },
+			{ type: 'separator' },
+			{ label: 'Justering', submenu: [
+				{ label: 'Venstrejustert', type: 'radio', checked: t.justering === 'left', click: () => send('eks:justering:left') },
+				{ label: 'Sentrert', type: 'radio', checked: t.justering !== 'left' && t.justering !== 'right', click: () => send('eks:justering:center') },
+				{ label: 'Høyrejustert', type: 'radio', checked: t.justering === 'right', click: () => send('eks:justering:right') }
+			] }
+		];
+	}
+	return [
+		{ label: 'Vis navn', type: 'checkbox', checked: t.tittel !== false, click: () => send('eks:tittel') },
+		{ label: 'Hovedtitler', type: 'checkbox', checked: t.avsnitt !== false, click: () => send('eks:avsnitt') },
+		{ label: 'Instruksjoner', type: 'checkbox', checked: !!t.instr, click: () => send('eks:instr') },
+		{ label: 'Salmeinfo', type: 'checkbox', checked: !!t.salmeinfo, click: () => send('eks:salmeinfo') },
+		{ type: 'separator' },
+		{ label: 'Format', submenu: [
+			{ label: 'A4', type: 'radio', checked: t.format === 'A4', click: () => send('eks:format:A4') },
+			{ label: 'A5', type: 'radio', checked: t.format !== 'A4', click: () => send('eks:format:A5') }
+		] },
+		{ label: 'Kolonner', submenu: [
+			{ label: '1 kolonne', type: 'radio', checked: t.kolonner !== 2, click: () => send('eks:kolonner:1') },
+			{ label: '2 kolonner', type: 'radio', checked: t.kolonner === 2, click: () => send('eks:kolonner:2') }
+		] },
+		{ label: 'Marger', submenu: [
+			{ label: 'Bred', type: 'radio', checked: t.marger === 'bred', click: () => send('eks:marger:bred') },
+			{ label: 'Normal', type: 'radio', checked: t.marger !== 'bred' && t.marger !== 'smal', click: () => send('eks:marger:normal') },
+			{ label: 'Smal', type: 'radio', checked: t.marger === 'smal', click: () => send('eks:marger:smal') }
+		] },
+		{ label: 'Avstand', submenu: [
+			{ label: 'Tett', type: 'radio', checked: t.avstand === 'tett', click: () => send('eks:avstand:tett') },
+			{ label: 'Normal', type: 'radio', checked: t.avstand !== 'tett' && t.avstand !== 'luft', click: () => send('eks:avstand:normal') },
+			{ label: 'Luftig', type: 'radio', checked: t.avstand === 'luft', click: () => send('eks:avstand:luft') }
+		] }
+	];
+}
+
 function byggMeny(win, st = {}) {
 	const dok = !!st.dokumentÅpen;
 	const erTjeneste = st.kind === 'service';
@@ -564,6 +610,7 @@ function byggMeny(win, st = {}) {
 				{ type: 'separator' },
 				{ label: 'Vis navn (eksport)', enabled: st.visning === 'eksport' && st.kind === 'service', click: () => send('eks-tittel') },
 				{ label: 'Hovedtitler (eksport)', enabled: st.visning === 'eksport' && st.kind === 'service', click: () => send('eks-avsnitt') },
+				{ label: 'Eksportvalg', enabled: st.visning === 'eksport' && st.kind === 'service', submenu: eksMenyMal(st, send) },
 				{ label: 'Åpne prekenforberedelse-mappe', enabled: !!st.forbModul, click: () => send('forb-apne-mappe') },
 				{ type: 'separator' },
 				{ label: 'Hjem', accelerator: 'CmdOrCtrl+1', click: () => send('hjem') },
