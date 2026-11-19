@@ -638,7 +638,9 @@ function byggMeny(win, st = {}) {
 			{ label: 'Ny gravferd …', accelerator: 'CmdOrCtrl+Shift+G', click: () => send('ny-gravferd') },
 				{ label: 'Åpne fil …', accelerator: 'CmdOrCtrl+O', click: () => send('apne-fil') },
 				{ type: 'separator' },
-				{ label: 'Lagre', accelerator: 'CmdOrCtrl+S', enabled: dok, click: () => send('lagre') },
+				// Lagre-etiketten følger dokumenttypen: gudtjeneste/brukermal → Lagre,
+				// originalmal → Lagre som kopi, dev-original → Lagre til prosjektet
+				{ label: st.malKilde === 'original' ? 'Lagre som kopi' : (st.malKilde === 'dev' ? 'Lagre til prosjektet' : 'Lagre'), accelerator: 'CmdOrCtrl+S', enabled: dok, click: () => send(st.malKilde === 'original' ? 'lagre-som-kopi' : 'lagre') },
 				{ label: 'Lagre som …', accelerator: 'CmdOrCtrl+Shift+S', enabled: dok, click: () => send('lagre-som') },
 				{ label: 'Lagre som mal', enabled: dok, click: () => send('lagre-som-mal') },
 				{ type: 'separator' },

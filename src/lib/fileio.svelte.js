@@ -146,6 +146,14 @@ async function saveCurrentTemplate() {
 	else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
 }
 
+/** «Lagre som kopi»: alltid en ny brukermal-kopi av den åpne malen
+ *  (originalmaler skal aldri overskrives utover alternativvalg). */
+export async function lagreMalSomKopi() {
+	const o = app.current;
+	if (!o || app.kind !== 'template') return;
+	await lagreOriginalSomBrukerKopi(o);
+}
+
 /** Kopi av en originalmal med brukerens endringer, lagres i maler/brukermaler. */
 async function lagreOriginalSomBrukerKopi(o) {
 	try {
@@ -771,6 +779,7 @@ export async function kjorMenyId(id) {
 		case 'lagre': saveCurrent(); break;
 		case 'lagre-som': saveCurrentToFile(); break;
 		case 'lagre-som-mal': lagreSomMalFraMeny(); break;
+		case 'lagre-som-kopi': lagreMalSomKopi(); break;
 		case 'eksport': app.visning = 'eksport'; break;
 		case 'eks-tittel': case 'eks-avsnitt': window.__eksMeny?.(id); break;
 		case 'salmeoversikt': if (app.kind === 'service') app.visning = 'salmer'; break;
