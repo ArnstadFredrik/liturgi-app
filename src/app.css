@@ -635,7 +635,10 @@ html:not(.electron) #toc-side { padding-top: 36px; }
 #toc-side .list li.active { background: var(--accent-dim); box-shadow: inset -3px 0 0 0 var(--accent); }
 /* skjulbar TOC: samme glidende animasjon som sidemenyen; knapp fast øverst til høyre */
 #toc-side { transition: margin-right 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease; }
-#app.toc-skjult #toc-side { margin-right: -175px; opacity: 0; pointer-events: none; }
+/* lukket = HELT borte (display) — margin-glidningen etterlot en grå stripe når
+   #eksport-side overstyrer #toc-side-bredden til 230px */
+#app.toc-skjult #toc-side { display: none; }
+#app.toc-aktiv.toc-skjult #toc-side { display: none; }
 .toc-toggle { position: fixed; top: 10px; right: 12px; z-index: 40; -webkit-app-region: no-drag; }
 html.electron .toc-toggle { top: 5px; right: 12px; }
 /* ikonene flippes 180° (peker riktig vei for høyremenyen) */

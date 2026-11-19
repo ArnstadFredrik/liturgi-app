@@ -1008,10 +1008,10 @@
 	}
 </script>
 
-<div id="eksport-side"> oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
+<div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
 				{ label: (getInnst('tittel', true) ? '✓ ' : '') + 'Vis navn', action: () => setInnst('tittel', !getInnst('tittel', true)) },
 				{ label: (getInnst('visAvsnittstitler', true) ? '✓ ' : '') + 'Hovedtitler', action: () => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true)) }
-			]); }}
+			]); }}>
 	<h2>
 		<button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button>
 		Eksport
