@@ -122,7 +122,7 @@
 	}
 
 	function velg(r) {
-		valgt = r;
+		valgt = r; // originalrader (_orig) kan kun vises — ingen Endre/Slett
 		rediger = false;
 	}
 
@@ -192,10 +192,10 @@
 							<div class="sidehead biblio-mappe-navn">{@html mdi('tag-outline')} {kat} <span class="biblio-antall">({rader.length})</span></div>
 							{#each rader as r (r._key)}
 								{#if r._orig}
-									<div class="m-bib-gruppe biblio-rad statisk">
+									<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg(r)} title="Original — kan ikke endres">
 										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 										<span class="m-bib-antall">{r.kilde}</span>
-									</div>
+									</button>
 								{:else}
 									<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
 										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
@@ -277,12 +277,14 @@
 						<div class="biblio-kort-hode">
 							<div>
 								<div class="biblio-tittel">{valgt.ledd}{valgt.alt_label ? ' · ' + valgt.alt_label : ''}</div>
-								<p class="maler-ingress">{@html mdi('folder-outline')} {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' : '<span class="biblio-taggapart"></span>'}{#if valgt.tags}{@html mdi('tag-outline')} {valgt.tags}{/if}</p>
+								<p class="maler-ingress">{#if valgt._orig}{@html mdi('library')} Original · {valgt.kilde || 'originalmal'}{:else}{@html mdi('folder-outline')} {valgt.mappe || '(uten mappe)'}{valgt.tags ? ' · ' : '<span class="biblio-taggapart"></span>'}{#if valgt.tags}{@html mdi('tag-outline')} {valgt.tags}{/if}{/if}</p>
 							</div>
+							{#if !valgt._orig}
 							<div class="w-mal-handlinger" style="margin-top: 0;">
 								<button onclick={redigerValgt}>{@html mdi('pencil')} Endre</button>
 								<button class="w-mal-del" onclick={() => slett(valgt)}>{@html mdi('delete-outline')} Slett</button>
 							</div>
+							{/if}
 						</div>
 						<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>
 					</div>
