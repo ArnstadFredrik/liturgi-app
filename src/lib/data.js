@@ -679,70 +679,46 @@ export const BUILTIN_TEMPLATES = [
 					"optional": true,
 					"text": "",
 					"alts": [
-						{
-							"label": "Advent",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden for å oppfylle de løfter du gav ditt folk gjennom profetene. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Jul og Maria budskapsdag",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som for vår skyld ble menneske for at vi skulle bli dine barn, frelst ut av mørket og inn i ditt underfulle lys. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Åpenbaringstiden",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som åpenbarte din herlighet for verden, så den som følger ham ikke skal vandre i mørket, men ha lys og evig liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Faste",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som elsket oss og gav seg selv for oss, så han ble lydig til døden, ja døden på korset. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Påske",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre. Han er det rette påskelam, som har båret våre synder, og ved sin oppstandelse har han seiret over døden. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Kristi himmelfartsdag og søndag før pinse",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som fór opp til himmelen og nå sitter ved din høyre hånd. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Pinse",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som troner ved din høyre hånd og har sendt Den hellige ånd over sine vitner, så ditt folk kan juble av glede og forkynne dine store gjerninger på mange tungemål. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Treenighetstiden 1",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
-							"label": "Allehelgensdag, martyrdager",
-							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som var frelser og forbilde for alle dine hellige som har fullført løpet og bevart troen. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-						},
-						{
+							{"label": "Advent", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden for å oppfylle de løfter du gav ditt folk gjennom profetene. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Jul og Maria budskapsdag", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som for vår skyld ble menneske for at vi skulle bli dine barn, frelst ut av mørket og inn i ditt underfulle lys. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Åpenbaringstiden", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som åpenbarte din herlighet for verden, så den som følger ham ikke skal vandre i mørket, men ha lys og evig liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Faste", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som elsket oss og gav seg selv for oss, så han ble lydig til døden, ja døden på korset. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Påske", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre. Han er det rette påskelam, som har båret våre synder, og ved sin oppstandelse har han seiret over døden. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Kristi himmelfartsdag og søndag før pinse", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som fór opp til himmelen og nå sitter ved din høyre hånd. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Pinse", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som troner ved din høyre hånd og har sendt Den hellige ånd over sine vitner, så ditt folk kan juble av glede og forkynne dine store gjerninger på mange tungemål. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Treenighetstiden 1", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Treenighetstiden 2", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre. Han er det levende brød som kommer ned fra himmelen og gir verden liv, så den som kommer til ham, ikke skal hungre, og den som tror på ham, aldri skal tørste. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Treenighetstiden 3", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som kom til oss med himlenes rike og forkynte det glade budskap, så syndere får sitte til bords i ditt rike. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Treenighetstiden 4", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som gjorde oss til sine disipler og lovte å være med oss alle dager inntil verdens ende. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+							{"label": "Allehelgensdag, martyrdager", "text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som var frelser og forbilde for alle dine hellige som har fullført løpet og bevart troen. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"},
+{
 							"label": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
 							"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
 						},
-						{
+{
 							"label": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
 							"text": "Vi takker deg, Gud, ved din elskede Sønn Jesus Kristus. Han er det evige Ord, og ved dette Ord skapte du alt. Da tiden var inne, sendte du ham til verden som frelser og befrier. For dette priser vi deg, sammen med alle dine hellige i himmelen og på jorden:"
 						},
-						{
+{
 							"label": "Nattverdbønn c (paulinske tekster)",
 							"text": "Å, dyp av rikdom og visdom og kunnskap hos deg, Gud! Himlene forteller om din herlighet, og jorden vitner om dine henders verk. Sammen med de troende gjennom alle tider vil vi prise ditt hellige navn:"
 						},
-						{
+{
 							"label": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
 							"text": "Vi priser deg, evige Gud, du som har skapt verden og alt som er i den. Det er i deg vi lever, beveger oss og er til. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
 						},
-						{
+{
 							"label": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
 							"text": "Vi takker deg, gode Gud, du som holder himmel og jord i dine hender. Du har skapt oss i ditt bilde og gitt oss livet i gave. Sammen med englene og din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
 						},
-						{
+{
 							"label": "Nattverdbønn f (kort – ved særskilte anledninger)",
 							"text": "Gode Gud, du har skapt oss og kalt oss ved navn. Du åpner din hånd og metter alt som lever med det gode. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
 						},
-						{
+{
 							"label": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
 							"text": "Evige, allmektige Gud, du holder himmel og jord i dine hender, du nevner oss alle ved navn, så vi skal tilhøre deg og være ditt folk på jorden. Sammen med de troende gjennom alle tider og med de himmelske hærskarer vil vi prise ditt hellige navn:"
-						}
+						},
 					],
 					"selAlt": 0
 				},
@@ -2730,122 +2706,6 @@ export const BUILTIN_TEMPLATES = [
 						"alts": [],
 						"optional": true
 					}
-				]
-			}
-		]
-	},
-	{
-		"id": "kirkeaarsprefasjoner-2020",
-		"name": "Kirkeårsprefasjoner (bokmål, 2020)",
-		"description": "Prefasjoner til nattverdsbønnen gjennom kirkeåret (KBM 2020). Kirkeårsbestemte prefasjoner (Advent, Jul, Åpenbaringstiden, Faste, Påske, Kristi himmelfart, Pinse, Treenighetstiden, Allehelgen) og de generelle nattverdbønnene a–g.",
-		"liturgiType": "gudtjeneste",
-		"kanGudstjeneste": false,
-		"visRoles": true,
-		"sections": [
-			{
-				"title": "Kirkeårsbestemte prefasjoner",
-				"items": [
-				{
-					"id": "ka-pref-0",
-					"type": "tekst",
-					"heading": "Advent",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden for å oppfylle de løfter du gav ditt folk gjennom profetene. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-1",
-					"type": "tekst",
-					"heading": "Jul og Maria budskapsdag",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som for vår skyld ble menneske for at vi skulle bli dine barn, frelst ut av mørket og inn i ditt underfulle lys. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-2",
-					"type": "tekst",
-					"heading": "Åpenbaringstiden",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som åpenbarte din herlighet for verden, så den som følger ham ikke skal vandre i mørket, men ha lys og evig liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-3",
-					"type": "tekst",
-					"heading": "Faste",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som elsket oss og gav seg selv for oss, så han ble lydig til døden, ja døden på korset. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-4",
-					"type": "tekst",
-					"heading": "Påske",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre. Han er det rette påskelam, som har båret våre synder, og ved sin oppstandelse har han seiret over døden. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-5",
-					"type": "tekst",
-					"heading": "Kristi himmelfartsdag og søndag før pinse",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som fór opp til himmelen og nå sitter ved din høyre hånd. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-6",
-					"type": "tekst",
-					"heading": "Pinse",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som troner ved din høyre hånd og har sendt Den hellige ånd over sine vitner, så ditt folk kan juble av glede og forkynne dine store gjerninger på mange tungemål. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-7",
-					"type": "tekst",
-					"heading": "Treenighetstiden 1",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "ka-pref-8",
-					"type": "tekst",
-					"heading": "Allehelgensdag, martyrdager",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som var frelser og forbilde for alle dine hellige som har fullført løpet og bevart troen. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				]
-			},
-			{
-				"title": "Generelle nattverdbønner (a–g)",
-				"items": [
-				{
-					"id": "gen-pref-0",
-					"type": "tekst",
-					"heading": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
-					"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
-				},
-				{
-					"id": "gen-pref-1",
-					"type": "tekst",
-					"heading": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
-					"text": "Vi takker deg, Gud, ved din elskede Sønn Jesus Kristus. Han er det evige Ord, og ved dette Ord skapte du alt. Da tiden var inne, sendte du ham til verden som frelser og befrier. For dette priser vi deg, sammen med alle dine hellige i himmelen og på jorden:"
-				},
-				{
-					"id": "gen-pref-2",
-					"type": "tekst",
-					"heading": "Nattverdbønn c (paulinske tekster)",
-					"text": "Å, dyp av rikdom og visdom og kunnskap hos deg, Gud! Himlene forteller om din herlighet, og jorden vitner om dine henders verk. Sammen med de troende gjennom alle tider vil vi prise ditt hellige navn:"
-				},
-				{
-					"id": "gen-pref-3",
-					"type": "tekst",
-					"heading": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
-					"text": "Vi priser deg, evige Gud, du som har skapt verden og alt som er i den. Det er i deg vi lever, beveger oss og er til. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
-				},
-				{
-					"id": "gen-pref-4",
-					"type": "tekst",
-					"heading": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
-					"text": "Vi takker deg, gode Gud, du som holder himmel og jord i dine hender. Du har skapt oss i ditt bilde og gitt oss livet i gave. Sammen med englene og din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
-				},
-				{
-					"id": "gen-pref-5",
-					"type": "tekst",
-					"heading": "Nattverdbønn f (kort – ved særskilte anledninger)",
-					"text": "Gode Gud, du har skapt oss og kalt oss ved navn. Du åpner din hånd og metter alt som lever med det gode. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
-				},
-				{
-					"id": "gen-pref-6",
-					"type": "tekst",
-					"heading": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
-					"text": "Evige, allmektige Gud, du holder himmel og jord i dine hender, du nevner oss alle ved navn, så vi skal tilhøre deg og være ditt folk på jorden. Sammen med de troende gjennom alle tider og med de himmelske hærskarer vil vi prise ditt hellige navn:"
-				},
 				]
 			}
 		]
