@@ -224,6 +224,15 @@
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
+			// malredigering: innledning/avslutning kan legges til ALLE ledd
+			...(erMal && !introAltsLen ? [
+				{ label: 'Legg til innledning', action: () => opprettGruppe('introAlts', 'selIntro', 'Innledning') },
+				{ label: 'Legg til innledning fra biblioteket …', action: () => hentGruppeFraBib('introAlts', 'selIntro', 'Innledning') }
+			] : erMal ? [{ label: 'Administrer innledning …', action: (e2) => altMeny(e2 ?? e, 'introAlts', 'selIntro', 'Innledning') }] : []),
+			...(erMal && !avslAltsLen ? [
+				{ label: 'Legg til avslutning', action: () => opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') },
+				{ label: 'Legg til avslutning fra biblioteket …', action: () => hentGruppeFraBib('avslutningAlts', 'selAvsl', 'Avslutning') }
+			] : erMal ? [{ label: 'Administrer avslutning …', action: (e2) => altMeny(e2 ?? e, 'avslutningAlts', 'selAvsl', 'Avslutning') }] : []),
 			{ label: 'Skift type …', action: skiftType },
 			'sep',
 			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
@@ -325,12 +334,6 @@
 					</button>
 					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('introAlts', 'selIntro')} title="Nytt tomt innledningsalternativ">{@html mdi('plus', 13)}</button>{/if}
 				</div>
-			{:else if erMal}
-				<div class="alt-gruppe-tittel">Innledning</div>
-				<div class="alt-cur tom-gruppe">
-					<span class="muted-hint">Ingen innledningsalternativer</span>
-					<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Opprett eller hent fra biblioteket">{@html mdi('plus', 13)} Innledning</button>
-				</div>
 			{/if}
 			{#if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
@@ -353,12 +356,6 @@
 						Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
 					</button>
 					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('avslutningAlts', 'selAvsl')} title="Nytt tomt avslutningsalternativ">{@html mdi('plus', 13)}</button>{/if}
-				</div>
-			{:else if erMal}
-				<div class="alt-gruppe-tittel">Avslutning</div>
-				<div class="alt-cur tom-gruppe">
-					<span class="muted-hint">Ingen avslutningsalternativer</span>
-					<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Opprett eller hent fra biblioteket">{@html mdi('plus', 13)} Avslutning</button>
 				</div>
 			{/if}
 		{:else}
