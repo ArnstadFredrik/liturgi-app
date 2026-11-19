@@ -2170,6 +2170,1259 @@ export const BUILTIN_TEMPLATES = [
 				]
 			}
 		]
+	},
+	{
+		"id": "forb-borgerlig-ekteskap-2017",
+		"builtinKey": "forb-borgerlig-ekteskap-2017",
+		"kind": "template",
+		"name": "Forbønn for borgerlig inngått ekteskap (bokmål, 2017)",
+		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
+		"sections": [
+			{
+				"title": "Forbønn for borgerlig inngått ekteskap 2017",
+				"items": [
+					{
+						"id": "forb2017-1",
+						"type": "instruks",
+						"heading": "1 Preludium/Inngang",
+						"instr": "Ordning for Forbønn for borgerlig inngått ekteskap 2017 (KM 06/17).\nI løpet av handlingen kan det gis rom for medvirkning av ulike slag. Det kan være medvirkning fra festfølget ved enkelte av de liturgiske ledd, og det kan være tillegg til handlingen i form av musikk eller høytlesning, eventuelt kombinert med at det tennes lys i lysgloben. Blant de kulturelle innslag kan det også åpnes for elementer som understreker ekteparets etniske bakgrunn. Der den ene part har en annen kirkelig tilhørighet enn Den norske kirke, kan det etter godkjennelse av biskopen åpnes for deltakelse fra vedkommende kirkesamfunn. Både når det gjelder medvirkning fra andre kirkesamfunn og kulturelle innslag, skal disse tilpasses forbønnshandlingens gudstjenestlige karakter og ikke bryte med Den norske kirkes trosgrunnlag.\nInnslag som kommer som tillegg til liturgien, kan plasseres etter ledd 8 Forbønn.\nDer navnene skal nevnes, kan en bruke fullt navn eller fornavn, etter hva som er naturlig i det enkelte tilfelle. I spørsmålene under ledd 7 Framstilling av ekteparet skal det brukes fullt navn.\nOrgelmusikk eller annen egnet musikk til preludium/inngang.\nEkteparet kan ta plass i koret på forhånd, eller de kan gå sammen fram til koret og sette seg på plassene sine.\nDersom det er ønskelig, kan ekteparet, forlovere, liturg og andre gå inn i kirken i prosesjon. Deretter kan det fremføres egnet vokal- eller instrumentalmusikk."
+					},
+					{
+						"id": "forb2017-2",
+						"type": "tekst",
+						"heading": "2 Inngangsord",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Nåde være med dere, og fred fra Gud vår Far og Herren Jesus Kristus."
+							},
+							{
+								"label": "C",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn: Vår skaper, frigjører og livgiver.\n(Deretter ønskes ekteparet og forsamlingen velkommen med disse eller lignende ord:)\n{{r}}L |{{/r}} Kjære (fullt navn nevnes) og (fullt navn nevnes), den (dato nevnes) inngikk dere ekteskap i (stedet nevnes). Dere er kommet hit (kirken nevnes) fordi dere ønsker kirkens forbønn for deres ekteskap. Vi er samlet for å glede oss med dere og be om Guds velsignelse over dere og over hjemmet deres.\n(Deretter kan liturgen si noe om anledningen og gudstjenesten som følger og eventuelt avslutte slik:)\n(Enten:)\n{{r}}L |{{/r}} Takk Herren, for han er god, evig varer hans miskunn.\nDette er dagen som Herren har gjort;\nla oss juble og glede oss på den!\nBIBELREF | Sal 118,1.24\n(Eller:)\n{{r}}L |{{/r}} Gud er kjærlighet, og den som blir i kjærligheten, blir i Gud og Gud i ham.\nBIBELREF | 1 Joh 4,16b"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "forb2017-3",
+						"type": "salme",
+						"heading": "3 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "forb2017-4",
+						"type": "tekst",
+						"heading": "4 Skriftlesning",
+						"text": "{{r}}L |{{/r}} Gud har skapt oss i sitt bilde\ntil å leve i fellesskap med seg og med hverandre.\nEkteskapet er Guds gode gave.\nÅ leve sammen som ektefeller\ner å leve i tillit og kjærlighet,\ndele gleder og sorger\nog trofast stå ved hverandres side livet ut.\nDet står skrevet i Salmenes bok:\nHvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly.\nDe får nyte overfloden i ditt hus,\ndu lar dem drikke av din gledes bekk.\nFor hos deg er livets kilde,\ni ditt lys ser vi lys\nBIBELREF | Sal 36, 8-10\nLa oss høre hva Guds ord sier om kjærlighet og troskap:\nKle dere derfor i inderlig medfølelse\nog vær gode, milde, ydmyke og tålmodige,\nså dere bærer over med hverandre og\ntilgir hverandre hvis den ene har noe å bebreide den andre. Som Herren har tilgitt dere, skal dere tilgi hverandre.\nOg over alt dette: Kle dere i kjærlighet,\nsom er båndet som binder sammen\nog gjør fullkommen.\nBIBELREF | Kol 3,12b-14\n{{r}}L |{{/r}} La oss videre høre fra Guds ord.\n(2-4 av de følgende tekstene eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene.)\n(Skriftlesningene kan leses av medlemmer av festfølget. De som skal lese, går samlet frem til lesepulten.)\n(Ekteparet og menigheten sitter under lesningen. Siste lesning avsluttes med:)\nSlik lyder Herrens ord.",
+						"instr": "Her kan følge."
+					},
+					{
+						"id": "forb2017-5",
+						"type": "tekst",
+						"heading": "5 Salme",
+						"instr": "Salmen kan erstattes av egnet vokal- eller instrumentalmusikk."
+					},
+					{
+						"id": "forb2017-6",
+						"type": "instruks",
+						"heading": "6 Tale",
+						"instr": "Liturgen holder en tale over et av de skriftordene som er lest under ledd 4 eller over en annen høvelig tekst."
+					},
+					{
+						"id": "forb2017-7",
+						"type": "tekst",
+						"heading": "7 Fremstilling av ekteparet",
+						"instr": "Ekteparet går sammen fram til alteret. Liturgen henvender seg først til den som står til venstre.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} For offentlig myndighet har dere lovet å leve sammen i ekteskap. Dette løftet betyr at dere skal være ett og holde trofast sammen i gode og onde dager inntil døden skiller dere.\nEtter deres ønske vil vi i dag be for dere og stille deres ekteskap og hjem inn under Guds velsignelse."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} (Begges fulle navn uten tittel), dere har for offentlig myndighet lovet å leve sammen i ekteskap. Vil dere fortsatt elske og ære hverandre og holde trofast sammen i gode og onde dager inntil døden skiller dere?\n(Ekteparet svarer, etter hverandre eller sammen:)\nJa.\n{{r}}L |{{/r}} Etter deres ønske vil vi i dag be for dere\nog stille deres ekteskap og hjem inn under Guds velsignelse."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "forb2017-8",
+						"type": "tekst",
+						"heading": "8 Forbønn",
+						"instr": "Liturgen ber for ekteparet med håndspåleggelse en av følgende bønner, som avsluttes med Fadervår.\nEventuelt kan også andre i følget delta i forbønnen med håndspåleggelse.\nHer kan følge.",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss alle be.\n(Ekteparet kneler ved alterringen.)"
+							}
+						],
+						"selIntro": 0,
+						"alts": [
+							{
+								"label": "I",
+								"text": "{{r}}L |{{/r}} Barmhjertige Gud, vi ber deg for NN og NN og deres ekteskap: La din velsignelse hvile over dem som her kneler for ditt ansikt. Fyll dem med din kjærlighet, og bygg deres hjem i fred.\nSe til dem i nåde, og styrk dem med din Ånd, så de i gode og onde dager setter sin lit til deg, holder trofast sammen og hjelper hverandre fram mot det evige liv.\n(Eller:)\n{{r}}L |{{/r}} Gode Gud, vi takker deg for (navnet nevnes) og (navnet nevnes) og for deres kjærlighet til hverandre. Velsign deres liv som ektefolk.\nHjelp dem å holde de løfter de har gitt hverandre, så deres ekteskap kan fylles av tillit, omsorg og glede.\nGi dem evne og vilje til å bygge sitt hjem i fred, så det blir et sted der [barn kan vokse opp i trygghet og] familie og venner kan finne fellesskap.\nDu som er veien, sannheten og livet, la dem få vandre i din sannhet. Du som tilgir og leger, hjelp dem å tilgi hverandre. Du som er kjærlighetens kilde, gi dem og alle ektefolk å vokse og modnes i kjærlighet."
+							},
+							{
+								"label": "II",
+								"text": "Her kan det tilføyes en fritt utformet bønn, eventuelt kombinert med lystenning.\nEventuelt kan menigheten synge en bønnesalme (mens ekteparet kneler). Se for eksempel Norsk Salmebok 2013 nr 431, 624, 638, 652, 653, 678, 680."
+							},
+							{
+								"label": "III",
+								"text": "Forbønnen avsluttes alltid med Fadervår."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Fadervår 2017",
+								"text": "{{r}}L |{{/r}} La oss sammen be Fadervår:\n{{r}}A |{{/r}} Vår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen.\n(Ekteparet setter seg på plassene sine.)"
+							},
+							{
+								"label": "Fadervår 1977",
+								"text": "{{r}}L |{{/r}} La oss sammen be Fadervår:\n{{r}}A |{{/r}} Fader vår, du som er i himmelen.\nLa ditt navn holdes hellig.\nLa ditt rike komme.\nLa din vilje skje på jorden som i himmelen.\nGi oss i dag vårt daglige brød.\nForlat oss vår skyld,\nsom vi òg forlater våre skyldnere.\nLed oss ikke inn i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen\n(Ekteparet setter seg på plassene sine.)"
+							}
+						],
+						"selAvsl": 0
+					},
+					{
+						"id": "forb2017-9",
+						"type": "instruks",
+						"heading": "9 Musikk/symbolhandlinger",
+						"instr": "Deltakere i festfølget og andre kan medvirke med musikk, høytlesning eller andre kulturelle innslag."
+					},
+					{
+						"id": "forb2017-10",
+						"type": "salme",
+						"heading": "10 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "forb2017-11",
+						"type": "tekst",
+						"heading": "11 Velsignelse",
+						"alts": [
+							{
+								"label": "A",
+								"text": "(L, vendt mot menigheten:)\n{{r}}L |{{/r}} La oss prise Herren.\n(Menigheten reiser seg.)\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. \n{{r}}M |{{/r}} Amen. Amen. Amen."
+							},
+							{
+								"label": "B",
+								"text": "(L, vendt mot menigheten:)\n{{r}}L |{{/r}} Ta imot velsignelsen.\n(Menigheten reiser seg.)\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. \n{{r}}M |{{/r}} Amen."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "forb2017-12",
+						"type": "instruks",
+						"heading": "12 Postludium/Utgang",
+						"instr": "Orgelmusikk eller annen egnet musikk. Ekteparet går sammen ut av kirken."
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "vigsel-2017",
+		"builtinKey": "vigsel-2017",
+		"kind": "template",
+		"name": "Vigsel (bokmål, 2017)",
+		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",
+		"sections": [
+			{
+				"title": "Vigsel",
+				"items": [
+					{
+						"id": "v2017-1",
+						"type": "instruks",
+						"heading": "Bestemmelser",
+						"instr": "Vedtatt av Kirkemøtet 2017, 30. januar\n1 Ekteskap inngås ved at to personer offentlig, i vitners nærvær og for godkjent (borgerlig eller kirkelig) myndighet avgir løfte til hverandre om at de vil leve sammen i ekteskap, og dette erklæres å ha offentlig gyldighet.\n2 Ekteskapsinngåelse etter kirkens ordning har både en juridisk og en kirkelig side. Den handling som er ekteskapsstiftende etter samfunnets lovgivning, foretas for Guds ansikt, og er derfor en kirkelig handling av gudstjenestlig karakter. Enkeltelementer ved handlingen, som musikk, opplesning og andre innslag må utformes i samsvar med dette.\n3 Handlingen finner sted i kirken eller et annet gudstjenestested som etter biskopens avgjørelse kan brukes til vigsel.\n4 Før handlingen har den som skal forrette – unntaksvis en annen på dennes vegne – en samtale med paret som skal vies.\n5 Salmer og sanger må på forhånd godkjennes av forrettende prest og det musikalske stoff av kantor/organist.\n6 Vigsel kan bekjentgjøres på forhånd gjennom kunngjøringene i en gudstjeneste, og paret kan nevnes i forbønnen.\n7 Hvis en vil feire bryllupsmesse, følger en enten ordningen Vigsel til og med siste salme. Denne blir da salme før nattverden, etterfulgt av en av nattverdbønnene i Gudstjenesteboken. Alternativt kan en følge Ordning for hovedgudstjeneste. Vigselordningens Inngangsord erstatter da hovedgudstjenestens Inngangord, og vigselsordningens ledd 4 Skriftlesning erstatter lesningene i hovedgudstjenesten. En av lesningene skal være en evangelielesning. Leddene Ekteskapsinngåelse og Overrekkelse av ringer kommer på kunngjøringenes plass, og vigselsordningens ledd 9 Forbønn erstatter hovedgudstjenestens forbønnsdel.\nEn kunngjør i Inngangsordene at det skal feires bryllupsmesse, for eksempel slik:\nL: Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres. Dere har også bedt om å få del i Herrens nattverd når dere nå begynner livet sammen som ektefolk.\nVi vil derfor feire denne handlingen som en bryllupsmesse, slik at det er mulig for dem som ønsker det, å gå sammen med dere til nattverd på denne dagen.\n8 Ektepar som har inngått ekteskap for borgerlig myndighet, kan siden anmode om kirkens forbønn. Se ordningen Forbønn for borgerlig inngått ekteskap 2017.\n9 Det kan ringes i ca. 5 minutter før og etter vigselshandlingen.\n10 Liturgen bærer stola i hvitt\nI løpet av handlingen kan det gis rom for medvirkning av ulike slag. Det kan være medvirkning fra bryllupsfølget ved enkelte av de liturgiske ledd, og det kan være tillegg til handlingen i form av musikk eller høytlesning, eventuelt kombinert med at det tennes lys i lysgloben. Blant de kulturelle innslag kan det også åpnes for elementer som understreker parets etniske bakgrunn. Der den ene part har en annen kirkelig tilhørighet enn Den norske kirke, kan det etter godkjennelse av biskopen åpnes for deltakelse fra vedkommende kirkesamfunn.\nBåde når det gjelder medvirkning fra andre kirkesamfunn og kulturelle innslag, skal disse tilpasses vigselshandlingens gudstjenestlige karakter og ikke bryte med Den norske kirkes trosgrunnlag.\nInnslag som kommer som tillegg til liturgien, kan plasseres etter ledd 9 Forbønn.\nDer navnene skal nevnes, kan en bruke fullt navn eller fornavn, etter hva som er naturlig i det enkelte tilfelle. I spørsmålene under ledd 7 Ekteskapsinngåelse skal det brukes fullt navn."
+					},
+					{
+						"id": "v2017-2",
+						"type": "instruks",
+						"heading": "1 Preludium/Inngang",
+						"instr": "Orgelmusikk eller annen egnet musikk til preludium/inngang.\nDe som skal vies kan gå sammen fram til koret og sette seg på sine plasser.\nDersom det er ønskelig, kan paret, en eller begge, forlovere, representant(er) for familiene, liturg og andre gå inn i kirken i prosesjon.\nDeretter kan det fremføres egnet vokal- eller instrumentalmusikk."
+					},
+					{
+						"id": "v2017-3",
+						"type": "tekst",
+						"heading": "2 Inngangsord",
+						"instr": "Deretter ønskes paret og forsamlingen velkommen med disse eller lignende ord:\nDeretter kan liturgen si:",
+						"introAlts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Nåde være med dere, og fred fra Gud vår Far og Herren Jesus Kristus."
+							},
+							{
+								"label": "C",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn: Vår skaper, frigjører og livgiver."
+							}
+						],
+						"selIntro": 0,
+						"text": "{{r}}L |{{/r}} Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Takk Herren, for han er god, evig varer hans miskunn.\nDette er dagen som Herren har gjort;\nla oss juble og glede oss på den!\nBIBELREF | Sal 118,1.24"
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Gud er kjærlighet, og den som blir i kjærligheten, blir i Gud og Gud i ham.\nBIBELREF | 1 Joh 4,16b"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "v2017-4",
+						"type": "salme",
+						"heading": "3 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "v2017-5",
+						"type": "tekst",
+						"heading": "4 Skriftlesning",
+						"text": "{{r}}L |{{/r}} Gud har skapt oss i sitt bilde\ntil å leve i fellesskap med seg og med hverandre. Ekteskapet er Guds gode gave.\nÅ leve sammen som ektefeller er å leve i tillit og kjærlighet, dele gleder og sorger\nog trofast stå ved hverandres side livet ut.\nDet står skrevet i Salmenes bok:\nHvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly. De får nyte overfloden i ditt hus, du lar dem drikke av din gledes bekk. For hos deg er livets kilde,\ni ditt lys ser vi lys\nBIBELREF | Sal 36, 8-10\nLa oss høre hva Guds ord sier om kjærlighet og troskap:\nKle dere derfor i inderlig medfølelse\nog vær gode, milde, ydmyke og tålmodige, så dere bærer over med hverandre og\ntilgir hverandre hvis den ene har noe å bebreide den andre. Som Herren har tilgitt dere, skal dere tilgi hverandre. Og over alt dette: Kle dere i kjærlighet, som er båndet som binder sammen og gjør fullkommen.\nBIBELREF | Kol 3,12b-14\n{{r}}L |{{/r}} La oss videre høre fra Guds ord.",
+						"instr": "2-4 av de følgende tekster (se s 11 i dokumentet), eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene.\nSkriftlesningene kan leses av medlemmer av bryllupsfølget. De som skal lese, går samlet frem til lesepulten.\nParet som skal vies og menigheten sitter under lesningen. Siste lesning avsluttes med: «Slik lyder Herrens ord.»"
+					},
+					{
+						"id": "v2017-6",
+						"type": "salme",
+						"heading": "5 Salme",
+						"salmeNr": "",
+						"salmeTittel": "",
+						"instr": "Her kan følge\nSalmen kan erstattes av egnet vokal- eller instrumentalmusikk."
+					},
+					{
+						"id": "v2017-7",
+						"type": "instruks",
+						"heading": "6 Tale",
+						"instr": "Liturgen holder en tale over et av de skriftordene som er lest under ledd 4 eller over en annen høvelig tekst."
+					},
+					{
+						"id": "v2017-8",
+						"type": "tekst",
+						"heading": "7 Ekteskapsinngåelse",
+						"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.",
+						"instr": "Paret går fram til alterringen. Liturgen henvender seg først til den som står til venstre.\nDeretter følger:",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel): Vil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n(Svar:) Ja.\n{{r}}L |{{/r}} Så gi hverandre hånden på det.\n(Paret vender seg mot hverandre og gir hverandre høyre hånd. Liturgen legger sin hånd på parets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær\nhar dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel),\nsom står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n{{r}}L |{{/r}} Gjenta etter meg.\n(Paret vender seg til hverandre. De gir hverandre høyre hånd og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for led (L) , deretter fremsier paret det, den ene først (P).)\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}P |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}P |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}P |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}P |{{/r}} inntil døden skiller oss.\n(Deretter gjentas løfteavleggelsen på samme måte av den andre.)\n(Liturgen legger sin hånd på parets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "v2017-9",
+						"type": "tekst",
+						"heading": "8 Overrekkelse av ringer",
+						"instr": "Her kan følge\nRingen settes så på fingeren til den andre.\nDeretter gjentas overrekkelsen på samme måte av den andre ektefellen.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet om troskap.\n(Hver av dem setter ringen på fingeren til den andre.)"
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet dere har gitt hverandre.\nGjenta etter meg.\n(Liturgen (L) leser ordene ledd for ledd, deretter fremsier ekteparet dem, den ene først (P).)\n{{r}}L |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}P |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}L |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap.\n{{r}}P |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "v2017-10",
+						"type": "tekst",
+						"heading": "9 Forbønn",
+						"text": "{{r}}L |{{/r}} La oss alle be.",
+						"instr": "Ekteparet kneler ved alterringen.\nLiturgen ber for paret med håndspåleggelse en av følgende bønner, som avsluttes med Fadervår.\nEventuelt kan også andre i følget delta i forbønnen med håndspåleggelse.\nHer kan det tilføyes en fritt utformet bønn, eventuelt kombinert med lystenning. Eventuelt kan menigheten synge en bønnesalme (mens ekteparet kneler).\nSe for eksempel Norsk Salmebok 2013 nr 431, 624, 638, 652, 653, 678, 680.\nForbønnen avsluttes alltid med Fadervår.\nDet er også anledning til å benytte Fadervår etter 1920- eller 1977- liturgien.\nFadervår fra 1978 finner du her\nFadervår fra 1930 finner du her\nEkteparet setter seg på plassene sine.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Barmhjertige Gud, vi ber deg for (navnet nevnes) og (navnet nevnes) og deres ekteskap: La din velsignelse hvile over dem som her kneler for ditt ansikt.\nFyll dem med din kjærlighet, og bygg deres hjem i fred.\nSe til dem i nåde, og styrk dem med din Ånd, så de i gode og onde dager setter sin lit til deg, holder trofast sammen og hjelper hverandre fram mot det evige liv."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Gode Gud, vi takker deg for (navnet nevnes) og (navnet nevnes) og for deres kjærlighet til hverandre. Velsign deres liv som ektefolk.\nHjelp dem å holde de løfter de har gitt hverandre, så deres ekteskap kan fylles av tillit, omsorg og glede.\nGi dem evne og vilje til å bygge sitt hjem i fred, så det blir et sted der [barn kan vokse opp i trygghet og] familie og venner kan finne fellesskap.\nDu som er veien, sannheten og livet, la dem få vandre i din sannhet. Du som tilgir og leger, hjelp dem å tilgi hverandre. Du som er kjærlighetens kilde, gi dem og alle ektefolk å vokse og modnes i kjærlighet."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Fadervår",
+								"text": "{{r}}L |{{/r}} La oss sammen be Fadervår:\n{{r}}A |{{/r}} Vår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen."
+							}
+						],
+						"selAvsl": 0
+					},
+					{
+						"id": "v2017-11",
+						"type": "instruks",
+						"heading": "10 Musikk/symbolfortellinger",
+						"instr": "Her kan følge\nDeltakere i bryllupsfølget og andre kan medvirke med musikk, høytlesning eller andre kulturelle innslag."
+					},
+					{
+						"id": "v2017-12",
+						"type": "salme",
+						"heading": "11 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "v2017-13",
+						"type": "tekst",
+						"heading": "12 Velsignelse",
+						"instr": "Under den følgende stille bønn kan en klemte tre ganger tre bønneslag med en av kirkens klokker.\nHer kan det også fremføres egnet vokal- eller instrumentalmusikk.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "(L, vendt mot menigheten.)\n{{r}}L |{{/r}} La oss prise Herren.\n(Menigheten reiser seg.)\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen. Amen. Amen."
+							},
+							{
+								"label": "B",
+								"text": "(L, vendt mot menigheten.)\n{{r}}L |{{/r}} Ta imot velsignelsen.\n(Menigheten reiser seg.)\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "v2017-14",
+						"type": "instruks",
+						"heading": "13 Utgang",
+						"instr": "Orgelmusikk eller annen egnet musikk. Ekteparet går sammen ut av kirken."
+					}
+				]
+			},
+			{
+				"title": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
+				"items": [
+					{
+						"id": "v2017-15",
+						"type": "tekst",
+						"heading": "Innledning",
+						"text": "{{r}}L |{{/r}} La oss videre høre fra Guds ord.",
+						"instr": "2-4 av de følgende tekster eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene. Skriftlesningene kan leses av medlemmer av bryllupsfølget. De som skal lese, går samlet frem til lesepulten. Paret og menigheten sitter under lesningen."
+					},
+					{
+						"id": "v2017-16",
+						"type": "tekst",
+						"heading": "1 Mos 1,27-28a",
+						"text": "Det står skrevet i Første Mosebok:\nGud skapte mennesket i sitt bilde, i Guds bilde skapte han det,\ntil mann og kvinne skapte han dem. Gud velsignet dem og sa til dem:\n«Vær fruktbare og bli mange,\nfyll jorden og legg den under dere!»\nBIBELREF | 1 Mos 1,27-28a"
+					},
+					{
+						"id": "v2017-17",
+						"type": "tekst",
+						"heading": "1 Mos 2,18",
+						"text": "Det står skrevet i Første Mosebok:\nDa sa Herren Gud: «Det er ikke godt for mennesket å være alene. Jeg vil lage en hjelper av samme slag.»\nBIBELREF | 1 Mos 2,18"
+					},
+					{
+						"id": "v2017-18",
+						"type": "tekst",
+						"heading": "Rut 1,16b-17a",
+						"text": "Det står skrevet i Ruts bok:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo. Ditt folk er mitt folk,\nog din Gud er min Gud. Der du dør, vil jeg dø,\nog der vil jeg begraves.\nBIBELREF | Rut 1,16b-17a"
+					},
+					{
+						"id": "v2017-19",
+						"type": "tekst",
+						"heading": "Salme 23",
+						"text": "Det står skrevet i Salmenes bok:\nHerren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile.\nHan gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt. For du er med meg. Din kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender. Du salver mitt hode med olje.\nMitt beger renner over. Bare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23"
+					},
+					{
+						"id": "v2017-20",
+						"type": "tekst",
+						"heading": "Salme 91,1-2.4.9",
+						"text": "Det står skrevet i Salmenes bok:\nDen som sitter i skjul hos Den høyeste og finner nattely i skyggen av Den veldige, han sier til Herren: «Min tilflukt og min borg, min Gud som jeg setter min lit til!» Under hans vinger kan du søke ly, han dekker deg med sine fjær.\nHans trofasthet er skjold og vern. «Du, Herre, er min tilflukt.» Den høyeste har du gjort til din bolig.\nBIBELREF | Salme 91,1-2.4.9"
+					},
+					{
+						"id": "v2017-21",
+						"type": "tekst",
+						"heading": "Sal 100",
+						"text": "Det står skrevet i Salmenes bok:\nRop med jubel for Herren, all jorden!\nTjen Herren med glede, kom fram for ham med jubel!\nKjenn at Herren er Gud! Han har skapt oss, vi er hans, vi er hans folk og den flokken han gjeter.\nKom gjennom portene hans med takkesang,\ninn i forgårdene med lovsang! Lov ham, velsign hans navn! Herren er god, evig er hans miskunn, hans trofasthet varer fra slekt til slekt.\nBIBELREF | Sal 100"
+					},
+					{
+						"id": "v2017-22",
+						"type": "tekst",
+						"heading": "Sal 103,1-5",
+						"text": "Det står skrevet i Salmenes bok:\nVelsign Herren, min sjel!\nAlt som i meg er, velsign hans hellige navn.\nVelsign Herren, min sjel! Glem ikke alt det gode han gjør. Han tilgir all din skyld og leger alle dine sykdommer.\nHan frir ditt liv fra graven og kroner deg med barmhjertighet og kjærlighet. Han metter ditt liv med det gode, du blir ung igjen som ørnen.\nBIBELREF | Sal 103,1-5"
+					},
+					{
+						"id": "v2017-23",
+						"type": "tekst",
+						"heading": "Fork 4,9-10a.12",
+						"text": "Det står skrevet i Forkynnerensbok:\nDet er bedre å være to enn én; de får god lønn for sitt strev. For om de faller, kan den ene hjelpe den andre opp.\nOm én blir overvunnet, kan to holde stand.\nEn tretvinnet tråd\nryker ikke så fort.\nBIBELREF | Fork 4,9-10a.12"
+					},
+					{
+						"id": "v2017-24",
+						"type": "tekst",
+						"heading": "Høys 2,9-10a.13b-14",
+						"text": "Det står skrevet i Høysangen:\nMin kjæreste ligner en gasell, en ung hjort.\nDer står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret. Min kjæreste tar til orde og sier: Stå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg, la meg få høre stemmen din!\nFor stemmen er myk og skikkelsen skjønn.\nBIBELREF | Høys 2,9-10a.13b-14"
+					},
+					{
+						"id": "v2017-25",
+						"type": "tekst",
+						"heading": "Høys 2,8-14.16-17 + 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\n(Denne lesningen kan leses av én tekstleser eller av kvinne (I) og mann (II).)\n{{r}}I |{{/r}} Hør, det er min kjæreste, der kommer han, løpende over fjellene, hoppende over høydene. Min kjæreste ligner en gasell, en ung hjort. Der står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret.\nMin kjæreste tar til orde og sier:\n{{r}}II |{{/r}} Stå opp, min elskede, min vakre jente, og kom! Nå er vinteren omme, regnet er forbi, det er borte. Landet dekkes av blomster. Sangens tid er inne, turtelduen kan høres i landet. Frukten på fikentreet modner, blomsten på vinstokken dufter.\nStå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg,\nla meg få høre stemmen din! For stemmen er myk og skikkelsen skjønn.\n{{r}}I |{{/r}} Min kjæreste er min, og jeg er hans, han som gjeter mellom liljene. Helt til dagen blåser skyggene bort, spring som gasellen, min kjæreste, som en ung hjort over kløfter og fjell!\n{{r}}I/II |{{/r}} Sett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 2,8-14.16-17 + 8,6-7a"
+					},
+					{
+						"id": "v2017-26",
+						"type": "tekst",
+						"heading": "Høys 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\nSett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 8,6-7a"
+					},
+					{
+						"id": "v2017-27",
+						"type": "tekst",
+						"heading": "Matt 5,13-16",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Dere er jordens salt! Men hvis saltet mister sin kraft,\nhvordan skal det da bli gjort til salt igjen? Det duger ikke lenger til noe, men kastes ut og tråkkes ned av menneskene.\nDere er verdens lys! En by som ligger på et fjell, kan ikke skjules. Heller ikke tenner man en oljelampe og setter den under et kar.\nNei, man setter den på en holder, så den lyser for alle i huset.\nSlik skal deres lys skinne for menneskene, så de kan se de gode gjerningene dere gjør, og prise deres Far i himmelen!\nBIBELREF | Matt 5,13-16"
+					},
+					{
+						"id": "v2017-28",
+						"type": "tekst",
+						"heading": "Matt 6,25-34",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Vær ikke bekymret for livet, hva dere skal spise,\neller hva dere skal drikke, heller ikke for kroppen, hva dere skal kle dere med. Er ikke livet mer enn maten og kroppen mer enn klærne?\nSe på fuglene under himmelen! De sår ikke, de høster ikke og samler ikke i hus,\nmen den Far dere har i himmelen, gir dem føde likevel. Er ikke dere mer verdt enn de? Hvem av dere kan vel med all sin bekymring legge en eneste alen til sin livslengde? Og hvorfor er dere bekymret for klærne? Se på liljene på marken, hvordan de vokser! De strever ikke og spinner ikke, men jeg sier dere: Selv ikke Salomo i all sin prakt var kledd som en av dem. Når Gud kler gresset på marken så fint, det som gror i dag og kastes i ovnen i morgen, hvor mye mer skal han ikke da kle dere – dere lite troende!\nSå gjør dere ikke bekymringer, og si ikke: ‘Hva skal vi spise?' eller: ‘Hva skal vi drikke?' eller: ‘Hva skal vi kle oss med?' Alt dette er hedningene opptatt av.\nMen den Far dere har i himmelen, vet jo at dere trenger alt dette.\nSøk først Guds rike og hans rettferdighet, så skal dere få alt det andre i tillegg.\nSå gjør dere ingen bekymringer for morgendagen; morgendagen skal bekymre seg for seg selv. Hver dag har nok med sin egen plage.\nBIBELREF | Matt 6,25-34"
+					},
+					{
+						"id": "v2017-29",
+						"type": "tekst",
+						"heading": "Matt 7,7-8.12",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Be, så skal dere få. Let, så skal dere finne.\nBank på, så skal det lukkes opp for dere. For den som ber, han får,\nog den som leter, han finner, og den som banker på, skal det lukkes opp for. Alt dere vil at andre skal gjøre mot dere, det skal også dere gjøre mot dem. For dette er loven og profetene.\nBIBELREF | Matt 7,7-8.12"
+					},
+					{
+						"id": "v2017-30",
+						"type": "tekst",
+						"heading": "Matt 7,24-25",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Hver den som hører disse mine ord og gjør det de sier, ligner en klok mann som bygde huset sitt på fjell. Regnet styrtet, elvene flommet, og vindene blåste og slo mot huset.\nMen det falt ikke, for det var bygd på fjell.\nBIBELREF | Matt 7,24-25"
+					},
+					{
+						"id": "v2017-31",
+						"type": "tekst",
+						"heading": "Matt 19,4-6",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Har dere ikke lest at Skaperen fra begynnelsen av skapte dem til mann og kvinne og sa: «Derfor skal mannen forlate sin far og sin mor og holde seg til sin hustru, og de to skal være ett.» Så er de ikke lenger to; deres liv er ett.\nDet som Gud altså har sammenføyd, skal mennesker ikke skille.\nBIBELREF | Matt 19,4-6"
+					},
+					{
+						"id": "v2017-32",
+						"type": "tekst",
+						"heading": "Joh 13, 34-35",
+						"text": "Det står skrevet i evangeliet etter Johannes:\nEt nytt bud gir jeg dere: Dere skal elske hverandre. Som jeg har elsket dere, skal dere elske hverandre. Ved dette skal alle forstå at dere er mine disipler:\nAt dere har kjærlighet til hverandre.\nBIBELREF | Joh 13, 34-35"
+					},
+					{
+						"id": "v2017-33",
+						"type": "tekst",
+						"heading": "Joh 15,9-12[-17]",
+						"text": "Det står skrevet i evangeliet etter Johannes:\nJesus sa: Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet!\nHvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud:\nDere skal elske hverandre som jeg har elsket dere.\n[Ingen har større kjærlighet enn den som gir livet for vennene sine.\nDere er mine venner hvis dere gjør det jeg befaler dere. Jeg kaller dere ikke lenger tjenere, for tjeneren vet ikke hva herren hans gjør. Jeg kaller dere venner, for jeg har gjort kjent for dere alt jeg har hørt av min Far.\nDere har ikke utvalgt meg, men jeg har utvalgt dere og satt dere til å gå ut og bære frukt, en frukt som varer. Da skal Far gi dere alt dere ber om i mitt navn. Dette er mitt bud til dere: Elsk hverandre!]\nBIBELREF | Joh 15,9-12[-17]"
+					},
+					{
+						"id": "v2017-34",
+						"type": "tekst",
+						"heading": "Rom 8,38-39",
+						"text": "Det står skrevet i Paulus' brev til romerne:\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,38-39"
+					},
+					{
+						"id": "v2017-35",
+						"type": "tekst",
+						"heading": "1 Kor 13",
+						"text": "Det står skrevet i Paulus' første brev til korinterne:\n(Kapitlet kan leses i sin helhet eller i utdrag.)\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer, skal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13"
+					},
+					{
+						"id": "v2017-36",
+						"type": "tekst",
+						"heading": "Gal 3, 26-28",
+						"text": "Det står skrevet i Paulus' brev til galaterne:\nFor dere er alle Guds barn ved troen, i Kristus Jesus.\nAlle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus.\nBIBELREF | Gal 3, 26-28"
+					},
+					{
+						"id": "v2017-37",
+						"type": "tekst",
+						"heading": "Ef 3,14-21",
+						"text": "Det står skrevet i Paulus' brev til efeserne:\nDerfor bøyer jeg mine knær for Far, han som har gitt navn til alt som kalles far i himmel og på jord. Må han som er så rik på herlighet, gi deres indre menneske kraft og styrke ved sin Ånd. Må Kristus ved troen bo i deres hjerter og dere stå rotfestet og grunnfestet i kjærlighet. Må dere sammen med alle de hellige bli i stand til å fatte bredden og lengden, høyden og dybden, ja, kjenne Kristi kjærlighet, som overgår all kunnskap. Må dere bli fylt av hele Guds fylde!\nHan som virker i oss med sin kraft og kan gjøre uendelig mye mer enn det vi ber om og forstår, ham være ære i kirken og i Kristus Jesus gjennom alle slekter og evigheter! Amen.\nBIBELREF | Ef 3,14-21"
+					},
+					{
+						"id": "v2017-38",
+						"type": "tekst",
+						"heading": "Fil 2,1-5",
+						"text": "Det står skrevet i Paulus' brev til filipperne:\nOm det da er trøst i Kristus, oppmuntring i kjærligheten, fellesskap i Ånden, om det finnes medfølelse og barmhjertighet, så gjør nå min glede fullkommen: Ha samme sinnelag og samme kjærlighet, vær ett i sjel og sinn.\nGjør ikke noe av selvhevdelse og tom ærgjerrighet, men vær ydmyke og sett de andre høyere enn dere selv. Tenk ikke bare på deres eget beste, men også på de andres. La samme sinnelag være i dere som også var i Kristus Jesus!\nBIBELREF | Fil 2,1-5"
+					},
+					{
+						"id": "v2017-39",
+						"type": "tekst",
+						"heading": "Fil 4,4-8",
+						"text": "Det står skrevet i Paulus' brev til filipperne:\nGled dere alltid i Herren! Igjen vil jeg si: Gled dere!\nLa alle mennesker få merke at dere er vennlige. Herren er nær.\nVær ikke bekymret for noe! Men legg alt dere har på hjertet, fram for Gud. Be og kall på ham med takk. Og Guds fred, som overgår all forstand,\nskal bevare deres hjerter og tanker i Kristus Jesus. Til slutt, søsken: Alt som er sant og edelt, rett og rent, alt som er verdt å elske og akte, alt som er til glede og alt som fortjener ros, legg vinn på det!\nBIBELREF | Fil 4,4-8"
+					},
+					{
+						"id": "v2017-40",
+						"type": "tekst",
+						"heading": "1 Joh 4,7-12",
+						"text": "Det står skrevet i Johannes' første brev:\nMine kjære, la oss elske hverandre! For kjærligheten er fra Gud,\nog hver den som elsker, er født av Gud og kjenner Gud.\nDen som ikke elsker, har aldri kjent Gud, for Gud er kjærlighet.\nOg ved dette ble Guds kjærlighet åpenbart blant oss, at Gud sendte sin enbårne Sønn til verden for at vi skulle leve ved ham.\nJa, dette er kjærligheten, ikke at vi har elsket Gud, men at han har elsket oss\nog sendt sin Sønn til soning for våre synder.\nMine kjære, har Gud elsket oss slik, da skylder også vi å elske hverandre. Ingen har noen gang sett Gud. Men dersom vi elsker hverandre, blir Gud i oss, og hans kjærlighet er fullendt i oss.\nBIBELREF | 1 Joh 4,7-12",
+						"instr": "Bibeltekstene er Hentet fra Bibel 2011 © Det Norske Bibelselskap"
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "vigsel-2003",
+		"builtinKey": "vigsel-2003",
+		"kind": "template",
+		"name": "Vigsel (bokmål, 2003)",
+		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2002, i bruk fra mars 2003. Inkluderer skriftlesninger.",
+		"sections": [
+			{
+				"title": "Bestemmelser",
+				"items": [
+					{
+						"id": "v2003-1",
+						"type": "instruks",
+						"heading": "Bestemmelser",
+						"instr": "Ordning for Vigsel 2003.\nEkteskap inngås ved at kvinne og mann offentlig, i vitners nærvær og for godkjent (borgerlig eller kirkelig) myndighet avgir løfte til hverandre om at de vil leve sammen i ekteskap, og dette erklæres å ha offentlig gyldighet.\nEkteskapsinngåelse etter kirkens ordning har både en juridisk og en kirkelig side. Den handling som er ekteskapsstiftende etter samfunnets lovgivning, foretas for Guds ansikt, og er derfor en kirkelig handling av gudstjenestlig karakter. Enkeltelementer ved handlingen, som musikk, opplesning og andre innslag må utformes i samsvar med dette.\nHandlingen finner sted i kirken eller et annet gudstjenestested som etter biskopens avgjørelse kan brukes til vigsel.\nFør handlingen har den som skal forrette – unntaksvis en annen på dennes vegne – en samtale med brudeparet.\nSalmer og sanger må på forhånd godkjennes av forrettende prest og det musikalske stoff av kantor/organist.\nDen forestående vigsel bør på forhånd bekjentgjøres gjennom kunngjøringene i en gudstjeneste, og brudeparet nevnes i forbønnen.\nHvis en vil feire bryllupsmesse, kan en følge ordningen Vigsel til og med siste salme. Denne blir da salme før nattverden, etterfulgt av en av nattverdbønnene i Gudstjenesteboken. Alternativt kan en følge Ordning for hovedgudstjeneste. Vigselordningens Inngangsord erstatter da hovedgudstjenestens Inngangsord, og vigselsordningens ledd 4 Skriftlesning erstatter lesningene i hovedgudstjenesten. En av lesningene skal være en evangelielesning. Leddene Ekteskapsinngåelse og Overrekkelse av ringer kommer på kunngjøringenes plass, og vigselsordningens ledd 9 Forbønn erstatter hovedgudstjenestens forbønnsdel.\nEn kunngjør i Inngangsordene at det skal feires bryllupsmesse, for eksempel slik:\nL Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres. Dere har også bedt om å få del i Herrens nattverd når dere nå begynner livet sammen som ektefolk.\nVi vil derfor feire denne handlingen som en bryllupsmesse, slik at det er mulig for dem som ønsker det, å gå sammen med dere til nattverd på denne dagen.\nEktepar som har inngått ekteskap for borgerlig myndighet, kan siden anmode om kirkens forbønn. Se ordningen Forbønn for borgerlig inngått ekteskap.\nDet kan ringes i ca. 5 minutter før og etter vigselshandlingen.\nLiturgen bærer stola i hvitt.\nI løpet av handlingen kan det gis rom for medvirkning av ulike slag. Det kan være medvirkning fra bryllupsfølget ved enkelte av de liturgiske ledd, og det kan være tillegg til handlingen i form av musikk eller høytlesning, eventuelt kombinert med at det tennes lys i lysgloben. Blant de kulturelle innslag kan det også åpnes for elementer som understreker brudeparets etniske bakgrunn. Der den ene part har en annen kirkelig tilhørighet enn Den norske kirke, kan det etter godkjennelse av biskopen åpnes for deltakelse fra vedkommende kirkesamfunn.\nBåde når det gjelder medvirkning fra andre kirkesamfunn og kulturelle innslag, skal disse tilpasses vigselshandlingens gudstjenestelige karakter og ikke bryte med Den norske kirkes trosgrunnlag.\nInnslag som kommer som tillegg til liturgien, kan plasseres etter ledd 9 Forbønn.\nDer navnene skal nevnes, kan en bruke fullt navn eller fornavn, etter hva som er naturlig i det enkelte tilfelle. I spørsmålene under ledd 7 Ekteskapsinngåelse skal det brukes fullt navn."
+					}
+				]
+			},
+			{
+				"title": "1 Preludium/Inngang",
+				"items": [
+					{
+						"id": "v2003-2",
+						"type": "instruks",
+						"heading": "1 Preludium/Inngang",
+						"instr": "Orgelmusikk eller annen egnet musikk til preludium/inngang. Brudeparet kan gå sammen fram til koret og sette seg på sine plasser. Dersom det er ønskelig, kan brudeparet, en eller begge, forlovere, representant(er) for familiene, liturg og andre gå inn i kirken i prosesjon.\nDeretter kan det framføres egnet vokal- eller instrumentalmusikk."
+					}
+				]
+			},
+			{
+				"title": "2 Inngangsord",
+				"items": [
+					{
+						"id": "v2003-3",
+						"type": "tekst",
+						"heading": "2 Inngangsord",
+						"text": "(Deretter ønskes brudeparet og forsamlingen velkommen med disse eller lignende ord:)\n{{r}}L |{{/r}} Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Deretter kan liturgen si:)",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Nåde være med dere, og fred fra Gud vår Far og Herren Jesus Kristus."
+							},
+							{
+								"label": "C",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn: Vår skaper, frigjører og livgiver."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Sal 36,8-10",
+								"text": "{{r}}L |{{/r}} Hvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly. De får nyte overfloden i ditt hus,\ndu lar dem drikke av din gledes bekk. For hos deg er livets kilde,\ni ditt lys ser vi lys.\nBIBELREF | Sal 36,8-10"
+							},
+							{
+								"label": "Sal 118,1.24",
+								"text": "{{r}}L |{{/r}} Takk Herren, for han er god, evig varer hans miskunn.\nDette er dagen som Herren har gjort;\nla oss juble og glede oss på den!\nBIBELREF | Sal 118,1.24"
+							},
+							{
+								"label": "1 Joh 4,16b",
+								"text": "{{r}}L |{{/r}} Gud er kjærlighet,\nog den som blir i kjærligheten, blir i Gud og Gud i ham.\nBIBELREF | 1 Joh 4,16b"
+							}
+						],
+						"selAvsl": 0
+					}
+				]
+			},
+			{
+				"title": "3 Salme",
+				"items": [
+					{
+						"id": "v2003-4",
+						"type": "salme",
+						"heading": "3 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					}
+				]
+			},
+			{
+				"title": "4 Skriftlesning",
+				"items": [
+					{
+						"id": "v2003-5",
+						"type": "tekst",
+						"heading": "4 Skriftlesning",
+						"instr": "2-4 av de følgende tekstene (se s 11 i dokumentet) eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene.\nSkriftlesningene kan leses av medlemmer av bryllupsfølget. De som skal lese, går samlet frem til lesepulten.\nBrudepar og menighet sitter under lesningen. Siste lesning avsluttes med:\nHer kan følge",
+						"text": "{{r}}L |{{/r}} Gud har skapt oss til å leve i fellesskap med seg og med hverandre.\nHan har ordnet det slik at mann og kvinne skal være ett og stadfestet dette fellesskapet med sin velsignelse.\nEkteskapet er Guds gode gave.\nÅ leve sammen som mann og kvinne er å leve i tillit og kjærlighet,\ndele gleder og sorger\nog trofast stå ved hverandres side livet ut.\nGuds ord vitner om ekteskapet at det er hellig og ukrenkelig.\nDet står skrevet i Første Mosebok:\nGud skapte mennesket i sitt bilde, i Guds bilde skapte han det,\nsom mann og kvinne skapte han dem. Gud velsignet dem og sa til dem:\n«Vær fruktbare og bli mange,\nfyll jorden og legg den under dere!»\nBIBELREF | 1 Mos 1,27-28a\nOg vår Herre Jesus Kristus sier:\nHar dere ikke lest at Skaperen fra begynnelsen av skapte dem som mann og kvinne og sa:\n«Derfor skal mannen forlate far og mor\nog holde fast ved sin kvinne, og de to skal være én kropp.»\nSå er de ikke lenger to; de er én kropp. Og det som Gud har sammenføyd, skal mennesker ikke skille.\nBIBELREF | Matt 19,4-6\n{{r}}L |{{/r}} La oss videre høre fra Guds ord.\nSlik lyder Herrens ord."
+					}
+				]
+			},
+			{
+				"title": "5 Salme",
+				"items": [
+					{
+						"id": "v2003-6",
+						"type": "salme",
+						"heading": "5 Salme",
+						"salmeNr": "",
+						"salmeTittel": "",
+						"instr": "Salmen kan erstattes av egnet vokal- eller instrumentalmusikk."
+					}
+				]
+			},
+			{
+				"title": "6 Tale",
+				"items": [
+					{
+						"id": "v2003-7",
+						"type": "instruks",
+						"heading": "6 Tale",
+						"instr": "Liturgen holder en tale over et av de skriftordene som er lest under ledd 4 eller over en annen høvelig tekst."
+					}
+				]
+			},
+			{
+				"title": "7 Ekteskapsinngåelse",
+				"items": [
+					{
+						"id": "v2003-8",
+						"type": "tekst",
+						"heading": "7 Ekteskapsinngåelse",
+						"instr": "Her kan følge",
+						"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Brudeparet går fram til alterringen. Deretter følger:)",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (brudgommens fulle navn uten tittel): Vil du ha (brudens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Brudgommen sier:)\nJa.\n{{r}}L |{{/r}} Vil du elske og ære henne og bli trofast hos henne i gode og onde dager inntil døden skiller dere?\n(Brudgommen sier:)\nJa.\n{{r}}L |{{/r}} Likeså spør jeg deg, (brudens fulle navn uten tittel): Vil du ha (brudgommens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Bruden sier:)\nJa.\n{{r}}L |{{/r}} Vil du elske og ære ham og bli trofast hos ham i gode og onde dager inntil døden skiller dere?\n(Bruden sier:)\nJa.\n{{r}}L |{{/r}} Så gi hverandre hånden på det.\n(Brudeparet vender seg mot hverandre og gir hverandre høyre hånd. Liturgen legger sin hånd på brudeparets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær\nhar dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (brudgommens fulle navn uten tittel): Vil du ha (brudens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Brudgommen sier:)\nJa.\n{{r}}L |{{/r}} Likeså spør jeg deg, (brudens fulle navn uten tittel): Vil du ha\n(brudgommens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Bruden sier:)\nJa.\n{{r}}L |{{/r}} Gjenta nå etter meg.\n(Brudgom og brud vender seg til hverandre. De gir hverandre hendene og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for ledd, deretter fremsier brudeparet det, den ene først.)\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}B |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}B |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}B |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}B |{{/r}} inntil døden skiller oss.\n(Deretter gjentas løfteavleggelsen på samme måte av den andre ektefellen. Liturgen legger sin hånd på brudeparets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+							}
+						],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "8 Overrekkelse av ringer",
+				"items": [
+					{
+						"id": "v2003-9",
+						"type": "tekst",
+						"heading": "8 Overrekkelse av ringer",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet om troskap.\n(Hver av dem setter ringen på fingeren til den andre.)"
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet dere har gitt hverandre. Gjenta etter meg.\n(Liturgen leser ordene ledd for ledd (L), deretter fremsier brudeparet dem (B), den ene først.)\n{{r}}L |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}B |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}L |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap.\n{{r}}B |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap.\n(Ringen settes så på fingeren til den andre.)\n(Deretter gjentas overrekkelsen på samme måte av den andre ektefellen.)"
+							}
+						],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "9 Forbønn",
+				"items": [
+					{
+						"id": "v2003-10",
+						"type": "tekst",
+						"heading": "9 Forbønn",
+						"instr": "Ekteparet kneler ved alterringen.\nLiturgen ber for brudeparet med håndspåleggelse en av følgende bønner, som avsluttes med Herrens bønn. Eventuelt kan også andre i følget delta i forbønnen med håndspåleggelse.\nHer kan det tilføyes en fritt utformet bønn, eventuelt kombinert med lystenning. Eventuelt kan menigheten synge en bønnesalme (mens brudeparet kneler).\nSe for eksempel Norsk salmebok 2013 nr 431, 624, 638, 652, 653, 678, 680. Forbønnen avsluttes alltid med Fadervår.\nDet er også anledning til å benytte Fadervår etter 1920- eller 1977- liturgien. Ekteparet setter seg på plassene sine.\nHer kan følge",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss alle be."
+							}
+						],
+						"selIntro": 0,
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Barmhjertige Gud, du som har innsatt ekteskapet og velsignet kvinne og mann, vi ber deg: La din velsignelse hvile over (navnet nevnes) og (navnet nevnes) som her kneler for ditt ansikt.\nFyll dem med din kjærlighet, og bygg deres hjem i fred.\nSe til dem i nåde, og styrk dem med din Ånd, så de i gode og onde dager setter sin lit til deg, holder trofast sammen og hjelper hverandre fram mot det evige liv."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Gode Gud, vi takker deg for (navnet nevnes) og (navnet nevnes) og for deres kjærlighet til hverandre. Velsign deres liv som ektefolk.\nHjelp dem å holde de løfter de har gitt hverandre, så deres ekteskap kan fylles av tillit, omsorg og glede.\nGi dem evne og vilje til å bygge sitt hjem i fred, så det blir et sted der [barn kan vokse opp i trygghet og] familie og venner kan finne fellesskap.\nDu som er veien, sannheten og livet, la dem få vandre i din sannhet. Du som tilgir og leger, hjelp dem å tilgi hverandre. Du som er kjærlighetens kilde, gi dem og alle ektefolk å vokse og modnes i kjærlighet."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Fadervår",
+								"text": "{{r}}L |{{/r}} La oss sammen be Fadervår.\n{{r}}A |{{/r}} Vår Far i himmelen! La navnet ditt helliges. La riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen. Gi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere. Og la oss ikke komme i fristelse, men frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet. Amen."
+							}
+						],
+						"selAvsl": 0
+					}
+				]
+			},
+			{
+				"title": "10 Musikk/symbolhandlinger",
+				"items": [
+					{
+						"id": "v2003-11",
+						"type": "instruks",
+						"heading": "10 Musikk/symbolhandlinger",
+						"instr": "Deltakere i bryllupsfølget og andre kan medvirke med musikk, høytlesning eller andre kulturelle innslag."
+					}
+				]
+			},
+			{
+				"title": "11 Salme",
+				"items": [
+					{
+						"id": "v2003-12",
+						"type": "salme",
+						"heading": "11 Salme",
+						"salmeNr": "",
+						"salmeTittel": ""
+					}
+				]
+			},
+			{
+				"title": "12 Velsignelse",
+				"items": [
+					{
+						"id": "v2003-13",
+						"type": "tekst",
+						"heading": "12 Velsignelse",
+						"instr": "Under den følgende stille bønn kan en klemte tre ganger tre bønneslag med en av kirkens klokker.\nHer kan det også fremføres egnet vokal- eller instrumentalmusikk.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "(L vendt mot menigheten.)\nLa oss prise Herren.\n(Menigheten reiser seg (M).)\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✝\n{{r}}M |{{/r}} Amen. Amen. Amen."
+							},
+							{
+								"label": "B",
+								"text": "(L vendt mot menigheten.)\nTa imot velsignelsen.\n(Menigheten reiser seg.)\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✝\n{{r}}M |{{/r}} Amen."
+							}
+						],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "13 Utgang",
+				"items": [
+					{
+						"id": "v2003-14",
+						"type": "instruks",
+						"heading": "13 Utgang",
+						"instr": "Orgelmusikk eller annen egnet musikk. Ekteparet går sammen ut av kirken."
+					}
+				]
+			},
+			{
+				"title": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
+				"items": [
+					{
+						"id": "v2003-15",
+						"type": "tekst",
+						"heading": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
+						"instr": "2-4 av de følgende tekster eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene. Skriftlesningene kan leses av medlemmer av bryllupsfølget. De som skal lese, går samlet frem til lesepulten. Paret og menigheten sitter under lesningen.",
+						"text": "{{r}}L |{{/r}} La oss videre høre fra Guds ord."
+					},
+					{
+						"id": "v2003-16",
+						"type": "tekst",
+						"heading": "Salme 23",
+						"text": "Det står skrevet i Salmenes bok:\nHerren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile. Han gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt. For du er med meg.\nDin kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender. Du salver mitt hode med olje.\nMitt beger renner over. Bare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23"
+					},
+					{
+						"id": "v2003-17",
+						"type": "tekst",
+						"heading": "Sal 36, 6-10",
+						"text": "Det står skrevet i Salmenes bok:\nHerre, til himmelen rekker din miskunn, din trofasthet når til skyene.\nDin rettferd er som mektige fjell,\nsom det store havdyp er dine dommer.\nHerre, du berger både mennesker og dyr.\nHvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly. De får nyte overfloden i ditt hus,\ndu lar dem drikke av din gledes bekk.\nFor hos deg er livets kilde,\ni ditt lys ser vi lys.\nBIBELREF | Sal 36, 6-10"
+					},
+					{
+						"id": "v2003-18",
+						"type": "tekst",
+						"heading": "Salme 91,1-2.4.9",
+						"text": "Det står skrevet i Salmenes bok:\nDen som sitter i skjul hos Den høyeste og finner nattely i skyggen av Den veldige, han sier til Herren: «Min tilflukt og min borg, min Gud som jeg setter min lit til!» Under hans vinger kan du søke ly, han dekker deg med sine fjær.\nHans trofasthet er skjold og vern. «Du, Herre, er min tilflukt.» Den høyeste har du gjort til din bolig.\nBIBELREF | Salme 91,1-2.4.9"
+					},
+					{
+						"id": "v2003-19",
+						"type": "tekst",
+						"heading": "Sal 100",
+						"text": "Det står skrevet i Salmenes bok:\nRop med jubel for Herren, all jorden!\nTjen Herren med glede, kom fram for ham med jubel!\nKjenn at Herren er Gud! Han har skapt oss, vi er hans, vi er hans folk og den flokken han gjeter.\nKom gjennom portene hans med takkesang,\ninn i forgårdene med lovsang! Lov ham, velsign hans navn! Herren er god, evig er hans miskunn,\nhans trofasthet varer fra slekt til slekt.\nBIBELREF | Sal 100"
+					},
+					{
+						"id": "v2003-20",
+						"type": "tekst",
+						"heading": "Sal 103,1-5",
+						"text": "Det står skrevet i Salmenes bok:\nVelsign Herren, min sjel!\nAlt som i meg er, velsign hans hellige navn.\nVelsign Herren, min sjel! Glem ikke alt det gode han gjør. Han tilgir all din skyld og leger alle dine sykdommer.\nHan frir ditt liv fra graven og kroner deg med barmhjertighet og kjærlighet. Han metter ditt liv med det gode, du blir ung igjen som ørnen.\nBIBELREF | Sal 103,1-5"
+					},
+					{
+						"id": "v2003-21",
+						"type": "tekst",
+						"heading": "Høys 2,9-10a.13b-14",
+						"text": "Det står skrevet i Høysangen:\nMin kjæreste ligner en gasell, en ung hjort.\nDer står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret. Min kjæreste tar til orde og sier: Stå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg, la meg få høre stemmen din!\nFor stemmen er myk og skikkelsen skjønn.\nBIBELREF | Høys 2,9-10a.13b-14"
+					},
+					{
+						"id": "v2003-22",
+						"type": "tekst",
+						"heading": "Høys 2,8-14.16-17 + 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\n(Denne lesningen kan leses av én tekstleser eller av kvinne (I) og mann (II).)\n{{r}}I |{{/r}} Hør, det er min kjæreste, der kommer han, løpende over fjellene, hoppende over høydene.\nMin kjæreste ligner en gasell, en ung hjort. Der står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret.\nMin kjæreste tar til orde og sier:\n{{r}}II |{{/r}} Stå opp, min elskede, min vakre jente, og kom! Nå er vinteren omme, regnet er forbi, det er borte.\nLandet dekkes av blomster. Sangens tid er inne, turtelduen kan høres i landet. Frukten på fikentreet modner, blomsten på vinstokken dufter.\nStå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg,\nla meg få høre stemmen din! For stemmen er myk og skikkelsen skjønn.\n{{r}}I |{{/r}} Min kjæreste er min, og jeg er hans, han som gjeter mellom liljene. Helt til dagen blåser skyggene bort, spring som gasellen, min kjæreste, som en ung hjort over kløfter og fjell!\n{{r}}I/II |{{/r}} Sett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 2,8-14.16-17 + 8,6-7a"
+					},
+					{
+						"id": "v2003-23",
+						"type": "tekst",
+						"heading": "Høys 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\nSett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 8,6-7a"
+					},
+					{
+						"id": "v2003-24",
+						"type": "tekst",
+						"heading": "Matt 5,13-16",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Dere er jordens salt! Men hvis saltet mister sin kraft,\nhvordan skal det da bli gjort til salt igjen? Det duger ikke lenger til noe, men kastes ut og tråkkes ned av menneskene.\nDere er verdens lys! En by som ligger på et fjell, kan ikke skjules. Heller ikke tenner man en oljelampe og setter den under et kar.\nNei, man setter den på en holder, så den lyser for alle i huset.\nSlik skal deres lys skinne for menneskene, så de kan se de gode gjerningene dere gjør, og prise deres Far i himmelen!\nBIBELREF | Matt 5,13-16"
+					},
+					{
+						"id": "v2003-25",
+						"type": "tekst",
+						"heading": "Matt 6,25-34",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Vær ikke bekymret for livet, hva dere skal spise,\neller hva dere skal drikke, heller ikke for kroppen, hva dere skal kle dere med. Er ikke livet mer enn maten og kroppen mer enn klærne?\nSe på fuglene under himmelen! De sår ikke, de høster ikke og samler ikke i hus,\nmen den Far dere har i himmelen, gir dem føde likevel. Er ikke dere mer verdt enn de?\nHvem av dere kan vel med all sin bekymring legge en eneste alen til sin livslengde? Og hvorfor er dere bekymret for klærne? Se på liljene på marken, hvordan de vokser! De strever ikke og spinner ikke, men jeg sier dere: Selv ikke Salomo i all sin prakt var kledd som en av dem. Når Gud kler gresset på marken så fint, det som gror i dag\nog kastes i ovnen i morgen, hvor mye mer skal han ikke da kle dere – dere lite troende!\nSå gjør dere ikke bekymringer, og si ikke: ‘Hva skal vi spise?’ eller: ‘Hva skal vi drikke?’ eller: ‘Hva skal vi kle oss med?’ Alt dette er hedningene opptatt av.\nMen den Far dere har i himmelen, vet jo at dere trenger alt dette.\nSøk først Guds rike og hans rettferdighet, så skal dere få alt det andre i tillegg.\nSå gjør dere ingen bekymringer for morgendagen; morgendagen skal bekymre seg for seg selv.\nHver dag har nok med sin egen plage.\nBIBELREF | Matt 6,25-34"
+					},
+					{
+						"id": "v2003-26",
+						"type": "tekst",
+						"heading": "Matt 7,7-8.12",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Be, så skal dere få. Let, så skal dere finne.\nBank på, så skal det lukkes opp for dere. For den som ber, han får,\nog den som leter, han finner, og den som banker på, skal det lukkes opp for. Alt dere vil at andre skal gjøre mot dere, det skal også dere gjøre mot dem. For dette er loven og profetene.\nBIBELREF | Matt 7,7-8.12"
+					},
+					{
+						"id": "v2003-27",
+						"type": "tekst",
+						"heading": "Matt 7,24-25",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Hver den som hører disse mine ord og gjør det de sier, ligner en klok mann som bygde huset sitt på fjell. Regnet styrtet, elvene flommet, og vindene blåste og slo mot huset.\nMen det falt ikke, for det var bygd på fjell.\nBIBELREF | Matt 7,24-25"
+					},
+					{
+						"id": "v2003-28",
+						"type": "tekst",
+						"heading": "Joh 15,9-12[-17]",
+						"text": "Det står skrevet i evangeliet etter Johannes:\nJesus sa: Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet!\nHvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere\nog deres glede kan bli fullkommen. Og dette er mitt bud:\nDere skal elske hverandre som jeg har elsket dere.\n[Ingen har større kjærlighet enn den som gir livet for vennene sine.\nDere er mine venner hvis dere gjør det jeg befaler dere. Jeg kaller dere ikke lenger tjenere, for tjeneren vet ikke hva herren hans gjør. Jeg kaller dere venner, for jeg har gjort kjent for dere alt jeg har hørt av min Far. Dere har ikke utvalgt meg, men jeg har utvalgt dere og satt\ndere til å gå ut og bære frukt, en frukt som varer. Da skal Far gi dere alt dere ber om i mitt navn. Dette er mitt bud til dere: Elsk hverandre!]\nBIBELREF | Joh 15,9-12[-17]"
+					},
+					{
+						"id": "v2003-29",
+						"type": "tekst",
+						"heading": "Rom 8,38-39",
+						"text": "Det står skrevet i Paulus’ brev til romerne:\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt,\nverken det som er i det høye eller i det dype, eller noen annen skapning,\nskal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,38-39"
+					},
+					{
+						"id": "v2003-30",
+						"type": "tekst",
+						"heading": "1 Kor 13",
+						"text": "Det står skrevet i Paulus’ første brev til korinterne:\n(Kapitlet kan leses i sin helhet eller i utdrag.)\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer,\nskal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13"
+					},
+					{
+						"id": "v2003-31",
+						"type": "tekst",
+						"heading": "Ef 3,14-21",
+						"text": "Det står skrevet i Paulus’ brev til efeserne:\nDerfor bøyer jeg mine knær for Far, han som har gitt navn til alt som kalles far i himmel og på jord. Må han som er så rik på herlighet, gi deres indre menneske kraft og styrke ved sin Ånd. Må Kristus ved troen bo i deres hjerter\nog dere stå rotfestet og grunnfestet i kjærlighet. Må dere sammen med alle de hellige\nbli i stand til å fatte bredden og lengden, høyden og dybden, ja, kjenne Kristi kjærlighet, som overgår all kunnskap. Må dere bli fylt av hele Guds fylde!\nHan som virker i oss med sin kraft og kan gjøre uendelig mye mer enn det vi ber om og\nforstår, ham være ære i kirken og i Kristus Jesus gjennom alle slekter og evigheter! Amen.\nBIBELREF | Ef 3,14-21"
+					},
+					{
+						"id": "v2003-32",
+						"type": "tekst",
+						"heading": "Fil 2,1-5",
+						"text": "Det står skrevet i Paulus’ brev til filipperne:\nOm det da er trøst i Kristus, oppmuntring i kjærligheten, fellesskap i Ånden, om det finnes medfølelse og barmhjertighet, så gjør nå min glede fullkommen: Ha samme sinnelag og samme kjærlighet, vær ett i sjel og sinn.\nGjør ikke noe av selvhevdelse og tom ærgjerrighet, men vær ydmyke og sett de andre høyere enn dere selv. Tenk ikke bare på deres eget beste, men også på de andres.\nLa samme sinnelag være i dere som også var i Kristus Jesus!\nBIBELREF | Fil 2,1-5"
+					},
+					{
+						"id": "v2003-33",
+						"type": "tekst",
+						"heading": "Fil 4,4-8",
+						"text": "Det står skrevet i Paulus’ brev til filipperne:\nGled dere alltid i Herren! Igjen vil jeg si: Gled dere!\nLa alle mennesker få merke at dere er vennlige. Herren er nær.\nVær ikke bekymret for noe! Men legg alt dere har på hjertet, fram for Gud. Be og kall på ham med takk. Og Guds fred, som overgår all forstand,\nskal bevare deres hjerter og tanker i Kristus Jesus. Til slutt, søsken: Alt som er sant og edelt, rett og rent, alt som er verdt å elske og akte, alt som er til glede og alt som fortjener ros, legg vinn på det!\nBIBELREF | Fil 4,4-8"
+					},
+					{
+						"id": "v2003-34",
+						"type": "tekst",
+						"heading": "Kol 3, 12b-14",
+						"text": "Det står skrevet i Paulus’ brev til kolosserne:\nKle dere derfor i inderlig medfølelse og vær gode, milde, ydmyke og tålmodige,\nså dere bærer over med hverandre og tilgir hverandre hvis den ene har noe å bebreide den andre. Som Herren har tilgitt dere, skal dere tilgi hverandre.\nOg over alt dette: Kle dere i kjærlighet, som er båndet som binder sammen\nog gjør fullkommen.\nBIBELREF | Kol 3, 12b-14"
+					},
+					{
+						"id": "v2003-35",
+						"type": "tekst",
+						"heading": "1 Joh 4,7-12",
+						"text": "Det står skrevet i Johannes’ første brev:\nMine kjære, la oss elske hverandre! For kjærligheten er fra Gud,\nog hver den som elsker, er født av Gud og kjenner Gud.\nDen som ikke elsker, har aldri kjent Gud, for Gud er kjærlighet.\nOg ved dette ble Guds kjærlighet åpenbart blant oss, at Gud sendte sin enbårne Sønn til verden\nfor at vi skulle leve ved ham.\nJa, dette er kjærligheten, ikke at vi har elsket Gud, men at han har elsket oss\nog sendt sin Sønn til soning for våre synder.\nMine kjære, har Gud elsket oss slik, da skylder også vi å elske hverandre. Ingen har noen gang sett Gud. Men dersom vi elsker hverandre, blir Gud i oss, og hans kjærlighet er fullendt i oss.\nBIBELREF | 1 Joh 4,7-12"
+					},
+					{
+						"id": "v2003-36",
+						"type": "instruks",
+						"heading": "Bibeltekster",
+						"instr": "Bibeltekstene er hentet fra Bibel 2011 © Det Norske Bibelselskap"
+					}
+				]
+			}
+		]
+	},
+	{
+		"id": "konfirmasjon-2021",
+		"builtinKey": "konfirmasjon-2021",
+		"kind": "template",
+		"name": "Konfirmasjonstidens gudstjenester (bokmål, 2021)",
+		"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudtjeneste.",
+		"sections": [
+			{
+				"title": "Innledning",
+				"items": [
+					{
+						"id": "konf21-1",
+						"type": "instruks",
+						"heading": "Bestemmelser",
+						"instr": "Ordning for konfirmasjonstidens gudstjenester\nVedtatt av Kirkemøtet 2021\n\nGudstjeneste med presentasjon av menighetens konfirmanter\nVed starten av konfirmasjonstiden presenteres menighetens konfirmanter i en gudstjeneste.\nPresentasjonen av konfirmantene kan skje i gudstjenestens samlingsdel eller i forbindelse med forbønnsdelen. Til presentasjonen kan man knytte lystenning eller andre enkle symbolhandlinger.\nForbønn kan hentes fra Formulerte forbønner i Ordning for hovedgudstjeneste alternativ 4 eller formuleres lokalt.\n\nKONFIRMASJONSGUDSTJENESTE\nKonfirmasjonstiden avsluttes med konfirmasjonsgudstjenesten. Gudstjenesten kan feires med nattverd.\nKonfirmasjon feires som hovedregel i menighetens hovedgudstjeneste på søn- eller helligdag. Konfirmasjonsgudstjenesten kan også legges til en lørdag.\nGudstjenesten følger den lokale grunnordning for hovedgudstjeneste.\nVed prosesjon kan det ringes med alle klokkene.\nPrest kan bære messehagel. Liturgisk farge er hvit.\nDer det er påskelys er dette tent.\nEt stjernetegn (*) er satt til ledd der menigheten som hovedregel står."
+					},
+					{
+						"id": "konf21-2",
+						"type": "tekst",
+						"heading": "Bønn for konfirmantene",
+						"instr": "Følgende bønn kan brukes som Bønn for konfirmantene, på forbønnens plass.",
+						"text": "{{r}}L/ML |{{/r}} La oss vende oss til Gud i bønn.\nKjære Gud, du kjenner og elsker oss alle.\nTakk for livet du har gitt oss.\nVi takker deg for konfirmantene.\nVi ber for hver og én av dem,\nfor familie, venner og faddere.\nVelsign konfirmasjonstiden\nog la oss alle vokse i tro, håp og kjærlighet.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Gode Gud, du har skapt oss og jorden vi bor på.\nLær oss å ta vare på ditt skaperverk,\nskape fred der hatet rår, gi sultne mat\nog verne mennesker på flukt.\nVi ber for vårt land og for stedet vi bor (eller byen/bygda).\nStyrk våre fellesskap og gi alle et sted å høre til.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Takk for kirken,\nder du møter oss med dine gaver\nog gir oss fremtid og håp.\nLa kirken være stedet hvor troen og livet finner styrke og kraft.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Evt.: Vi ber for… (aktuelle bønneemner i lokalt- nasjonalt eller globalt perspektiv)\n{{r}}L/ML |{{/r}} Gud vi ber:\n{{r}}M |{{/r}} Menighetssvar\n(Her følger Fadervår. Dersom det feires nattverd, bes Fadervår under nattverdsdelen.)\n(Gudstjenesten fortsetter i tråd med lokal grunnordning.)"
+					}
+				]
+			},
+			{
+				"title": "I. Samling",
+				"items": [
+					{
+						"id": "konf21-3",
+						"type": "tekst",
+						"heading": "1 Forberedelse",
+						"instr": "Klokkeringing\nHer eller etter ledd 3 Hilsen kan det være:\nKort informasjon om dagens gudstjeneste ved medliturg eller liturg.\nInformasjonen avsluttes med:\nKort stillhet\nTre klokkeslag",
+						"text": "{{r}}ML/L |{{/r}} La oss være stille for Gud."
+					},
+					{
+						"id": "konf21-4",
+						"type": "tekst",
+						"heading": "2 Inngangssalme",
+						"optional": true,
+						"instr": "Menigheten står under prosesjon, Inngangssalme og Hilsen."
+					},
+					{
+						"id": "konf21-5",
+						"type": "tekst",
+						"heading": "3 Hilsen",
+						"optional": true,
+						"instr": "Før de to første alternativene til inngangsord kan liturgen si: Kjære menighet.\nOm kort informasjon om dagens gudstjeneste ikke er gitt under ledd 1, kan den gis her.",
+						"alts": [
+							{
+								"label": "Hovedvariant",
+								"text": "{{r}}L |{{/r}} Nåde være med dere og fred\nfra Gud, vår Far, og Herren Jesus Kristus."
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} Vår Herre Jesu Kristi nåde, Guds kjærlighet\nog Den hellige ånds samfunn være med dere alle."
+							},
+							{
+								"label": "Eller 2",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
+							},
+							{
+								"label": "Eller 3",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn:\nVår skaper, frigjører og livgiver."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-6",
+						"type": "tekst",
+						"heading": "4 Samlingsbønn",
+						"instr": "Se samlingsbønner i Ordning for hovedgudstjeneste eller samlingsbønner med eget ledd for konfirmasjon (pkt 9, Samlingsbønner med kirkeårsvariable ledd). Samlingsbønn kan også utformes lokalt (pkt 10, Modell for lokalt utformet samlingsbønn). En kan også bruke følgende (fra 2002-liturgien):",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss be."
+							}
+						],
+						"selIntro": 0,
+						"text": "{{r}}L |{{/r}} Herre, vår Gud, takk for konfirmasjonstiden.\nTakk for at du elsker oss og kjenner alt i våre liv.\nGjør oss åpne for det du vil gi oss.\nVelsign denne dagen. Amen."
+					},
+					{
+						"id": "konf21-7",
+						"type": "tekst",
+						"heading": "5 Syndsbekjennelse",
+						"instr": "Følger her, eller før ledd 15 Påminnelse om dåpen."
+					},
+					{
+						"id": "konf21-8",
+						"type": "tekst",
+						"heading": "6 Bønnerop Kyrie"
+					},
+					{
+						"id": "konf21-9",
+						"type": "tekst",
+						"heading": "7 Lovsang Gloria"
+					},
+					{
+						"id": "konf21-10",
+						"type": "tekst",
+						"heading": "8 Dagens bønn",
+						"instr": "Dagens bønn kan utelates.\nIstedenfor Dagens bønn for den aktuelle søndag kan man bruke følgende bønn:",
+						"text": "{{r}}L |{{/r}} Evige Gud, vi takker og lovpriser deg.\nDet er i deg vi lever, rører oss og er til.\nVær vår styrke og hjelp gjennom livet,\nved din Sønn Jesus Kristus, vår Herre,\nsom med deg og Den hellige ånd lever og råder,\nén sann Gud fra evighet til evighet."
+					}
+				]
+			},
+			{
+				"title": "II. Ordet",
+				"items": [
+					{
+						"id": "konf21-11",
+						"type": "instruks",
+						"heading": "Om lesningene",
+						"instr": "Det leses én eller to lesetekster i tillegg til prekenteksten.\nDet benyttes i hovedsak tekster fra tekstutvalget for konfirmasjonsgudstjeneste.\nKirkeårets tekster kan også velges, og det kan velges andre høvelige tekster som har vært sentrale i konfirmasjonstiden.\n\nTekster til konfirmasjonsgudstjeneste:\nGT: \tSalme 71, 1-6\nEpistel. 1. Joh 4, 7-12\nEvangelium: Lukas 2,41-52\nGT: \tSalme 23\nEpistel: Gal. 5, 13-14\nEvangelium: Luk 24, 13-16. 28-35\nGT: \tSalme 8\nEpistel: 1. Kor. 13, 7-13\nEvangelium: Joh 11, 17-29\nGT:\t Jer. 29, 11-14a\nEpistel: Ef. 3, 14-21\nEvangelium: Matt. 6, 25-31. 33\nGT: \tSalme 25, 4-5\nEpistel: 1. Kor. 12, 12 - 22\nEvangelium: Joh. 14, 1-7\nGT: \tSalme 139, 1-6\nEpistel: Ef. 2, 8-10\nEvangelium: Luk 15, 1 – 10, eller Luk 15,11-24"
+					},
+					{
+						"id": "konf21-12",
+						"type": "tekst",
+						"heading": "9 Første lesning",
+						"instr": "Fra Det gamle testamentet",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L/ML |{{/r}} La oss høre Herrens ord."
+							}
+						],
+						"selIntro": 0,
+						"text": "{{r}}ML |{{/r}} Det står skrevet i/hos …\n(Lesningen avsluttes med:)\n{{r}}ML |{{/r}} Slik lyder Herrens ord."
+					},
+					{
+						"id": "konf21-13",
+						"type": "tekst",
+						"heading": "10 Bibelsk salme / Salme",
+						"instr": "Det kan synges en bibelsk salme eller en annen salme, være korsang eller kort stillhet mellom lesningene."
+					},
+					{
+						"id": "konf21-14",
+						"type": "tekst",
+						"heading": "11 Andre lesning",
+						"instr": "Fra Det nye testamentet utenom evangeliene",
+						"text": "{{r}}ML |{{/r}} Det står skrevet i …\n(Lesningen avsluttes med:)\n{{r}}ML |{{/r}} Slik lyder Herrens ord."
+					},
+					{
+						"id": "konf21-15",
+						"type": "tekst",
+						"heading": "12 Evangelium",
+						"optional": true,
+						"instr": "Halleluja\nEvangelielesningen innledes med hallelujaomkved eller et salmevers med hallelujaomkved.\nMenigheten står under halleluja, lesning og respons.\nDet kan være evangelieprosesjon. Den som bærer boken kan ledsages av lysbærere.\nSe hallelujaomkved i N13: 977.1 – 7.  Også Lovprisning/Benedicamus i ledd 25 kan benyttes som hallelujaomkved. Omtale av halleluja og tractus i finnes i Gudstjenesteboken under ledd 12 Evangelium.\n\nRespons\nHallelujaomkved gjentas, eller det synges en kort salme eller et annet svarledd ved menighet eller kor.",
+						"text": "{{r}}L/ML |{{/r}} Det står skrevet i evangeliet etter …\n(Lesningen avsluttes med:)\n{{r}}L/ML |{{/r}} Slik lyder det hellige evangelium."
+					},
+					{
+						"id": "konf21-16",
+						"type": "tekst",
+						"heading": "13 Preken",
+						"instr": "Predikanten preker over evangelieteksten eller annen høvelig prekentekst.\nPrekenen kan avsluttes med en av disse lovprisningene:\nEtter prekenen kan det gis tid til stillhet, en kort salme eller meditativ musikk.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd,\nsom var og er og blir én sann Gud fra evighet og til evighet."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd: Vår skaper, frigjører og livgiver."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-17",
+						"type": "tekst",
+						"heading": "14 Salme",
+						"instr": "Syndsbekjennelse følger her, eller som ledd 5.\nDersom det ikke er dåp, følger 15 Påminnelse om dåpen."
+					},
+					{
+						"id": "konf21-18",
+						"type": "tekst",
+						"heading": "15 Påminnelse om dåpen",
+						"instr": "Påminnelse om dåpen utføres som hovedregel ved døpefonten.\nLiturgen eller en medliturg heller vann i døpefonten.\nAndre symbolhandlinger i tråd med lokale tradisjoner kan benyttes.",
+						"alts": [
+							{
+								"label": "Hovedvariant",
+								"text": "(vendt mot menigheten)\n{{r}}L |{{/r}} Kjære menighet:\nI dåpen frelste Gud oss ut av mørkets makt og gav oss rett til å være lysets barn.\nVi ble kalt til å følge Kristus og leve i fellesskap med ham.\nLa oss derfor bekjenne forsakelsen og troen som lød ved vår dåp.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi forenet med den korsfestede og oppstandne Jesus Kristus.\nLa oss sammen bekjenne forsakelsen og troen som lød ved vår dåp.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller 2",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi født på ny av vann og ånd.\nVi ble døpt til et liv i tro og tillit til Jesus Kristus.\nLa oss sammen bekjenne forsakelsen og troen som lyder ved dåpen.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller 3",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi tegnet med det hellige korsets tegn og født på ny av vann og ånd.\nVi ble forenet med den korsfestede og oppstandne Jesus Kristus og tatt inn i kirkens fellesskap.\nLa oss sammen bekjenne forsakelsen og troen som lyder ved dåpen.\n(Menigheten reiser seg.)"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-19",
+						"type": "tekst",
+						"heading": "16 Forsakelsen og troen",
+						"text": "{{r}}A |{{/r}} Jeg forsaker djevelen….\n(Den apostoliske trosbekjennelse)\n(Menigheten setter seg.)"
+					},
+					{
+						"id": "konf21-20",
+						"type": "tekst",
+						"heading": "17 Salme",
+						"instr": "I stedet for salmen kan det være vokal-eller instrumentalmusikk."
+					},
+					{
+						"id": "konf21-21",
+						"type": "tekst",
+						"heading": "18 Forbønn for kirken og verden",
+						"instr": "Her kan det nevnes aktuelle forbønner for konfirmantenes familier og relasjoner, forbønner som angår årets konfirmanter spesielt samt hendelser som berører lokalsamfunnet.\nMenighetssvaret følger lokal grunnordning.",
+						"alts": [
+							{
+								"label": "A Forbønn for konfirmantene",
+								"text": "{{r}}L |{{/r}} Kjære menighet\nLa oss takke og be for våre konfirmanter.\n(Alternativ til lokalt utformede bønner:)\n{{r}}L/ML |{{/r}} Kjære Gud, takk for konfirmantene.\nDu har i dåpen lovet å være med oss alle dager.\nVi ber for familier, slekt og venner\nog for alle som står konfirmantene nær.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Trofaste Gud, du møter oss i ditt Ord, i bønnen og nattverden.\nStyrk oss alle i tro, håp og kjærlighet,\nog gi oss å nå det evige mål i ditt rike.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Evt.: Vi ber for… (aktuelle bønneemner i lokalt, nasjonalt eller globalt perspektiv)\n{{r}}L/ML |{{/r}} Gud vi ber\n{{r}}M |{{/r}} Menighetssvar\n(Her følger Fadervår. Dersom det feires nattverd, bes Fadervår under Del III, Nattverd.)"
+							},
+							{
+								"label": "B Bønnesalme",
+								"text": "(Bønnesalme.)"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-22",
+						"type": "tekst",
+						"heading": "18 C Forbønn med velsignelse av den enkelte konfirmant",
+						"instr": "(Liturg/medliturg, vendt mot menigheten:)\nKonfirmantene går fram slik det er avtalt på forhånd og kneler på alterringen.\nAlternativt kan én og én konfirmant gå fram til døpefonten og bli tegnet i hånden med et korstegn av en medliturg. Det kan også tennes et lys for konfirmanten. Så går konfirmanten fram til forbønn ved alteret. Når én konfirmant går fra alterringen går den neste fram.\nLiturgen/medliturgen ber for hver enkelt med håndspåleggelse.\nBønnene avsluttes med «Velsign og bevar henne/ham, i Jesu Kristi navn».\nUnder disse ordene tegnes det et korstegn over konfirmanten.\nEtter forbønnen eller ved del IV Sendelse, kan den enkelte motta et kors, en rose eller en annen symbolsk gave i henhold til lokal tradisjon.\nEtter at alle konfirmantene er bedt for sier liturgen:",
+						"text": "{{r}}L/ML |{{/r}} Kjære konfirmanter.\nTil den kristne tro er dere døpt. I den kristne tro er dere opplært. Kom nå fram til Herrens alter, så vi kan be for og velsigne hver enkelt av dere i Jesu Kristi navn.",
+						"alts": [
+							{
+								"label": "1",
+								"text": "{{r}}L/ML |{{/r}} Livets Gud, vi ber for NN. Hjelp henne/ham til å leve i tillit og tro på din kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "2",
+								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, vi ber for NN. Hold henne/ham fast i en sann tro ved din hellige Ånd. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "3",
+								"text": "{{r}}L/ML |{{/r}} Gode Gud, vi ber for NN. Vær hennes/hans støtte og tilflukt gjennom livet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "4",
+								"text": "{{r}}L/ML |{{/r}} Kjærlighetens Gud, vi ber for NN. Styrk henne/ham til et liv i tro, håp og kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "5",
+								"text": "{{r}}L/ML |{{/r}} Gud, vår skaper, vi ber for NN. Gi henne/ham styrke og kraft ved din hellige Ånd og vis henne/ham dine veier. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "6",
+								"text": "{{r}}L/ML |{{/r}} Evige Gud, vi ber for NN. La henne/ham vandre i ditt lys og leve omsluttet av din kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "7",
+								"text": "{{r}}L/ML |{{/r}} Barmhjertige Gud, vi ber for NN. Styrk henne/ham ved Den hellige ånd og vær med henne/ham i alle livets dager. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "8",
+								"text": "{{r}}L/ML |{{/r}} Håpets Gud, vi ber for NN. Vis henne/ham det håpet hun/han har i deg. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "9",
+								"text": "{{r}}L/ML |{{/r}} Livets Gud, vi ber for NN. La henne/ham leve i ditt lys og nå det evige mål hos deg. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "10",
+								"text": "{{r}}L/ML |{{/r}} Nådige Gud, vi ber for NN. Vær hennes/hans styrke og hjelp, nå og alle dager. Velsign og bevar henne/ham () i Jesu Kristi navn."
+							},
+							{
+								"label": "11",
+								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, vi ber for NN. Vær nær henne/ham med din nåde og kraft. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Etter alle konfirmantene",
+								"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde! Fred være med dere."
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} Gud er kjærlighet, og den som blir i kjærligheten, blir i Gud og Gud i ham. Må han som begynte den gode gjerning i dere, fullføre den, helt til Jesu Kristi dag. Fred være med dere."
+							}
+						],
+						"selAvsl": 0
+					},
+					{
+						"id": "konf21-23",
+						"type": "tekst",
+						"heading": "19 Hilsen fra menigheten, kunngjøringer og takkoffer",
+						"instr": "Her kan følge egnet instrumental- eller vokalmusikk og eventuelt en kort hilsen fra menigheten.\nHilsenen kan gis av kateket, menighetspedagog eller andre som har hatt spesielt ansvar for konfirmantene. (Se alminnelige bestemmelser pkt 7)\nHilsen kan utformes lokalt eller velges fra følgende alternativer:\nMenighetens takkoffer kan samles inn under forberedelse av nattverdmåltidet eller under postludiet.\nInnsamlingen kan skje i kirkebenkene eller ved at man går rundt alteret.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Kjære menighet:\nSammen har vi bedt for konfirmantene. La oss sammen hjelpe dem så de kan leve i den kristne forsakelse og tro, og modnes til tjeneste for Gud og vår neste. La oss oppmuntre hverandre til å bruke Guds ord og Herrens nattverd og gå den vei som fører til livet.\nDere konfirmanter vil fortsatt være omsluttet av menighetens forbønn. Gud er trofast og hans kjærlighet uten grenser. Også i tider med likegyldighet, nederlag og tvil vil Gud være dere nær og kalle dere til samfunn med seg. Hold dere nær til ham. Da vil han, som begynte en god gjerning i dere, fullføre den – helt til Jesu Kristi dag."
+							},
+							{
+								"label": "B",
+								"text": "Kristus har kalt oss til å leve i troen på hans oppstandelse og være hans vitner i verden.\nBli i hans kjærlighet og i fellesskapet med alle som tror på ham.\nLa oss alltid be for hverandre, og sammen med Kristus gå\nfremtiden i møte."
+							},
+							{
+								"label": "C",
+								"text": "Gud kaller oss til et liv i tro, håp og kjærlighet.\nLa oss sammen søke Gud i bønn, tilbedelse og tjeneste.\nMå Gud styrke oss med sin nåde til det evige liv."
+							}
+						],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "III. Nattverd (ledd 20-23)",
+				"items": [
+					{
+						"id": "konf21-24",
+						"type": "instruks",
+						"heading": "Nattverd (ledd 20-23)",
+						"instr": "Dersom det er nattverd, følger dette her."
+					}
+				]
+			},
+			{
+				"title": "IV. Sendelse",
+				"items": [
+					{
+						"id": "konf21-25",
+						"type": "tekst",
+						"heading": "24 Sluttsalme",
+						"instr": "Her kan følge en symbolhandling dersom denne ikke ble lagt til forbønnshandlingen, ledd 18 C."
+					},
+					{
+						"id": "konf21-26",
+						"type": "tekst",
+						"heading": "25 Velsignelse"
+					},
+					{
+						"id": "konf21-27",
+						"type": "tekst",
+						"heading": "26 Utsendelse"
+					},
+					{
+						"id": "konf21-28",
+						"type": "instruks",
+						"heading": "27 Postludium/Utgangsprosesjon",
+						"instr": "Konfirmantene forlater kirken i utgangsprosesjon, fulgt av medliturg(er) og liturg. Der det er korsbærer går denne først i prosesjonen."
+					}
+				]
+			}
+		]
 	}
 ]
 
