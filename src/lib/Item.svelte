@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty, uid } from '$lib/store.svelte.js';
-	import { chooseOneModal } from '$lib/modal.svelte.js';
+	import { chooseOneModal, valgModal } from '$lib/modal.svelte.js';
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
@@ -111,12 +111,23 @@
 	}
 
 	/** Kontekstmeny for en alternativgruppe i malredigering. */
-	/** Fjern HELE gruppen (ombestemt: innledning/avslutning skal bort). */
-	function fjernGruppe(liste, selNokkel) {
-		delete it[liste];
-		if (selNokkel) delete it[selNokkel];
-		markDirty();
-		toast.success('Gruppen er fjernet');
+	/** Fjern HELE gruppen — bekreftes hvis den har innhold (ikke forkast uten videre). */
+	function fjernGruppe(liste, selNokkel, label) {
+		const l = it[liste] ?? [];
+		const harInnhold = l.some((a) => (a.text ?? '').trim());
+		const slett = () => {
+			delete it[liste];
+			if (selNokkel) delete it[selNokkel];
+			markDirty();
+			toast.success(label + ' er fjernet');
+		};
+		if (!harInnhold) { slett(); return; }
+		valgModal(
+			'Fjern ' + label.toLowerCase() + '?',
+			'«' + (it.heading || label) + '» har ' + l.length + ' alternativ(er) med innhold. Fjern hele gruppen?',
+			'Fjern', 'Avbryt',
+			slett
+		);
 	}
 
 	function altMeny(e, liste, selNokkel, label) {
@@ -235,15 +246,12 @@
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
-			// malredigering: innledning/avslutning kan legges til ALLE ledd
-			...(erMal && !introAltsLen ? [
-				{ label: 'Legg til innledning', action: () => opprettGruppe('introAlts', 'selIntro', 'Innledning') },
-				{ label: 'Legg til innledning fra biblioteket …', action: () => hentGruppeFraBib('introAlts', 'selIntro', 'Innledning') }
-			] : erMal ? [{ label: 'Administrer innledning …', action: (e2) => altMeny(e2 ?? e, 'introAlts', 'selIntro', 'Innledning') }] : []),
-			...(erMal && !avslAltsLen ? [
-				{ label: 'Legg til avslutning', action: () => opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') },
-				{ label: 'Legg til avslutning fra biblioteket …', action: () => hentGruppeFraBib('avslutningAlts', 'selAvsl', 'Avslutning') }
-			] : erMal ? [{ label: 'Administrer avslutning …', action: (e2) => altMeny(e2 ?? e, 'avslutningAlts', 'selAvsl', 'Avslutning') }] : []),
+			// malredigering: innledning/avslutning er TOGGLES (et ledd har høyst én av hver) —
+			// optakt/fjerning av alternativer skjer i gruppens egen meny (tannhjul)
+			...(erMal ? [
+				{ label: 'Innledning', checked: introAltsLen > 0, action: () => introAltsLen ? fjernGruppe('introAlts', 'selIntro', 'Innledning') : opprettGruppe('introAlts', 'selIntro', 'Innledning') },
+				{ label: 'Avslutning', checked: avslAltsLen > 0, action: () => avslAltsLen ? fjernGruppe('avslutningAlts', 'selAvsl', 'Avslutning') : opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') }
+			] : []),
 			{ label: 'Skift type …', action: skiftType },
 			'sep',
 			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
