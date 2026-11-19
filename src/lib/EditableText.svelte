@@ -851,12 +851,25 @@ function angre() {
 			html = litEditHtml(value);
 			return;
 		}
-		// riktekst: serialiser, veksle i verdien, re-render
+		// riktekst: serialiser, veksle i verdien, re-render.
+		// UTVALG: markerede linjer/avsnitt pakkes ALENE — hele teksten bare uten utvalg.
 		const v = serialiser();
 		if (v == null) return;
-		const ny = v.includes('{{refreng}}')
-			? v.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n')
-			: '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
+		const sel = mdSeleksjon();
+		const harUtvalg = !!sel && sel.e > sel.s && v.slice(sel.s, sel.e).trim();
+		const strip = (t) => t.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+		let ny, caretPos;
+		if (v.includes('{{refreng}}')) {
+			ny = harUtvalg ? v.slice(0, sel.s) + strip(v.slice(sel.s, sel.e)) + v.slice(sel.e) : strip(v);
+			caretPos = harUtvalg ? sel.s + strip(v.slice(sel.s, sel.e)).length : null;
+		} else if (harUtvalg) {
+			const blokk = '{{refreng}}\n' + v.slice(sel.s, sel.e).trim() + '\n{{/refreng}}';
+			ny = v.slice(0, sel.s) + blokk + v.slice(sel.e);
+			caretPos = sel.s + blokk.length;
+		} else {
+			ny = '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
+			caretPos = null;
+		}
 		// sett verdien OG render umiddelbart; tick → tilbakestill caret.
 		// (merkerVersjon/$effect 511 alene leverte ikke re-renderen her)
 		value = ny;
@@ -865,9 +878,22 @@ function angre() {
 		merkerVersjon++;
 		html = litEditHtml(ny);
 		tick().then(() => {
-			if (value !== ny) value = ny; // bind-roundtrip kan ha trampet ned verdien
+			// bind-roundtrippet kan ha trampet ned verdien — men bare gjenopprett hvis
+			// verdien fortsatt er den PRE-CLICK-verdien (en senere redigering skal ikke røres)
+			if (value !== ny && value === v) value = ny;
 			html = litEditHtml(value);
 			rikel?.focus();
+			// caret til slutten av det innpakkede utvalget
+			if (caretPos != null) {
+				const linjer2 = value.split('\n');
+				let acc = 0, li = 0, ko = 0;
+				for (let i = 0; i < linjer2.length; i++) {
+					if (caretPos <= acc + linjer2[i].length) { li = i; ko = caretPos - acc; break; }
+					acc += linjer2[i].length + 1;
+				}
+				venterCaret = { linje: li, kol: ko - prefiksLen(li) };
+				merkerVersjon++;
+			}
 			oppdaterTilstand();
 		});
 		if (dirty) markDirty();
