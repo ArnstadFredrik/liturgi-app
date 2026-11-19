@@ -256,6 +256,12 @@ export function persist() {
 	app.dirty = false;
 }
 
+/* Autolagring: hook injisert av fileio.svelte.js (setAutoLagreFn) for å unngå
+ * sirkulær import — markDirty kalles fra hele appen, autolagringen trenger
+ * skrivefunksjonene i fileio. */
+let autoLagreFn = null;
+export function setAutoLagreFn(fn) { autoLagreFn = fn; }
+
 export function markDirty() {
 	app.dirty = true;
 	if (app.current) app.current.__dirty = true;
@@ -265,6 +271,7 @@ export function markDirty() {
 	const m = malEntryFor(app.current);
 	if (m) m.dirty = true;
 	window.liturgi?.setDirty?.(true);
+	autoLagreFn?.();
 }
 
 /** Finn «åpne gudstjenester»-oppføringen for et dokument (åpenId er stabil; identitet er det ikke). */

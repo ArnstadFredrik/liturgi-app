@@ -122,10 +122,15 @@ export async function lagreTilProsjekt() {
 	if (window.liturgi?.listTemplates) {
 		const list = await window.liturgi.listTemplates();
 		if (list?.ok) {
-			const sub = /hovedgudstjeneste|gravferd/i.test(seed.name) ? 'originaler' : 'brukermaler';
+			const sub = (seed.erOriginal || /hovedgudtjeneste|gravferd/i.test(seed.name)) ? 'originaler' : 'brukermaler';
 			if (o.__devKey && !seed.builtinKey) seed.builtinKey = o.__devKey;
-			const sti = `${list.dirs[sub]}/${safeNavn(seed.name)}.liturgi`;
-			const w = await window.liturgi.writeTemplate(sti, JSON.stringify({ liturgiFormat: 1, kind: 'template', data: seed }, null, '\t'));
+			// gjenbruk eksisterende seed-sti for samme navn — en hardkodet .liturgi
+			// ved siden av en eksisterende .limal ga TO filer med samme navn/id
+			// → duplikat-nøkkel i Maler-listen → Svelte-krasj (frys)
+			const eksisterende = [...(list.originaler ?? []), ...(list.brukermaler ?? [])]
+				.find((x) => x.name === seed.name);
+			const sti = eksisterende?.path ?? `${list.dirs[sub]}/${safeNavn(seed.name)}.liturgi`;
+			const w = await window.liturgi.writeTemplate(sti, JSON.stringify({ liturgiFormat: 1, kind: 'template', data: seed }, null, '	'));
 			seedMelding = w?.ok ? 'seed-fil oppdatert' : 'seed-fil FEILET: ' + (w?.error ?? '?');
 		}
 	}

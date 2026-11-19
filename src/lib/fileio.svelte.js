@@ -1,9 +1,36 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
 
 const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
+
+/* ---------- Autolagring ---------- */
+// Kjøres ved hver endring (markDirty → hook): gudstjenester med kjent filsti
+// lagres automatisk til .liturgi-fila etter 2 s uten nye endringer; dev-maler
+// (Malverktøyet) lagres som utkast i ~/.config/Liturgi/malutkast (én fast fil
+// per mal, overskrives hver gang). Dokumenter uten filsti (nye gudstjenester)
+// autolagres ikke — første lagring må være «Lagre»/«Lagre som».
+let autoTimer = null;
+function autolagreNaa() {
+	if (!isElectron) return;
+	const o = app.current;
+	if (!o || !o.__dirty) return;
+	clearTimeout(autoTimer);
+	autoTimer = setTimeout(() => {
+		// fortsatt samme dokument og fortsatt ulagret?
+		if (app.current !== o || !o.__dirty) return;
+		if (o.kind === 'template' && o.__devMal) {
+			// PLAIN kopi — shallow spread av $state-proxy kan ikke structured-clones
+			// over IPC ('An object could not be cloned')
+			const kopi = JSON.parse(JSON.stringify(o, (k, v) => (k === '__dirty' || k === 'filePath' ? undefined : v)));
+			window.liturgi.lagreUtkast(kopi, true);
+		} else if (o.kind !== 'template' && o.filePath) {
+			saveCurrentToDisk(true);
+		}
+	}, 2000);
+}
+setAutoLagreFn(autolagreNaa);
 
 /** Serialiser nåværende gudstjeneste eller mal til lagringsformat. */
 export function currentJson() {
@@ -26,7 +53,7 @@ export function fileNameFor(o) {
 
 /** Lagre det åpne objektet til disk (Electron). Gudstjenester skrives til
  *  tjenestemappen; første lagring viser lagre-dialog. */
-export async function saveCurrentToDisk() {
+export async function saveCurrentToDisk(stille = false) {
 	const json = currentJson();
 	if (!json) return;
 	const o = app.current;
@@ -42,7 +69,7 @@ export async function saveCurrentToDisk() {
 			o.__dirty = false;
 			app.dirty = false;
 			syncDirty();
-			toast.success('Lagret: ' + r.filePath.split('/').pop());
+			if (!stille) toast.success('Lagret: ' + r.filePath.split('/').pop());
 			// oppdater «åpne gudstjenester»-oppføringen med den nye stien
 			const e = entryFor(o);
 			if (e) { e.path = r.filePath; e.name = o.name ?? ''; e.dirty = false; }
@@ -432,11 +459,19 @@ export async function loadTemplatesFromDisk() {
 			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${safeNavn(bt.name)}.liturgi`, json);
 		}
 
-		// 3) les alle maler fra disk (originaler først, så brukermaler)
+		// 3) les alle maler fra disk (originaler først, så brukermaler).
+		// Dedupe på META-nivå: to filer med samme navn (f.eks. .liturgi + .limal
+		// etter en seed-skriving) gir duplikat-id i app.templates → duplikat-nøkkel
+		// i Maler-listens keyed each → Svelte-krasj. Behold NYESTE fil per navn.
 		const list2 = await window.liturgi.listTemplates();
 		if (!list2.ok) return;
-		const disk = [];
+		const metaPerNavn = new Map();
 		for (const meta of [...list2.originaler, ...list2.brukermaler]) {
+			const gammel = metaPerNavn.get(meta.name);
+			if (!gammel || (meta.mtime ?? 0) >= (gammel.mtime ?? 0)) metaPerNavn.set(meta.name, meta);
+		}
+		const disk = [];
+		for (const meta of metaPerNavn.values()) {
 			const rd = await window.liturgi.readTemplate(meta.path);
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);

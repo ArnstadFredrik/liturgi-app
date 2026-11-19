@@ -524,14 +524,16 @@ ipcMain.handle('dev:slett-utkast', async (_e, fil) => {
 	try { fs.unlinkSync(path.join(utkastDir(), fil)); return { ok: true }; }
 	catch (err) { return { ok: false, error: err.message }; }
 });
-ipcMain.handle('dev:lagre-utkast', async (_e, { mal }) => {
+ipcMain.handle('dev:lagre-utkast', async (_e, { mal, fast }) => {
 	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
 	if (!mal || typeof mal !== 'object' || !mal.id) return { ok: false, error: 'Ugyldig mal-objekt' };
 	try {
 		const dir = utkastDir();
 		fs.mkdirSync(dir, { recursive: true });
-		const tid = new Date().toISOString().replace(/[:.]/g, '-');
-		const fil = `${tid}-${String(mal.id).replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+		// fast=true (autolagring): én fil per mal som overskrives — ellers
+		// tidstemplet kopi (manuelt «Lagre som utkast»)
+		const navn = String(mal.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+		const fil = fast ? `auto-${navn}.json` : `${new Date().toISOString().replace(/[:.]/g, '-')}-${navn}.json`;
 		const kopi = { ...mal, __utkastTid: new Date().toLocaleString('no-NO') };
 		fs.writeFileSync(path.join(dir, fil), JSON.stringify(kopi, null, '\t'));
 		return { ok: true, fil };
