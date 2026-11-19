@@ -306,7 +306,7 @@ button.wide { width: 100%; }
 .eks-felt select { width: 100%; }
 .eks-felt.eks-chk-pt input[type='number'] { width: 58px; }
 .eks-baand .sidehead { flex: 0 0 auto; }
-.eks-baand .eks-tilbakestill { width: auto; padding: 4px 10px; font-size: 12.5px; }
+.eks-baand .eks-tilbakestill { width: auto; padding: 4px 10px; font-size: 12.5px; align-self: flex-end; margin-top: 18px; }
 .eks-baand .ikon-btn { padding: 3px 6px; }
 .eks-baand .eks-chk-pt { gap: 7px; font-size: 13px; white-space: nowrap; }
 .eks-baand .eks-chk-pt input[type='number'] { width: 50px; padding: 4px 5px; }
