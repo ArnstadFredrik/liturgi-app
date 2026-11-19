@@ -839,12 +839,22 @@ function angre() {
 
 	/** Refreng: pakk utvalget (eller linjen) i {{refreng}} … {{/refreng}} — fjern hvis allerede pakket. */
 	function veksleRefreng() {
+		// avsnitts-grensene rundt pos (tomme linjer = avsnittskille)
+		const avsnitt = (v, pos) => {
+			let a = v.lastIndexOf('\n\n', Math.max(0, pos - 1));
+			a = a === -1 ? 0 : a + 2;
+			let b = v.indexOf('\n\n', pos);
+			b = b === -1 ? v.length : b;
+			return [a, b];
+		};
 		if (kilde || etikett) {
 			const t = value;
+			const [a, b] = avsnitt(t, ta?.selectionStart ?? 0);
 			if (t.includes('{{refreng}}')) {
-				value = t.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+				const strip = (x) => x.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+				value = t.slice(0, a) + strip(t.slice(a, b)) + t.slice(b);
 			} else {
-				value = '{{refreng}}\n' + t.trim() + '\n{{/refreng}}';
+				value = t.slice(0, a) + '{{refreng}}\n' + t.slice(a, b).trim() + '\n{{/refreng}}' + t.slice(b);
 			}
 			sistSer = value;
 			markDirty();
@@ -852,23 +862,23 @@ function angre() {
 			return;
 		}
 		// riktekst: serialiser, veksle i verdien, re-render.
-		// UTVALG: markerede linjer/avsnitt pakkes ALENE — hele teksten bare uten utvalg.
+		// UTVALG: markerte linjer/avsnitt pakkes ALENE. Uten utvalg: GJELDENDE AVSNITT.
 		const v = serialiser();
 		if (v == null) return;
 		const sel = mdSeleksjon();
 		const harUtvalg = !!sel && sel.e > sel.s && v.slice(sel.s, sel.e).trim();
 		const strip = (t) => t.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+		const [avsA, avsB] = avsnitt(v, sel?.s ?? 0);
+		const omrA = harUtvalg ? sel.s : avsA;
+		const omrB = harUtvalg ? sel.e : avsB;
 		let ny, caretPos;
 		if (v.includes('{{refreng}}')) {
-			ny = harUtvalg ? v.slice(0, sel.s) + strip(v.slice(sel.s, sel.e)) + v.slice(sel.e) : strip(v);
-			caretPos = harUtvalg ? sel.s + strip(v.slice(sel.s, sel.e)).length : null;
-		} else if (harUtvalg) {
-			const blokk = '{{refreng}}\n' + v.slice(sel.s, sel.e).trim() + '\n{{/refreng}}';
-			ny = v.slice(0, sel.s) + blokk + v.slice(sel.e);
-			caretPos = sel.s + blokk.length;
+			ny = v.slice(0, omrA) + strip(v.slice(omrA, omrB)) + v.slice(omrB);
+			caretPos = omrA + strip(v.slice(omrA, omrB)).length;
 		} else {
-			ny = '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
-			caretPos = null;
+			const blokk = '{{refreng}}\n' + v.slice(omrA, omrB).trim() + '\n{{/refreng}}';
+			ny = v.slice(0, omrA) + blokk + v.slice(omrB);
+			caretPos = omrA + blokk.length;
 		}
 		// sett verdien OG render umiddelbart; tick → tilbakestill caret.
 		// (merkerVersjon/$effect 511 alene leverte ikke re-renderen her)
