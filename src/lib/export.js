@@ -221,21 +221,22 @@ export function buildOutline(svc, showInstr, valg = {}) {
 				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true });
 				if (st) out.push({ text: st });
 			} else if (it.alts && it.alts.length) {
-				if (it.selAlt == null) out.push({ text: '[Velg alternativ]', muted: true });
+				if (it.selAlt == null) continue; // tomt ledd — ingenting i eksporten
 				else {
 					if (it.introAlts?.length) out.push({ text: it.introAlts[it.selIntro ?? 0]?.text ?? '' });
 					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudstjenesteredigeringen —
 					// kun innledning + valgt alternativ + avslutning følger med i eksporten
 					const a = it.alts[it.selAlt];
 					if (a.label) out.push({ text: a.label, muted: true });
-					out.push({ text: a.text });
+					// plassholder-tekst ([Skriv tekst her] osv.) = tomt ledd — ikke med i eksporten
+					const plassholder = /^\[(Skriv tekst her|Velg alternativ|Salme: settes inn)\]$/.test((a.text ?? '').trim());
+					if (!plassholder) out.push({ text: a.text });
 					if (it.avslutningAlts?.length) out.push({ text: it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '' });
 				}
 			} else if (it.text) {
 				out.push({ text: it.text });
 			}
-			// avstand: spacing før/etter dekker allerede luften — ingen tom avsnittlinje
-			out.push({ empty: true, tynn: true });
+			// avstand: spacing før/etter dekker allerede luften — INGEN tom avsnittlinje
 		}
 	}
 	return out;
@@ -779,9 +780,14 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
-			if (it.type === 'salme') tekst = salmeTekst(it);
-			else if (it.selAlt == null && it.alts?.length) tekst = '[Velg alternativ]';
-			else tekst = leddTekst(it);
+			const erPlassholder = (t) => /^\[(Skriv tekst her|Velg alternativ|Salme: settes inn)\]$/.test((t ?? '').trim());
+			if (it.type === 'salme') tekst = erPlassholder(salmeTekst(it)) ? '' : salmeTekst(it);
+			else if (it.selAlt == null && it.alts?.length) tekst = '';
+			else {
+				tekst = leddTekst(it);
+				// alternativ med plassholder ([Skriv tekst her]) = tomt ledd
+				if (it.alts?.length && erPlassholder(it.alts[it.selAlt ?? 0]?.text)) tekst = '';
+			}
 			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
