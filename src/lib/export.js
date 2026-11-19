@@ -263,8 +263,9 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 	const GRAY = '777777';
 	const paras = [];
 	for (const p of outline) {
-		const avstandFaktor = valg.avstand === 'tett' ? 0.5 : valg.avstand === 'luft' ? 1.6 : 1;
-		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round((p.tynn ? 0.8 : 2.2) * avstandFaktor * MM) } })); continue; }
+		const afFor = valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luft' ? 1.5 : 1;
+		const afEtter = valg.avstand === 'tett' ? 0.35 : valg.avstand === 'luft' ? 1.6 : 1;
+		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round((p.tynn ? 0.8 : 2.2) * afEtter * MM) } })); continue; }
 		if (p.heading) {
 			// h1 tittel (sort Arial 16), h2 avsnitt (13, +5 mm før, +3,5 etter),
 			// h3 leddoverskrift (11, +3 mm før, +1,8 etter) — som i PDF-en
@@ -279,8 +280,8 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			const spec = p.heading === 'h1'
 				? { size: Math.round(32 * WF('hoveddel')), before: 0, after: Math.round(4 * MM) }
 				: p.heading === 'h2'
-					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * avstandFaktor * MM), after: Math.round(3.5 * avstandFaktor * MM) }
-					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * avstandFaktor * MM)), after: Math.round(1.8 * avstandFaktor * MM) };
+					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * afFor * MM), after: Math.round(3.5 * afEtter * MM) }
+					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * afFor * MM)), after: Math.round(1.8 * afEtter * MM) };
 			paras.push(new Paragraph({
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
 				children: [new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
@@ -319,7 +320,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		}
 		paras.push(new Paragraph({
 			children: runs,
-			spacing: { after: Math.round(3 * avstandFaktor * MM), line: 348 }
+			spacing: { after: Math.round(3 * afEtter * MM), line: 348 }
 		}));
 	}
 	// sidestørrelse og kolonner (A4: 11906×16838, A5: 8391×11907 twips)
@@ -616,7 +617,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	ct = ct.replace(/<Override PartName="\/ppt\/slideMasters\/slideMaster([2-9]\d*)\.xml"[^>]*\/>/g, '');
 	zip.file('[Content_Types].xml', ct);
 	const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
-	if (tilDisk) return { base64: await blobTilBase64(blob), filnavn: safeName(svc.name) + '.pptx' };
+	if (tilDisk) return { base64: await blobTilBase64(blob), filnavn: valg.filnavn ?? safeName(svc.name) + '.pptx' };
 	download(blob, safeName(svc.name) + '.pptx');
 }
 
@@ -655,8 +656,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const colW = (mm.w - margin * 2 - colGap * (kolonner - 1)) / kolonner;
 	// skriftskala: hefte 0,85× — brødtekst ~9 pt, overskrifter proporsjonalt mindre
 	const skala = hefte ? 0.85 : 1;
-	// avstand mellom ledd (valget «Avstand»): faktorer på etter-målene
-	const avstandFaktor = valg.avstand === 'tett' ? 0.5 : valg.avstand === 'luft' ? 1.6 : 1;
+	// avstand mellom ledd (valget «Avstand»): separate for/etter-faktorer —
+	// «tett» skal ha mer luft FØR ledd og mindre ETTER
+	const afFor = valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luft' ? 1.5 : 1;
+	const afEtter = valg.avstand === 'tett' ? 0.35 : valg.avstand === 'luft' ? 1.6 : 1;
 	const S = (n, omr) => {
 		const f = omr ? (skriftSkala[omr] ?? 1) : 1;
 		return Math.round(n * skala * f * 10) / 10;
@@ -773,7 +776,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
 			// avsnittstitler AV: første ledd behøver ikke ekstra topp-luft (avsnittslinjen
 			// ga den — uten den blir luften dobbelt opplevert)
-			const toppLuft = ((!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5)) * avstandFaktor;
+			const toppLuft = ((!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5)) * afFor;
 			forsteLedd = false;
 			if (head && it.__visOverskrift !== false) { y += toppLuft; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6; }
 			if (it.__visInnhold === false) continue;
@@ -793,7 +796,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
 			skrivSegmenter(roleSegments(it.type === 'salme' ? flytAvsnitt(tekst, { beholdLinjer: true }) : flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
-			y += (hefte ? 1.8 : 3) * avstandFaktor;
+			y += (hefte ? 1.8 : 3) * afEtter;
 		}
 		if (spor) spor.push({ type: 'fase', navn: 'p2-seksjon' });
 	}
