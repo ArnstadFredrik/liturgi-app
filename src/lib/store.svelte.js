@@ -407,7 +407,7 @@ export function formaterBønn(prayer) {
 /** Fyll inn dagens bønn og bibeltekster fra kirkeåret i en ny gudstjeneste. */
 export function applyKirkeaar(svc, k, tekster) {
 	if (!k) return;
-	svc.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, series: k.series };
+	svc.kirkeaar = { name: k.name, color: k.color, periodInfo: k.periodInfo, period: k.period, series: k.series };
 	for (const sec of svc.sections) {
 		for (const it of sec.items) {
 			const h = (it.heading || '').toLowerCase();
