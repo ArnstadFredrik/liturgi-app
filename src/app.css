@@ -260,7 +260,9 @@ button.wide { width: 100%; }
 }
 .alt-red:hover { color: var(--text); border-color: var(--accent); }
 .alt-cur .alt-red { flex-shrink: 0; }
-.tom-gruppe { padding: 6px 0; }
+/* tom-gruppe-knappen (+ Innledning/+ Avslutning): egen bredde, ikke full bredde */
+.tom-gruppe { padding: 6px 0; align-items: center; }
+.tom-gruppe .alt-red { flex: 0 0 auto; width: auto; }
 .muted-hint { color: var(--muted); font-size: 13px; flex: 1; }
 /* to-kolonne alternativvelger: liste til venstre, forhåndsvisning til høyre */
 .m-velg-to-kolonner { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 14px; align-items: start; max-height: 55vh; }
