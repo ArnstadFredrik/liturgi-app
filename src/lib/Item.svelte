@@ -111,6 +111,14 @@
 	}
 
 	/** Kontekstmeny for en alternativgruppe i malredigering. */
+	/** Fjern HELE gruppen (ombestemt: innledning/avslutning skal bort). */
+	function fjernGruppe(liste, selNokkel) {
+		delete it[liste];
+		if (selNokkel) delete it[selNokkel];
+		markDirty();
+		toast.success('Gruppen er fjernet');
+	}
+
 	function altMeny(e, liste, selNokkel, label) {
 		e.preventDefault();
 		const l = it[liste];
@@ -128,6 +136,9 @@
 			...(har && l.length > 1 ? [{ label: 'Fjern dette alternativet …', action: () => velgFjern(liste, selNokkel, label) }] : []),
 			...(har && l.length > 1 ? [{ label: 'Fjern siste alternativ', action: () => fjernAlt(liste, l.length - 1, selNokkel) }] : []),
 			...(!har ? [{ label: 'Opprett «' + label + '»-gruppe', action: () => opprettGruppe(liste, selNokkel, label) }] : []),
+			...(har && (selNokkel === 'selIntro' || selNokkel === 'selAvsl') ? [
+				{ label: 'Fjern hele ' + label.toLowerCase(), action: () => fjernGruppe(liste, selNokkel), danger: true }
+			] : []),
 			...(!har ? [{ label: 'Hent fra biblioteket …', action: () => hentGruppeFraBib(liste, selNokkel, label) }] : [])
 		]);
 	}
@@ -370,6 +381,9 @@
 				</div>
 			{/if}
 			<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
+			{#if erMal}
+				<div class="alt-gruppe-tittel">Alternativer&nbsp;<button class="alt-red" onclick={() => leggTilAlt('alts', 'selAlt')} title="Opprett alternativgruppe">{@html mdi('plus', 13)} Alternativ</button></div>
+			{/if}
 			{#if erMal && avslAltsLen}
 				<div class="alt-gruppe-tittel">Avslutning&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog', 12)}</button></div>
 				<div class="alt-cur">
