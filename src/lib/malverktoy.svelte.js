@@ -67,6 +67,39 @@ function malForDataJs(orig, redigert) {
 	return formEtter(kopi, orig);
 }
 
+/** Åpne et utkast fra ~/.config/Liturgi/malutkast som dev-mal i editoren. */
+export async function åpneUtkast(fil) {
+	const r = await window.liturgi.devLesUtkast(fil);
+	if (!r?.ok) { toast.error(r?.error ?? 'Klarte ikke lese utkastet'); return; }
+	const bt = r.mal;
+	// samme normalisering som åpneOriginal
+	for (const sec of bt.sections ?? []) {
+		for (const it of sec.items ?? []) {
+			if (it.text === undefined) it.text = '';
+			for (const a of it.alts ?? []) { if (a.label === undefined) a.label = ''; if (a.text === undefined) a.text = ''; }
+			for (const a of it.introAlts ?? []) { if (a.label === undefined) a.label = ''; if (a.text === undefined) a.text = ''; }
+			for (const a of it.avslutningAlts ?? []) { if (a.label === undefined) a.label = ''; if (a.text === undefined) a.text = ''; }
+		}
+	}
+	bt.__devMal = true;
+	bt.__devId = bt.id;
+	bt.__devKey = bt.builtinKey ?? null;
+	bt.kind = 'template';
+	delete bt.builtinKey;
+	registrerÅpenMal(bt, true);
+	app.visning = 'hjem';
+	app.dirty = false;
+	toast.info('Utkast åpnet — rediger og velg «Lagre til prosjektet».');
+}
+
+/** Slett et utkast. */
+export async function slettUtkast(fil) {
+	const r = await window.liturgi.slettUtkast(fil);
+	if (r?.ok) toast.success('Utkastet er slettet');
+	else toast.error(r?.error ?? 'Klarte ikke slette utkastet');
+	return r?.ok ?? false;
+}
+
 /** Lagre åpen dev-mal tilbake til src/lib/data.js + seed-filen på disk. */
 export async function lagreTilProsjekt() {
 	const o = app.current;
@@ -80,7 +113,10 @@ export async function lagreTilProsjekt() {
 	for (const k of HELPER_FELTER) delete seed[k];
 	// 1) data.js
 	const r = await window.liturgi.lagreDataJs(mal);
-	if (!r?.ok) { toast.error(r?.error ?? 'Klarte ikke lagre til data.js'); return false; }
+	if (!r?.ok) {
+		toast.error((r?.error ?? 'Klarte ikke lagre til data.js') + (r?.utkast ? ' — utkast lagret i ~/.config/Liturgi/malutkast' : ''));
+		return false;
+	}
 	// 2) seed-filen (~/.config/Liturgi/maler/originaler|brukermaler/<navn>.liturgi)
 	let seedMelding = 'Ingen seed-fil (kjører ikke i Electron)';
 	if (window.liturgi?.listTemplates) {

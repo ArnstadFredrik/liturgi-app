@@ -6,11 +6,15 @@
 	// og IPC-handleren i main.cjs nekter i pakket app.
 	import { BUILTIN_TEMPLATES } from '$lib/data.js';
 	import { app } from '$lib/store.svelte.js';
-	import { åpneOriginal, lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
+	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast } from '$lib/malverktoy.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	/** Redigeres nå en dev-kopi av en originalmal? */
 	const devDok = $derived(app.current?.__devMal ? app.current : null);
+
+	/** Utkaster fra ~/.config/Liturgi/malutkast (skrevet ved feil i «Lagre til prosjektet»). */
+	let utkast = $state([]);
+	$effect(() => { window.liturgi?.devUtkast?.().then((r) => { if (r?.ok) utkast = r.utkast; }); });
 </script>
 
 <div id="malverktoy">
@@ -28,6 +32,20 @@
 			<button class="primary" onclick={lagreTilProsjekt}>
 				{@html mdi('content-save')} Lagre til prosjektet
 			</button>
+		</div>
+	{/if}
+
+	{#if utkast.length}
+		<div class="utkast-boks">
+			<div class="utkast-tittel">Utkaster ({utkast.length})</div>
+			<p class="muted">Skrevet ved feil under «Lagre til prosjektet». Åpne, rediger og lagre tilbake — slett når det er tatt vare på.</p>
+			{#each utkast as u (u.fil)}
+				<div class="utkast-rad">
+					<span class="utkast-navn">{u.name || u.id}<span class="utkast-tid"> · {u.tid}</span></span>
+					<button onclick={() => åpneUtkast(u.fil)}>{@html mdi('pencil')} Åpne</button>
+					<button onclick={async () => { if (await slettUtkast(u.fil)) utkast = utkast.filter((x) => x.fil !== u.fil); }}>Slett</button>
+				</div>
+			{/each}
 		</div>
 	{/if}
 
@@ -67,4 +85,15 @@
 	.mal-info { display: grid; gap: 2px; }
 	.navn { font-weight: 600; }
 	.beskr { font-size: 13px; color: var(--muted-foreground); }
+.utkast-boks {
+	padding: 12px 14px; border: 1px solid var(--accent); border-radius: 8px;
+	background: var(--card); margin: 16px 0;
+}
+.utkast-tittel { font-weight: 600; margin-bottom: 4px; }
+.utkast-rad {
+	display: flex; align-items: center; justify-content: space-between; gap: 12px;
+	padding: 8px 0; border-top: 1px solid var(--border);
+}
+.utkast-navn { flex: 1; }
+.utkast-tid { color: var(--muted-foreground); font-size: 13px; }
 </style>
