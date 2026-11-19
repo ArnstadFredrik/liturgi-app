@@ -864,23 +864,40 @@ function angre() {
 		}
 		// riktekst: serialiser, veksle i verdien, re-render.
 		// UTVALG: markerte linjer/avsnitt pakkes ALENE. Uten utvalg: GJELDENDE AVSNITT.
+		// Wrap/unwrap avgjøres av om DET BERØRTE OMRÅDET inneholder {{refreng}} —
+		// ikke av hele teksten (ellers virker klikk på andre avsnitt som ingenting).
 		const v = serialiser();
 		if (v == null) return;
 		const sel = mdSeleksjon();
 		const harUtvalg = !!sel && sel.e > sel.s && v.slice(sel.s, sel.e).trim();
 		const strip = (t) => t.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
+		// caret på en TOM linje (avsnittskille) → verken wrap eller unwrap
+		if (!harUtvalg) {
+			const ls = v.lastIndexOf('\n', (sel?.s ?? 0) - 1) + 1;
+			const le = v.indexOf('\n', sel?.s ?? 0);
+			if (!v.slice(ls, le === -1 ? v.length : le).trim()) return;
+		}
 		const [avsA, avsB] = avsnitt(v, sel?.s ?? 0);
-		const omrA = harUtvalg ? sel.s : avsA;
-		const omrB = harUtvalg ? sel.e : avsB;
+		let omrA = harUtvalg ? sel.s : avsA;
+		let omrB = harUtvalg ? sel.e : avsB;
+		// guards mot skjeve offsets: aldri negativt/invertert område (kan ellers slette tekst)
+		omrA = Math.max(0, Math.min(omrA, v.length));
+		omrB = Math.max(omrA, Math.min(omrB, v.length));
+		const omraade = v.slice(omrA, omrB);
+		if (!omraade.trim() && v.includes('{{refreng}}')) {
+			// caret i tom linje: gjør ingenting — verken wrap eller unwrap
+			return;
+		}
 		let ny, caretPos;
-		if (v.includes('{{refreng}}')) {
-			ny = v.slice(0, omrA) + strip(v.slice(omrA, omrB)) + v.slice(omrB);
-			caretPos = omrA + strip(v.slice(omrA, omrB)).length;
+		if (omraade.includes('{{refreng}}')) {
+			ny = v.slice(0, omrA) + strip(omraade) + v.slice(omrB);
+			caretPos = omrA + strip(omraade).length;
 		} else {
-			const blokk = '{{refreng}}\n' + v.slice(omrA, omrB).trim() + '\n{{/refreng}}';
+			const blokk = '{{refreng}}\n' + omraade.trim() + '\n{{/refreng}}';
 			ny = v.slice(0, omrA) + blokk + v.slice(omrB);
 			caretPos = omrA + blokk.length;
 		}
+		if (ny === v) return; // ingen endring → ikke triggr re-render/markDirty
 		// sett verdien OG render umiddelbart; tick → tilbakestill caret.
 		// (merkerVersjon/$effect 511 alene leverte ikke re-renderen her)
 		value = ny;
