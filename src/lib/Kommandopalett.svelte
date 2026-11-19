@@ -1,7 +1,7 @@
 <script>
 	/** Cmd+K-kommandopalett: søk i alle menylinje-alternativene. */
 	import { app, veksleSidebar, veksleToc, toggleTheme } from './store.svelte.js';
-	import { saveCurrent, saveCurrentToFile, openFileToStore, kjorMenyId } from './fileio.svelte.js';
+	import { saveCurrent, saveCurrentToFile, openFileToStore, kjorMenyId, erOriginalMal } from './fileio.svelte.js';
 
 	let aapen = $state(false);
 	let q = $state('');
@@ -13,7 +13,8 @@
 		{ id: 'ny-gudstjeneste', navn: 'Ny gudstjeneste …', kategori: 'Fil', taster: '⌘N', enabled: () => true, kjor: () => kjorMenyId('ny-gudstjeneste') },
 		{ id: 'ny-gravferd', navn: 'Ny gravferd …', kategori: 'Fil', taster: '⇧⌘G', enabled: () => true, kjor: () => kjorMenyId('ny-gravferd') },
 		{ id: 'apne-fil', navn: 'Åpne fil …', kategori: 'Fil', taster: '⌘O', enabled: () => true, kjor: () => kjorMenyId('apne-fil') },
-		{ id: 'lagre', navn: 'Lagre', kategori: 'Fil', taster: '⌘S', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre') },
+		{ id: 'lagre', navn: 'Lagre', kategori: 'Fil', taster: '⌘S', enabled: () => !!app.current && !(app.kind === 'template' && erOriginalMal(app.current)), kjor: () => kjorMenyId('lagre') },
+		{ id: 'lagre-som-kopi', navn: 'Lagre som kopi', kategori: 'Fil', taster: '⌘S', enabled: () => app.kind === 'template' && !!app.current && erOriginalMal(app.current), kjor: () => kjorMenyId('lagre-som-kopi') },
 		{ id: 'lagre-som', navn: 'Lagre som …', kategori: 'Fil', taster: '⇧⌘S', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre-som') },
 		{ id: 'lagre-som-mal', navn: 'Lagre som mal', kategori: 'Fil', taster: '', enabled: () => !!app.current, kjor: () => kjorMenyId('lagre-som-mal') },
 		{ id: 'lukk-dok', navn: 'Lukk dokument', kategori: 'Fil', taster: '⌘W', enabled: () => !!app.current, kjor: () => kjorMenyId('lukk-dok') },

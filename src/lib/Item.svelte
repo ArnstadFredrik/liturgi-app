@@ -10,6 +10,7 @@
 	import EditableText from './EditableText.svelte';
 	import { nyVimTilstand } from '$lib/vim.js';
 	import { veksleVim } from '$lib/store.svelte.js';
+	import { saveCurrent, lagreMalSomKopi, erOriginalMal } from '$lib/fileio.svelte.js';
 	let vimSt = nyVimTilstand();
 	$effect(() => { if (app.vimModus) vimSt = nyVimTilstand(); });
 
@@ -239,6 +240,15 @@
 		const o = app.current;
 		openContextMenu(e.clientX, e.clientY, [
 			{ label: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', action: () => veksleVim() },
+			// lager-handlinger for maler (dokumentnivå):
+			//  • brukermal → Lagre  • originalmal → Lagre som kopi  • dev-original → Lagre til prosjektet
+			...(erMal && o?.__devMal ? [
+				{ label: 'Lagre til prosjektet', action: () => saveCurrent() },
+				{ label: 'Lagre som kopi', action: () => lagreMalSomKopi() }
+			] : []),
+			...(erMal && !o?.__devMal && erOriginalMal(o) ? [{ label: 'Lagre som kopi', action: () => lagreMalSomKopi() }] : []),
+			...(erMal && !o?.__devMal && !erOriginalMal(o) ? [{ label: 'Lagre', action: () => saveCurrent() }] : []),
+			'sep',
 			{ label: 'Flytt opp', action: () => move(-1), disabled: ii === 0 },
 			{ label: 'Flytt ned', action: () => move(1), disabled: ii === items.length - 1 },
 			'sep',
