@@ -1102,11 +1102,11 @@
 				<div class="eks-baand-rad">
 					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 38)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 38; setPptx('tekstSkala', pptTekstSkala); }} /></label>
 					<label class="eks-felt eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt)"><span>Tittel</span><input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
-					<select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }} title="Tekstjustering på slidene">
+					<div class="eks-felt" title="Tekstjustering på slidene"><span>Justering</span><select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }}>
 						<option value="left">Venstrejustert</option>
 						<option value="center">Sentrert</option>
 						<option value="right">Høyrejustert</option>
-					</select>
+					</select></div>
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
