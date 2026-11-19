@@ -144,7 +144,8 @@ function start() {
 		const nyBlokk = linjer.map((l) => {
 			if (alle) return l.replace(re, '').replace(/^ /, '');
 			const p = nummerert ? `${nr++}. ` : prefiks;
-			return p + l;
+			// tastet prefiks i teksten («- punkt») skal ikke ligge igjen som innhold
+			return p + l.replace(/^\s*(?:[-*+]|\d+[.)]|- \[ \]) /, '');
 		}).join('\n');
 		mdSett(value.slice(0, ls) + nyBlokk + value.slice(le), ls + (alle ? 0 : prefiks.length));
 	}
@@ -707,7 +708,11 @@ function angre() {
 			.filter((n) => !(n.nodeType === 1 && n.classList.contains('chip')))
 			.map(mdFraNode).join('');
 		const nyPrefiks = av ? '' : prefiks;
-		const fullLinje = nyPrefiks + indreMd;
+		// «den nye «-» overtar den gamle»: har brukeren allerede tastet et markdown-
+		// prefiks i teksten ('- ', '* ', '1. ' …), skal det IKKE ligge igjen som
+		// innhold — ellers blir det dobbelt ('- - punkt')
+		const ren = indreMd.replace(/^\s*(?:[-*+]|\d+[.)]|- \[ \]) /, '');
+		const fullLinje = nyPrefiks + ren;
 		linje.outerHTML = litLinjeHtml(fullLinje);
 		rikOppdatert();
 		oppdaterTilstand();
