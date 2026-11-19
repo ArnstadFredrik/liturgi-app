@@ -74,14 +74,14 @@ const ROLLE_PREFIKS_RE = /^(L\/ML|ML\/L|L\/M|KA\/L|L|ML|M|A|KA|K)(\s*\| ?)/;
 
 /** Render én markdown-linje til redigerings-HTML: div.et-linje med data-prefiks slik at
  *  serialiseringen kan gjenopprette markørene. Linjeprefikser vises som chips, ikke som rå tekst. */
-export function litLinjeHtml(linje) {
+export function litLinjeHtml(linje, tagPos = 'slutt') {
 	let m;
 	if ((m = /^\{\{refreng\}\} ?(.*)$/.exec(linje))) return linjeEditHtml('refreng-start', '{{refreng}}', 'Refreng ↓', m[1]);
 	if ((m = /^\{\{\/refreng\}\} ?(.*)$/.exec(linje))) return linjeEditHtml('refreng-slutt', '{{/refreng}}', 'Refreng slutt ↑', m[1]);
-	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return linjeEditHtml('bibelref', 'BIBELREF | ', 'Bibelref', m[2]);
-	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return linjeEditHtml('fotnote', 'FOTNOTE | ', 'Notis', m[2]);
-	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('notat', '@NOTAT ', '', m[1]);
-	if ((m = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('copyright', '@COPYRIGHT ', 'Copyright', m[1]);
+	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return linjeEditHtml('bibelref', 'BIBELREF | ', 'Bibelref', m[2], tagPos);
+	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return linjeEditHtml('fotnote', 'FOTNOTE | ', 'Notis', m[2], tagPos);
+	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('notat', '@NOTAT ', 'Notis', m[1], tagPos);
+	if ((m = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('copyright', '@COPYRIGHT ', '©', m[1], tagPos);
 	if ((m = /^@r ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('@r', (m[0].slice(0, m[0].length - m[1].length)), '@r', m[1]);
 	if ((m = new RegExp(ROLLE_PREFIKS_RE.source + '(.*)$').exec(linje))) return linjeEditHtml('rolle', '', m[1], m[3]);
 	if ((m = /^(## ?)(.*)$/.exec(linje))) return linjeEditHtml('h2', m[1], '', m[2]);
@@ -90,7 +90,7 @@ export function litLinjeHtml(linje) {
 	return linjeEditHtml('tekst', '', '', linje);
 }
 
-function linjeEditHtml(type, prefiks, chip, innhold) {
+function linjeEditHtml(type, prefiks, chip, innhold, tagPos = 'slutt') {
 	const klasse = { bibelref: 'fotnote', fotnote: 'fotnote', notat: 'notat', copyright: 'copyright', 'refreng-inn': 'refreng', '@r': 'rline', h1: 'md-h', h2: 'md-h md-h2', liste: 'md-li', rolle: '', tekst: '', 'refreng-start': '', 'refreng-slutt': '' }[type];
 	// rolleprefiks-linjer: rollen («L |») vises som vanlig rød rolle-span (redigerbar tekst),
 	// serialiseres tilbake som {{r}}L |{{/r}} — ingen chips for roller
@@ -106,13 +106,18 @@ function linjeEditHtml(type, prefiks, chip, innhold) {
 		// verdien (dobbel mellomrom som vokste per redigering); avstand = CSS.
 		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
 	}
+	const erLinjemerke = type === 'bibelref' || type === 'fotnote' || type === 'notat' || type === 'copyright';
+	// linjemerker: ÉN liten badge («dev»-stil) — på slutten av en enkeltlinje,
+	// ved starten av første linje i et flerlinjes-avsnitt («over»), ingen på resten
+	if (erLinjemerke) chipHtml = '';
 	const indreBase = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
-	// linjemerker (Notis/Bibelref/Copyright) vises som parentes-tag ETTER teksten — tydelig at det
-	// gjelder linjen, ikke innholdet; legges INNI tekst-spanet så størrelsen matcher
 	let indre = indreBase;
-	if (type === 'bibelref' || type === 'fotnote' || type === 'notat' || type === 'copyright') {
-		const tag = ` <span class="chip linje-tag">(${escapeHtml(chip)})</span>`;
-		indre = klasse ? indreBase.replace(/<\/span>$/, tag + '</span>') : indreBase + tag;
+	if (erLinjemerke && chip) {
+		// NB: ingen tekst-mellomrom rundt badge-en (CSS-marg i stedet) — mellomrom
+		// serialiseres inn i verdien og vokser per redigeringssyklus
+		const badge = `<span class="chip linje-tag">${escapeHtml(chip)}</span>`;
+		if (tagPos === 'slutt') indre = klasse ? indreBase.replace(/<\/span>$/, badge + '</span>') : indreBase + badge;
+		else if (tagPos === 'start') indre = badge + indreBase.replace(/^\s+/, '');
 	}
 	return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}">${chipHtml}${indre}</div>`;
 }
@@ -189,16 +194,26 @@ function merkerLinje(type, prefiks, klasse, innhold) {
 /** Hele teksten som redigerings-HTML (én div per linje). Linjer inne i en
  *  {{refreng}}-blokk vises i kursiv (span.refreng); start-/sluttmarkørene vises
  *  som chips. */
+const LINJEMERKE_RE = { bibelref: /^BIBELREF \| /, fotnote: /^FOTNOTE \| /, notat: /^@(?:NOTAT|n) ?\|? /, copyright: /^@(?:COPYRIGHT|copyright|c)\b ?\|? / };
+
 export function litEditHtml(text, merkerIdx = -1) {
 	let iRefreng = false;
-	return (text ?? '').split('\n').map((l, i) => {
+	const linjer = (text ?? '').split('\n');
+	// merke-type per linje (for badge-plassering: enkeltlinje → slutt, avsnitt → over første linje)
+	const typer = linjer.map((l) => Object.keys(LINJEMERKE_RE).find((t) => LINJEMERKE_RE[t].test(l)) ?? null);
+	const tagPos = typer.map((t, i) => {
+		if (!t) return 'slutt';
+		const forrige = typer[i - 1] === t, neste = typer[i + 1] === t;
+		return (forrige || neste) ? (forrige ? 'ingen' : 'start') : 'slutt';
+	});
+	return linjer.map((l, i) => {
 		const linjeDiv = (html) => html.replace('<div class="et-linje"', `<div class="et-linje" data-linje="${i}"`);
 		if (/^\{\{\/?refreng\}\}/.test(l)) {
 			iRefreng = l.trim() !== '{{/refreng}}';
 			return linjeDiv(litLinjeHtml(l));
 		}
 		if (iRefreng) return linjeDiv(linjeEditHtml('refreng-inn', '', '', l));
-		return linjeDiv(i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l));
+		return linjeDiv(i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l, tagPos[i]));
 	}).join('');
 }
 
