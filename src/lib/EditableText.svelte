@@ -484,7 +484,8 @@ function angre() {
 			bibelref: el?.closest('.et-linje')?.dataset.type === 'bibelref',
 			fotnote: el?.closest('.et-linje')?.dataset.type === 'fotnote',
 			notat: el?.closest('.et-linje')?.dataset.type === 'notat',
-			liste: el?.closest('.et-linje')?.dataset.type === 'liste'
+			liste: el?.closest('.et-linje')?.dataset.type === 'liste',
+			refreng: !!el?.closest('.et-linje')?.dataset.type?.startsWith('refreng')
 		};
 	}
 
