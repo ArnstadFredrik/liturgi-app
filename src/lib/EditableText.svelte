@@ -803,6 +803,12 @@ function angre() {
 
 	function byttModus(tilKilde) {
 		if (tilKilde === kilde) return;
+		if (tilKilde && !kilde && rikel && editing) {
+			// kildevisning skal vise RIKTIG kilde: serialiser DOM-en (role-spanene
+			// kommer fra renderingen og finnes ikke i value før nå)
+			const v = serialiser();
+			if (v != null && v !== value) { value = v; sistSer = v; if (dirty) markDirty(); }
+		}
 		if (!tilKilde) {
 			merkerIdx = -1;
 			sistSer = value;
