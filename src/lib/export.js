@@ -17,12 +17,14 @@ const REFRENG_SLUTT_RE = /^\{\{\/refreng\}\} ?(.*)$/;
  *  til flytende tekst, slik at PDF-eksporten ikke skriver 50-tegns-linjer bokstavelig.
  *  Ekte avsnittskift (tom linje) beholdes. Linjer som ender med setningsslutt punktum,
  *  utropstegn, spørsmålstegn eller kolon blir også avsnittskift. */
-export function flytAvsnitt(text) {
+export function flytAvsnitt(text, opts = {}) {
 	if (!text) return text;
 	const linjer = text.split('\n');
 	const out = [];
 	let buf = '';
 	const sluttTegn = /[.:!?»"]\s*$/;
+	const beholdLinjer = !!opts.beholdLinjer; // salmer: linjeskiftene er forfatterens
+	const sluttTegnEff = beholdLinjer ? /\s*$/ : sluttTegn;
 	const flush = () => { if (buf.trim()) out.push(buf.trim()); buf = ''; };
 	linjer.forEach((linje, i) => {
 		const t = linje.trim();
@@ -37,7 +39,7 @@ export function flytAvsnitt(text) {
 		// avslutt avsnittet på setningsslutt, etter fullførte fet-blokker (**), etter
 		// linjemerke-linjer (gjelder kun egen linje), eller før neste linje ser ut som
 		// ny setning/rolle/vers/fotnote/bibelref/notat/copyright/refreng-markør
-		if (sluttTegn.test(t) || /\*\*$/.test(t) || /^(FOTNOTE|BIBELREF) \||^@/.test(t) || /^\{\{\/?refreng\}\}/.test(t) ||
+		if (sluttTegnEff.test(t) || /\*\*$/.test(t) || /^(FOTNOTE|BIBELREF) \||^@/.test(t) || /^\{\{\/?refreng\}\}/.test(t) ||
 			/^[-–—•] /.test(neste) || /^\^\{/.test(neste) ||
 			/^\{\{r\}\}|^(L|ML|M|A|KA|K)\s*\|/.test(neste) || /^(FOTNOTE|BIBELREF) \||^@(?:NOTAT|n|COPYRIGHT|copyright|c)\b/.test(neste) || /^\{\{\/?refreng\}\}/.test(neste)) flush();
 	});
@@ -232,7 +234,8 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			} else if (it.text) {
 				out.push({ text: it.text });
 			}
-			out.push({ empty: true });
+			// avstand: spacing før/etter dekker allerede luften — ingen tom avsnittlinje
+			out.push({ empty: true, tynn: true });
 		}
 	}
 	return out;
@@ -259,7 +262,8 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 	const GRAY = '777777';
 	const paras = [];
 	for (const p of outline) {
-		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round(2.2 * MM) } })); continue; }
+		const avstandFaktor = valg.avstand === 'tett' ? 0.5 : valg.avstand === 'luft' ? 1.6 : 1;
+		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round((p.tynn ? 0.8 : 2.2) * avstandFaktor * MM) } })); continue; }
 		if (p.heading) {
 			// h1 tittel (sort Arial 16), h2 avsnitt (13, +5 mm før, +3,5 etter),
 			// h3 leddoverskrift (11, +3 mm før, +1,8 etter) — som i PDF-en
@@ -274,8 +278,8 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			const spec = p.heading === 'h1'
 				? { size: Math.round(32 * WF('hoveddel')), before: 0, after: Math.round(4 * MM) }
 				: p.heading === 'h2'
-					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * MM), after: Math.round(3.5 * MM) }
-					: { size: Math.round(22 * WF('ledd')), before: (valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * MM), after: Math.round(1.8 * MM) };
+					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * avstandFaktor * MM), after: Math.round(3.5 * avstandFaktor * MM) }
+					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * avstandFaktor * MM)), after: Math.round(1.8 * avstandFaktor * MM) };
 			paras.push(new Paragraph({
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
 				children: [new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
@@ -314,17 +318,19 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		}
 		paras.push(new Paragraph({
 			children: runs,
-			spacing: { after: Math.round(3 * MM), line: 348 }
+			spacing: { after: Math.round(3 * avstandFaktor * MM), line: 348 }
 		}));
 	}
 	// sidestørrelse og kolonner (A4: 11906×16838, A5: 8391×11907 twips)
 	const storrelse = valg.storrelse === 'A5' ? { width: 8391, height: 11907 } : { width: 11906, height: 16838 };
 	const kolonner = valg.kolonner === 2 ? { count: 2, space: 708 } : undefined;
 	// sidetall «N/M» nederst i midten — som i PDF-en
+	// marger som PDF-en: smal 10 mm, normal 15 mm, bred 20 mm (MM twips per mm)
+	const marg = (valg.marger === 'smal' ? 10 : valg.marger === 'bred' ? 20 : 15) * MM;
 	const doc = new Document({
 		sections: [{
 			properties: {
-				page: { size: { ...storrelse, orientation: 'portrait' }, margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } },
+				page: { size: { ...storrelse, orientation: 'portrait' }, margin: { top: marg, bottom: marg, left: marg, right: marg } },
 				column: kolonner
 			},
 			footers: { default: new Footer({ children: [new Paragraph({ children: [new TextRun({ children: [PageNumber.CURRENT, '/', PageNumber.TOTAL_PAGES], size: 18, color: '888888', font: SERIF })], alignment: AlignmentType.CENTER })] }) },
@@ -648,6 +654,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const colW = (mm.w - margin * 2 - colGap * (kolonner - 1)) / kolonner;
 	// skriftskala: hefte 0,85× — brødtekst ~9 pt, overskrifter proporsjonalt mindre
 	const skala = hefte ? 0.85 : 1;
+	// avstand mellom ledd (valget «Avstand»): faktorer på etter-målene
+	const avstandFaktor = valg.avstand === 'tett' ? 0.5 : valg.avstand === 'luft' ? 1.6 : 1;
 	const S = (n, omr) => {
 		const f = omr ? (skriftSkala[omr] ?? 1) : 1;
 		return Math.round(n * skala * f * 10) / 10;
@@ -764,7 +772,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
 			// avsnittstitler AV: første ledd behøver ikke ekstra topp-luft (avsnittslinjen
 			// ga den — uten den blir luften dobbelt opplevert)
-			const toppLuft = (!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5);
+			const toppLuft = ((!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5)) * avstandFaktor;
 			forsteLedd = false;
 			if (head && it.__visOverskrift !== false) { y += toppLuft; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6; }
 			if (it.__visInnhold === false) continue;
@@ -778,8 +786,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
-			skrivSegmenter(roleSegments(flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
-			y += hefte ? 1.8 : 3;
+			skrivSegmenter(roleSegments(it.type === 'salme' ? flytAvsnitt(tekst, { beholdLinjer: true }) : flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
+			y += (hefte ? 1.8 : 3) * avstandFaktor;
 		}
 		if (spor) spor.push({ type: 'fase', navn: 'p2-seksjon' });
 	}

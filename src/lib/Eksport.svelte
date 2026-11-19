@@ -213,7 +213,7 @@
 		} };
 	}
 	// manuell fontstørrelse per profil (pt, lagres som skala i eksportInnst)
-	const grunnPt = { hoveddel: 11, ledd: 11, tekst: 10.5 };
+	const grunnPt = { hoveddel: 11, ledd: 11, tekst: 10 };
 	const skrift = $derived(o?.eksportInnst?.[aktiv]?.skriftSkala ?? {});
 	function ptVerdi(omr, grunn) { return Math.round(grunn * (skrift[omr] ?? 1) * 10) / 10; }
 	function settPt(omr, verdi, grunn) {
@@ -279,6 +279,13 @@
 	const profiler = $derived(['Prest', 'Medarbeider', 'Menighet', 'Skjerm', ...egneProfiler]);
 	const datoTekst = $derived(o?.date ? nlDate(o.date) : '');
 
+	// menylinje/kontekstmeny: «Vis navn» og «Hovedtitler» (print-profilene)
+	window.__eksMeny = (id) => {
+		if (id === 'eks-tittel') setInnst('tittel', !getInnst('tittel', true));
+		else if (id === 'eks-avsnitt') setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true));
+	};
+	$effect(() => () => { window.__eksMeny = null; });
+
 	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
 	function portal(node, target) {
 		const host = document.querySelector(target);
@@ -298,7 +305,7 @@
 		if (aktiv === 'Skjerm') { pdfSider = []; rendrerStatus = ''; return; }
 		if (!o || app.kind !== 'service') { pdfSider = []; rendrerStatus = ''; return; }
 		try {
-			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), visAvsnittstitler: getInnst('visAvsnittstitler', true), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
+			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), visAvsnittstitler: getInnst('visAvsnittstitler', true), avstand: getInnst('avstand', 'normal'), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 			// NB: les RESULTATET, aldri pdfSider-state her — effekten skriver pdfSider,
 			// så å lese den i samme effekt gir en uendelig effekt-loop.
 			const sider = byggPdfSider(klonMedValg(o, aktiv), aktiv === 'Menighet' ? false : visInstrValg, valg).sider;
@@ -920,6 +927,7 @@
 				kolonner: getInnstP(profil, 'kolonner', profil === 'Menighet' ? 2 : 1),
 				marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
 				visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true),
+				avstand: getInnstP(profil, 'avstand', 'normal'),
 				skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...(o?.eksportInnst?.[profil]?.skriftSkala ?? {}) }
 			}, isElectron);
 			if (res) {
@@ -936,6 +944,7 @@
 						marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
 						tittel: getInnstP(profil, 'tittel', true),
 						visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true),
+						avstand: getInnstP(profil, 'avstand', 'normal'),
 						skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...(o?.eksportInnst?.[profil]?.skriftSkala ?? {}) }
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
@@ -999,7 +1008,10 @@
 	}
 </script>
 
-<div id="eksport-side">
+<div id="eksport-side"> oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
+				{ label: (getInnst('tittel', true) ? '✓ ' : '') + 'Vis navn', action: () => setInnst('tittel', !getInnst('tittel', true)) },
+				{ label: (getInnst('visAvsnittstitler', true) ? '✓ ' : '') + 'Hovedtitler', action: () => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true)) }
+			]); }}
 	<h2>
 		<button class="eks-tilbake" title="Tilbake til redigering" onclick={() => { app.visning = 'editor'; }}>←</button>
 		Eksport
@@ -1054,17 +1066,26 @@
 					<option value="smal">Smal marg</option>
 				</select>
 			</div>
+			<div class="eks-baand-rad" style="margin-top: 6px;">
+				<span class="eks-baand-label">Avstand</span>
+				<select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft før/etter ledd i visning, Word og PDF">
+					<option value="tett">Tett</option>
+					<option value="normal">Normal</option>
+					<option value="luft">Luftig</option>
+				</select>
+			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
 					<label class="eks-chk-pt">Hov. <input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
 					<label class="eks-chk-pt">Ledd <input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
-					<label class="eks-chk-pt">Tekst <input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10.5)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10.5)} /></label>
-					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10,5 pt)" onclick={nullstillSkrift}>↺</button>
+					<label class="eks-chk-pt">Tekst <input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></label>
+					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>↺</button>
 				</div>
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={app.eksVisInnhold} title="Leddinnhold i listen" onclick={() => { app.eksVisInnhold = !app.eksVisInnhold; try { localStorage.setItem('eks-visInnhold', app.eksVisInnhold ? '1' : '0'); } catch {} }}>{@html mdi('table-of-contents', 14)} Leddinnhold</button>
+					<button class="eks-toggle" class:paa={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onclick={() => setInnst('tittel', !getInnst('tittel', true))}>{@html mdi('tag-outline', 14)} Vis navn</button>
+					<button class="eks-toggle" class:paa={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onclick={() => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true))}>{@html mdi('format-header-2', 14)} Hovedtitler</button>
 					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }}>{@html mdi('text', 14)} Instruksjoner</button>
 					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
 				</div>
@@ -1094,21 +1115,6 @@
 							<button class="eks-egen-slett" title="Fjern sliden" onclick={() => fjernPptSide(ee.i)}>×</button>
 						</div>
 					{/each}
-				{#if o.kind === 'service' && aktiv !== 'Skjerm'}
-					<div class="sidehead eksport-seksjon">Tittel</div>
-					<div class="eksport-rad" class:med={getInnst('tittel', true)}>
-						<input type="checkbox" checked={getInnst('tittel', true)} onchange={(e) => setInnst('tittel', e.currentTarget.checked)} title="gudstjenestenavn og dato med i eksporten" />
-						<div class="eksport-rad-tekst">
-							<span class="eksport-rad-nm">{o.name}{o.date ? ' · ' + datoTekst : ''}</span>
-						</div>
-					</div>
-					<div class="eksport-rad" class:med={getInnst('visAvsnittstitler', true)}>
-						<input type="checkbox" checked={getInnst('visAvsnittstitler', true)} onchange={(e) => setInnst('visAvsnittstitler', e.currentTarget.checked)} title="hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" />
-						<div class="eksport-rad-tekst">
-							<span class="eksport-rad-nm">Hoveddeltitler</span>
-						</div>
-					</div>
-				{/if}
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon" data-sec={si}>{sec.title}</div>
 					{#each sec.items as it, ii (nokkel(si, ii))}
