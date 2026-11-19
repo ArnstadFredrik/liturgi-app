@@ -4,6 +4,7 @@
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
+	import { sorterPrefasjoner } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { formaterSalme, salmeAlts } from '$lib/lit.js';
 	import EditableText from './EditableText.svelte';
@@ -23,7 +24,17 @@
 	const avslAltsLen = $derived(it.avslutningAlts?.length ?? 0);
 
 	function velgAlt() {
-		chooseOneModal(it.alts, it.selAlt ?? 0, (idx) => { it.selAlt = idx; markDirty(); });
+		// prefasjoner (kirkeårsprefasjoner + nattverdbønn a–g): sorter kirkeårsbestemte
+		// først med aktuell periode øverst — gjenkjenning på labels
+		const erPref = it.alts?.some((a) => /^(Advent|Jul og Maria|Åpenbaringstiden|Faste|Påske|Kristi himmel|Pinse$|Treenighetstiden|Allehelgen|Nattverdbønn)/i.test(a.label ?? ''));
+		const sortert = erPref ? sorterPrefasjoner(it.alts, o?.date, o?.kirkeaar?.period) : it.alts;
+		chooseOneModal(sortert, it.selAlt ?? 0, (idx) => {
+			// velg-idx gjelder den SORTERTE lista — map tilbake til original
+			const valgtObj = sortert[idx];
+			const origIdx = it.alts.indexOf(valgtObj);
+			it.selAlt = origIdx >= 0 ? origIdx : idx;
+			markDirty();
+		});
 	}
 
 	// salmedatabasen (gudstjeneste.no): hent salmetekst i bakgrunnen

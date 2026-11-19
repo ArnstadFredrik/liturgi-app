@@ -535,6 +535,7 @@ function angre() {
 		if (tag === 'I' || tag === 'EM') return '*' + indre + '*';
 		if (tag === 'SUP') return '^{' + indre + '}';
 		if (tag === 'SPAN' && cl.contains('role')) return '{{r}}' + indre + '{{/r}}';
+		if (tag === 'SPAN' && cl.contains('bibelref-inline')) return '{{bibelref}}' + indre + '{{/bibelref}}';
 		if (tag === 'DIV') return (n.dataset.prefiks ?? '') + indre + '\n';
 		return indre;
 	}

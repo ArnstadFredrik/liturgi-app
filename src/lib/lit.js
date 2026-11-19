@@ -54,7 +54,10 @@ function mdInline(t) {
 	return t
 		.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>')
 		.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-		.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+		.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+		// inline bibelreferanse: {{bibelref}}…{{/bibelref}} — samme stil som
+		// BIBELREF-linjen, men inline (liten dempet tekst)
+		.replace(/\{\{bibelref\}\}([\s\S]*?)\{\{\/bibelref\}\}/g, (m, x) => '<span class="bibelref-inline">' + x + '</span>');
 }
 
 /** mdInline på tekst utenfor eksisterende tags (rolle/fotnote/copyright/refreng/overskrift-spans). */
@@ -132,6 +135,9 @@ function linjeEditHtml(type, prefiks, chip, innhold, tagPos = 'slutt') {
 function inlineEditHtml(t) {
 	let s = escapeHtml(t);
 	s = s.replace(/\{\{r\}\}([\s\S]*?)\{\{\/r\}\}/g, (m, x) => '<span class="role">' + mdInline(x) + '</span>');
+	// inline bibelref: chip (serialiseres aldri) + spanet bærer teksten
+	s = s.replace(/\{\{bibelref\}\}([\s\S]*?)\{\{\/bibelref\}\}/g,
+		(m, x) => '<span class="bibelref-inline"><span class="chip">Bibelref</span>' + x + '</span>');
 	return mdInline(s);
 }
 
@@ -211,8 +217,14 @@ export function litEditHtml(text, merkerIdx = -1) {
 		// copyright: hver linje er et selvstendig merke (T:/M:) — begge skal ha badge
 		return t === 'copyright' ? 'copyright' + i : t;
 	});
-	// badge FORAN (første linje i et merke-avsnitt; enkeltlinje = «avsnitt» på én linje)
-	const tagPos = typer.map((t, i) => (typer[i - 1] === t ? 'ingen' : 'start'));
+	// badge-POSISJON: enkeltlinje → SLUTT (etter teksten, roter ikke linjen);
+	// flerlinjes-avsnitt → over første linje, ingen på de øvrige
+	const tagPos = typer.map((t, i) => {
+		if (!t) return 'ingen';
+		const forrige = typer[i - 1] === t, neste = typer[i + 1] === t;
+		if (!forrige && !neste) return 'slutt';
+		return forrige ? 'ingen' : 'start';
+	});
 	return linjer.map((l, i) => {
 		const linjeDiv = (html) => html.replace('<div class="et-linje"', `<div class="et-linje" data-linje="${i}"`);
 		if (/^\{\{\/?refreng\}\}/.test(l)) {

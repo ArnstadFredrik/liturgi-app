@@ -484,11 +484,13 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 	const linjer = src.split('\n');
 	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${mal.id}"`));
 	if (idLinje < 0) return { ok: false, error: `Fant ikke id "${mal.id}" i data.js` };
-	// entry-objektet åpner med en linje som kun inneholder «{» og lukker med «},»/«}» i kolonne 0
+	// data.js er tab-innrykket: toppnivå-entries åpner med en linje som kun er
+	// «\t{» og lukker med «\t},»/«\t}». (Den gamle /^},?$/-regexen passet aldri —
+	// hver dev-lagring feilet med «Ugyldige entry-grenser i data.js».)
 	let start = idLinje;
-	while (start > 0 && linjer[start].trim() !== '{') start--;
+	while (start > 0 && !/^\t\{$/.test(linjer[start])) start--;
 	let slutt = idLinje;
-	while (slutt < linjer.length && !/^},?$/.test(linjer[slutt])) slutt++;
+	while (slutt < linjer.length && !/^\t},?$/.test(linjer[slutt])) slutt++;
 	if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
 	const komma = linjer[slutt].trim().endsWith(',');
 	const ny = JSON.stringify(mal, null, '	').split('\n');
