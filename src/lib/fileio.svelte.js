@@ -422,8 +422,9 @@ export async function loadTemplatesFromDisk() {
 		const eksisterende = new Set([...list.originaler, ...list.brukermaler].map((x) => x.name));
 		for (const bt of BUILTIN_TEMPLATES) {
 			if (eksisterende.has(bt.name)) continue;
-			// «Ordning for hovedgudstjeneste» og gravferdsordningen er originaler; alle andre innebygde i brukermaler
-			const sub = /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
+			// originaler: hovedgudtjenesten, gravferdsordningen og maler flagget erOriginal
+			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
+			const sub = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
 			const data = JSON.parse(JSON.stringify(bt));
 			for (const sec of data.sections) for (const it of sec.items) autoMarkMigrate(it);
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(bt.name).toLowerCase().replace(/\s+/g, '-');
