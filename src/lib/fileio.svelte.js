@@ -464,9 +464,12 @@ export async function loadTemplatesFromDisk() {
 					const intro = it.introAlts?.[it.selIntro ?? 0]?.text ?? '';
 					const avsl = it.avslutningAlts?.[it.selAvsl ?? 0]?.text ?? '';
 					const komponer = (t) => [intro, t, avsl].filter((s) => s && s.trim()).join('\n\n');
-					const alts = it.alts?.length
-						? it.alts.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: komponer(a.text) }))
-						: [{ alt_label: '', tekst: komponer(it.text) }];
+					// bibDup: alternativet er innholdsmessig identisk med originalmalen
+					// (Ordning for hovedgudtjenesten) og skal ikke inn i bibliotekslisten
+					if (it.bibDup) continue;
+					const alts = (it.alts?.length ? it.alts : [{ label: '', text: it.text }])
+						.filter((a) => !a.bibDup)
+						.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: komponer(a.text) }));
 					for (const a of alts) {
 						entries.push({ seksjon: sec.title, ledd: it.heading, alt_label: a.alt_label, tekst: a.tekst });
 					}
