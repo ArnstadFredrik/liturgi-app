@@ -511,7 +511,16 @@ export async function loadTemplatesFromDisk() {
 			// på nytt (fanger tittel-/tekstendringer som ikke endrer radantallet)
 			const gammel = sig[tpl.name];
 			if (gammel && gammel.n === entries.length && gammel.hash === hashAv(entries)) continue;
-			await window.liturgi.bibSync(tpl.name, entries);
+			// sikre unike (ledd, alt_label) — bibliotek-tabellens primærnøkkel
+			const sett = new Set();
+			for (const e of entries) {
+				let l = e.alt_label, n = sett.has(e.ledd + '|' + l) ? 1 : 0;
+				while (sett.has(e.ledd + '|' + l)) { n++; l = (e.alt_label || 'Alternativ') + ' ' + n; }
+				sett.add(e.ledd + '|' + l);
+				e.alt_label = l;
+			}
+			const syss = await window.liturgi.bibSync(tpl.name, entries);
+			if (syss && !syss.ok) toast.error('Bibliotekssynk feilet for «' + tpl.name + '»: ' + (syss.error ?? ''));
 		}
 	} catch (err) {
 		toast.error('Klarte ikke lese malene: ' + (err?.message ?? err));
