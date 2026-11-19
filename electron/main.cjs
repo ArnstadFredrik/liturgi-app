@@ -472,6 +472,53 @@ ipcMain.handle('apne:mappe', (_e, p) => {
 // Rendereren spør om den kjører i en dev-utgave; malredigeringsvisningen vises
 // bare når byggflagget __DEV_MODE__ er satt OG appen er upakket.
 ipcMain.handle('dev:tilstand', () => ({ devModus: !app.isPackaged }));
+
+// ---------- DEV: malutkast ved feil i «Lagre til prosjektet» ----------
+// Ved feil i dev:lagre-datajs skrives malen som utkast til
+// ~/.config/Liturgi/malutkast/<tid>-<id>.json — neste dev-økt kan åpne den
+// i Malverktøyet og lagre tilbake til prosjektet senere.
+const utkastDir = () => path.join(app.getPath('userData'), 'malutkast');
+ipcMain.handle('dev:utkast', async () => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
+	try {
+		const dir = utkastDir();
+		fs.mkdirSync(dir, { recursive: true });
+		const filer = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort().reverse();
+		const utkast = [];
+		for (const f of filer) {
+			try {
+				const j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+				utkast.push({ fil: f, id: j.id ?? '', name: j.name ?? '', tid: (j.__utkastTid ?? f.replace(/\.json$/, '')) });
+			} catch { }
+		}
+		return { ok: true, utkast };
+	} catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle('dev:les-utkast', async (_e, fil) => {
+	if (app.isPackaged || typeof fil !== 'string' || fil.includes('/') || fil.includes('\\')) return { ok: false, error: 'Ugyldig utkast' };
+	try {
+		const j = JSON.parse(fs.readFileSync(path.join(utkastDir(), fil), 'utf8'));
+		return { ok: true, mal: j };
+	} catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle('dev:slett-utkast', async (_e, fil) => {
+	if (app.isPackaged || typeof fil !== 'string' || fil.includes('/') || fil.includes('\\')) return { ok: false, error: 'Ugyldig utkast' };
+	try { fs.unlinkSync(path.join(utkastDir(), fil)); return { ok: true }; }
+	catch (err) { return { ok: false, error: err.message }; }
+});
+ipcMain.handle('dev:lagre-utkast', async (_e, { mal }) => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
+	if (!mal || typeof mal !== 'object' || !mal.id) return { ok: false, error: 'Ugyldig mal-objekt' };
+	try {
+		const dir = utkastDir();
+		fs.mkdirSync(dir, { recursive: true });
+		const tid = new Date().toISOString().replace(/[:.]/g, '-');
+		const fil = `${tid}-${String(mal.id).replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+		const kopi = { ...mal, __utkastTid: new Date().toLocaleString('no-NO') };
+		fs.writeFileSync(path.join(dir, fil), JSON.stringify(kopi, null, '\t'));
+		return { ok: true, fil };
+	} catch (err) { return { ok: false, error: err.message }; }
+});
 // Skriv en redigert originalmal tilbake til src/lib/data.js så den blir med
 // i byggprosessen. Handleren nekter å kjøre i en pakket app.
 ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
@@ -504,7 +551,16 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 		return { ok: true };
 	} catch (err) {
 		fs.writeFileSync(fil, src);
-		return { ok: false, error: 'data.js var ugyldig etter skriving (gjenopprettet): ' + err.message };
+		// utkast til config-dir så arbeidet kan gjenopptas neste dev-økt
+		let utkastFil = null;
+		try {
+			const dir = utkastDir();
+			fs.mkdirSync(dir, { recursive: true });
+			const tid = new Date().toISOString().replace(/[:.]/g, '-');
+			utkastFil = `${tid}-${String(mal.id).replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+			fs.writeFileSync(path.join(dir, utkastFil), JSON.stringify({ ...mal, __utkastTid: new Date().toLocaleString('no-NO') }, null, '\t'));
+		} catch { }
+		return { ok: false, error: 'data.js var ugyldig etter skriving (gjenopprettet): ' + err.message, utkast: utkastFil };
 	}
 });
 
