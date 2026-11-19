@@ -80,7 +80,7 @@ export function litLinjeHtml(linje, tagPos = 'slutt') {
 	if ((m = /^\{\{\/refreng\}\} ?(.*)$/.exec(linje))) return linjeEditHtml('refreng-slutt', '{{/refreng}}', 'Refreng slutt ↑', m[1]);
 	if ((m = /^(BIBELREF) \| ?(.*)$/.exec(linje))) return linjeEditHtml('bibelref', 'BIBELREF | ', 'Bibelref', m[2], tagPos);
 	if ((m = /^(FOTNOTE) \| ?(.*)$/.exec(linje))) return linjeEditHtml('fotnote', 'FOTNOTE | ', 'Notis', m[2], tagPos);
-	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('notat', '@NOTAT ', 'Notis', m[1], tagPos);
+	if ((m = /^@(?:NOTAT|n) ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('notat', '@NOTAT ', 'Instruks', m[1], tagPos);
 	if ((m = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('copyright', '@COPYRIGHT ', '©', m[1], tagPos);
 	if ((m = /^@r ?\|? ?(.*)$/.exec(linje))) return linjeEditHtml('@r', (m[0].slice(0, m[0].length - m[1].length)), '@r', m[1]);
 	if ((m = new RegExp(ROLLE_PREFIKS_RE.source + '(.*)$').exec(linje))) return linjeEditHtml('rolle', '', m[1], m[3]);
@@ -110,6 +110,12 @@ function linjeEditHtml(type, prefiks, chip, innhold, tagPos = 'slutt') {
 	// linjemerker: ÉN liten badge («dev»-stil) — på slutten av en enkeltlinje,
 	// ved starten av første linje i et flerlinjes-avsnitt («over»), ingen på resten
 	if (erLinjemerke) chipHtml = '';
+	if (type === 'refreng-start') { // badge over refrenget + innholdet på første linje
+		return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}"><span class="chip linje-tag">Refreng</span>${inlineEditHtml(innhold)}</div>`;
+	}
+	if (type === 'refreng-slutt') { // avslutningsmarkør: usynlig i redigeringen
+		return `<div class="et-linje" data-type="${type}" data-prefiks="${escapeHtml(prefiks)}"></div>`;
+	}
 	const indreBase = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
 	let indre = indreBase;
 	if (erLinjemerke && chip) {
@@ -200,17 +206,21 @@ export function litEditHtml(text, merkerIdx = -1) {
 	let iRefreng = false;
 	const linjer = (text ?? '').split('\n');
 	// merke-type per linje (for badge-plassering: enkeltlinje → slutt, avsnitt → over første linje)
-	const typer = linjer.map((l) => Object.keys(LINJEMERKE_RE).find((t) => LINJEMERKE_RE[t].test(l)) ?? null);
-	const tagPos = typer.map((t, i) => {
-		if (!t) return 'slutt';
-		const forrige = typer[i - 1] === t, neste = typer[i + 1] === t;
-		return (forrige || neste) ? (forrige ? 'ingen' : 'start') : 'slutt';
+	const typer = linjer.map((l, i) => {
+		const t = Object.keys(LINJEMERKE_RE).find((t) => LINJEMERKE_RE[t].test(l)) ?? null;
+		// copyright: hver linje er et selvstendig merke (T:/M:) — begge skal ha badge
+		return t === 'copyright' ? 'copyright' + i : t;
 	});
+	// badge FORAN (første linje i et merke-avsnitt; enkeltlinje = «avsnitt» på én linje)
+	const tagPos = typer.map((t, i) => (typer[i - 1] === t ? 'ingen' : 'start'));
 	return linjer.map((l, i) => {
 		const linjeDiv = (html) => html.replace('<div class="et-linje"', `<div class="et-linje" data-linje="${i}"`);
 		if (/^\{\{\/?refreng\}\}/.test(l)) {
-			iRefreng = l.trim() !== '{{/refreng}}';
-			return linjeDiv(litLinjeHtml(l));
+			const erSlutt = l.trim() === '{{/refreng}}';
+			iRefreng = !erSlutt;
+			// start: badge «Refreng» over avsnittet + innholdet på samme linje;
+			// slutt-linjen er bare markøren — tom visuell linje uten badge
+			return linjeDiv(linjeEditHtml(erSlutt ? 'refreng-slutt' : 'refreng-start', erSlutt ? '{{/refreng}}' : '{{refreng}}', 'Refreng', erSlutt ? '' : l.replace(/^\{\{refreng\}\} ?/, ''), 'start'));
 		}
 		if (iRefreng) return linjeDiv(linjeEditHtml('refreng-inn', '', '', l));
 		return linjeDiv(i === merkerIdx ? litLinjeMerkerHtml(l) : litLinjeHtml(l, tagPos[i]));
@@ -264,8 +274,8 @@ export function formaterSalme(raa) {
 	for (; i < linjer.length; i++) {
 		const t = linjer[i].trim();
 		if (!iRef && /^refreng:?$/i.test(t)) {
+			// bare markøren — «Refreng»-teksten vises som badge i redigeringen
 			ut.push('{{refreng}}');
-			ut.push(t.replace(/:$/, ''));
 			iRef = true;
 			continue;
 		}

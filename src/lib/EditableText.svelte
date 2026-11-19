@@ -854,14 +854,22 @@ function angre() {
 		// riktekst: serialiser, veksle i verdien, re-render
 		const v = serialiser();
 		if (v == null) return;
-		if (v.includes('{{refreng}}')) {
-			value = v.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n');
-		} else {
-			value = '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
-		}
-		sistSer = value;
+		const ny = v.includes('{{refreng}}')
+			? v.replace(/\n?\{\{refreng\}\}\n?/g, '\n').replace(/\n?\{\{\/refreng\}\}\n?/g, '\n').replace(/\n{2,}/g, '\n\n')
+			: '{{refreng}}\n' + v.trim() + '\n{{/refreng}}';
+		// sett verdien OG render umiddelbart; tick → tilbakestill caret.
+		// (merkerVersjon/$effect 511 alene leverte ikke re-renderen her)
+		value = ny;
+		sistSer = ny;
 		merkerIdx = -1;
 		merkerVersjon++;
+		html = litEditHtml(ny);
+		tick().then(() => {
+			if (value !== ny) value = ny; // bind-roundtrip kan ha trampet ned verdien
+			html = litEditHtml(value);
+			rikel?.focus();
+			oppdaterTilstand();
+		});
 		if (dirty) markDirty();
 	}
 
