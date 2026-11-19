@@ -771,6 +771,9 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 /* punktliste: samme linjeavstand i redigering som i visningen (md-li er
    inline i redigering men block i visning — gi listelinjene lik høyde) */
 .et-rik .et-linje[data-type='liste'] { min-height: 0; line-height: 1.6; }
+/* {{/refreng}}-markøren: bare en serialiseringslinje — ingen visuell høyde
+   (ga en ekstra tom linje etter innpakket refreng-avsnitt) */
+.et-rik .et-linje[data-type='refreng-slutt'] { display: none; }
 .et-rik .rline { color: var(--role); }
 .et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: inherit; line-height: inherit; margin-right: 0.35em; }
 /* lister: prikk og tekst på samme linje (md-li-spanene bruker hengende innrykk i visning) */
