@@ -119,7 +119,7 @@
 		<div class="sidegroup åpne-gruppe">
 			<div class="sidehead">Åpne maler</div>
 			<ul class="list">
-				{#each app.åpneMaler as m (m.obj.id ?? m.obj.name)}
+						{#each app.åpneMaler as m (m.åpenMalId)}
 					<li class:active={app.current?.__åpenMalId === m.åpenMalId} class:dirty={m.dirty}>
 						<span class="nm" onclick={() => åpneMalFraListe(m)} title={m.obj.name}>
 							{#if m.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}

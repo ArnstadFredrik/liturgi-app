@@ -297,7 +297,16 @@ export function openTemplate(id) {
  *  upålitelig: app.current er en reaktiv proxy, obj-referansen er det ikke). */
 export function malEntryFor(obj) {
 	const id = obj?.__åpenMalId;
-	return app.åpneMaler.find((x) => (id != null && x.åpenMalId === id) || x.obj === obj);
+	return app.åpneMaler.find(
+		(x) => (id != null && x.åpenMalId === id)
+			|| x.obj === obj
+			// NB: identitet holder ikke — loadTemplatesFromDisk erstatter
+			// mal-objektene ved hver Maler-visning. Match på malens stabile id,
+			// ellers kommer duplikat-oppføringer (samme m.obj.id to ganger i
+			// sidemenyen) og Sidebar sitt keyed each krasjer Svelte.
+			|| (x.obj?.id != null && x.obj.id === obj?.id)
+			|| (x.obj?.name && x.obj.name === obj?.name && !obj?.filePath)
+	);
 }
 
 /** Registrer et mal-dokument som åpent (importeres av malverktoy.svelte.js). */
@@ -313,6 +322,7 @@ export function registrerÅpenMal(obj, dev) {
 		e = { obj, åpenMalId: obj.__åpenMalId, name: obj.name ?? '', dev: !!dev, dirty: false };
 		app.åpneMaler.push(e);
 	} else {
+		e.obj = obj; // frisk objekt-identitet (loadTemplatesFromDisk erstatter dem)
 		e.dev = !!dev;
 	}
 	app.current = obj;
