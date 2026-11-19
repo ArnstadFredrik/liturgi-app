@@ -383,9 +383,15 @@ button.wide { width: 100%; }
 }
 .biblio-sok input:hover { border-color: var(--accent); }
 .biblio-sok input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
-#biblio-kolonner { display: flex; gap: 20px; margin-top: 18px; align-items: flex-start; }
-#biblio-liste { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 4px; }
-#biblio-detalj { flex: 1.2; min-width: 300px; border-left: 1px solid var(--border); padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+/* biblioteket: kolonnene scroller hver for seg (visningen forsvinner ikke ved scroll) */
+#app:has(#biblio-kolonner) #main { overflow: hidden; }
+#biblio-side:has(#biblio-kolonner) {
+	height: 100%; max-width: 860px; margin: 24px auto 0; padding: 0 24px 0;
+	display: flex; flex-direction: column;
+}
+#biblio-kolonner { display: flex; gap: 20px; margin-top: 18px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
+#biblio-liste { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding-bottom: 40px; }
+#biblio-detalj { flex: 1.2; min-width: 300px; border-left: 1px solid var(--border); padding-left: 20px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding-bottom: 40px; }
 .biblio-mappe { margin-top: 8px; }
 .biblio-mappe-navn { margin-bottom: 4px; color: var(--accent); }
 .biblio-rad { width: 100%; text-align: left; justify-content: flex-start; }
