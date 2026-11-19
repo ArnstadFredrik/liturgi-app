@@ -96,6 +96,9 @@ function linjeEditHtml(type, prefiks, chip, innhold) {
 	} else if (type === 'refreng-start' || type === 'refreng-slutt') {
 		// blokkmarkøren er hele linjen — vises bare som chip (tomt innhold)
 		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
+	} else if (chip) {
+		// punktlisten («–»), @r osv.: prefikset vises som chip foran teksten
+		chipHtml = `<span class="chip">${escapeHtml(chip)}</span> `;
 	}
 	const indreBase = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
 	// linjemerker (Notis/Bibelref/Copyright) vises som parentes-tag ETTER teksten — tydelig at det
