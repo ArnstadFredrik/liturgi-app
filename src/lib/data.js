@@ -408,9 +408,23 @@ export const BUILTIN_TEMPLATES = [
 					"type": "lesning",
 					"heading": "9 Første lesning",
 					"label": "Fra Det gamle testamentet",
-					"text": "{{r}}ML |{{/r}} Det står skrevet i …\n\n[Lesningstekst]\n{{r}}ML |{{/r}} Slik lyder Herrens ord."
+					"text": "[Lesningstekst]",
+					"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML |{{/r}} Det står skrevet i …"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}ML |{{/r}} Slik lyder Herrens ord."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0
 				},
-				{
+{
 					"id": "o10",
 					"type": "salme",
 					"heading": "10 Bibelsk salme / Salme",
@@ -422,14 +436,42 @@ export const BUILTIN_TEMPLATES = [
 					"heading": "11 Andre lesning",
 					"optional": true,
 					"label": "Fra Det nye testamentet utenom evangeliene",
-					"text": "{{r}}ML |{{/r}} Det står skrevet i …\n\n[Lesningstekst]\n{{r}}ML |{{/r}} Slik lyder Herrens ord."
+					"text": "[Lesningstekst]",
+					"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML |{{/r}} Det står skrevet i …"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}ML |{{/r}} Slik lyder Herrens ord."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0
 				},
 				{
 					"id": "o12",
 					"type": "lesning",
 					"heading": "* 12 Evangelium",
 					"instr": "Innledes med hallelujaomkved eller salmevers med hallelujaomkved (N13: 977.1-7). I fastetiden erstattes halleluja av tractus, f.eks. N13: 926, 927, 928, 932, 939.",
-					"text": "{{r}}L |{{/r}} Det står skrevet i evangeliet etter …\n\n[Evangelietekst]\n{{r}}L |{{/r}} Slik lyder det hellige evangelium."
+					"text": "[Evangelietekst]",
+					"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}L |{{/r}} Det står skrevet i evangeliet etter …"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}L |{{/r}} Slik lyder det hellige evangelium."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0
 				},
 				{
 					"id": "o12a",
@@ -1574,7 +1616,21 @@ export const BUILTIN_TEMPLATES = [
 						"id": "l-26",
 						"type": "lesning",
 						"heading": "Første lesning",
-						"text": "Det står skrevet i Ruts bok:\nNoomi dro bort fra stedet hvor hun hadde bodd, og begge svigerdøtrene fulgte henne.\nDe ga seg i vei for å vende tilbake til Juda. Men Noomi sa til sine to svigerdøtre: «Snu og gå tilbake, hver til sin mors hus! Måtte Herren vise godhet mot dere, slik dere har vist godhet mot de døde og mot meg! Måtte Herren gi dere begge trygghet og la dere finne et hjem, hver i sin manns hus!» Så kysset hun dem. Men de brast i gråt og sa til henne: «Nei, vi vil følge deg tilbake til ditt folk.» Men Noomi sa: «Vend tilbake, mine døtre! Hvorfor skulle dere følge med meg? Skulle jeg ennå føde sønner som dere kan få til menn?»\nMen Rut svarte: «Ikke tving meg til å forlate deg og vende tilbake, for:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo.\nDitt folk er mitt folk,\nog din Gud er min Gud.\nDer du dør, vil jeg dø,\nog der vil jeg begraves.\nMåtte Herren la det gå meg ille\nbåde nå og siden\nhvis noe annet enn døden\nskal skille meg fra deg!»\nDa Noomi så at hun sto fast på sitt og ville følge med henne, sa hun ikke mer til henne.\nSå gikk de begge videre til de kom til Betlehem.\nSlik lyder Herrens ord.\nrut 1,7–11.16–19a",
+						"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML |{{/r}} Det står skrevet i Ruts bok:"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}ML |{{/r}} Slik lyder Herrens ord."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0,
+					"text": "Noomi dro bort fra stedet hvor hun hadde bodd, og begge svigerdøtrene fulgte henne.\nDe ga seg i vei for å vende tilbake til Juda. Men Noomi sa til sine to svigerdøtre: «Snu og gå tilbake, hver til sin mors hus! Måtte Herren vise godhet mot dere, slik dere har vist godhet mot de døde og mot meg! Måtte Herren gi dere begge trygghet og la dere finne et hjem, hver i sin manns hus!» Så kysset hun dem. Men de brast i gråt og sa til henne: «Nei, vi vil følge deg tilbake til ditt folk.» Men Noomi sa: «Vend tilbake, mine døtre! Hvorfor skulle dere følge med meg? Skulle jeg ennå føde sønner som dere kan få til menn?»\nMen Rut svarte: «Ikke tving meg til å forlate deg og vende tilbake, for:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo.\nDitt folk er mitt folk,\nog din Gud er min Gud.\nDer du dør, vil jeg dø,\nog der vil jeg begraves.\nMåtte Herren la det gå meg ille\nbåde nå og siden\nhvis noe annet enn døden\nskal skille meg fra deg!»\nDa Noomi så at hun sto fast på sitt og ville følge med henne, sa hun ikke mer til henne.\nSå gikk de begge videre til de kom til Betlehem.\nSlik lyder Herrens ord.\nrut 1,7–11.16–19a",
 						"instr": "Rut 1,7-11.16-19a (eksempel)",
 						"alts": [],
 						"optional": false
@@ -1594,7 +1650,21 @@ export const BUILTIN_TEMPLATES = [
 						"id": "l-28",
 						"type": "lesning",
 						"heading": "Andre lesning",
-						"text": "Det står skrevet i Paulus’ første brev til korinterne:\nKjærligheten utholder alt, tror alt,\nhåper alt, tåler alt.\nKjærligheten tar aldri slutt.\nProfetgavene skal bli borte,\ntungene skal tie\nog kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer,\nskal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn.\nMen da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte,\nda skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut,\nslik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre: tro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\nSlik lyder Herrens ord.\n1 kor 13,7–13",
+						"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML |{{/r}} Det står skrevet i Paulus’ første brev til korinterne:"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}ML |{{/r}} Slik lyder Herrens ord."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0,
+					"text": "Kjærligheten utholder alt, tror alt,\nhåper alt, tåler alt.\nKjærligheten tar aldri slutt.\nProfetgavene skal bli borte,\ntungene skal tie\nog kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer,\nskal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn.\nMen da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte,\nda skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut,\nslik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre: tro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\nSlik lyder Herrens ord.\n1 kor 13,7–13",
 						"instr": "1 Kor 13,7-13 (eksempel)",
 						"alts": [],
 						"optional": true
@@ -1612,7 +1682,21 @@ export const BUILTIN_TEMPLATES = [
 						"id": "l-30",
 						"type": "lesning",
 						"heading": "Evangelium",
-						"text": "Det står skrevet i evangeliet etter Johannes:\nSom Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet! Hvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud: Dere skal elske hverandre som jeg har elsket dere.\nSlik lyder det hellige evangelium.\njoh 15,9–12",
+						"introAlts": [
+						{
+							"label": "Innledning",
+							"text": "{{r}}ML |{{/r}} Det står skrevet i evangeliet etter Johannes:"
+						}
+					],
+					"avslutningAlts": [
+						{
+							"label": "Avslutning",
+							"text": "{{r}}ML |{{/r}} Slik lyder Herrens ord."
+						}
+					],
+					"selIntro": 0,
+					"selAvsl": 0,
+					"text": "Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet! Hvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud: Dere skal elske hverandre som jeg har elsket dere.\nSlik lyder det hellige evangelium.\njoh 15,9–12",
 						"instr": "Joh 15,9-12 (eksempel)",
 						"alts": [],
 						"optional": false
