@@ -442,15 +442,38 @@ export async function loadTemplatesFromDisk() {
 		// ikke stemmer (f.eks. første oppstart eller etter oppdatert original)
 		const cnt = isElectron && window.liturgi.bibCounts ? await window.liturgi.bibCounts() : null;
 		const antall = cnt?.ok ? cnt.counts : {};
+		const sig = cnt?.ok ? (cnt.sig ?? {}) : {};
+
+		/** Samme rask hash som bibSig() i db.cjs — ordens-uavhengig (sum av
+		 *  per-rad-hasher), så malens rekkefølge er likegyldig. */
+		function hashAv(entries) {
+			let sum = 0;
+			for (const e of entries) {
+				const s = [e.seksjon, e.ledd, e.ledd_id ?? '', e.alt_label, e.tekst].join('\u0001');
+				let h = 5381;
+				for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+				sum = (sum + h) >>> 0;
+			}
+			return sum >>> 0;
+		}
 		// kirkeårsprefasjonene (KBM 2020) er en egen «virtuell kilde» i biblioteket:
 		// 12 kirkeårsbestemte (først) + de generelle a–g — hentet fra
 		// nattverd-prefasjon-leddet i hovedgudstjenesten (BUILTIN)
-		const hovedmal = disk.find((t) => t.id === 'hovedgudtjeneste2020');
-		const prefLedd = hovedmal?.sections?.flatMap((x) => x.items).find((x) => x.id === 'nattverd-prefasjon');
+		// NB: det kan ligge flere (stale) disk-kopier av hovedgudtjenesten — velg
+		// den versjonen av nattverd-prefasjonen som har FLEST alts (disk-kopiene
+		// oppdateres ikke automatisk når data.js får nye alternativer)
+		const builtinHovedmal = BUILTIN_TEMPLATES.find((t) => t.id === 'hovedgudstjeneste2020');
+		const prefLeddKandidater = [
+			...disk.filter((t) => t.id === 'hovedgudstjeneste2020')
+				.map((t) => t.sections?.flatMap((x) => x.items).find((x) => x.id === 'nattverd-prefasjon')),
+			builtinHovedmal?.sections?.flatMap((x) => x.items).find((x) => x.id === 'nattverd-prefasjon')
+		].filter(Boolean);
+		prefLeddKandidater.sort((a, b) => (b.alts?.length ?? 0) - (a.alts?.length ?? 0));
+		const prefLedd = prefLeddKandidater[0];
 		if (prefLedd?.alts?.length) {
 			const kirkeaarEntries = [];
 			for (const alt of prefLedd.alts) {
-				kirkeaarEntries.push({ seksjon: 'Prefasjoner', ledd: 'Kirkeårsprefasjoner', alt_label: alt.label, tekst: alt.text });
+				kirkeaarEntries.push({ seksjon: 'Prefasjoner', ledd: 'Kirkeårsprefasjoner', ledd_id: prefLedd.id ?? '', alt_label: alt.label, tekst: alt.text });
 			}
 			if ((antall['Kirkeårsprefasjoner (2020)'] ?? 0) !== kirkeaarEntries.length) {
 				await window.liturgi.bibSync('Kirkeårsprefasjoner (2020)', kirkeaarEntries);
@@ -471,12 +494,15 @@ export async function loadTemplatesFromDisk() {
 						.filter((a) => !a.bibDup)
 						.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: komponer(a.text) }));
 					for (const a of alts) {
-						entries.push({ seksjon: sec.title, ledd: it.heading, alt_label: a.alt_label, tekst: a.tekst });
+						// ledd_id: mal-itemets stabile id — tittelen (heading) er kun visning
+						entries.push({ seksjon: sec.title, ledd: it.heading, ledd_id: it.id ?? '', alt_label: a.alt_label, tekst: a.tekst });
 					}
 				}
 			}
-			// stikkprøve: radantallet må stemme, ellers bygges biblioteket på nytt
-			if ((antall[tpl.name] ?? 0) === entries.length) continue;
+			// stikkprøve: antall OG innholds-hash må stemme, ellers bygges biblioteket
+			// på nytt (fanger tittel-/tekstendringer som ikke endrer radantallet)
+			const gammel = sig[tpl.name];
+			if (gammel && gammel.n === entries.length && gammel.hash === hashAv(entries)) continue;
 			await window.liturgi.bibSync(tpl.name, entries);
 		}
 	} catch (err) {

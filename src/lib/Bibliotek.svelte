@@ -93,7 +93,18 @@
 		return [...m.entries()];
 	});
 
-	/** Alle rader (bruker + original) for kategori-visningen. */
+	/** Grupper rader etter ledd-tittel (rekkefølgen av første forekomst bevares) —
+ *  tittelen vises én gang i listen, variantene (alt_label) under. */
+function grupperEtterLedd(rader) {
+	const m = new Map();
+	for (const r of rader) {
+		if (!m.has(r.ledd)) m.set(r.ledd, []);
+		m.get(r.ledd).push(r);
+	}
+	return [...m.entries()].map(([ledd, rs]) => ({ ledd, rader: rs }));
+}
+
+/** Alle rader (bruker + original) for kategori-visningen. */
 	const alleRader = $derived.by(() => {
 		const orig = originaletreff.map((r, i) => ({ ...r, _orig: true, _key: 'o' + i }));
 		const bru = filtrerteBruker.map((r, i) => ({ ...r, _orig: false, _key: 'b' + r.id }));
@@ -190,17 +201,37 @@
 					{#each mapper as [kat, rader] (kat)}
 						<div class="biblio-mappe">
 							<div class="sidehead biblio-mappe-navn">{@html mdi('tag-outline')} {kat} <span class="biblio-antall">({rader.length})</span></div>
-							{#each rader as r (r._key)}
-								{#if r._orig}
-									<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg(r)} title="Original — kan ikke endres">
-										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
-										<span class="m-bib-antall">{r.kilde}</span>
-									</button>
+							{#each grupperEtterLedd(rader) as grp (grp.ledd)}
+								{#if grp.rader.length === 1}
+									{@const r = grp.rader[0]}
+									{#if r._orig}
+										<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg(r)} title="Original — kan ikke endres">
+											<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+											<span class="m-bib-antall">{r.kilde}</span>
+										</button>
+									{:else}
+										<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
+											<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+											{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
+										</button>
+									{/if}
 								{:else}
-									<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
-										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
-										{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
-									</button>
+									<div class="biblio-leddgrp">
+										<div class="sidehead biblio-ledd-navn">{grp.ledd} <span class="biblio-antall">({grp.rader.length})</span></div>
+										{#each grp.rader as r (r._key)}
+											{#if r._orig}
+												<button type="button" class="m-bib-gruppe biblio-rad statisk biblio-variant" onclick={() => velg(r)} title="Original — kan ikke endres">
+													<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+													<span class="m-bib-antall">{r.kilde}</span>
+												</button>
+											{:else}
+												<button type="button" class="m-bib-gruppe biblio-rad biblio-variant" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
+													<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+													{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
+												</button>
+											{/if}
+										{/each}
+									</div>
 								{/if}
 							{/each}
 						</div>
@@ -222,11 +253,23 @@
 				{/if}
 				{#if originaletreff.length}
 					<div class="sidehead">Fra originalene</div>
-					{#each originaletreff as r, i (i)}
-						<div class="m-bib-gruppe biblio-rad statisk">
-							<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
-							<span class="m-bib-antall">{r.kilde}</span>
-						</div>
+					{#each grupperEtterLedd(originaletreff) as grp (grp.ledd)}
+						{#if grp.rader.length === 1}
+							<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg({ ...grp.rader[0], _orig: true, _key: 'o' + grp.ledd })} title="Original — kan ikke endres">
+								<span class="m-bib-ledd">{grp.ledd}{grp.rader[0].alt_label ? ' · ' + grp.rader[0].alt_label : ''}</span>
+								<span class="m-bib-antall">{grp.rader[0].kilde}</span>
+							</button>
+						{:else}
+							<div class="biblio-leddgrp">
+								<div class="sidehead biblio-ledd-navn">{grp.ledd} <span class="biblio-antall">({grp.rader.length})</span></div>
+								{#each grp.rader as r (r.kilde + '|' + r.ledd + '|' + r.alt_label)}
+									<button type="button" class="m-bib-gruppe biblio-rad statisk biblio-variant" onclick={() => velg({ ...r, _orig: true, _key: 'o' + r.kilde + r.ledd + r.alt_label })} title="Original — kan ikke endres">
+										<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+										<span class="m-bib-antall">{r.kilde}</span>
+									</button>
+								{/each}
+							</div>
+						{/if}
 					{/each}
 				{/if}
 				{#if !filtrerteBruker.length && !originaletreff.length}

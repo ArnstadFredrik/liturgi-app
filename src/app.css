@@ -1241,3 +1241,8 @@ sub { font-size: 0.75em; }
 }
 .biblio-type-btn.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim, var(--panel2)); }
 .biblio-antall { color: var(--muted); font-weight: 400; font-size: 12px; }
+
+/* ledd-gruppe i biblioteklistene: tittelen én gang, variantene under */
+.biblio-leddgrp { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 2px; }
+.biblio-ledd-navn { font-size: 12.5px; color: var(--muted); padding-left: 2px; }
+.biblio-variant { padding-left: 14px; }
