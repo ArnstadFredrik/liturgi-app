@@ -206,12 +206,14 @@ function grupperEtterLedd(rader) {
 									{@const r = grp.rader[0]}
 									{#if r._orig}
 										<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg(r)} title="Original — kan ikke endres">
-											<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+																						<span class="biblio-badge orig" title="Original">O</span>
+																						<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 											<span class="m-bib-antall">{r.kilde}</span>
 										</button>
 									{:else}
 										<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
-											<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+																						<span class="biblio-badge bruker" title="Eget ledd">B</span>
+																						<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 											{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
 										</button>
 									{/if}
@@ -221,12 +223,14 @@ function grupperEtterLedd(rader) {
 										{#each grp.rader as r (r._key)}
 											{#if r._orig}
 												<button type="button" class="m-bib-gruppe biblio-rad statisk biblio-variant" onclick={() => velg(r)} title="Original — kan ikke endres">
-													<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+																										<span class="biblio-badge orig" title="Original">O</span>
+																										<span class="m-bib-ledd">{r.alt_label || '—'}</span>
 													<span class="m-bib-antall">{r.kilde}</span>
 												</button>
 											{:else}
 												<button type="button" class="m-bib-gruppe biblio-rad biblio-variant" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
-													<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+																										<span class="biblio-badge bruker" title="Eget ledd">B</span>
+																										<span class="m-bib-ledd">{r.alt_label || '—'}</span>
 													{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
 												</button>
 											{/if}
@@ -244,7 +248,8 @@ function grupperEtterLedd(rader) {
 							<div class="sidehead biblio-mappe-navn">{@html mdi('folder-outline')} {mappe}</div>
 							{#each rader as r (r.id)}
 								<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
-									<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+																		<span class="biblio-badge bruker" title="Eget ledd">B</span>
+																		<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
 									{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
 								</button>
 							{/each}
@@ -256,7 +261,8 @@ function grupperEtterLedd(rader) {
 					{#each grupperEtterLedd(originaletreff) as grp (grp.ledd)}
 						{#if grp.rader.length === 1}
 							<button type="button" class="m-bib-gruppe biblio-rad statisk" onclick={() => velg({ ...grp.rader[0], _orig: true, _key: 'o' + grp.ledd })} title="Original — kan ikke endres">
-								<span class="m-bib-ledd">{grp.ledd}{grp.rader[0].alt_label ? ' · ' + grp.rader[0].alt_label : ''}</span>
+																<span class="biblio-badge orig" title="Original">O</span>
+																<span class="m-bib-ledd">{grp.ledd}{grp.rader[0].alt_label ? ' · ' + grp.rader[0].alt_label : ''}</span>
 								<span class="m-bib-antall">{grp.rader[0].kilde}</span>
 							</button>
 						{:else}
@@ -264,7 +270,8 @@ function grupperEtterLedd(rader) {
 								<div class="sidehead biblio-ledd-navn">{grp.ledd} <span class="biblio-antall">({grp.rader.length})</span></div>
 								{#each grp.rader as r (r.kilde + '|' + r.ledd + '|' + r.alt_label)}
 									<button type="button" class="m-bib-gruppe biblio-rad statisk biblio-variant" onclick={() => velg({ ...r, _orig: true, _key: 'o' + r.kilde + r.ledd + r.alt_label })} title="Original — kan ikke endres">
-										<span class="m-bib-ledd">{r.alt_label || '—'}</span>
+																				<span class="biblio-badge orig" title="Original">O</span>
+																				<span class="m-bib-ledd">{r.alt_label || '—'}</span>
 										<span class="m-bib-antall">{r.kilde}</span>
 									</button>
 								{/each}
