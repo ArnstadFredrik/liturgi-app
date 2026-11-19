@@ -45,6 +45,13 @@ function openDb() {
 			opprettet TEXT NOT NULL DEFAULT ''
 		);
 	`);
+	// migrering: ledd_id (stabil id fra mal-item, tittelen er kun visning)
+	const kolonner = db.prepare('PRAGMA table_info(bibliotek)').all().map((k) => k.name);
+	if (!kolonner.includes('ledd_id')) {
+		db.exec('ALTER TABLE bibliotek ADD COLUMN ledd_id TEXT NOT NULL DEFAULT \'\'');
+		// gamle rader: ledd_id = ledd (tittelen var identiteten fram til nå)
+		db.exec('UPDATE bibliotek SET ledd_id = ledd');
+	}
 	return db;
 }
 
@@ -113,11 +120,28 @@ function bibSync(source, entries) {
 	const db = openDb();
 	db.prepare('DELETE FROM bibliotek WHERE kilde = ?').run(source);
 	const ins = db.prepare(
-		'INSERT INTO bibliotek (kilde, seksjon, ledd, alt_label, tekst) VALUES (?, ?, ?, ?, ?)'
+		'INSERT INTO bibliotek (kilde, seksjon, ledd, ledd_id, alt_label, tekst) VALUES (?, ?, ?, ?, ?, ?)'
 	);
 	db.transaction(() => {
-		for (const e of entries) ins.run(source, e.seksjon, e.ledd, e.alt_label ?? '', e.tekst ?? '');
+		for (const e of entries) ins.run(source, e.seksjon, e.ledd, e.ledd_id ?? '', e.alt_label ?? '', e.tekst ?? '');
 	})();
+}
+
+/** Signatur per kilde: antall + rask hash av innholdet (titler/tekst kan endre
+ *  seg uten at antallet gjør det — stikkprøven må fange begge deler). */
+function bibSig() {
+	// ordens-uavhengig: summen av per-rad-hasher er lik uansett rekkefølge
+	const rows = openDb().prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst FROM bibliotek').all();
+	const sig = {};
+	for (const r of rows) {
+		const s = r.seksjon + '\u0001' + r.ledd + '\u0001' + r.ledd_id + '\u0001' + r.alt_label + '\u0001' + r.tekst;
+		let h = 5381;
+		for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+		if (!sig[r.kilde]) sig[r.kilde] = { n: 0, hash: 0 };
+		sig[r.kilde].n++;
+		sig[r.kilde].hash = (sig[r.kilde].hash + h) >>> 0;
+	}
+	return sig;
 }
 
 function bibSearch(q, limit = 500) {
@@ -125,7 +149,7 @@ function bibSearch(q, limit = 500) {
 	// Hvert søkeord telles hvis det er prefiks av et ord i ledd/seksjon —
 	// ord i HVA SOM HELST rekkefølge («hellig sanctus» finner «Sanctus»).
 	const rows = openDb()
-		.prepare('SELECT kilde, seksjon, ledd, alt_label, tekst FROM bibliotek')
+		.prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst FROM bibliotek')
 		.all();
 	// egne ledd fra bibliotek_bruker kommer med som kilde «Mine ledd» (+ mappe)
 	const egne = openDb()
@@ -164,4 +188,4 @@ function bibSearch(q, limit = 500) {
 	return scored.slice(0, limit).map((s) => s.row);
 }
 
-module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete };
+module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSig, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete };
