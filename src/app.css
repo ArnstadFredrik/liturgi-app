@@ -751,6 +751,9 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
 .et-rik { min-height: 60px; outline: none; }
 .et-rik:empty::before { content: '[Klikk for å skrive]'; color: var(--muted); pointer-events: none; }
 .et-rik .et-linje { min-height: 1.35em; }
+/* punktliste: samme linjeavstand i redigering som i visningen (md-li er
+   inline i redigering men block i visning — gi listelinjene lik høyde) */
+.et-rik .et-linje[data-type='liste'] { min-height: 0; line-height: 1.45; }
 .et-rik .rline { color: var(--role); }
 .et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: 13px; line-height: inherit; }
 /* lister: prikk og tekst på samme linje (md-li-spanene bruker hengende innrykk i visning) */

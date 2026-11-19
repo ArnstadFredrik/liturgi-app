@@ -197,6 +197,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 	}
 
 	for (const sec of svc.sections) {
+		let forrige = null; // for h3-luft-logikken
 		if (valg.visAvsnittstitler === false) continue;
 		out.push({ heading: 'h2', text: sec.title });
 		for (const it of sec.items) {
@@ -205,7 +206,12 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) {
 				head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
 			}
-			if (head && it.__visOverskrift !== false) out.push({ heading: 'h3', text: head });
+			if (head && it.__visOverskrift !== false) {
+				// avsnittstitler AV: første overskrift i avsnittet får redusert topp-luft
+				const forste = !forrige || forrige.heading === 'h2';
+				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste });
+			}
+			forrige = out[out.length - 1];
 			if (it.__visInnhold === false) continue;
 			if (showInstr && it.instr) out.push({ text: it.instr, muted: true });
 			if (it.type === 'salme') {
@@ -239,6 +245,9 @@ const blobTilBase64 = (blob) => new Promise((res) => {
 });
 
 export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = false) {
+	// skriftskala (samme modell som PDF-en): hoveddel/ledd/tekst multipliserer pt-størrelsene
+	const skriftSkala = { hoveddel: 1, ledd: 1, tekst: 1, ...(valg.skriftSkala ?? {}) };
+	const WF = (omr) => (omr ? (skriftSkala[omr] ?? 1) : 1); // word: size er halvpunkter
 	const outline = buildOutline(svc, showInstr, valg);
 	// layouten skal samsvare med PDF-eksporten (se buildPdfBase64):
 	// sorte fete sans-overskrifter (Arial = PDFs Helvetica), Times-brødtekst,
@@ -257,16 +266,16 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			if (p.muted) {
 				// dato/kirkeår-linje: grå kursiv 10 pt
 				paras.push(new Paragraph({
-					children: [new TextRun({ text: p.text ?? '', italics: true, color: GRAY, size: 20, font: SANS })],
+					children: [new TextRun({ text: p.text ?? '', italics: true, color: GRAY, size: Math.round(20 * WF('hoveddel')), font: SANS })],
 					spacing: { after: Math.round(4 * MM) }
 				}));
 				continue;
 			}
 			const spec = p.heading === 'h1'
-				? { size: 32, before: 0, after: Math.round(4 * MM) }
+				? { size: Math.round(32 * WF('hoveddel')), before: 0, after: Math.round(4 * MM) }
 				: p.heading === 'h2'
-					? { size: 26, before: Math.round(5 * MM), after: Math.round(3.5 * MM) }
-					: { size: 22, before: Math.round(3 * MM), after: Math.round(1.8 * MM) };
+					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * MM), after: Math.round(3.5 * MM) }
+					: { size: Math.round(22 * WF('ledd')), before: (valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * MM), after: Math.round(1.8 * MM) };
 			paras.push(new Paragraph({
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
 				children: [new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
@@ -277,7 +286,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		if (p.muted) {
 			// instruksjoner: røde kursiv 9,5 pt — som i PDF-en
 			paras.push(new Paragraph({
-				children: [new TextRun({ text: p.text ?? '', italics: true, color: ROLE_COLOR, size: 19, font: SERIF })],
+				children: [new TextRun({ text: p.text ?? '', italics: true, color: ROLE_COLOR, size: Math.round(19 * WF('tekst')), font: SERIF })],
 				spacing: { after: Math.round(1.5 * MM), line: 300 }
 			}));
 			continue;
@@ -295,7 +304,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 				if (!d) return;
 				runs.push(new TextRun({
 					text: d, italics: !!s.italics,
-					size: s.small ? 18 : 21,
+					size: s.small ? Math.round(18 * WF('tekst')) : Math.round(21 * WF('tekst')),
 					font: s.mdH ? SANS : SERIF,
 					superScript: !!s.sup,
 					color: s.red ? ROLE_COLOR : s.small ? GRAY : BLACK,
@@ -748,11 +757,16 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			doc.line(x0(), linjeY, x0() + colW, linjeY);
 			y = linjeY + (hefte ? 1 : 1.5);
 		}
+		let forsteLedd = true;
 		for (const it of sec.items) {
 			if (!it.enabled) continue;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
-			if (head && it.__visOverskrift !== false) { y += hefte ? 3.2 : 5.5; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6; }
+			// avsnittstitler AV: første ledd behøver ikke ekstra topp-luft (avsnittslinjen
+			// ga den — uten den blir luften dobbelt opplevert)
+			const toppLuft = (!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5);
+			forsteLedd = false;
+			if (head && it.__visOverskrift !== false) { y += toppLuft; nySideHvisNodvendig(10); skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6; }
 			if (it.__visInnhold === false) continue;
 			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle

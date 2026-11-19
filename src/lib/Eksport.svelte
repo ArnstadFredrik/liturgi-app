@@ -919,7 +919,8 @@
 				storrelse: getInnstP(profil, 'storrelse', 'A5'),
 				kolonner: getInnstP(profil, 'kolonner', profil === 'Menighet' ? 2 : 1),
 				marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
-				visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)
+				visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true),
+				skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...(o?.eksportInnst?.[profil]?.skriftSkala ?? {}) }
 			}, isElectron);
 			if (res) {
 				const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -934,7 +935,8 @@
 						kolonner: getInnstP(profil, 'kolonner', profil === 'Menighet' ? 2 : 1),
 						marger: getInnstP(profil, 'marger', profil === 'Menighet' ? 'smal' : 'normal'),
 						tittel: getInnstP(profil, 'tittel', true),
-						visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true)
+						visAvsnittstitler: getInnstP(profil, 'visAvsnittstitler', true),
+						skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...(o?.eksportInnst?.[profil]?.skriftSkala ?? {}) }
 					});
 			const r = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 			if (r.ok) { toast.success('PDF: ' + r.filePath); n++; }

@@ -82,7 +82,7 @@ export function litLinjeHtml(linje) {
 	if ((m = new RegExp(ROLLE_PREFIKS_RE.source + '(.*)$').exec(linje))) return linjeEditHtml('rolle', '', m[1], m[3]);
 	if ((m = /^(## ?)(.*)$/.exec(linje))) return linjeEditHtml('h2', m[1], '', m[2]);
 	if ((m = /^(# ?)(.*)$/.exec(linje))) return linjeEditHtml('h1', m[1], '', m[2]);
-	if ((m = /^(- ?)(.*)$/.exec(linje))) return linjeEditHtml('liste', m[1], '•', m[2]);
+	if ((m = /^(- ?)(.*)$/.exec(linje))) return linjeEditHtml('liste', m[1], '–', m[2]);
 	return linjeEditHtml('tekst', '', '', linje);
 }
 
