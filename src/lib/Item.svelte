@@ -317,7 +317,7 @@
 			{/if}
 		{:else if it.alts && it.alts.length}
 			{#if introAltsLen}
-				<div class="alt-gruppe-tittel">Innledning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Administrer innledningsalternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
+				<div class="alt-gruppe-tittel">Innledning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Administrer innledningsalternativer">{@html mdi('cog', 12)}</button>{/if}</div>
 				<div class="alt-cur">
 					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgIntro()}>
@@ -336,7 +336,7 @@
 				<div class="alt-gruppe-tittel">Fast innledning</div>
 				<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 			{/if}
-			<div class="alt-gruppe-tittel">Alternativer{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'alts', null, 'Alternativer')} title="Administrer alternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
+			<div class="alt-gruppe-tittel">Alternativer{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'alts', null, 'Alternativer')} title="Administrer alternativer">{@html mdi('cog', 12)}</button>{/if}</div>
 			{@const sel = it.alts[it.selAlt ?? 0]}
 			<div class="alt-cur">
 				<EditableText bind:value={sel.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
@@ -346,7 +346,7 @@
 				{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('alts', null)} title="Nytt tomt alternativ">{@html mdi('plus', 13)}</button>{/if}
 			</div>
 			{#if avslAltsLen}
-				<div class="alt-gruppe-tittel">Avslutning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
+				<div class="alt-gruppe-tittel">Avslutning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog', 12)}</button>{/if}</div>
 				<div class="alt-cur">
 					<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgAvsl()}>
