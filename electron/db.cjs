@@ -120,7 +120,7 @@ function bibSync(source, entries) {
 	})();
 }
 
-function bibSearch(q, limit = 30) {
+function bibSearch(q, limit = 500) {
 	// Fuzzy: hent alle rader (registeret er lite) og score i JS.
 	// Hvert søkeord telles hvis det er prefiks av et ord i ledd/seksjon —
 	// ord i HVA SOM HELST rekkefølge («hellig sanctus» finner «Sanctus»).

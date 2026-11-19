@@ -1226,3 +1226,12 @@ sub { font-size: 0.75em; }
 	100% { box-shadow: 0 0 0 0 rgba(108, 155, 209, 0.0); }
 }
 .ppt-side.ppt-puls { animation: ppt-puls-anim 1s ease-out; }
+
+/* «Etter type»-visning i biblioteket */
+.biblio-type-btn {
+	display: inline-flex; align-items: center; gap: 5px;
+	padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px;
+	background: var(--panel2); color: var(--muted); font-size: 12.5px; cursor: pointer;
+}
+.biblio-type-btn.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim, var(--panel2)); }
+.biblio-antall { color: var(--muted); font-weight: 400; font-size: 12px; }
