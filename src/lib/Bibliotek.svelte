@@ -59,7 +59,7 @@
 		if (/fadervår|fader vår/.test(t)) return 'Fadervår';
 		if (/nattverd(innstiftelse|s bønn)|epiklese|verba/.test(t)) return 'Nattverdsbønn';
 		if (/troens mysterium|frelsens mysterium/.test(t)) return 'Troens mysterium';
-		if (/evangelium|lesning|skrift/.test(t)) return 'Ordet';
+		if (/evangelium|lesning|skrift|tekstgruppe|bibel(ord|tekst|sted)|psalm \d|salme \d+\b/.test(t)) return 'Ordet';
 		if (/agnus|guds lam/.test(t)) return 'Agnus Dei';
 		if (/(lovprisning|lovsang|inngangssalme|salme)/.test(t)) return 'Lovprisning';
 		return 'Øvrige';

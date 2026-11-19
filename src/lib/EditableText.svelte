@@ -636,10 +636,64 @@ function angre() {
 		const s = window.getSelection();
 		if (!s || s.rangeCount === 0) return;
 		const r = s.getRangeAt(0);
-		const el = (n) => (n.nodeType === 3 ? n.parentElement : n);
-		const startSpan = el(r.startContainer)?.closest('span.role');
-		const endSpan = el(r.endContainer)?.closest('span.role');
-		const tekst = e.data ?? (e.dataTransfer ? e.dataTransfer.getData('text/plain') : '');
+		// FLERLINJELIM INN (insertFromPaste med \n eller tabb): hindre standard-
+		// innsettingen (rå utklipps-HTML med fremmede <div>/<span>-fragmenter ga
+		// ustabil DOM — tekst som dukket opp som kopi / forsvant ved senere
+		// redigering). Flett i stedet linjene inn i VERDIEN på caret-posisjonen
+		// og normaliser DOM-en med en gang.
+		if (e.inputType === 'insertFromPaste') {
+			const ren = e.dataTransfer?.getData('text/plain') ?? '';
+			if (ren && /[\n\t]/.test(ren)) {
+				e.preventDefault();
+				const limt = ren.replace(/\r\n?/g, '\n').replace(/\t/g, ' ').split('\n')
+					.map((l) => l.replace(/\s+$/, ''));
+				while (limt.length && !limt[0].trim()) limt.shift();
+				while (limt.length && !limt[limt.length - 1].trim()) limt.pop();
+				if (!limt.length) return;
+				const v = serialiser() ?? '';
+				const linjer = v.split('\n');
+				// caret-linje + innholdsoffset (chips holdes utenfor, som i hybridVim)
+				const caretEl = (r.startContainer.nodeType === 3 ? r.startContainer.parentElement : r.startContainer);
+				const le = caretEl?.closest?.('.et-linje') ?? null;
+				const pre = document.createRange();
+				let idx = 0, off = 0;
+				if (le && rikel.contains(le)) {
+					idx = Math.max(0, [...rikel.children].indexOf(le));
+					pre.selectNodeContents(le);
+					try { pre.setEnd(r.startContainer, r.startOffset); } catch { }
+					let dOff = pre.toString().length;
+					let leadLen = 0;
+					for (const n of le.childNodes) {
+						if (n.nodeType === 1 && n.classList.contains('chip')) { leadLen += n.textContent.length; continue; }
+						if (n.nodeType === 3 && n.textContent.trim() === '' && leadLen > 0) { leadLen += n.textContent.length; continue; }
+						break;
+					}
+					off = Math.max(0, dOff - leadLen);
+				} else {
+					// ingen .et-linje (tom editor) — linn til slutten
+					idx = Math.max(0, linjer.length - 1);
+					off = linjer[idx].length;
+				}
+				const aktuell = linjer[idx] ?? '';
+				const flettet = [
+					...linjer.slice(0, idx),
+					aktuell.slice(0, off) + limt[0],
+					...limt.slice(1, -1),
+					(limt.length > 1 ? limt[limt.length - 1] : '') + aktuell.slice(off),
+					...linjer.slice(idx + 1)
+				];
+				const nyV = flettet.join('\n');
+				value = nyV;
+				sistSer = nyV;
+				if (dirty) markDirty();
+				html = litEditHtml(nyV, hybrid ? merkerIdx : -1);
+				// caret: slutten av siste limte linje
+				const siste = flettet[idx + limt.length - 1] ?? '';
+				requestAnimationFrame(() => plasserCaretMedRetry(idx + limt.length - 1, siste.length));
+				planleggKonvertering();
+				return;
+			}
+		}
 		// A) utvalg som starter i et rollespan men går utover det → erstatt som ren tekst
 		if (!s.isCollapsed && (startSpan || endSpan) && !(startSpan && startSpan === endSpan)) {
 			e.preventDefault();
