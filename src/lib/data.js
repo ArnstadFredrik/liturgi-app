@@ -1256,22 +1256,27 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Bakke og Gyland",
 								"text": "{{r}}L |{{/r}} Kjære menighet.\nNåde være med dere og fred fra Gud, vår Far, og Herren Jesus Kristus."
 							},
 							{
+								"bibDup": true,
 								"label": "Nåde være med dere og fred",
 								"text": "{{r}}L |{{/r}} Nåde være med dere og fred\nfra Gud, vår Far, og Herren Jesus Kristus."
 							},
 							{
+								"bibDup": true,
 								"label": "Vår Herre Jesu Kristi nåde …",
 								"text": "{{r}}L |{{/r}} Vår Herre Jesu Kristi nåde, Guds kjærlighet\nog Den hellige ånds samfunn være med dere alle."
 							},
 							{
+								"bibDup": true,
 								"label": "I Faderens og Sønnens og Den hellige ånds navn",
 								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
 							},
 							{
+								"bibDup": true,
 								"label": "I Faderens og Sønnens og Den hellige ånds navn: Vår skaper …",
 								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn:\nVår skaper, frigjører og livgiver."
 							}
@@ -1291,14 +1296,17 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} La oss alle be.\nTrofaste Gud,\ndu elsker oss som en kjærlig mor og far.\nVi ber deg:\nLær oss å lytte til dine ord,\nså vi blir rike på innsikt og kjærlighet,\nved din Sønn Jesus Kristus, vår Herre,\nsom med deg og Den hellige ånd lever og råder,\nén sann Gud fra evighet til evighet.\n{{r}}A |{{/r}} Amen"
 							},
 							{
+								"bibDup": true,
 								"label": "Samlingsbønn 1",
 								"text": "{{r}}ML |{{/r}} Gud, vi er kommet inn i ditt hellige hus for å ta imot det du vil gi oss.\nLukk nå opp våre hjerter, så vi kan fornyes i troen på deg."
 							},
 							{
+								"bibDup": true,
 								"label": "Samlingsbønn 2",
 								"text": "{{r}}ML |{{/r}} Hellige Gud, vi er samlet for ditt ansikt for å møte din kjærlighet og sannhet.\nSend oss din Ånd og gjør oss åpne for det du vil gi oss. La ditt ord slå rot i våre hjerter, så Kristus lever i oss, og vi blir ett i deg og tjener deg i alle ting."
 							},
 							{
+								"bibDup": true,
 								"label": "Samlingsbønn 3",
 								"text": "{{r}}ML |{{/r}} Gode Gud, du som gir liv til alt som lever, vi priser deg for jordens skjønnhet,\nog for alt som lar oss kjenne at du er god.\nHer for ditt ansikt ber vi: Gi oss lyttende ører, takknemlige hjerter og tjenende hender, så vi kan høre ditt ord, lovprise deg for din godhet, og i ord og gjerning vitne om dine storverk."
 							}
@@ -1326,22 +1334,27 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "Følger her, eller etter talen. Liturgen kneler under syndsbekjennelse og stillhet. Også menigheten kan knele.",
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "a – Gud, vær meg nådig! (full)",
 								"text": "{{r}}A |{{/r}} Gud, vær meg nådig!\nJeg har syndet mot deg og sviktet min neste\n– med tanker og ord, med det jeg har gjort, og med det jeg har forsømt.\nTilgi meg min synd for Jesu Kristi skyld. Skap i meg et rent hjerte,\nog gi meg kraft til nytt liv ved din hellige Ånd."
 							},
 							{
+								"bibDup": true,
 								"label": "b – Gud, vær meg nådig! (kort)",
 								"text": "{{r}}A |{{/r}} Gud, vær meg nådig!\nTilgi meg min synd for Jesu Kristi skyld. Skap i meg et rent hjerte,\nog gi meg kraft til nytt liv ved din hellige Ånd."
 							},
 							{
+								"bibDup": true,
 								"label": "c – Gud, du kjenner og elsker oss alle",
 								"text": "{{r}}A |{{/r}} Gud, du kjenner og elsker oss alle. Du vil at vi skal ta vare på hverandre og på jorden.\nVi vet at vi svikter og gjør deg imot. Tilgi oss og hjelp oss, for Jesu skyld."
 							},
 							{
+								"bibDup": true,
 								"label": "d – Hellige Gud, vår skaper",
 								"text": "{{r}}A |{{/r}} Hellige Gud, vår skaper, se i nåde til oss.\nVi har syndet mot deg og brutt dine bud.\nTilgi oss for Jesu Kristi skyld. Sett oss fri til å tjene deg, verne om skaperverket og møte vår neste med kjærlighet."
 							},
 							{
+								"bibDup": true,
 								"label": "Syndsbekjennelse fra 1977-ordningen",
 								"text": "Hellige Gud, himmelske Far, se i nåde til meg, syndige menneske, som har krenket deg med tanker, ord og gjerninger og kjenner lysten til det onde i mitt hjerte.\nFor Jesu Kristi skyld, ha langmodighet med meg.\nTilgi meg alle mine synder, og gi meg å frykte og elske deg alene."
 							}
@@ -1393,22 +1406,27 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}A |{{/r}} Kyrie eleison. Gud Fader, miskunne deg.\nKriste eleison. Herre Krist, miskunne deg.\nKyrie eleison. Hellig Ånd, miskunne deg."
 							},
 							{
+								"bibDup": true,
 								"label": "Allmenn serie 1",
 								"text": "{{r}}A |{{/r}} Kyrie eleison. Gud Fader, miskunne deg. Kriste eleison. Herre Krist, miskunne deg. Kyrie eleison. Hellig Ånd, miskunne deg.\n{{r}}L/ML |{{/r}} Ære være Gud i det høyeste\n{{r}}A |{{/r}} og fred på jorden blant mennesker som Gud har glede i. Vi lover deg, vi priser deg, vi tilber deg, vi opphøyer deg. Amen."
 							},
 							{
+								"bibDup": true,
 								"label": "Allmenn serie 2",
 								"text": "{{r}}A |{{/r}} Kyrie eleison. Miskunne deg over oss.\nKriste eleison. Miskunne deg over oss. Kyrie eleison. Miskunne deg over oss.\n{{r}}L/ML |{{/r}} Ære være Gud i det høyeste\n{{r}}A |{{/r}} og fred på jorden blant mennesker som Gud har glede i. Vi lover deg, vi priser deg, vi tilber deg, vi opphøyer deg. Amen."
 							},
 							{
+								"bibDup": true,
 								"label": "Allmenn serie 3",
 								"text": "{{r}}ML |{{/r}} Herre, miskunne deg. M | Herre, miskunne deg. ML | Kristus, miskunne deg. M | Kristus, miskunne deg. ML | Herre, miskunne deg. M | Herre, miskunne deg.\n{{r}}L/ML |{{/r}} Ære være Gud i det høyeste.\n{{r}}M |{{/r}} Ære være Gud i det høyeste.\n{{r}}ML |{{/r}} Herre, vi lover, Herre, vi priser deg.\n{{r}}M |{{/r}} Ære være Gud i det høyeste. Amen."
 							},
 							{
+								"bibDup": true,
 								"label": "Serie for festtidene",
 								"text": "{{r}}ML |{{/r}} Kyrie eleison. M | Kyrie eleison. ML | Kriste eleison. M | Kriste eleison. ML | Kyrie eleison. M | Kyrie eleison.\n{{r}}L/ML |{{/r}} Ære være Gud i det høyeste\n{{r}}A |{{/r}} og fred på jorden blant mennesker som Gud har glede i. Vi lover deg, vi priser deg, vi tilber deg, vi opphøyer deg. Amen."
 							},
 							{
+								"bibDup": true,
 								"label": "Serie for fastetiden (uten gloria)",
 								"text": "{{r}}A |{{/r}} Kyrie eleison. Herre, miskunne deg.\nKriste eleison. Kristus, miskunne deg. Kyrie eleison. Herre, miskunne deg."
 							}
@@ -1422,6 +1440,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Lovsang Gloria",
 						"text": "{{r}}L |{{/r}} Ære være Gud i det høyeste\nA  og fred på jorden blant mennesker som Gud har glede i.\nVi lover deg, vi priser deg, vi tilber deg, vi opphøyer deg. Amen.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					}
@@ -1446,6 +1465,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Dåp: Inngangsord",
 						"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1494,6 +1514,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Dåp: Fadderansvaret",
 						"text": "{{r}}L |{{/r}} Vil foreldre og faddere reise seg.\nDere skal være vitner om at dette barnet/disse barna er døpt med den kristne dåp. Sammen med vår menighet og hele kirken får dere del i et hellig ansvar: å vise omsorg for henne/ham/dem, be for henne/ham/dem, lære henne/ham/dem selv å be og hjelpe henne/ham/dem til å bruke Guds ord og delta i den hellige nattverd, så hun/han/de kan leve og vokse i den kristne tro.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1503,6 +1524,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Dåp: Forsakelsen og troen",
 						"text": "{{r}}L |{{/r}} La oss sammen bekjenne forsakelsen og troen som vi døpes til.\nAlle reiser seg.\n{{r}}A |{{/r}} Jeg forsaker djevelen og alle hans gjerninger og alt hans vesen.\nJeg tror på Gud Fader, den allmektige,\nhimmelens og jordens skaper.\nJeg tror på Jesus Kristus,\nGuds enbårne Sønn, vår Herre,\nsom ble unnfanget ved Den hellige ånd,\nfødt av jomfru Maria,\npint under Pontius Pilatus,\nkorsfestet, død og begravet,\nfór ned til dødsriket,\nstod opp fra de døde tredje dag,\nfór opp til himmelen,\nsitter ved Guds, den allmektige Faders høyre hånd,\nskal derfra komme igjen\nfor å dømme levende og døde.\nJeg tror på Den hellige ånd,\nen hellig, allmenn kirke,\nde helliges samfunn,\nsyndenes forlatelse,\nlegemets oppstandelse\nog det evige liv.\nAmen.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1550,6 +1572,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Dåp: Bønn",
 						"text": "{{r}}L |{{/r}} La oss takke og be.\nTrofaste Gud,\nvi takker deg for dåpen,\nder du tar oss inn i din kirke.\nVi ber for NN/barna/dem som er døpt i dag.\nHold din vernende hånd over henne/ham/dem,\nog gi kjærlighet og visdom til alle som har ansvar for henne/ham/dem.\nGud, hør vår bønn.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1559,6 +1582,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Dåp: Lovprisning",
 						"text": "{{r}}L |{{/r}} Lovet være Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde. 1 Pet 1,3",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1692,6 +1716,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Tale",
 						"text": "",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": true,
 						"avslutningAlts": [
@@ -1720,10 +1745,12 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Den apostoliske trosbekjennelse",
 								"text": "{{r}}A |{{/r}} Jeg tror på Gud Fader, den allmektige, himmelens og jordens skaper.\nJeg tror på Jesus Kristus,\nGuds enbårne Sønn, vår Herre,\nsom ble unnfanget ved Den hellige ånd, født av jomfru Maria,\npint under Pontius Pilatus, korsfestet, død og begravet, fór ned til dødsriket,\nstod opp fra de døde tredje dag, fór opp til himmelen,\nsitter ved Guds, den allmektige Faders høyre hånd, skal derfra komme igjen\nfor å dømme levende og døde.\nJeg tror på Den hellige ånd, en hellig, allmenn kirke, de helliges samfunn, syndenes forlatelse, legemets oppstandelse\nog det evige liv.\nAmen."
 							},
 							{
+								"bibDup": true,
 								"label": "Den nikenske trosbekjennelse",
 								"text": "{{r}}A |{{/r}} Vi tror på én Gud, den allmektige Far,\nsom har skapt himmel og jord, alt synlig og usynlig.\nVi tror på én Herre, Jesus Kristus, Guds enbårne Sønn,\nfødt av Faderen før alle tider, Gud av Gud, lys av lys,\nsann Gud av sann Gud, født, ikke skapt,\nav samme vesen som Faderen. Ved ham er alt blitt skapt.\nFor oss mennesker og til vår frelse steg han ned fra himmelen,\nog ved Den hellige ånd og av jomfru Maria ble han menneske av kjøtt og blod.\nHan ble korsfestet for oss under Pontius Pilatus, led og ble begravet,\noppstod den tredje dag etter Skriftene og fór opp til himmelen,\nsitter ved Faderens høyre hånd, skal komme igjen i herlighet for å dømme levende og døde, og hans rike skal være uten ende.\nVi tror på Den hellige ånd, som er Herre og gjør levende,\nsom utgår fra Faderen og Sønnen,\ntilbes og æres sammen med Faderen og Sønnen, og som har talt gjennom profetene.\nVi tror på én hellig, allmenn og apostolisk kirke.\nVi bekjenner én dåp til syndenes forlatelse og venter de dødes oppstandelse\nog et liv i den kommende verden. Amen."
 							}
@@ -1804,6 +1831,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fadervår",
 						"text": "{{r}}A |{{/r}} Vår Far i himmelen.\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1850,6 +1878,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Hilsen prefasjonsdialog",
 						"text": "{{r}}L |{{/r}} Herren være med dere.\nM  reiser seg og synger Og med deg være Herren.\n{{r}}L |{{/r}} Løft deres hjerter.\n{{r}}M |{{/r}} Vi løfter våre hjerter til Herren.\n{{r}}L |{{/r}} La oss takke Herren vår Gud.\n{{r}}M |{{/r}} Det er verdig og rett.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1861,6 +1890,7 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Bakke og Gyland",
 								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
 							},
@@ -1902,6 +1932,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Hellig sanctus",
 						"text": "A  synger Hellig, hellig, hellig er Herren Sebaot.\nAll jorden er full av din herlighet. Hosianna i det høyeste.\nVelsignet være han som kommer i Herrens navn. Hosianna i det høyeste.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1911,6 +1942,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Påkallelse epiklese",
 						"text": "{{r}}L |{{/r}} Vi priser deg, hellige Gud, himmelens og jordens Skaper, du som har elsket verden og gitt din Sønn, Jesus Kristus,\nfor at han skulle frelse oss fra synd og død og vinne deg et hellig folk. Vi ber deg: Send din Ånd over disse gaver, så vi kan ta imot Jesus Kristus i brødet og vinen.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1920,6 +1952,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Innstiftelsesordene verba",
 						"text": "{{r}}L |{{/r}} Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1929,6 +1962,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Troens mysterium",
 						"text": "{{r}}L |{{/r}} Stort er troens mysterium.\n{{r}}A |{{/r}} Kristus døde. Kristus stod opp. Kristus skal komme igjen.\n{{r}}A |{{/r}} Ham være ære for kjærligheten som er sterkere enn døden.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1938,6 +1972,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Nattverdbønn",
 						"text": "{{r}}L |{{/r}} Nådige Gud, vi feirer dette måltid med glede og takk for din Sønns fullbrakte offer, i troen på hans seierrike oppstandelse og himmelfart og i forventning om hans gjenkomst i herlighet.\nVi ber deg: Fyll oss med din Ånd og kjærlighet, så vi kan gjenkjenne Kristus i den som sulter og tørster. Lær oss å elske hverandre som han har elsket oss, og la oss en gang samles hos deg i ditt fullendte rike.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1947,6 +1982,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fadervår (nattverden)",
 						"text": "{{r}}A |{{/r}} Vår Far i himmelen.\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1956,6 +1992,7 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fredshilsen pax",
 						"text": "{{r}}L |{{/r}} Guds fred være med dere.\n{{r}}M |{{/r}} Guds fred være med deg.",
 						"instr": "",
+						"bibDup": true,
 						"alts": [],
 						"optional": false
 					},
@@ -1967,14 +2004,17 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Bakke og Gyland",
 								"text": "A  synger Du Guds Lam, som bærer verdens synder,\nmiskunne deg over oss.\nDu Guds Lam, som bærer verdens synder,\nmiskunne deg over oss.\nDu Guds Lam, som bærer verdens synder,\ngi oss din fred."
 							},
 							{
+								"bibDup": true,
 								"label": "Allmenn serie 1, 2, fest- og fasteserien",
 								"text": "{{r}}A |{{/r}} Du Guds Lam, som bærer verdens synder, miskunne deg over oss.\nDu Guds Lam, som bærer verdens synder, miskunne deg over oss.\nDu Guds Lam, som bærer verdens synder, gi oss din fred."
 							},
 							{
+								"bibDup": true,
 								"label": "Allmenn serie 3",
 								"text": "{{r}}ML |{{/r}} Amen, kom, Herre Jesus. A | Omkved: Amen, kom, Herre Jesus.\n{{r}}ML |{{/r}} Du er Lammet som bærer vår synd. A | Omkved\n{{r}}ML |{{/r}} Du er Lammet som gir oss din fred. A | Omkved\n{{r}}ML |{{/r}} Du er brødet som gir oss ditt liv. A | Omkved"
 							}
@@ -2015,22 +2055,27 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Bakke og Gyland",
 								"text": "Vi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\nAmen"
 							},
 							{
+								"bibDup": true,
 								"label": "Takkebønn 1 (kan synges)",
 								"text": "{{r}}L/ML |{{/r}} Vi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\n{{r}}M |{{/r}} Amen."
 							},
 							{
+								"bibDup": true,
 								"label": "Takkebønn 2",
 								"text": "{{r}}L/ML |{{/r}} Vi takker deg, visdommens Gud, for ditt måltids dype hemmelighet: Brødet vi har brutt, er ett. Din Sønn har gitt sitt liv for én verden og én menneskehet. Vi ber:\nA/L/ML | Hjelp oss å høre det ropet du har hørt, å se den nøden du har sett, og å elske vår neste som oss selv."
 							},
 							{
+								"bibDup": true,
 								"label": "Takkebønn 3",
 								"text": "{{r}}L/ML |{{/r}} Vi takker deg, nådige Gud, du som gjennom brødet og vinen har gitt oss del i Jesu Kristi seierrike død og oppstandelse. Vi ber:\nA/L/ML | Styrk oss ved din Ånd til vitnesbyrd og tjeneste i verden."
 							},
 							{
+								"bibDup": true,
 								"label": "Takkebønn 4",
 								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, du som i dåpen har gitt oss barnekår og gjort oss til arvinger i ditt rike. Vi takker deg for dette måltidet, hvor du har gitt oss syndenes forlatelse og fornyet i oss troen på dine løfter. Vi ber:\nA/L/ML | Styrk oss ved din Ånd til vitnesbyrd og tjeneste i verden."
 							}
@@ -2089,14 +2134,17 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "",
 						"alts": [
 							{
+								"bibDup": true,
 								"label": "Bakke og Gyland",
 								"text": "L / LM  Gå i fred. Tjen Herren med glede."
 							},
 							{
+								"bibDup": true,
 								"label": "La oss gå i fred",
 								"text": "{{r}}L/ML |{{/r}} La oss gå i fred,\n{{r}}A |{{/r}} i Jesu Kristi navn."
 							},
 							{
+								"bibDup": true,
 								"label": "Gå i fred. Tjen Herren med glede.",
 								"text": "{{r}}L/ML |{{/r}} Gå i fred. Tjen Herren med glede."
 							}
