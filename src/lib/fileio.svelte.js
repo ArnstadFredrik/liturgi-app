@@ -442,6 +442,20 @@ export async function loadTemplatesFromDisk() {
 		// ikke stemmer (f.eks. første oppstart eller etter oppdatert original)
 		const cnt = isElectron && window.liturgi.bibCounts ? await window.liturgi.bibCounts() : null;
 		const antall = cnt?.ok ? cnt.counts : {};
+		// kirkeårsprefasjonene (KBM 2020) er en egen «virtuell kilde» i biblioteket:
+		// 12 kirkeårsbestemte (først) + de generelle a–g — hentet fra
+		// nattverd-prefasjon-leddet i hovedgudstjenesten (BUILTIN)
+		const hovedmal = disk.find((t) => t.id === 'hovedgudtjeneste2020');
+		const prefLedd = hovedmal?.sections?.flatMap((x) => x.items).find((x) => x.id === 'nattverd-prefasjon');
+		if (prefLedd?.alts?.length) {
+			const kirkeaarEntries = [];
+			for (const alt of prefLedd.alts) {
+				kirkeaarEntries.push({ seksjon: 'Prefasjoner', ledd: 'Kirkeårsprefasjoner', alt_label: alt.label, tekst: alt.text });
+			}
+			if ((antall['Kirkeårsprefasjoner (2020)'] ?? 0) !== kirkeaarEntries.length) {
+				await window.liturgi.bibSync('Kirkeårsprefasjoner (2020)', kirkeaarEntries);
+			}
+		}
 		for (const tpl of disk.filter((t) => !!t.builtinKey)) {
 			const entries = [];
 			for (const sec of tpl.sections) {
