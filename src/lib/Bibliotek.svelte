@@ -44,7 +44,46 @@
 			.map((x) => x.r);
 	});
 
+	/** Kategori (leddtype) for en bibliotekrad — beregnet fra ledd-tittelen.
+	 *  Brukes av «Vis etter leddtype»-grupperingen. */
+	function kategori(r) {
+		const t = ((r.ledd ?? '') + ' ' + (r.mappe ?? '')).toLowerCase();
+		if (/\bkyrie\b/.test(t)) return 'Kyrie';
+		if (/\bgloria\b/.test(t)) return 'Gloria';
+		if (/prefasjon/.test(t)) return 'Prefasjon';
+		if (/sanctus|hellig, hellig/.test(t)) return 'Sanctus';
+		if (/velsign/.test(t)) return 'Velsignelse';
+		if (/(dagens bønn|forbønn|kirkebønn|hovedbønn)/.test(t)) return 'Bønn';
+		if (/hilsen|hilsning|innledende lovprisning/.test(t)) return 'Hilsen';
+		if (/(trosbekjennelse|credo)/.test(t)) return 'Trosbekjennelse';
+		if (/fadervår|fader vår/.test(t)) return 'Fadervår';
+		if (/nattverd(innstiftelse|s bønn)|epiklese|verba/.test(t)) return 'Nattverdsbønn';
+		if (/troens mysterium|frelsens mysterium/.test(t)) return 'Troens mysterium';
+		if (/evangelium|lesning|skrift/.test(t)) return 'Ordet';
+		if (/agnus|guds lam/.test(t)) return 'Agnus Dei';
+		if (/(lovprisning|lovsang|inngangssalme|salme)/.test(t)) return 'Lovprisning';
+		return 'Øvrige';
+	}
+
+	const KATEGORI_REKKEFOLGE = ['Hilsen', 'Kyrie', 'Gloria', 'Bønn', 'Ordet', 'Trosbekjennelse', 'Lovprisning', 'Prefasjon', 'Sanctus', 'Nattverdsbønn', 'Troens mysterium', 'Agnus Dei', 'Velsignelse', 'Fadervår', 'Øvrige'];
+
+	let visEtterType = $state(false); // «Vis etter leddtype»-toggle
+
 	const mapper = $derived.by(() => {
+		if (visEtterType) {
+			// kategori-gruppering: bruker- og originalrader sammen (badge på raden)
+			const m = new Map();
+			for (const r of alleRader) {
+				const k = kategori(r);
+				if (!m.has(k)) m.set(k, []);
+				m.get(k).push(r);
+			}
+			const rekkefolge = (a, b) => {
+				const ia = KATEGORI_REKKEFOLGE.indexOf(a[0]), ib = KATEGORI_REKKEFOLGE.indexOf(b[0]);
+				return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+			};
+			return [...m.entries()].sort(rekkefolge);
+		}
 		const m = new Map();
 		for (const r of filtrerteBruker) {
 			const k = r.mappe || '(uten mappe)';
@@ -54,9 +93,20 @@
 		return [...m.entries()];
 	});
 
+	/** Alle rader (bruker + original) for kategori-visningen. */
+	const alleRader = $derived.by(() => {
+		const orig = originaletreff.map((r, i) => ({ ...r, _orig: true, _key: 'o' + i }));
+		const bru = filtrerteBruker.map((r, i) => ({ ...r, _orig: false, _key: 'b' + r.id }));
+		return [...bru, ...orig];
+	});
+
 	async function sok() {
+		// i leddtype-visningen: hent ALLE originalrader (tomt søk = hele originalene)
+		if (visEtterType) { originaletreff = await bibSearch(q.trim() || ' '); return; }
 		originaletreff = q.trim().length >= 2 ? await bibSearch(q) : [];
 	}
+
+	$effect(() => { if (visEtterType) sok(); });
 
 	async function nyttLedd() {
 		valgt = null;
@@ -124,6 +174,7 @@
 		</p>
 		<div class="biblio-sok">
 			<input bind:value={q} oninput={sok} placeholder='Søk, f.eks. «forbønn» eller «sanctus» …' spellcheck="false" />
+			<button class="biblio-type-btn" class:paa={visEtterType} onclick={() => { visEtterType = !visEtterType; }} title="Grupper leddene etter type (Kyrie, Gloria, bønn, prefasjon …)">{@html mdi('tag-outline', 14)} Etter type</button>
 			<button onclick={nyttLedd}>{@html mdi('plus')} Nytt ledd</button>
 			{#if isElectron && brukerrader.length}
 				<button onclick={() => eksporterBibliotek(brukerrader)} title="Eksporter alt eget innhold til JSON">{@html mdi('download')} Eksportér eget innhold</button>
@@ -135,7 +186,27 @@
 	{:else}
 		<div id="biblio-kolonner">
 			<div id="biblio-liste">
-				{#if filtrerteBruker.length}
+				{#if visEtterType}
+					{#each mapper as [kat, rader] (kat)}
+						<div class="biblio-mappe">
+							<div class="sidehead biblio-mappe-navn">{@html mdi('tag-outline')} {kat} <span class="biblio-antall">({rader.length})</span></div>
+							{#each rader as r (r._key)}
+								{#if r._orig}
+									<div class="m-bib-gruppe biblio-rad statisk">
+										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+										<span class="m-bib-antall">{r.kilde}</span>
+									</div>
+								{:else}
+									<button type="button" class="m-bib-gruppe biblio-rad" class:sel={valgt?.id === r.id} onclick={() => velg(r)}>
+										<span class="m-bib-ledd">{r.ledd}{r.alt_label ? ' · ' + r.alt_label : ''}</span>
+										{#if r.tags}<span class="m-bib-antall">{r.tags}</span>{/if}
+									</button>
+								{/if}
+							{/each}
+						</div>
+					{/each}
+				{:else}
+{#if filtrerteBruker.length}
 					<div class="sidehead">Mine ledd</div>
 					{#each mapper as [mappe, rader] (mappe)}
 						<div class="biblio-mappe">
@@ -160,7 +231,7 @@
 				{/if}
 				{#if !filtrerteBruker.length && !originaletreff.length}
 					<p class="maler-ingress">{q ? 'Ingen treff.' : 'Ingen egne ledd ennå — bruk «+ Nytt ledd».'}</p>
-				{/if}
+				{/if}				{/if}
 			</div>
 
 			<div id="biblio-detalj">
