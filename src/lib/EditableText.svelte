@@ -321,11 +321,17 @@ function angre() {
 		const pre = document.createRange();
 		pre.selectNodeContents(le);
 		try { pre.setEnd(s.getRangeAt(0).startContainer, s.getRangeAt(0).startOffset); } catch { }
-		const off = pre.toString().length; // innholdsoffset (uten prefiks/chips)
-		const verdLinje = verdiLinjer[linje] ?? '';
-		const domTekst = le.textContent.length;
-		const linjePl = Math.max(0, verdLinje.length - domTekst); // skygger ellers komponentens prefiksLen-funksjon
-		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + linjePl + off;
+		let off = pre.toString().length; // DOM-offset i linjen — inkluderer chip-tekst
+		// ledende chips («–»-punktmerket): tell dem + eventuelle mellomrom etter dem
+		// som DOM-forklaring; caret før/inni dem er verdiposisjon linjestart
+		let leadLen = 0;
+		for (const n of le.childNodes) {
+			if (n.nodeType === 1 && n.classList.contains('chip')) { leadLen += n.textContent.length; continue; }
+			if (n.nodeType === 3 && n.textContent.trim() === '' && leadLen > 0 && n.textContent.length > 0) { leadLen += n.textContent.length; continue; }
+			break;
+		}
+		const contentOff = Math.max(0, off - leadLen);
+		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + prefiksLen(linje) + contentOff;
 		const shim = {
 			_v: value, _p: abs,
 			get value() { return this._v; },
@@ -449,7 +455,11 @@ function angre() {
 		if (!venterCaret) return;
 		const { linje, kol } = venterCaret;
 		venterCaret = null;
-		requestAnimationFrame(() => plasserCaretMedRetry(linje, prefiksLen(linje) + kol));
+		// kol er allerede innholdsoffset (uten prefiks). I HYBRID/md-modus er prefiksen
+		// TEKST i DOM-en (domPos måler den med) → legg prefiksLen tilbake. I
+		// gudstjeneste-editoren er prefiksen chip/ikke rendret (domPos ekskluderer
+		// chips) → kol direkte. Tillegget ga drift +prefiks per h/j-trykk i punktlistet.
+		requestAnimationFrame(() => plasserCaretMedRetry(linje, hybrid ? prefiksLen(linje) + kol : kol));
 	});
 
 
