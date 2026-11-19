@@ -74,6 +74,94 @@
 		}
 	}
 
+	/* ---------- alternativ-forvaltning i malredigering ---------- */
+	const erMal = $derived(app.kind === 'template');
+
+	/** Legg til et nytt (tomt) alternativ i listen — valgt som gjeldende. */
+	function leggTilAlt(liste, nokkel, selNokkel) {
+		if (!Array.isArray(it[liste])) it[liste] = [];
+		it[liste].push({ label: nokkel === 'alts' ? 'Alternativ ' + String.fromCharCode(97 + it[liste].length) : '', text: '' });
+		if (selNokkel) it[selNokkel] = it[liste].length - 1;
+		markDirty();
+	}
+
+	/** Fjern alternativet fra listen (kontekstmeny/modal); selAlt/Intro/Avsl rettes. */
+	function fjernAlt(liste, idx, selNokkel) {
+		const l = it[liste];
+		if (!Array.isArray(l) || l.length <= 1) { toast.error('Minst ett alternativ må være igjen'); return; }
+		l.splice(idx, 1);
+		if (selNokkel && it[selNokkel] != null) {
+			if (it[selNokkel] >= idx) it[selNokkel] = Math.max(0, it[selNokkel] - 1);
+			if (it[selNokkel] >= l.length) it[selNokkel] = l.length - 1;
+		}
+		markDirty();
+	}
+
+	/** Velg ett av alternativene i en liste (kontekstmeny-modal). */
+	function velgFra(liste, idx, selNokkel, tittel) {
+		const l = it[liste] ?? [];
+		chooseOneModal(l, it[selNokkel] ?? 0, (ny) => { if (selNokkel) it[selNokkel] = ny; markDirty(); });
+	}
+
+	/** Innledning/avslutning: opprett gruppen ved første alternativ. */
+	function opprettGruppe(liste, selNokkel, label) {
+		it[liste] = [{ label, text: '' }];
+		if (selNokkel) it[selNokkel] = 0;
+		markDirty();
+	}
+
+	/** Kontekstmeny for en alternativgruppe i malredigering. */
+	function altMeny(e, liste, selNokkel, label) {
+		e.preventDefault();
+		const l = it[liste];
+		const har = Array.isArray(l) && l.length;
+		const radLabel = (i) => (l[i]?.label || 'Alternativ ' + String.fromCharCode(97 + i));
+		openContextMenu(e.clientX, e.clientY, [
+			...(har ? [{ label: 'Legg til alternativ', action: () => leggTilAlt(liste, selNokkel === 'selIntro' || selNokkel === 'selAvsl' ? liste : liste, selNokkel) }] : []),
+			...(har ? [{ label: 'Legg til tomt alternativ fra biblioteket …', action: () => hentAltFraBib(liste, selNokkel) }] : []),
+			...(har ? ['sep'] : []),
+			...(har ? l.map((a, i) => ({
+				label: (selNokkel && it[selNokkel] === i ? '✓ ' : '') + radLabel(i),
+				action: () => { if (selNokkel) it[selNokkel] = i; markDirty(); }
+			})) : []),
+			...(har ? ['sep'] : []),
+			...(har && l.length > 1 ? [{ label: 'Fjern dette alternativet …', action: () => velgFjern(liste, selNokkel, label) }] : []),
+			...(har && l.length > 1 ? [{ label: 'Fjern siste alternativ', action: () => fjernAlt(liste, l.length - 1, selNokkel) }] : []),
+			...(!har ? [{ label: 'Opprett «' + label + '»-gruppe', action: () => opprettGruppe(liste, selNokkel, label) }] : []),
+			...(!har ? [{ label: 'Hent fra biblioteket …', action: () => hentGruppeFraBib(liste, selNokkel, label) }] : [])
+		]);
+	}
+
+	/** Fjern-alternativ: velg hvilken (modal). */
+	function velgFjern(liste, selNokkel, label) {
+		const l = it[liste];
+		chooseOneModal(l, it[selNokkel] ?? 0, (ny) => fjernAlt(liste, ny, selNokkel));
+	}
+
+	/** Hent ET alternativ fra biblioteket inn i gruppen (legg til som nytt). */
+	function hentAltFraBib(liste, selNokkel) {
+		const def = it.heading.replace(/^[*\d–\-\s]+/, '').trim();
+		bibSokModal(def, 'innhold', (gruppe, alt) => {
+			if (!gruppe || !alt) return;
+			if (!Array.isArray(it[liste])) it[liste] = [];
+			it[liste].push({ label: alt.label || 'Alternativ ' + String.fromCharCode(97 + it[liste].length), text: alt.text });
+			if (selNokkel) it[selNokkel] = it[liste].length - 1;
+			markDirty();
+			toast.success('Alternativet er lagt til ' + (liste === 'alts' ? 'i Alternativer' : liste === 'introAlts' ? 'i Innledningen' : 'i Avslutningen'));
+		});
+	}
+
+	/** Hent en HELT bibliotek-gruppe som alternativgruppe (alle rader). */
+	function hentGruppeFraBib(liste, selNokkel, label) {
+		const def = it.heading.replace(/^[*\d–\-\s]+/, '').trim();
+		bibSokModal(def, 'ledd', (gruppe) => {
+			if (!gruppe) return;
+			const alts = gruppe.rader.map((r) => ({ label: r.label || '', text: r.text }));
+			if (alts.length) { it[liste] = alts; if (selNokkel) it[selNokkel] = 0; markDirty(); toast.success('Hentet ' + alts.length + ' alternativer fra ' + gruppe.kilde); }
+			else toast.error('Gruppen har ingen alternativer');
+		});
+	}
+
 	function velgIntro() {
 		chooseOneModal(it.introAlts, it.selIntro ?? 0, (idx) => { it.selIntro = idx; markDirty(); });
 	}
@@ -229,33 +317,48 @@
 			{/if}
 		{:else if it.alts && it.alts.length}
 			{#if introAltsLen}
-				<div class="alt-gruppe-tittel">Innledning</div>
+				<div class="alt-gruppe-tittel">Innledning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Administrer innledningsalternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
 				<div class="alt-cur">
 					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgIntro()}>
 						Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
 					</button>
+					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('introAlts', 'selIntro')} title="Nytt tomt innledningsalternativ">{@html mdi('plus', 13)}</button>{/if}
+				</div>
+			{:else if erMal}
+				<div class="alt-gruppe-tittel">Innledning</div>
+				<div class="alt-cur tom-gruppe">
+					<span class="muted-hint">Ingen innledningsalternativer</span>
+					<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Opprett eller hent fra biblioteket">{@html mdi('plus', 13)} Innledning</button>
 				</div>
 			{/if}
 			{#if it.text && it.text.trim()}
 				<div class="alt-gruppe-tittel">Fast innledning</div>
 				<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 			{/if}
-			<div class="alt-gruppe-tittel">Alternativer</div>
+			<div class="alt-gruppe-tittel">Alternativer{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'alts', null, 'Alternativer')} title="Administrer alternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
 			{@const sel = it.alts[it.selAlt ?? 0]}
 			<div class="alt-cur">
 				<EditableText bind:value={sel.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 				<button class="alt-btn" onclick={() => velgAlt()}>
 					Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
 				</button>
+				{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('alts', null)} title="Nytt tomt alternativ">{@html mdi('plus', 13)}</button>{/if}
 			</div>
 			{#if avslAltsLen}
-				<div class="alt-gruppe-tittel">Avslutning</div>
+				<div class="alt-gruppe-tittel">Avslutning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog-outline', 12)}</button>{/if}</div>
 				<div class="alt-cur">
 					<EditableText bind:value={it.avslutningAlts[it.selAvsl ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgAvsl()}>
 						Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
 					</button>
+					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('avslutningAlts', 'selAvsl')} title="Nytt tomt avslutningsalternativ">{@html mdi('plus', 13)}</button>{/if}
+				</div>
+			{:else if erMal}
+				<div class="alt-gruppe-tittel">Avslutning</div>
+				<div class="alt-cur tom-gruppe">
+					<span class="muted-hint">Ingen avslutningsalternativer</span>
+					<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Opprett eller hent fra biblioteket">{@html mdi('plus', 13)} Avslutning</button>
 				</div>
 			{/if}
 		{:else}

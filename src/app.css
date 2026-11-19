@@ -251,6 +251,17 @@ button.wide { width: 100%; }
 .eksport-innhold-indi.av { color: var(--muted); opacity: 0.6; }
 .eksport-innhold-indi svg { width: 13px; height: 13px; }
 .alt-gruppe-tittel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
+/* malredigering: administrering av alternativgrupper (legg til / velg / fjern) */
+.alt-gruppe-tittel .alt-red { margin-left: 4px; vertical-align: 1px; }
+.alt-red {
+	display: inline-flex; align-items: center; gap: 4px;
+	padding: 2px 7px; border: 1px solid var(--border); border-radius: 6px;
+	background: var(--panel2); color: var(--muted); font-size: 11px; cursor: pointer;
+}
+.alt-red:hover { color: var(--text); border-color: var(--accent); }
+.alt-cur .alt-red { flex-shrink: 0; }
+.tom-gruppe { padding: 6px 0; }
+.muted-hint { color: var(--muted); font-size: 13px; flex: 1; }
 /* to-kolonne alternativvelger: liste til venstre, forhåndsvisning til høyre */
 .m-velg-to-kolonner { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 14px; align-items: start; max-height: 55vh; }
 .m-velg-liste { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; max-height: 55vh; }
