@@ -2169,7 +2169,8 @@ export const BUILTIN_TEMPLATES = [
 					}
 				]
 			}
-		]
+		],
+		"erOriginal": true
 	},
 	{
 		"id": "forb-borgerlig-ekteskap-2017",
@@ -2326,7 +2327,8 @@ export const BUILTIN_TEMPLATES = [
 					}
 				]
 			}
-		]
+		],
+		"erOriginal": true
 	},
 	{
 		"id": "vigsel-2017",
@@ -2672,7 +2674,8 @@ export const BUILTIN_TEMPLATES = [
 					}
 				]
 			}
-		]
+		],
+		"erOriginal": true
 	},
 	{
 		"id": "vigsel-2003",
@@ -3066,7 +3069,8 @@ export const BUILTIN_TEMPLATES = [
 					}
 				]
 			}
-		]
+		],
+		"erOriginal": true
 	},
 	{
 		"id": "konfirmasjon-2021",
@@ -3422,7 +3426,8 @@ export const BUILTIN_TEMPLATES = [
 					}
 				]
 			}
-		]
+		],
+		"erOriginal": true
 	}
 ]
 
