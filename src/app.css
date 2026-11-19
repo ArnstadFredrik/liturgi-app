@@ -772,7 +772,7 @@ html.electron .toc-toggle { top: 5px; right: 12px; }
    inline i redigering men block i visning — gi listelinjene lik høyde) */
 .et-rik .et-linje[data-type='liste'] { min-height: 0; line-height: 1.6; }
 .et-rik .rline { color: var(--role); }
-.et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: inherit; line-height: inherit; }
+.et-rik .et-linje[data-type='liste'] .chip { display: inline; padding: 0; border: none; background: none; color: var(--accent); font-size: inherit; line-height: inherit; margin-right: 0.35em; }
 /* lister: prikk og tekst på samme linje (md-li-spanene bruker hengende innrykk i visning) */
 .et-rik .et-linje[data-type='liste'] .md-li { display: inline; padding: 0; text-indent: 0; }
 .et-rik .et-linje[data-type='rolle'] .chip { color: var(--role); border-color: var(--role); }

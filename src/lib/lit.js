@@ -42,6 +42,10 @@ export function litHtml(text) {
 	// tomme linjer etter skjult salmeinfo: <br> rett etter br-info kollapses — br-info
 	// og dens <br> skjules av CSS når salmeinfo er av, kjeden må bort i HTML-en
 	out = out.replace(/(<br class="br-info">)(<br>)+/g, '$1');
+	// punktliste: md-li er block; <br> MELLOM to md-li gir dobbelt linjeskift
+	// (avstanden ble større i visningen enn i redigeringen). Behold <br> etter
+	// den siste md-li-en i en rekke (skiller lista fra neste linje).
+	out = out.replace(/(<\/span>)<br>(?=<span class="md-li">)/g, '$1');
 	return mdInlineOutsideTags(out);
 }
 
@@ -97,8 +101,10 @@ function linjeEditHtml(type, prefiks, chip, innhold) {
 		// blokkmarkøren er hele linjen — vises bare som chip (tomt innhold)
 		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
 	} else if (chip) {
-		// punktlisten («–»), @r osv.: prefikset vises som chip foran teksten
-		chipHtml = `<span class="chip">${escapeHtml(chip)}</span> `;
+		// punktlisten («–»), @r osv.: prefikset vises som chip foran teksten.
+		// NB: ingen tekst-mellomrom etter chipen — det ble serialisert inn i
+		// verdien (dobbel mellomrom som vokste per redigering); avstand = CSS.
+		chipHtml = `<span class="chip">${escapeHtml(chip)}</span>`;
 	}
 	const indreBase = klasse ? `<span class="${klasse}">${inlineEditHtml(innhold)}</span>` : inlineEditHtml(innhold);
 	// linjemerker (Notis/Bibelref/Copyright) vises som parentes-tag ETTER teksten — tydelig at det
