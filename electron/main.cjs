@@ -178,7 +178,9 @@ ipcMain.handle('ctx:nativ', (e, punkter) => {
 			.map((p) => (p.type === 'separator'
 				? p
 				: { label: p.label, enabled: p.enabled !== false, click: () => e.sender.send('meny:handling', p.id) }));
-		Menu.buildFromTemplate(mal).popup({ window: BrowserWindow.fromWebContents(e.sender) });
+		// NB: uten callback blokkerer popup() hovedtråden til menyen lukkes —
+		// da går invoke-svaret tapt og rendereren fryser. Med callback er den asynkron.
+		Menu.buildFromTemplate(mal).popup({ window: BrowserWindow.fromWebContents(e.sender), callback: () => {} });
 		return { ok: true };
 	} catch (err) { return { ok: false, error: String(err?.message ?? err) }; }
 });
