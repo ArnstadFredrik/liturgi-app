@@ -259,7 +259,8 @@ button.wide { width: 100%; }
 	background: var(--panel2); color: var(--muted); font-size: 11px; cursor: pointer;
 }
 .alt-red:hover { color: var(--text); border-color: var(--accent); }
-.alt-cur .alt-red { flex-shrink: 0; }
+/* knappene i .alt-cur (kolonne-flyt) skal ikke strekke hele bredden */
+.alt-cur > .alt-red { align-self: flex-start; width: auto; flex-shrink: 0; }
 /* tom-gruppe-knappen (+ Innledning/+ Avslutning): egen bredde, ikke full bredde */
 .tom-gruppe { padding: 6px 0; align-items: center; }
 .tom-gruppe .alt-red { flex: 0 0 auto; width: auto; }

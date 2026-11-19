@@ -343,7 +343,7 @@
 				<button class="alt-btn" onclick={() => velgAlt()}>
 					Bytt alternativ ({(it.selAlt ?? 0) + 1} av {it.alts.length})
 				</button>
-				{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('alts', null)} title="Nytt tomt alternativ">{@html mdi('plus', 13)}</button>{/if}
+				{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('alts', null)} title="Nytt tomt alternativ">{@html mdi('plus', 13)} Alternativ</button>{/if}
 			</div>
 			{#if avslAltsLen}
 				<div class="alt-gruppe-tittel">Avslutning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog', 12)}</button>{/if}</div>
