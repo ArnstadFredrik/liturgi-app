@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, chooseOneModal } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
@@ -47,6 +47,18 @@
 	}
 	function onDragEnd() {
 		dragOver = null;
+	}
+
+	function velgDelGruppe(sec) {
+		// del-gruppe: markerer seksjonen slik at «Ny gravferd» vet hvilken
+		// variant (hoveddel/bisettelse) den er — uavhengig av tittelen
+		chooseOneModal(
+			[{ label: 'Ingen (alltid med)' }, { label: 'Gravferd' }, { label: 'Bisettelse' }],
+			sec.delGruppe === 'gravferd' ? 1 : sec.delGruppe === 'bisettelse' ? 2 : 0,
+			(idx) => { sec.delGruppe = idx === 1 ? 'gravferd' : idx === 2 ? 'bisettelse' : null; markDirty(); },
+			null,
+			'Del-gruppe for «' + (sec.title ?? '') + '»'
+		);
 	}
 
 	function addItem(si) {
@@ -133,6 +145,9 @@
 				<span class="sec-title" contenteditable="plaintext-only" spellcheck="false"
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
+				{#if app.kind === 'template'}
+					<button class="sec-delgruppe" title="Del-gruppe: bruker «Ny gravferd» til å velge denne delen (uavhengig av tittelen)" onclick={() => velgDelGruppe(sec)}>{@html mdi("tag-outline", 13)} {sec.delGruppe === 'gravferd' ? 'Gravferd-del' : sec.delGruppe === 'bisettelse' ? 'Bisettelse-del' : 'Del-gruppe'}</button>
+				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}
 					<button class="sec-velg-tekster" title="Velg hvilke tekster som skal være med" onclick={() => velgTeksterModal(sec)}>{@html mdi("format-list-bulleted", 14)} Velg tekster …</button>

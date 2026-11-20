@@ -20,7 +20,7 @@
 	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
 	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
-	let jordpaa = $state('graven'); // gravferd: 'graven' | 'krematorium'
+	let jordpaa = $state('gravferd'); // gravferd: 'gravferd' | 'bisettelse' (delGruppe på seksjonene)
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
@@ -94,7 +94,7 @@
 				// effekten som da RESETTER typen tilbake (type-knappene virket ikke)
 				const forhType = m.forhåndsvalgtType ?? 'gudstjeneste';
 				nyType = forhType;
-				jordpaa = 'graven';
+				jordpaa = 'gravferd';
 				name = '';
 				date = nextSundayISO();
 				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
@@ -318,11 +318,10 @@
 			const opprett = () => {
 							if (nyType === 'gravferd') {
 					m.ok(name.trim(), date, tplId, { dåp: false, nattverd: false }, null, null);
-					// bare den valgte jordpåkastelsesdelen skal være med
+					// bare del-gruppe-markert seksjon for valgt sted tas med — tittelen
+					// kan være endret av brukeren (delGruppe settes på avsnittet i malen)
 					const cur = app.current;
-					if (cur) cur.sections = cur.sections.filter((s) =>
-						!s.title.includes('Jordpåkastelse') ||
-						(jordpaa === 'graven' ? s.title.includes('graven') : s.title.includes('krematorium')));
+					if (cur) cur.sections = cur.sections.filter((s) => !s.delGruppe || s.delGruppe === jordpaa);
 				}
 				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
@@ -521,12 +520,12 @@
 						     (bind:group, kun én av to kan være på) -->
 						<div class="m-chk m-chk-jord">
 							<span class="m-jordpaa-label">Jordpåkastelse:</span>
-							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'graven'} onclick={() => { jordpaa = 'graven'; }}>
-								<span class="avpaa-tekst">Ved graven</span>
+							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'gravferd'} onclick={() => { jordpaa = 'gravferd'; }}>
+								<span class="avpaa-tekst">Gravferd</span>
 								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 							</button>
-							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'krematorium'} onclick={() => { jordpaa = 'krematorium'; }}>
-								<span class="avpaa-tekst">I krematorium</span>
+							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'bisettelse'} onclick={() => { jordpaa = 'bisettelse'; }}>
+								<span class="avpaa-tekst">Bisettelse</span>
 								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 							</button>
 						</div>
