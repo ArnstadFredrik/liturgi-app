@@ -336,6 +336,14 @@
 		if (e.key === 'Enter') ok();
 		if (e.key === 'Escape') closeModal();
 	}
+	// Escape lukker modalen uansett hvor fokuset er (globalt — ikke bare i
+	// tekstfeltene med onKey); Enter forblir lokalt for input-feltene
+	$effect(() => {
+		if (!m) return;
+		const h = (e) => { if (e.key === 'Escape') closeModal(); };
+		window.addEventListener('keydown', h);
+		return () => window.removeEventListener('keydown', h);
+	});
 </script>
 
 {#if m}
