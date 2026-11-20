@@ -1852,7 +1852,11 @@ export const BUILTIN_TEMPLATES = [
 		],
 		"visInstr": true,
 		"visRoles": true,
-		"visSalmeinfo": true
+		"visSalmeinfo": true,
+		"delGrupper": [
+			"gravferd",
+			"bisettelse"
+		]
 	},
 	{
 		"id": "dop-i-egen-gudtjeneste-2017",

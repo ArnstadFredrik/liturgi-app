@@ -93,6 +93,11 @@ test('gravferd-2003: jordpåkastelse-seksjonene har delGruppe (tittel-uavhengig 
 	assert.equal(bi.length, 1, 'nøyaktig én bisettelse-del');
 });
 
+test('gravferd-2003: delGrupper-listen (dynamiske grupper til Ny gravferd)', () => {
+	const gf = BUILTIN_TEMPLATES.find((t) => t.id === 'gravferd-2003');
+	assert.deepEqual(gf.delGrupper, ['gravferd', 'bisettelse']);
+});
+
 test('forbønn for borgerlig inngått ekteskap er av typen vigsel', () => {
 	const forb = BUILTIN_TEMPLATES.find((t) => t.id === 'forb-borgerlig-ekteskap-2017');
 	assert.equal(forb.liturgiType, 'vigsel');

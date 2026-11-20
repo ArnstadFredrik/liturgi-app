@@ -550,6 +550,16 @@ textarea {
 .m-tekst-bokstav { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; flex: none; }
 .m-tekst-navn { flex: 1; color: var(--text); font-size: 13px; }
 #modal .m-tekst-tittel { color: var(--muted); font-size: 12px; font-weight: 600; padding: 4px 8px 2px; }
+/* delGruppe-modal */
+.m-dg-liste { display: flex; flex-direction: column; gap: 3px; border: 1px solid var(--border); border-radius: 8px; padding: 6px; }
+#modal .m-dg-rad { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; background: none; color: var(--text); text-align: left; width: 100%; }
+#modal .m-dg-rad:hover { background: var(--card); }
+#modal .m-dg-rad.sel { border-color: var(--accent); background: var(--card); }
+#modal .m-dg-navn { flex: 1; }
+#modal .m-dg-slett { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: inline-flex; }
+#modal .m-dg-slett:hover { color: var(--role, #c0392b); }
+.m-dg-ny { display: flex; gap: 8px; margin-top: 8px; }
+.m-dg-ny input { flex: 1; }
 .m-bokstav-rad { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .m-bokstav-inn { flex: 0 0 220px; }
 .m-bokstav-telling { margin-left: auto; color: var(--muted); font-size: 12px; }
