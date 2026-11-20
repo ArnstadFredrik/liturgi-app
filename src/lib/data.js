@@ -1763,7 +1763,8 @@ export const BUILTIN_TEMPLATES = [
 						"salmeNr": "",
 						"salmeTittel": ""
 					}
-				]
+				],
+				"delGruppe": "gravferd"
 			},
 			{
 				"title": "Jordpåkastelse — Bisettelse",
@@ -1845,7 +1846,8 @@ export const BUILTIN_TEMPLATES = [
 						"optional": true,
 						"selAlt": 0
 					}
-				]
+				],
+				"delGruppe": "bisettelse"
 			}
 		],
 		"visInstr": true,
@@ -2499,7 +2501,8 @@ export const BUILTIN_TEMPLATES = [
 				]
 			}
 		],
-		"erOriginal": true
+		"erOriginal": true,
+		"liturgiType": "vigsel"
 	},
 	{
 		"id": "vigsel-2017",

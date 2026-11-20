@@ -129,7 +129,7 @@ export function newServiceFromTemplate(tpl, include) {
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec.title, include))
-			.map((sec) => ({ title: sec.title, items: sec.items.map(instantiate) }))
+			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, items: sec.items.map(instantiate) }))
 	};
 }
 

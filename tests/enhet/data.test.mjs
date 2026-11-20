@@ -85,6 +85,19 @@ test('HG-ordningen: dåpsdelen er lenket til «Dåp i hovedgudstjenesten»', () 
 	for (const it of dopLedd) assert.ok(it.id.startsWith('h-l-dap'), 'dåp-malens ledd-id-er: ' + it.id);
 });
 
+test('gravferd-2003: jordpåkastelse-seksjonene har delGruppe (tittel-uavhengig opprettelse)', () => {
+	const gf = BUILTIN_TEMPLATES.find((t) => t.id === 'gravferd-2003');
+	const gr = gf.sections.filter((s) => s.delGruppe === 'gravferd');
+	const bi = gf.sections.filter((s) => s.delGruppe === 'bisettelse');
+	assert.equal(gr.length, 1, 'nøyaktig én gravferd-del');
+	assert.equal(bi.length, 1, 'nøyaktig én bisettelse-del');
+});
+
+test('forbønn for borgerlig inngått ekteskap er av typen vigsel', () => {
+	const forb = BUILTIN_TEMPLATES.find((t) => t.id === 'forb-borgerlig-ekteskap-2017');
+	assert.equal(forb.liturgiType, 'vigsel');
+});
+
 test('vigsel-malene: skriftlesningene har docx-bokstavene (2017: A-Y, 2003: A-T)', () => {
 	forventet = { 'vigsel-2017': 25, 'vigsel-2003': 20 };
 	for (const [id, antall] of Object.entries(forventet)) {
