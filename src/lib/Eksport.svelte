@@ -1093,16 +1093,11 @@
 </script>
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
-	<header class="eks-overhode">
-		<span class="sal-under">{o?.name ?? ''}{o?.date ? ' · ' + nlDate(o.date) : ''}</span>
-		<button class="eks-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
-	</header>
+
 	{#if !o || app.kind !== 'service'}
 		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
 	{:else}
-		<p class="eksport-ingress">
-			<strong>{o.name}</strong>{o.date ? ` · ${datoTekst}` : ''} — velg profil til høyre, juster leddene som skal med, og eksportér.
-		</p>
+		<p class="eksport-ingress">Velg profil til høyre, juster leddene som skal med, og eksportér.</p>
 
 
 		<div class="eks-baand">
@@ -1150,6 +1145,7 @@
 					<option value="normal">Normal</option>
 					<option value="luft">Luftig</option>
 				</select></div>
+				<button class="eks-lagre eks-verktoy-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">

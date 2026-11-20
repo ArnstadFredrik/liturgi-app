@@ -255,8 +255,8 @@ button.wide { width: 100%; }
 .w-ref { color: var(--muted); font-size: 0.9em; }
 /* eksport-siden */
 .eks-tilbake { font-size: 15px; padding: 2px 10px; margin-right: 8px; }
-.eks-overhode { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .eks-lagre { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.eks-verktoy-lagre { margin-left: auto; }
 .eksport-standard-btn { margin-top: 6px; font-size: 12px; }
 .eksport-skiller { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 /* per-ledd valg: hovedboks (ledd + overskrift, format-title-ikon) og innholdsboks (text-ikon) */
