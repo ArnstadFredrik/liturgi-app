@@ -289,7 +289,16 @@
 			{ label: 'Eksportér aktiv profil', action: () => { app.visning = 'eksport'; window.__eksportKunAktiv = true; } },
 			'sep',
 			{ label: 'Slett leddet', action: del, danger: true }
-		]);
+		].sort((a, b) => {
+			// grupper (adskilt av 'sep') sorteres alfabetisk internt; sep beholder plass
+			if (a === 'sep' || b === 'sep') return 0;
+			return (a.label ?? '').localeCompare(b.label ?? '', 'nb');
+		}).reduce((acc, x) => {
+			// rens dobbelte seps etter sortering
+			if (x === 'sep' && acc[acc.length - 1] === 'sep') return acc;
+			acc.push(x);
+			return acc;
+		}, []));
 	}
 
 	/** Hent fra hovedgudstjenesten (sqlite-biblioteket).
@@ -306,18 +315,21 @@
 				// (og alternativgrupper) røres ikke
 				it.text = alt.text;
 			} else {
-				// hele leddet: rekonstruer strukturen (innledning/hoveddel/avslutning)
-				it.heading = gruppe.ledd;
-				it.text = '';
-				it.alts = alts.length > 1 ? alts : [];
-				it.selAlt = alts.length > 1 ? 0 : null;
-				if (alts.length === 1) it.text = alts[0].text;
+				// hele leddet: NYTT ledd OVER det nåværende (mindre destruktivt),
+				// og det nåværende tas ut av gudstjenesten (beholdes i dokumentet)
 				const intro = gruppe.rader[0]?.intro_tekst;
 				const avsl = gruppe.rader[0]?.avsl_tekst;
-				if (intro) { it.introAlts = [{ label: 'Innledning', text: intro }]; it.selIntro = 0; }
-				else delete it.introAlts;
-				if (avsl) { it.avslutningAlts = [{ label: 'Avslutning', text: avsl }]; it.selAvsl = 0; }
-				else delete it.avslutningAlts;
+				const nytt = {
+					id: uid(), type: it.type, heading: gruppe.ledd,
+					text: alts.length === 1 ? alts[0].text : '',
+					instr: '', enabled: true, optional: false, salmeNr: '', salmeTittel: '',
+					alts: alts.length > 1 ? alts : [],
+					selAlt: alts.length > 1 ? 0 : null
+				};
+				if (intro) { nytt.introAlts = [{ label: 'Innledning', text: intro }]; nytt.selIntro = 0; }
+				if (avsl) { nytt.avslutningAlts = [{ label: 'Avslutning', text: avsl }]; nytt.selAvsl = 0; }
+				o.sections[si].items.splice(ii, 0, nytt);
+				it.enabled = false;
 			}
 			markDirty();
 			toast.success('Hentet «' + gruppe.ledd + '» fra ' + gruppe.kilde);

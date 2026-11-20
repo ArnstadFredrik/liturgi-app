@@ -384,7 +384,6 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "7 Bønn og lovprisning",
 						"optional": true,
 						"instr": "Bønnen leses her eller under menighetens forbønn.",
-						"text": "{{r}}L |{{/r}} La oss takke og be.",
 						"alts": [
 							{
 								"label": "A",
@@ -399,7 +398,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}ML/L |{{/r}} Trofaste Gud, vi takker deg for dåpen og løftet om at Jesus er med oss alle våre dager. Vi ber for NN/dem som er døpt i dag. Bevar henne/ham/dem i troen på deg, så hun/han/de kan vandre i lyset og nå det evige mål i ditt rike.\nGud, hør vår bønn."
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss takke og be."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "h-l-dap16",
@@ -1318,7 +1325,6 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "7 Bønn og lovprisning",
 						"optional": true,
 						"instr": "Bønnen leses her eller under menighetens forbønn.",
-						"text": "{{r}}L |{{/r}} La oss takke og be.",
 						"alts": [
 							{
 								"label": "A",
@@ -1333,7 +1339,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}ML/L |{{/r}} Trofaste Gud, vi takker deg for dåpen og løftet om at Jesus er med oss alle våre dager. Vi ber for NN/dem som er døpt i dag. Bevar henne/ham/dem i troen på deg, så hun/han/de kan vandre i lyset og nå det evige mål i ditt rike.\nGud, hør vår bønn."
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss takke og be."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "h-l-dap16",
@@ -1412,7 +1426,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "gf-4",
 						"type": "tekst",
 						"heading": "4 Inngangsord",
-						"text": "{{r}}L |{{/r}} Nåde være med dere og fred fra Gud vår Far og Herren Jesus Kristus.\nVi er samlet her for å ta avskjed med (navnet nevnes).\n*Sammen vil vi overgi ham/henne i Guds hender [og følge ham/henne til det siste hvilestedet].*",
 						"instr": "*Teksten i klammer kan utelates ved kremasjon.* Deretter kan liturgen fortsette med et av skriftordene.",
 						"alts": [
 							{
@@ -1429,13 +1442,20 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Nåde være med dere og fred fra Gud vår Far og Herren Jesus Kristus.\nVi er samlet her for å ta avskjed med (navnet nevnes).\n*Sammen vil vi overgi ham/henne i Guds hender [og følge ham/henne til det siste hvilestedet].*"
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "gf-5",
 						"type": "tekst",
 						"heading": "5 Inngangsbønn",
-						"text": "{{r}}L |{{/r}} La oss be.",
 						"instr": "",
 						"alts": [
 							{
@@ -1464,7 +1484,15 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss be."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "gf-6",
@@ -1491,7 +1519,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "gf-8",
 						"type": "tekst",
 						"heading": "8 Skriftlesning",
-						"text": "@NOTAT Her følger tre lesninger — se tekstgruppene til slutt i ordningen. Tekstene velges slik at de dekker de innholdsmomenter som er nevnt foran. Menigheten sitter under lesningen. Tekstene kan leses av liturgen eller av en eller flere andre.",
 						"instr": "",
 						"alts": [
 							{
@@ -1502,7 +1529,15 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "@NOTAT Her følger tre lesninger — se tekstgruppene til slutt i ordningen. Tekstene velges slik at de dekker de innholdsmomenter som er nevnt foran. Menigheten sitter under lesningen. Tekstene kan leses av liturgen eller av en eller flere andre."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					}
 				]
 			},
@@ -1715,7 +1750,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "gf-11",
 						"type": "tekst",
 						"heading": "11 Bønn",
-						"text": "{{r}}L |{{/r}} La oss be.",
 						"instr": "",
 						"alts": [
 							{
@@ -1744,7 +1778,15 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss be."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "gf-12",
@@ -1760,7 +1802,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "gf-13",
 						"type": "tekst",
 						"heading": "13 Fader vår",
-						"text": "{{r}}L |{{/r}} La oss sammen be Fader vår.",
 						"instr": "",
 						"alts": [
 							{
@@ -1777,7 +1818,15 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"optional": false,
-						"selAlt": 2
+						"selAlt": 2,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss sammen be Fader vår."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "gf-14",
@@ -2681,7 +2730,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "v2017-8",
 						"type": "tekst",
 						"heading": "7 Ekteskapsinngåelse",
-						"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.",
 						"instr": "Paret går fram til alterringen. Liturgen henvender seg først til den som står til venstre.\nDeretter følger:",
 						"alts": [
 							{
@@ -2693,7 +2741,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel),\nsom står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n{{r}}L |{{/r}} Gjenta etter meg.\n(Paret vender seg til hverandre. De gir hverandre høyre hånd og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for led (L) , deretter fremsier paret det, den ene først (P).)\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}P |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}P |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}P |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}P |{{/r}} inntil døden skiller oss.\n(Deretter gjentas løfteavleggelsen på samme måte av den andre.)\n(Liturgen legger sin hånd på parets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "v2017-9",
@@ -2717,7 +2773,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "v2017-10",
 						"type": "tekst",
 						"heading": "9 Forbønn",
-						"text": "{{r}}L |{{/r}} La oss alle be.",
 						"instr": "Ekteparet kneler ved alterringen.\nLiturgen ber for paret med håndspåleggelse en av følgende bønner, som avsluttes med Fadervår.\nEventuelt kan også andre i følget delta i forbønnen med håndspåleggelse.\nHer kan det tilføyes en fritt utformet bønn, eventuelt kombinert med lystenning. Eventuelt kan menigheten synge en bønnesalme (mens ekteparet kneler).\nSe for eksempel Norsk Salmebok 2013 nr 431, 624, 638, 652, 653, 678, 680.\nForbønnen avsluttes alltid med Fadervår.\nDet er også anledning til å benytte Fadervår etter 1920- eller 1977- liturgien.\nFadervår fra 1978 finner du her\nFadervår fra 1930 finner du her\nEkteparet setter seg på plassene sine.",
 						"alts": [
 							{
@@ -2736,7 +2791,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} La oss sammen be Fadervår:\n{{r}}A |{{/r}} Vår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt,\nog makten og æren i evighet.\nAmen."
 							}
 						],
-						"selAvsl": 0
+						"selAvsl": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss alle be."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "v2017-11",
@@ -3043,7 +3106,6 @@ export const BUILTIN_TEMPLATES = [
 						"id": "v2003-3",
 						"type": "tekst",
 						"heading": "2 Inngangsord",
-						"text": "(Deretter ønskes brudeparet og forsamlingen velkommen med disse eller lignende ord:)\n{{r}}L |{{/r}} Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Deretter kan liturgen si:)",
 						"alts": [
 							{
 								"label": "A",
@@ -3073,7 +3135,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} Gud er kjærlighet,\nog den som blir i kjærligheten, blir i Gud og Gud i ham.\nBIBELREF | 1 Joh 4,16b"
 							}
 						],
-						"selAvsl": 0
+						"selAvsl": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "(Deretter ønskes brudeparet og forsamlingen velkommen med disse eller lignende ord:)\n{{r}}L |{{/r}} Kjære (navnet nevnes) og (navnet nevnes). Dere er kommet hit til (kirken nevnes) for å inngå ekteskap. Vi er samlet her for å glede oss med dere. Vi skal høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Deretter kan liturgen si:)"
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					}
 				]
 			},
@@ -3138,7 +3208,6 @@ export const BUILTIN_TEMPLATES = [
 						"type": "tekst",
 						"heading": "7 Ekteskapsinngåelse",
 						"instr": "Her kan følge",
-						"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Brudeparet går fram til alterringen. Deretter følger:)",
 						"alts": [
 							{
 								"label": "A",
@@ -3149,7 +3218,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (brudgommens fulle navn uten tittel): Vil du ha (brudens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Brudgommen sier:)\nJa.\n{{r}}L |{{/r}} Likeså spør jeg deg, (brudens fulle navn uten tittel): Vil du ha\n(brudgommens fulle navn uten tittel), som står ved din side, til din ektefelle?\n(Bruden sier:)\nJa.\n{{r}}L |{{/r}} Gjenta nå etter meg.\n(Brudgom og brud vender seg til hverandre. De gir hverandre hendene og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for ledd, deretter fremsier brudeparet det, den ene først.)\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}B |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}B |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}B |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}B |{{/r}} inntil døden skiller oss.\n(Deretter gjentas løfteavleggelsen på samme måte av den andre ektefellen. Liturgen legger sin hånd på brudeparets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Kom nå fram til Herrens alter, så vi kan høre deres løfter til hverandre og be om Guds velsignelse over dere og over hjemmet deres.\n(Brudeparet går fram til alterringen. Deretter følger:)"
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					}
 				]
 			},
@@ -3749,7 +3826,6 @@ export const BUILTIN_TEMPLATES = [
 						"type": "tekst",
 						"heading": "18 C Forbønn med velsignelse av den enkelte konfirmant",
 						"instr": "(Liturg/medliturg, vendt mot menigheten:)\nKonfirmantene går fram slik det er avtalt på forhånd og kneler på alterringen.\nAlternativt kan én og én konfirmant gå fram til døpefonten og bli tegnet i hånden med et korstegn av en medliturg. Det kan også tennes et lys for konfirmanten. Så går konfirmanten fram til forbønn ved alteret. Når én konfirmant går fra alterringen går den neste fram.\nLiturgen/medliturgen ber for hver enkelt med håndspåleggelse.\nBønnene avsluttes med «Velsign og bevar henne/ham, i Jesu Kristi navn».\nUnder disse ordene tegnes det et korstegn over konfirmanten.\nEtter forbønnen eller ved del IV Sendelse, kan den enkelte motta et kors, en rose eller en annen symbolsk gave i henhold til lokal tradisjon.\nEtter at alle konfirmantene er bedt for sier liturgen:",
-						"text": "{{r}}L/ML |{{/r}} Kjære konfirmanter.\nTil den kristne tro er dere døpt. I den kristne tro er dere opplært. Kom nå fram til Herrens alter, så vi kan be for og velsigne hver enkelt av dere i Jesu Kristi navn.",
 						"alts": [
 							{
 								"label": "1",
@@ -3807,7 +3883,15 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} Gud er kjærlighet, og den som blir i kjærligheten, blir i Gud og Gud i ham. Må han som begynte den gode gjerning i dere, fullføre den, helt til Jesu Kristi dag. Fred være med dere."
 							}
 						],
-						"selAvsl": 0
+						"selAvsl": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L/ML |{{/r}} Kjære konfirmanter.\nTil den kristne tro er dere døpt. I den kristne tro er dere opplært. Kom nå fram til Herrens alter, så vi kan be for og velsigne hver enkelt av dere i Jesu Kristi navn."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
 					},
 					{
 						"id": "konf21-23",
@@ -4312,6 +4396,10 @@ export const DEAKTIVERTE_MALER = [
 						"introAlts": [
 							{
 								"label": "Innledning",
+								"text": "Noomi dro bort fra stedet hvor hun hadde bodd, og begge svigerdøtrene fulgte henne.\nDe ga seg i vei for å vende tilbake til Juda. Men Noomi sa til sine to svigerdøtre: «Snu og gå tilbake, hver til sin mors hus! Måtte Herren vise godhet mot dere, slik dere har vist godhet mot de døde og mot meg! Måtte Herren gi dere begge trygghet og la dere finne et hjem, hver i sin manns hus!» Så kysset hun dem. Men de brast i gråt og sa til henne: «Nei, vi vil følge deg tilbake til ditt folk.» Men Noomi sa: «Vend tilbake, mine døtre! Hvorfor skulle dere følge med meg? Skulle jeg ennå føde sønner som dere kan få til menn?»\nMen Rut svarte: «Ikke tving meg til å forlate deg og vende tilbake, for:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo.\nDitt folk er mitt folk,\nog din Gud er min Gud.\nDer du dør, vil jeg dø,\nog der vil jeg begraves.\nMåtte Herren la det gå meg ille\nbåde nå og siden\nhvis noe annet enn døden\nskal skille meg fra deg!»\nDa Noomi så at hun sto fast på sitt og ville følge med henne, sa hun ikke mer til henne.\nSå gikk de begge videre til de kom til Betlehem.\nSlik lyder Herrens ord.\nrut 1,7–11.16–19a"
+							},
+							{
+								"label": "Innledning",
 								"text": "{{r}}ML |{{/r}} Det står skrevet i Ruts bok:"
 							}
 						],
@@ -4323,11 +4411,11 @@ export const DEAKTIVERTE_MALER = [
 						],
 						"selIntro": 0,
 						"selAvsl": 0,
-						"text": "Noomi dro bort fra stedet hvor hun hadde bodd, og begge svigerdøtrene fulgte henne.\nDe ga seg i vei for å vende tilbake til Juda. Men Noomi sa til sine to svigerdøtre: «Snu og gå tilbake, hver til sin mors hus! Måtte Herren vise godhet mot dere, slik dere har vist godhet mot de døde og mot meg! Måtte Herren gi dere begge trygghet og la dere finne et hjem, hver i sin manns hus!» Så kysset hun dem. Men de brast i gråt og sa til henne: «Nei, vi vil følge deg tilbake til ditt folk.» Men Noomi sa: «Vend tilbake, mine døtre! Hvorfor skulle dere følge med meg? Skulle jeg ennå føde sønner som dere kan få til menn?»\nMen Rut svarte: «Ikke tving meg til å forlate deg og vende tilbake, for:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo.\nDitt folk er mitt folk,\nog din Gud er min Gud.\nDer du dør, vil jeg dø,\nog der vil jeg begraves.\nMåtte Herren la det gå meg ille\nbåde nå og siden\nhvis noe annet enn døden\nskal skille meg fra deg!»\nDa Noomi så at hun sto fast på sitt og ville følge med henne, sa hun ikke mer til henne.\nSå gikk de begge videre til de kom til Betlehem.\nSlik lyder Herrens ord.\nrut 1,7–11.16–19a",
 						"instr": "Rut 1,7-11.16-19a (eksempel)",
 						"alts": [],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"text": ""
 					},
 					{
 						"id": "l-27",
@@ -4347,6 +4435,10 @@ export const DEAKTIVERTE_MALER = [
 						"introAlts": [
 							{
 								"label": "Innledning",
+								"text": "Kjærligheten utholder alt, tror alt,\nhåper alt, tåler alt.\nKjærligheten tar aldri slutt.\nProfetgavene skal bli borte,\ntungene skal tie\nog kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer,\nskal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn.\nMen da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte,\nda skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut,\nslik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre: tro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\nSlik lyder Herrens ord.\n1 kor 13,7–13"
+							},
+							{
+								"label": "Innledning",
 								"text": "{{r}}ML |{{/r}} Det står skrevet i Paulus’ første brev til korinterne:"
 							}
 						],
@@ -4358,11 +4450,11 @@ export const DEAKTIVERTE_MALER = [
 						],
 						"selIntro": 0,
 						"selAvsl": 0,
-						"text": "Kjærligheten utholder alt, tror alt,\nhåper alt, tåler alt.\nKjærligheten tar aldri slutt.\nProfetgavene skal bli borte,\ntungene skal tie\nog kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis.\nMen når det fullkomne kommer,\nskal det som er stykkevis, ta slutt.\nDa jeg var barn, talte jeg som et barn,\ntenkte jeg som et barn, forsto jeg som et barn.\nMen da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte,\nda skal vi se ansikt til ansikt.\nNå forstår jeg stykkevis,\nda skal jeg erkjenne fullt ut,\nslik Gud kjenner meg fullt ut.\nSå blir de stående, disse tre: tro, håp og kjærlighet.\nMen størst blant dem er kjærligheten.\nSlik lyder Herrens ord.\n1 kor 13,7–13",
 						"instr": "1 Kor 13,7-13 (eksempel)",
 						"alts": [],
 						"optional": true,
-						"selAlt": 0
+						"selAlt": 0,
+						"text": ""
 					},
 					{
 						"id": "l-29",
@@ -4381,6 +4473,10 @@ export const DEAKTIVERTE_MALER = [
 						"introAlts": [
 							{
 								"label": "Innledning",
+								"text": "Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet! Hvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud: Dere skal elske hverandre som jeg har elsket dere.\nSlik lyder det hellige evangelium.\njoh 15,9–12"
+							},
+							{
+								"label": "Innledning",
 								"text": "{{r}}ML |{{/r}} Det står skrevet i evangeliet etter Johannes:"
 							}
 						],
@@ -4392,11 +4488,11 @@ export const DEAKTIVERTE_MALER = [
 						],
 						"selIntro": 0,
 						"selAvsl": 0,
-						"text": "Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet! Hvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud: Dere skal elske hverandre som jeg har elsket dere.\nSlik lyder det hellige evangelium.\njoh 15,9–12",
 						"instr": "Joh 15,9-12 (eksempel)",
 						"alts": [],
 						"optional": false,
-						"selAlt": 0
+						"selAlt": 0,
+						"text": ""
 					},
 					{
 						"id": "l-31",
