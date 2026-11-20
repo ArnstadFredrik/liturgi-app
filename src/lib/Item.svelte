@@ -290,7 +290,21 @@
 			'sep',
 			{ label: 'Slett leddet', action: del, danger: true }
 		].sort((a, b) => {
-			// grupper (adskilt av 'sep') sorteres alfabetisk internt; sep beholder plass
+			// FUNKSJONELL REKKEFØLGE (ikke alfabetisk): vim/lagring → flytting →
+			// nytt/hent → innledning/avslutning/type → visning → ta med/eksport →
+			// Slett alltid i bunnen.
+			const vekt = (x) => {
+				if (x === 'sep') return -1;
+				const l = x.label ?? '';
+				if (/^Skru (på|av) vim/.test(l) || /^Lagre/.test(l)) return 0;
+				if (/^Flytt/.test(l)) return 1;
+				if (/^(Legg til del|Nytt hovedavsnitt|Hent (innhold|ledd)|Innledning$|Avslutning$|Skift type)/.test(l)) return 2;
+				if (/^Vis /.test(l)) return 3;
+				if (/^(Fjern fra gudstjenesten|Ta med i gudstjenesten|Eksport)/.test(l)) return 4;
+				return 5; // Slett leddet (+ fremtidige fare-handlinger) — alltid sist
+			};
+			const va = vekt(a), vb = vekt(b);
+			if (va !== vb) return va - vb;
 			if (a === 'sep' || b === 'sep') return 0;
 			return (a.label ?? '').localeCompare(b.label ?? '', 'nb');
 		}).reduce((acc, x) => {
