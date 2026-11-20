@@ -3349,7 +3349,7 @@ export const BUILTIN_TEMPLATES = [
 		"builtinKey": "konfirmasjon-2021",
 		"kind": "template",
 		"name": "Konfirmasjonstidens gudstjenester (bokmål, 2021)",
-		"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudtjeneste.",
+		"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudstjeneste.",
 		"sections": [
 			{
 				"title": "Innledning",

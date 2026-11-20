@@ -9,8 +9,8 @@
 
 	/** Søk + type-filter + sortering etter type så navn (samme som malmodulen). */
 	let q = $state('');
-	let typeFilter = $state('alle'); // alle | gudtjeneste | vigsel | gravferd
-	const typeRekkefolge = { gudtjeneste: 0, vigsel: 1, gravferd: 2 };
+	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
+	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
 	const visMal = $derived(
 		BUILTIN_TEMPLATES
 			.filter((bt) => (!q || bt.name.toLowerCase().includes(q.toLowerCase())) && (typeFilter === 'alle' || malType(bt) === typeFilter))
@@ -63,7 +63,7 @@
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i originalmaler …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudtjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>
