@@ -253,7 +253,6 @@
 		e.preventDefault();
 		const o = app.current;
 		openContextMenu(e.clientX, e.clientY, [
-			{ label: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', action: () => veksleVim() },
 			// lager-handlinger for maler (dokumentnivå):
 			//  • brukermal → Lagre  • originalmal → Lagre som kopi  • dev-original → Lagre til prosjektet
 			...(erMal && o?.__devMal ? [
@@ -289,30 +288,7 @@
 			{ label: 'Eksportér aktiv profil', action: () => { app.visning = 'eksport'; window.__eksportKunAktiv = true; } },
 			'sep',
 			{ label: 'Slett leddet', action: del, danger: true }
-		].sort((a, b) => {
-			// FUNKSJONELL REKKEFØLGE (ikke alfabetisk): vim/lagring → flytting →
-			// nytt/hent → innledning/avslutning/type → visning → ta med/eksport →
-			// Slett alltid i bunnen.
-			const vekt = (x) => {
-				if (x === 'sep') return -1;
-				const l = x.label ?? '';
-				if (/^Skru (på|av) vim/.test(l) || /^Lagre/.test(l)) return 0;
-				if (/^Flytt/.test(l)) return 1;
-				if (/^(Legg til del|Nytt hovedavsnitt|Hent (innhold|ledd)|Innledning$|Avslutning$|Skift type)/.test(l)) return 2;
-				if (/^Vis /.test(l)) return 3;
-				if (/^(Fjern fra gudstjenesten|Ta med i gudstjenesten|Eksport)/.test(l)) return 4;
-				return 5; // Slett leddet (+ fremtidige fare-handlinger) — alltid sist
-			};
-			const va = vekt(a), vb = vekt(b);
-			if (va !== vb) return va - vb;
-			if (a === 'sep' || b === 'sep') return 0;
-			return (a.label ?? '').localeCompare(b.label ?? '', 'nb');
-		}).reduce((acc, x) => {
-			// rens dobbelte seps etter sortering
-			if (x === 'sep' && acc[acc.length - 1] === 'sep') return acc;
-			acc.push(x);
-			return acc;
-		}, []));
+		]);
 	}
 
 	/** Hent fra hovedgudstjenesten (sqlite-biblioteket).
