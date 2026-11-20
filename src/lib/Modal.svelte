@@ -25,7 +25,7 @@
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
-		return t.liturgiType ?? (/vigsel/i.test(t.name || '') ? 'vigsel' : /gravferd/i.test(t.name || '') ? 'gravferd' : 'gudtjeneste');
+		return t.liturgiType ?? (/vigsel/i.test(t.name || '') ? 'vigsel' : /gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
 	}
 	/** Kan malen brukes direkte til å opprette gudstjenester? (malen kan selv
 	 *  bestemme: «Dåp i hovedgudstjenesten» er bare en del av gudstjenesten.)
@@ -35,8 +35,9 @@
 	}
 
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
-	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudtjeneste)
+	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudstjeneste)
 	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)));
+	console.log('[modal-mount] maler=' + app.templates.length + ' nyType=' + nyType + ' filtrert=' + malerForType.length + ' typer=' + app.templates.map((t) => malType(t)).join(','));
 
 	// sørg for at valgt mal passer typen når type byttes. NB: malerForType kan være
 	// stale i denne effekten (oppdateres av en annen $effect) — filtrer direkte på
@@ -334,7 +335,7 @@
 			// fyll tekstene i bakgrunnen så planleggingen kan begynne med én gang.
 			// (kirkeaar-metadatene — navn/farge/tekstrekke/referanser — er synkrone fra
 			// church-year-pakken; bare selve bibeltekstene er eksterne.)
-			if (nyType === 'gudtjeneste' && kirkeaar && teksterStatus === 'laster') {
+			if (nyType === 'gudstjeneste' && kirkeaar && teksterStatus === 'laster') {
 				// tekster kan komme i ettertid: lag dem i cachen og fyll gudstjenesten når de er der
 				const k = kirkeaar;
 				hentTekster(k.day).then((t) => {
@@ -689,7 +690,7 @@
 					{#if !filtrerteDager.length}<p class="m-kirkeaar muted">Ingen treff.</p>{/if}
 				</div>
 			{:else if m.type === 'velgTekster'}
-				<p class="m-hint">Velg 2–4 tekster. Bare merkede tekster følger med gudtjenesten. Bokstavene stemmer med lista brudeparet har fått.</p>
+				<p class="m-hint">Velg 2–4 tekster. Bare merkede tekster følger med gudstjenesten. Bokstavene stemmer med lista brudeparet har fått.</p>
 				<div class="m-bokstav-rad">
 					<input class="m-bokstav-inn" placeholder="Bokstaver, f.eks. B, E, H" bind:value={bokstavInput}
 						onkeydown={(e) => { if (e.key === 'Enter') { settBokstaver(); e.preventDefault(); } }} />
