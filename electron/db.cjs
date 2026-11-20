@@ -163,7 +163,8 @@ function bibSearch(q, limit = 500) {
 			tekst: r.tekst,
 			tags: r.tags
 		}));
-	const alle = [...egne, ...rows];
+	// tomme ledd (f.eks. salme-plassholdere uten tekst) er meningsløse i søket
+	const alle = [...egne, ...rows].filter((r) => (r.tekst ?? '').trim());
 	const words = (q ?? '').toLowerCase().split(/[\s,]+/).filter((w) => w.length >= 2);
 	const score = (r) => {
 		const hay = (r.ledd + ' ' + r.seksjon + ' ' + (r.tags ?? '')).toLowerCase();
