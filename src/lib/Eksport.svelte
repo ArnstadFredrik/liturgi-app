@@ -1080,6 +1080,16 @@
 			eksporterer = false;
 		}
 	}
+
+	$effect(() => {
+		// Eksportmodulen skal alltid starte med toppen i viewet: #main beholder
+		// scrollTop fra redigeringsvisningen (overflow:hidden klemmer den til
+		// marg-overflowen på 84 px) og toppen forsvinner ut av vinduet.
+		const main = document.querySelector('main');
+		if (main) main.scrollTop = 0;
+		document.documentElement.scrollTop = 0;
+		window.scrollTo(0, 0);
+	});
 </script>
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
