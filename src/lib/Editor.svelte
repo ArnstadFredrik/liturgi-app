@@ -1,6 +1,5 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
-	import Modulfaner from './Modulfaner.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, delGruppeModal } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
@@ -131,15 +130,7 @@
 	}}
 />
 
-<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)} class:skjul-salmeinfo={!(app.current?.visSalmeinfo ?? true)}>
-	{#if app.kind === 'service'}
-		<Modulfaner aktiv="redigering" faner={[
-			{ id: 'redigering', navn: 'Redigering' },
-			{ id: 'salmer', navn: 'Salmer', velg: () => { app.visning = 'salmer'; } },
-			{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
-		]} />
-	{/if}
-	<header id="ed-head">
+<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)} class:skjul-salmeinfo={!(app.current?.visSalmeinfo ?? true)}>	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
 	</header>
 	<div id="ed-date-line">{nlDate(o.date)}{#if o.kirkeaar}&nbsp;– {o.kirkeaar.name}{/if}</div>

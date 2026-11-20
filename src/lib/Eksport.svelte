@@ -1,6 +1,5 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
-	import Modulfaner from './Modulfaner.svelte';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
@@ -1094,15 +1093,10 @@
 </script>
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
-	<Modulfaner aktiv="eksport" faner={[
-		{ id: 'redigering', navn: 'Redigering', velg: () => { app.visning = 'editor'; } },
-		{ id: 'salmer', navn: 'Salmer', velg: () => { app.visning = 'salmer'; } },
-		{ id: 'eksport', navn: 'Eksport' }
-	]} />
-	<h2>
-		Eksport
+	<header class="eks-overhode">
+		<span class="sal-under">{o?.name ?? ''}{o?.date ? ' · ' + nlDate(o.date) : ''}</span>
 		<button class="eks-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
-	</h2>
+	</header>
 	{#if !o || app.kind !== 'service'}
 		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
 	{:else}
