@@ -432,7 +432,10 @@
 
 	function applyVelgTekster() {
 		if (!m || m.type !== 'velgTekster') return;
-		(m.seksjon.items ?? []).forEach((it, idx) => { it.enabled = m.valgte.has(idx); });
+		(m.seksjon.items ?? []).forEach((it, idx) => {
+			if (!skriftBokstav(it, idx)) { it.enabled = true; return; } // tittel/innledning alltid med
+			it.enabled = m.valgte.has(idx);
+		});
 	}
 
 	function markDirtyIModal() {
@@ -455,7 +458,7 @@
 
 {#if m}
 	<div id="modal-back">
-		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' ? 'bred' : ''} role="dialog">
+		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' ? 'bred' : ''} role="dialog">
 			<h3>{m.title}</h3>
 			{#if m.type === 'confirm'}
 				<p>{m.message}</p>
@@ -512,7 +515,7 @@
 							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 						</button>
 					</div>
-					{:else}
+					{:else if nyType === 'gravferd'}
 						<!-- Jordpåkastelse: av/på-knapper — logikken er fortsatt radioknapper
 						     (bind:group, kun én av to kan være på) -->
 						<div class="m-chk m-chk-jord">
@@ -685,13 +688,43 @@
 					{/each}
 					{#if !filtrerteDager.length}<p class="m-kirkeaar muted">Ingen treff.</p>{/if}
 				</div>
+			{:else if m.type === 'velgTekster'}
+				<p class="m-hint">Velg 2–4 tekster. Bare merkede tekster følger med gudtjenesten. Bokstavene stemmer med lista brudeparet har fått.</p>
+				<div class="m-bokstav-rad">
+					<input class="m-bokstav-inn" placeholder="Bokstaver, f.eks. B, E, H" bind:value={bokstavInput}
+						onkeydown={(e) => { if (e.key === 'Enter') { settBokstaver(); e.preventDefault(); } }} />
+					<button onclick={() => settBokstaver()}>Velg bokstaver</button>
+					<span class="m-bokstav-telling" class:m-treng-merk={m.valgte.size < 2 || m.valgte.size > 4}>{m.valgte.size} valgt</span>
+				</div>
+				<div class="m-tekst-liste">
+					{#each m.seksjon.items as it, idx (it.id)}
+						{#if skriftBokstav(it, idx)}
+							<label class="m-tekst-rad">
+								<input type="checkbox" checked={m.valgte.has(idx)}
+									onchange={(e) => {
+										const n = new Set(m.valgte);
+										if (e.target.checked) n.add(idx); else n.delete(idx);
+										m.valgte = n;
+									}} />
+								<span class="m-tekst-bokstav">{skriftBokstav(it, idx)}</span>
+								<span class="m-tekst-navn">{it.heading}</span>
+							</label>
+						{:else}
+							<div class="m-tekst-tittel">{it.heading}</div>
+						{/if}
+					{/each}
+				</div>
 			{/if}
 			<div id="modal-actions">
 				<button onclick={() => { const f = m.onAvbryt; closeModal(); f?.(); }}>{m.cancelLabel ?? 'Avbryt'}</button>
 				{#if m.type === 'lukk'}
 					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
 				{/if}
-				{#if m.type === 'adminAlts'}
+				{#if m.type === 'velgTekster'}
+					<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>
+					<button onclick={() => { m.valgte = new Set(); }}>Nullstill</button>
+					<button class="primary" onclick={() => { applyVelgTekster(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'adminAlts'}
 					<button onclick={() => nyttTomt()}>Nytt tomt alternativ</button>
 					<button onclick={() => hentFraBib('innhold')}>Hent innhold fra biblioteket …</button>
 					<button onclick={() => hentFraBib('ledd')}>Hent hele leddet fra biblioteket …</button>
@@ -712,33 +745,6 @@
 							app.current && markDirtyIModal();
 						}}>Slett {fjernMerkede.size} alternativ{fjernMerkede.size === 1 ? '' : 'er'}</button>
 					<button class="primary" onclick={() => { markDirtyIModal(); closeModal(); }}>Ferdig</button>
-				{:else if m.type === 'velgTekster'}
-					<p class="m-hint">Velg 2–4 tekster. Bare merkede tekster følger med gudtjenesten. Bokstavene stemmer med lista brudeparet har fått.</p>
-					<div class="m-bokstav-rad">
-						<input class="m-bokstav-inn" placeholder="Bokstaver, f.eks. B, E, H" bind:value={bokstavInput}
-							onkeydown={(e) => { if (e.key === 'Enter') { settBokstaver(); e.preventDefault(); } }} />
-						<button onclick={() => settBokstaver()}>Velg bokstaver</button>
-						<span class="m-bokstav-telling" class:m-treng-merk={m.valgte.size < 2 || m.valgte.size > 4}>{m.valgte.size} valgt</span>
-					</div>
-					<div class="m-tekst-liste">
-						{#each m.seksjon.items as it, idx (it.id)}
-							<label class="m-tekst-rad">
-								<input type="checkbox" checked={m.valgte.has(idx)}
-									onchange={(e) => {
-										const n = new Set(m.valgte);
-										if (e.target.checked) n.add(idx); else n.delete(idx);
-										m.valgte = n;
-									}} />
-								<span class="m-tekst-bokstav">{skriftBokstav(it, idx)}</span>
-								<span class="m-tekst-navn">{it.heading}</span>
-							</label>
-						{/each}
-					</div>
-					<div class="m-bun">
-						<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>
-						<button onclick={() => { m.valgte = new Set(); }}>Nullstill</button>
-						<button class="primary" onclick={() => { applyVelgTekster(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
-					</div>
 				{:else if m.type === 'fjernFlere'}
 					<button class="m-fare" onclick={ok} disabled={valgteFjern.length === 0}>
 						Slett {valgteFjern.length} alternativ{valgteFjern.length === 1 ? '' : 'er'}
