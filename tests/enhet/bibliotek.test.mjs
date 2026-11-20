@@ -46,6 +46,17 @@ test('bibSearch: «salme» treffer ledd-navn, tomme tekster filtreres bort', asy
 	assert.ok(!treff.some((r) => r.kilde === 'Tomradekilde'), 'tomme Dåpssalme-rader kommer med');
 });
 
+test('bibSync: intro_tekst/avsl_tekst lagres og returneres (struktur ved hent ledd)', async () => {
+	await bibSync('Strukturkilde', [
+		{ seksjon: 'S', ledd: 'Bønn ved døpefonten', ledd_id: 'x1', alt_label: 'A', tekst: 'Hovedtekst', intro_tekst: 'Innledningstekst', avsl_tekst: 'Avslutningstekst' }
+	]);
+	const treff = await bibSearch('døpefonten');
+	assert.equal(treff.length, 1);
+	assert.equal(treff[0].intro_tekst, 'Innledningstekst');
+	assert.equal(treff[0].avsl_tekst, 'Avslutningstekst');
+	assert.equal(treff[0].tekst, 'Hovedtekst');
+});
+
 test('bibSearch: ord i hvilken som helst rekkefølge + prefiks', async () => {
 	const a = await bibSearch('prefasjon kirkeår');
 	assert.ok(a.some((r) => r.ledd === 'Kirkeårsprefasjoner'));
