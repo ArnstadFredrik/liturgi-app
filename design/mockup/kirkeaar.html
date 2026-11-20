@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8" /><title>Liturgi — kirkeåret</title>
+<link rel="stylesheet" href="stil.css" />
+<style>
+.kg { grid-template-columns: 1fr 300px; }
+.navlenker { display: flex; gap: 12px; padding: 0 12px; align-items: center; height: 100%; font-size: 12.5px; color: var(--muted); }
+.navlenker a { text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+.navlenker a.sel { background: var(--accent-soft); color: var(--foreground); font-weight: 600; }
+/* månedsstrimmel */
+.mnd { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; }
+.mnddag { min-width: 52px; text-align: center; padding: 8px 4px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); cursor: pointer; }
+.mnddag:hover { border-color: var(--ring); }
+.mnddag.sel { border-color: var(--primary); background: var(--accent-soft); }
+.mnddag .u { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+.mnddag .d { font-weight: 700; font-size: 15px; }
+.mnddag .dot { margin-top: 3px; }
+.mnddag.hellig { border-left: 3px solid var(--primary); }
+/* dagskort */
+.dag-hode { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.dag-hode .navn { font-family: Georgia, serif; font-size: 22px; font-weight: 700; }
+.dag-hode .farge { font-size: 11px; color: var(--muted); }
+.tekst-blokk { margin-bottom: 12px; }
+.tekst-blokk .ref { font-weight: 700; font-family: Georgia, serif; font-size: 14px; cursor: pointer; }
+.tekst-blokk .ref::after { content: ' ▾'; color: var(--muted); font-weight: 400; font-size: 11px; }
+.tekst-blokk .innhold { font-family: Georgia, serif; font-size: 14.5px; line-height: 1.6; margin-top: 6px; padding: 10px 12px; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+.bonn { font-family: Georgia, serif; font-style: italic; color: var(--muted); }
+/* høyre: hele året */
+.aar-rad { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.aar-rad:hover { background: var(--accent-soft); }
+.aar-rad .dato { color: var(--muted); min-width: 66px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toolbar">
+    <span class="tittel">Liturgi</span>
+    <div class="navlenker">
+      <a href="hjem.html">Hjem</a>
+      <a href="index.html">Redigering</a>
+      <a href="eksport.html">Eksport</a>
+      <a class="sel" href="kirkeaar.html">Kirkeåret</a>
+    </div>
+    <div class="sok-hoyre">
+      <div class="sok-boks"><input placeholder="Søk: navn eller dato (24.12) …" /></div>
+      <button class="btn btn-secondary" onclick="document.documentElement.classList.toggle('dark')">◐ Tema</button>
+    </div>
+  </div>
+  <div class="grid kg">
+    <div class="main">
+      <!-- månedsstrimmel -->
+      <div class="mnd">
+        <div class="mnddag hellig"><div class="u">søn</div><div class="d">22</div><div class="dot"><span class="season-dot season-pasjon"></span></div></div>
+        <div class="mnddag"><div class="u">man</div><div class="d">23</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag"><div class="u">tir</div><div class="d">24</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag"><div class="u">ons</div><div class="d">25</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag"><div class="u">tor</div><div class="d">26</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag"><div class="u">fre</div><div class="d">27</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag"><div class="u">lør</div><div class="d">28</div><div class="dot"><span class="season-dot season-ar"></span></div></div>
+        <div class="mnddag hellig sel"><div class="u">søn</div><div class="d">29</div><div class="dot"><span class="season-dot season-advent"></span></div></div>
+        <div class="mnddag"><div class="u">man</div><div class="d">30</div><div class="dot"><span class="season-dot season-advent"></span></div></div>
+        <div class="mnddag"><div class="u">tir</div><div class="d">1</div><div class="dot"><span class="season-dot season-advent"></span></div></div>
+        <div class="mnddag"><div class="u">ons</div><div class="d">2</div><div class="dot"><span class="season-dot season-advent"></span></div></div>
+      </div>
+
+      <!-- valgt dag -->
+      <div class="dag-hode">
+        <span class="navn">1. søndag i advent</span>
+        <span class="farge"><span class="season-dot season-advent"></span> Lilla · søndag 29. november 2026</span>
+      </div>
+
+      <div class="tekst-blokk">
+        <div class="ref">Inngangsvers</div>
+        <div class="innhold">Til deg løfter jeg min sjål, min Gud. På deg venter jeg hele dagen, for du er god og tilgivende. Salig er det folk som vet å prise deg, Herre.</div>
+      </div>
+      <div class="tekst-blokk">
+        <div class="ref">Dagens tekst · Jeremia 33, 14–16</div>
+        <div class="innhold">Se, dagene kommer, sier Herren, da jeg oppfyller det gode ord jeg har talt om Israels hus og Judas hus. På de dager og i den tid skal jeg la en rett avkom springe opp av Davids ætt …</div>
+      </div>
+      <div class="tekst-blokk">
+        <div class="ref">Evangelietekst · Lukas 21, 25–33</div>
+        <div class="innhold">Det skal tegn vises på solen og månen og stjernene, og på jorden skal det ligge uro blant folkene i villrede over havets og bølgens brusen …</div>
+      </div>
+      <div class="tekst-blokk">
+        <div class="ref">Bønn for dagen</div>
+        <div class="innhold bonn">Herre, vår Gud, vekk i oss lengselen etter din frelse, og hold oss våkne, når din Sønn kommer. Bevare oss til den dagen han åpenbarer seg i herlighet …</div>
+      </div>
+      <div class="tekst-blokk">
+        <div class="ref">KirkeårsPrefasjon</div>
+        <div class="innhold bonn">Han levde på jorden blant oss, og på korset åpenbarte han din kjærlighet …</div>
+      </div>
+    </div>
+
+    <!-- HØYRE: hele året -->
+    <div class="panel hoyre" style="border-right:none; border-left:1px solid var(--border)">
+      <div class="sidehead">Kirkeåret 2026 – 2027</div>
+      <div class="aar-rad"><span class="season-dot season-advent"></span><span class="dato">29. nov</span>1. søndag i advent</div>
+      <div class="aar-rad"><span class="season-dot season-advent"></span><span class="dato">6. des</span>2. søndag i advent</div>
+      <div class="aar-rad"><span class="season-dot season-advent"></span><span class="dato">13. des</span>3. søndag i advent</div>
+      <div class="aar-rad"><span class="season-dot season-advent"></span><span class="dato">20. des</span>4. søndag i advent</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">24. des</span>Julaften</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">25. des</span>1. juledag</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">26. des</span>2. juledag · Stefanus</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">27. des</span>Søndag etter jul</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">1. jan</span>Nyttårsdag</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">6. jan</span>Hellige tre kongers dag</div>
+      <div class="aar-rad"><span class="season-dot season-ar"></span><span class="dato">10. jan</span>Dåpen av Jesus · Faste/Åpenbaring</div>
+      <div class="aar-rad"><span class="season-dot season-faste"></span><span class="dato">17. feb</span>Askeonsdag begynner fasten</div>
+      <div class="aar-rad"><span class="season-dot season-pasjon"></span><span class="dato">28. mar</span>Palmesøndag</div>
+      <div class="aar-rad"><span class="season-dot season-pasjon"></span><span class="dato">2. apr</span>Skjærtorsdag</div>
+      <div class="aar-rad"><span class="season-dot season-pasjon"></span><span class="dato">3. apr</span>Langfredag</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">5. apr</span>Påskeaften · Oppstandelsen</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">6. apr</span>1. påskedag</div>
+      <div class="aar-rad"><span class="season-dot season-jul"></span><span class="dato">14. mai</span>Kristi himmelfartsdag</div>
+      <div class="aar-rad"><span class="season-dot season-pinse"></span><span class="dato">24. mai</span>1. pinsedag</div>
+      <div class="aar-rad"><span class="season-dot season-ar"></span><span class="dato">22. nov</span>Kristi kongedag · Domssøndag</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
