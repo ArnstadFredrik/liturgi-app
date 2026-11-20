@@ -15,7 +15,7 @@ function safeNavn(n) {
 const HELPER_FELTER = ['__devMal', '__devId', '__devKey', '__dirty', '__åpenMalId', 'filePath', 'kind'];
 
 /** Åpne en arbeidskopi av en originalmal (BUILTIN) i editoren. */
-export function åpneOriginal(bt) {
+export async function åpneOriginal(bt) {
 	const data = JSON.parse(JSON.stringify(bt));
 	// Svelte 5 kaster props_invalid_value når EditableText får bind:value=undefined
 	// (value = $bindable('')) — disk-seedene har «text: ""» på alle ledd; data.js har
@@ -33,6 +33,27 @@ export function åpneOriginal(bt) {
 	data.__devId = bt.id;          // hvilken data.js-entry denne kopien redigerer
 	data.__devKey = bt.builtinKey ?? null; // originalens builtinKey (til seed-fil)
 	data.kind = 'template';
+	// Dåpsdelen i HG-ordningen er LINKET til «Dåp i hovedgudstjenesten»-malen
+	// (samme ledd-id-er h-l-dap*) — innholdet kan ikke redigeres her. Kollapse
+	// seksjonen til ett markeringsledd; lenke-synken bygger innholdet ved lagring.
+	if (bt.id === 'hovedgudstjeneste2020') {
+		const dopMal = BUILTIN_TEMPLATES.find((t) => t.id === 'dop-i-hovedgudstjenesten-2017');
+		if (dopMal) {
+			const dapSec = data.sections.find((s) => s.__lenket);
+			if (dapSec) {
+				// frøet har tom __lenket-seksjon (punkt 3): full struktur kommer fra dåp-malen
+				const full = JSON.parse(JSON.stringify(dapSec));
+				full.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));
+				data.__dapSeksjon = full;
+				dapSec.items = [{
+					id: 'h-l-dap-lenke', type: 'tekst',
+					heading: 'Dåp (lenket til «Dåp i hovedgudstjenesten» — kan ikke redigeres her)',
+					text: '', alts: [], selAlt: 0, enabled: true, optional: false,
+					__lenket: true
+				}];
+			}
+		}
+	}
 	delete data.builtinKey; // unngå kollisjon med disk-malen i store-oppdateringer
 	registrerÅpenMal(data, true);
 	app.visning = 'hjem';
@@ -106,6 +127,14 @@ export async function lagreTilProsjekt() {
 	if (!o?.__devMal) { toast.error('Ingen dev-mal er åpen'); return false; }
 	const orig = BUILTIN_TEMPLATES.find((bt) => bt.id === o.__devId || bt.id === o.id || bt.name === o.name);
 	if (!orig) { toast.error('Fant ikke originalmalen i data.js'); return false; }
+	// Dåp-seksjonen (lenket) settes tilbake før sammenligningen/skrivingen
+	if (o.__dapSeksjon) {
+		const dapSec = o.sections.find((s) => s.items.some((i) => i.id === 'h-l-dap-lenke'));
+		if (dapSec) {
+			dapSec.items = JSON.parse(JSON.stringify(o.__dapSeksjon.items));
+			delete o.__dapSeksjon;
+		}
+	}
 	const mal = malForDataJs(orig, o);
 	// seed-filen skrives fra den redigerte kopien (beholder normaliserte
 	// tomme felter, slik som dagens seed-format: text/instr som «""»)

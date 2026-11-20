@@ -58,7 +58,9 @@ test('hver enkelt mal: seksjoner, ledd, headings og type finnes', () => {
 		assert.ok(Array.isArray(t.sections) && t.sections.length > 0, `${t.name}: ingen seksjoner`);
 		let ledd = 0;
 		for (const sec of t.sections) {
-			assert.ok(Array.isArray(sec.items) && sec.items.length > 0, `${t.name} / ${sec.title}: tom seksjon`);
+			assert.ok(Array.isArray(sec.items), `${t.name} / ${sec.title}: items mangler`);
+			// tom seksjon er bare OK hvis den er lenket (dåpen i HG — bygges fra dåp-malen)
+			if (!sec.__lenket) assert.ok(sec.items.length > 0, `${t.name} / ${sec.title}: tom seksjon`);
 			for (const it of sec.items) {
 				ledd++;
 				assert.ok(it.heading, `${t.name} / ${sec.title}: ledd uten heading`);
@@ -68,6 +70,19 @@ test('hver enkelt mal: seksjoner, ledd, headings og type finnes', () => {
 		}
 		assert.ok(ledd > 0, `${t.name}: null ledd`);
 	}
+});
+
+test('HG-ordningen: dåpsdelen er lenket til «Dåp i hovedgudstjenesten»', () => {
+	const hg = BUILTIN_TEMPLATES.find((t) => t.id === 'hovedgudstjeneste2020');
+	const dop = BUILTIN_TEMPLATES.find((t) => t.id === 'dop-i-hovedgudstjenesten-2017');
+	assert.ok(hg && dop, 'begge malene finnes');
+	assert.equal(dop.kanGudstjeneste, false, 'dåp-malen kan ikke brukes som gudstjenestemal');
+	const dapSec = hg.sections.find((s) => s.__lenket);
+	assert.ok(dapSec, 'HG har en __lenket seksjon (Dåp)');
+	assert.equal(dapSec.items.length, 0, 'lenket seksjon er tom i frøet (innholdet bygges fra dåp-malen)');
+	const dopLedd = dop.sections.flatMap((s) => s.items);
+	assert.equal(dopLedd.length, 15, 'dåp-malen har 15 ledd');
+	for (const it of dopLedd) assert.ok(it.id.startsWith('h-l-dap'), 'dåp-malens ledd-id-er: ' + it.id);
 });
 
 test('unike mal-id-er og unike ledd-id-er (duplikat = keyed each-krasj)', () => {

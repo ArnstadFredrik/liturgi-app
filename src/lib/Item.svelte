@@ -332,9 +332,12 @@
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
 		</span>
-		<span class="item-title" contenteditable="plaintext-only" spellcheck="false"
+		<span class="item-title" contenteditable={!it.__lenket} spellcheck="false"
 			onblur={(e) => { if (e.target.textContent !== it.heading) { it.heading = e.target.textContent; markDirty(); } }}
 		>{it.heading}</span>
+		{#if it.__lenket}
+			<span class="lenket-info" title="Dette leddet hentes automatisk fra malen «Dåp i hovedgudstjenesten» — innholdet redigeres i den malen, ikke her. Åpne «Dåp i hovedgudstjenesten» i Maler-listen for å redigere dåpsdelen.">{@html mdi('information-outline', 14)}</span>
+		{/if}
 		{#if app.kind === 'template'}
 			<label class="ta-med" title="Skal leddet være med når en gudstjeneste opprettes fra malen?">
 				<input type="checkbox" checked={it.enabled !== false} onchange={(e) => { it.enabled = e.currentTarget.checked; markDirty(); }} />

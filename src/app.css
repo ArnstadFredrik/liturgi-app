@@ -534,6 +534,10 @@ textarea {
 .dnd-wrap.drag-target .item { margin-top: 0; }
 .dnd-wrap.drag-target-etter .item { margin-bottom: 0; }
 .sec-flytt { padding: 2px 6px; }
+/* lenket ledd (dåpen i HG-ordningen): ikke-redigerbar, med (i)-info */
+.lenket-info { color: var(--muted); cursor: help; display: inline-flex; align-items: center; }
+.item:has(.lenket-info) .item-title { color: var(--muted); font-style: italic; }
+.item:has(.lenket-info) { opacity: 0.75; }
 
 /* ---------- Kontekstmeny ---------- */
 .ctx-overlay { position: fixed; inset: 0; z-index: 200; }
