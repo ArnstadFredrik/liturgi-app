@@ -10,7 +10,7 @@ import { litHtml, litEditHtml, litLinjeHtml } from '../../src/lib/lit.js';
  *  2. ledd MED alts binder it.alts[selAlt] → selAlt MÅ være gyldig indeks.
  *  3. introAlts/avslutningAlts binder [selIntro]/[selAvsl] → gyldige indekser.
  *  4. instr bindes bare når it.instr er satt — tomt/undefined er ok. */
-test('ledd-strukturen: ingen ubetinget binding får undefined', () => {
+test('alle malene (8 + deaktiverte): ledd-strukturen uten undefined-bindinger', () => {
 	const alle = [...BUILTIN_TEMPLATES, ...(DEAKTIVERTE_MALER ?? [])];
 	const brudd = [];
 	for (const t of alle) {
@@ -48,6 +48,26 @@ test('ledd-strukturen: ingen ubetinget binding får undefined', () => {
 		}
 	}
 	assert.deepEqual(brudd, [], brudd.slice(0, 8).join('; '));
+});
+
+test('hver enkelt mal: seksjoner, ledd, headings og type finnes', () => {
+	const alle = [...BUILTIN_TEMPLATES, ...(DEAKTIVERTE_MALER ?? [])];
+	assert.ok(alle.length >= 8, 'forventet ≥8 maler, fant ' + alle.length);
+	for (const t of alle) {
+		assert.ok(t.name, `${t.id}: mangler name`);
+		assert.ok(Array.isArray(t.sections) && t.sections.length > 0, `${t.name}: ingen seksjoner`);
+		let ledd = 0;
+		for (const sec of t.sections) {
+			assert.ok(Array.isArray(sec.items) && sec.items.length > 0, `${t.name} / ${sec.title}: tom seksjon`);
+			for (const it of sec.items) {
+				ledd++;
+				assert.ok(it.heading, `${t.name} / ${sec.title}: ledd uten heading`);
+				assert.ok(['tekst', 'instruks', 'salme', 'lesning', 'bønn', 'preken', 'kunngjoring'].includes(it.type),
+					`${t.name} / ${it.heading}: ukjent type ${it.type}`);
+			}
+		}
+		assert.ok(ledd > 0, `${t.name}: null ledd`);
+	}
 });
 
 test('unike mal-id-er og unike ledd-id-er (duplikat = keyed each-krasj)', () => {
