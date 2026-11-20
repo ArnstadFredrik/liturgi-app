@@ -49,6 +49,8 @@
 		dragOver = null;
 	}
 
+	const harDelGrupper = $derived(!!(app.current?.sections ?? []).some((s) => s.delGruppe));
+
 	function velgDelGruppe(sec) {
 		// del-gruppe: markerer seksjonen slik at «Ny gravferd» vet hvilken
 		// variant den er — uavhengig av tittelen. Gruppelista lagres på malen
@@ -142,6 +144,8 @@
 				>{sec.title}</span>
 				{#if app.kind === 'template'}
 					<button class="sec-delgruppe" title="Del-gruppe: bruker «Ny gravferd» til å velge denne delen (uavhengig av tittelen)" onclick={() => velgDelGruppe(sec)}>{@html mdi("tag-outline", 13)} {sec.delGruppe ?? 'Del-gruppe'}</button>
+				{:else if harDelGrupper}
+					<span class="sec-delgruppe sec-delgruppe-stat" title="Del-gruppe">{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}
