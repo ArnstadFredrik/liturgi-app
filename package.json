@@ -15,7 +15,9 @@
     "electron:dev": "npm run build:dev && electron .",
     "preview": "vite preview",
     "electron": "electron .",
-    "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac"
+    "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac",
+    "test": "node --test tests/enhet/",
+    "test:royk": "npm run build && node tests/royktest.mjs"
   },
   "build": {
     "appId": "no.arnstad.liturgi",

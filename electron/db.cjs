@@ -122,9 +122,22 @@ function bibSync(source, entries) {
 	const ins = db.prepare(
 		'INSERT INTO bibliotek (kilde, seksjon, ledd, ledd_id, alt_label, tekst) VALUES (?, ?, ?, ?, ?, ?)'
 	);
-	db.transaction(() => {
-		for (const e of entries) ins.run(source, e.seksjon, e.ledd, e.ledd_id ?? '', e.alt_label ?? '', e.tekst ?? '');
-	})();
+	// sikre unike (ledd, alt_label) — tabellens primærnøkkel. Hjemme her (i stedet
+	// for hos hver kaller) slik at alle synkveier er trygge.
+	const sett = new Set();
+	try {
+		db.transaction(() => {
+			for (const e of entries) {
+				let l = e.alt_label ?? '', n = sett.has(e.ledd + '|' + l) ? 1 : 0;
+				while (sett.has(e.ledd + '|' + l)) { n++; l = (e.alt_label || 'Alternativ') + ' ' + n; }
+				sett.add(e.ledd + '|' + l);
+				ins.run(source, e.seksjon, e.ledd, e.ledd_id ?? '', l, e.tekst ?? '');
+			}
+		})();
+		return { ok: true };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
 }
 
 /** Signatur per kilde: antall + rask hash av innholdet (titler/tekst kan endre
