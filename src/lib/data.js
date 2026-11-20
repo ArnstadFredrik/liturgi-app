@@ -1730,8 +1730,28 @@ export const BUILTIN_TEMPLATES = [
 								"text": "Jesus Kristus sier: Frykt ikke!\nJeg er den første og den siste og den levende. Jeg var død, men se, jeg lever i all evighet, og jeg har nøklene til døden og dødsriket. Åp 1,17b-18"
 							},
 							{
-								"label": "",
-								"text": ""
+								"label": "Sal 23",
+								"text": "En salme av David.\nHerren er min hyrde,\njeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile.\nHan gir meg nytt liv.\nHan fører meg på rettferdighets stier\nfor sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal,\nfrykter jeg ikke noe ondt.\nFor du er med meg.\nDin kjepp og din stav,\nde trøster meg.\nDu dekker bord for meg\nlike foran mine fiender.\nDu salver mitt hode med olje.\nMitt beger renner over.\nBare godhet og miskunn\nskal følge meg alle mine dager,\nog jeg skal bo i Herrens hus\ngjennom alle tider.\nBIBELREF | Sal 23"
+							},
+							{
+								"label": "Sal 50,15",
+								"text": "Kall på meg på nødens dag,\nså vil jeg utfri deg, og du skal gi meg ære.\nBIBELREF | Sal 50,15"
+							},
+							{
+								"label": "Sal 121",
+								"text": "En sang ved festreisene.\nJeg løfter mine øyne mot fjellene.\nHvor skal min hjelp komme fra?\nMin hjelp kommer fra Herren,\nhimmelens og jordens skaper.\nHan vil ikke la din fot vakle,\ndin vokter vil ikke blunde!\nSe, han blunder ikke og sover ikke,\nIsraels vokter.\nHerren er din vokter,\nHerren er din skygge\nved din høyre hånd.\nSolen skal ikke skade deg om dagen,\nheller ikke månen om natten.\nHerren skal bevare deg fra alt ondt.\nHan skal bevare ditt liv.\nHerren skal bevare din utgang og din inngang\nfra nå og til evig tid.\nBIBELREF | Sal 121"
+							},
+							{
+								"label": "Matt 11,28",
+								"text": "Kom til meg, alle dere som strever og bærer tunge byrder, og jeg vil gi dere hvile.\nBIBELREF | Matt 11,28"
+							},
+							{
+								"label": "Matt 28,1-10",
+								"text": "Da sabbaten var over og det begynte å lysne den første dagen i uken, kom Maria Magdalena og den andre Maria for å se til graven. 2 Med ett ble det et kraftig jordskjelv, for en Herrens engel steg ned fra himmelen, gikk fram og rullet steinen til side og satte seg på den. 3 Han var som et lyn å se til, og drakten var hvit som snø. 4 Vaktene skalv av redsel da de så ham, og de ble liggende som døde. 5 Men engelen tok til orde og sa til kvinnene: «Frykt ikke! Jeg vet at dere leter etter Jesus, den korsfestede. 6 Han er ikke her, han er stått opp, slik som han sa. Kom og se stedet hvor han lå!\nSkynd dere av sted og si til disiplene hans: ‘Han er stått opp fra de døde, og han går i forveien for dere til Galilea; der skal dere få se ham.’ – Nå har jeg sagt dere det.»\nDa skyndte de seg bort fra graven, redde, men jublende glade, og de løp for å fortelle det til disiplene. 9 Og se, Jesus kom mot dem og sa: «Vær hilset!» De gikk fram og omfavnet føttene hans og tilba ham. 10 Jesus sa til dem: «Frykt ikke! Gå og si til mine brødre at de skal dra til Galilea. Der skal de se meg.»\nBIBELREF | Matt 28,1-10"
+							},
+							{
+								"label": "Åp 21,1-5",
+								"text": "Og jeg så en ny himmel og en ny jord. For den første himmel og den første jord var borte, og havet fantes ikke mer.\nOg jeg så den hellige byen, det nye Jerusalem, stige ned fra himmelen, fra Gud, gjort i stand og pyntet som en brud for sin brudgom.\nOg jeg hørte fra tronen en høy røst som sa:\n«Se, Guds bolig er hos menneskene.\nHan skal bo hos dem,\nog de skal være hans folk,\nog Gud selv skal være hos dem.\nHan skal være deres Gud.\nHan skal tørke bort hver tåre fra deres øyne,\nog døden skal ikke være mer,\nheller ikke sorg eller skrik eller smerte.\nFor det som en gang var, er borte.»\nHan som sitter på tronen, sa: «Se, jeg gjør alle ting nye.» Og han la til: «Skriv det ned, for dette er troverdige og sanne ord.»\nBIBELREF | Åp 21,1-5"
 							}
 						],
 						"optional": false,
