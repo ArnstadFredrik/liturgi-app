@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal } from '$lib/modal.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -364,28 +364,35 @@
 				it[liste].push({ label: alt.label || 'Alternativ ' + String.fromCharCode(97 + it[liste].length), text: alt.text });
 				visAdmin = it[liste].length - 1;
 			} else if (mode === 'ledd') {
-				// hele leddet: brukeren velger ERSTATT eller LEGG TIL
+				// hele leddet: brukeren velger ERSTATT eller LEGG TIL (vanlig modal, to knapper)
 				const alternativer = gruppe.rader.map((r) => ({ label: r.label || '', text: r.text }));
-				chooseOneModal([
-					{ label: 'Erstatt de nåværende alternativene med leddets alternativer' },
-					{ label: 'Legg til leddets alternativer som nye alternativer' }
-				], 0, (valg) => {
-					if (valg === 0) {
-						it[liste] = alternativer;
-					} else {
-						// legg til: hopp over de som finnes fra før (samme label og tekst)
-						const eks = new Set((it[liste] ?? []).map((a) => (a.label || '') + '|' + (a.text || '').slice(0, 60)));
-						for (const a of alternativer) {
-							if (eks.has((a.label || '') + '|' + (a.text || '').slice(0, 60))) continue;
-							it[liste].push({ ...a });
-						}
+				const leggTil = () => {
+					// hopp over de som finnes fra før (samme label og tekst)
+					const eks = new Set((it[liste] ?? []).map((a) => (a.label || '') + '|' + (a.text || '').slice(0, 60)));
+					for (const a of alternativer) {
+						if (eks.has((a.label || '') + '|' + (a.text || '').slice(0, 60))) continue;
+						it[liste].push({ ...a });
 					}
 					if (selNokkel) it[selNokkel] = 0;
 					visAdmin = 0;
 					fjernMerkede = new Set();
 					markDirtyIModal();
 					adminAltsModal(it, liste, selNokkel, tittel);
-				}, () => adminAltsModal(it, liste, selNokkel, tittel), 'Hent «' + (it.heading ?? '') + '» fra biblioteket', 'Bruk');
+				};
+				valgModal(
+					'Hent «' + (it.heading ?? '') + '» fra biblioteket',
+					alternativer.length + ' alternativer skal inn i leddet. Erstatt de nåværende, eller legg dem til som nye?',
+					'Erstatt', 'Legg til',
+					() => {
+						it[liste] = alternativer;
+						if (selNokkel) it[selNokkel] = 0;
+						visAdmin = 0;
+						fjernMerkede = new Set();
+						markDirtyIModal();
+						adminAltsModal(it, liste, selNokkel, tittel);
+					},
+					() => leggTil()
+				);
 				return;
 			}
 			fjernMerkede = new Set();
