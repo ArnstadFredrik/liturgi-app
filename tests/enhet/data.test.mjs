@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { BUILTIN_TEMPLATES, DEAKTIVERTE_MALER } from '../../src/lib/data.js';
 import { litHtml, litEditHtml, litLinjeHtml } from '../../src/lib/lit.js';
@@ -182,4 +183,18 @@ test('litEditHtml: linjedeling gir .et-linje-elementer', () => {
 test('litLinjeHtml: punktliste prefiks + chip', () => {
 	const ut = litLinjeHtml('- punkt ett');
 	assert.ok(ut.includes('chip') || ut.includes('liste'), 'punktliste-prefiks ikke rendret som chip/liste');
+});
+
+test('ingen «gudtjeneste» uten s i kildekoden (kernel-skrivefelle)', () => {
+	const { execSync } = createRequire(import.meta.url)('node:child_process');
+	const root = new URL('../../', import.meta.url).pathname;
+	let ut = '';
+	try {
+		ut = execSync(
+			`grep -rn 'gudtjeneste' ${JSON.stringify(root + 'src')} --include='*.js' --include='*.svelte' | grep -v 'hovedgudtjeneste' | grep -v 'liturgiType === ' || true`,
+			{ encoding: 'utf8' }
+		);
+	} catch { ut = ''; }
+	const treff = ut.split('\n').filter((l) => l.trim());
+	assert.deepStrictEqual(treff, [], 'funnet «gudtjeneste» uten s: ' + treff.join(' | '));
 });

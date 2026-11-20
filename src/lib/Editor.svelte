@@ -158,7 +158,7 @@
 			<div class="sec-items">
 				{#each sec.items as it, ii (it.id)}
 					{#if !(app.kind === 'service' && /skriftlesning/i.test(sec.title) && it.enabled === false)}
-					<!-- uvalgte skriftlesninger er skjult i gudtjenester — velges på nytt via «Velg tekster …» -->
+					<!-- uvalgte skriftlesninger er skjult i gudstjenester — velges på nytt via «Velg tekster …» -->
 					<div
 						class="dnd-wrap"
 						class:drag-target={dragOver && dragOver.si === si && dragOver.ii === ii && dragOver.før}
