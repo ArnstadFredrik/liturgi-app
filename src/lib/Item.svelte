@@ -14,7 +14,7 @@
 	let vimSt = nyVimTilstand();
 	$effect(() => { if (app.vimModus) vimSt = nyVimTilstand(); });
 
-	let { it, si, ii } = $props();
+	let { it, si, ii, bokstav = null } = $props();
 
 
 	const TYPE_LABEL = { tekst: 'Tekst', instruks: 'Instruks', salme: 'Salme', lesning: 'Lesning', bønn: 'Bønn' };
@@ -54,7 +54,7 @@
 				nr,
 				tittel,
 				dato: o.date ?? '',
-				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste'
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : o.liturgiType === 'vigsel' ? 'Vigsel' : 'Gudstjeneste'
 			});
 			if (!r?.ok) {
 				toast.error(r?.error === 'Ikke konfigurert'
@@ -329,6 +329,7 @@
 
 <div class="item" class:off={it.enabled === false} oncontextmenu={context}>
 	<div class="item-head" title="Dra i linjen over for å flytte leddet">
+		{#if bokstav}<span class="bokstav-badge" title="Bokstav i skriftlesningslista">{bokstav}</span>{/if}
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
 		</span>

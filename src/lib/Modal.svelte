@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav } from '$lib/modal.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -25,7 +25,7 @@
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 	function malType(t) {
-		return t.liturgiType ?? (/gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
+		return t.liturgiType ?? (/vigsel/i.test(t.name || '') ? 'vigsel' : /gravferd/i.test(t.name || '') ? 'gravferd' : 'gudtjeneste');
 	}
 	/** Kan malen brukes direkte til å opprette gudstjenester? (malen kan selv
 	 *  bestemme: «Dåp i hovedgudstjenesten» er bare en del av gudstjenesten.)
@@ -51,6 +51,7 @@
 	let valgteFjern = $state([]); // fjernFlere: indekser krysset av for sletting
 	let visAlt = $state(0); // fjernFlere: hvilket alternativ vises i høyre kolonne
 	let fjernMerkede = $state(new Set()); // adminAlts: merkede indekser
+	let bokstavInput = $state(''); // velgTekster: brudeparets bokstaver
 	let visAdmin = $state(0); // adminAlts: forhåndsvisning
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
@@ -324,6 +325,10 @@
 				}
 				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
+				if (nyType === 'vigsel' && app.current) {
+					const sk = app.current.sections.find((x) => /skriftlesning/i.test(x.title) && x.items.length >= 5);
+					if (sk) velgTeksterModal(sk); // spør om 2–4 tekster med en gang
+				}
 			};
 			// BAKGRUNNSOPPRETTELSE: vent IKKE på tekstepplaget — opprett umiddelbart,
 			// fyll tekstene i bakgrunnen så planleggingen kan begynne med én gang.
@@ -348,7 +353,7 @@
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);
 		else if (m.type === 'fjernFlere') m.ok([...valgteFjern].sort((a, b) => b - a));
-		else if (m.type === 'adminAlts') return; // live-redigering — Ferdig lukker
+		else if (m.type === 'adminAlts' || m.type === 'velgTekster') return; // live-redigering — Ferdig lukker
 		else if (m.type === 'bib') {
 			const gruppe = bibGrupper[bibValgt];
 			m.ok(gruppe, m.mode === 'innhold' ? gruppe?.rader[bibAltValgt] : null);
@@ -413,6 +418,23 @@
 			adminAltsModal(it, liste, selNokkel, tittel);
 		}, () => adminAltsModal(it, liste, selNokkel, tittel));
 	}
+	function settBokstaver() {
+		if (!m || m.type !== 'velgTekster') return;
+		const koder = bokstavInput.toUpperCase().replace(/[^A-Z]/g, '').split('');
+		const n = new Set();
+		for (const k of koder) {
+			const idx = m.seksjon.items.findIndex((it, i) => skriftBokstav(it, i) === k);
+			if (idx !== -1) n.add(idx);
+		}
+		m.valgte = n;
+		bokstavInput = '';
+	}
+
+	function applyVelgTekster() {
+		if (!m || m.type !== 'velgTekster') return;
+		(m.seksjon.items ?? []).forEach((it, idx) => { it.enabled = m.valgte.has(idx); });
+	}
+
 	function markDirtyIModal() {
 		import('$lib/store.svelte.js').then((st) => st.markDirty());
 	}
@@ -445,6 +467,7 @@
 			{:else if m.type === 'newService'}
 				<div class="m-type" role="radiogroup" aria-label="Type">
 					<button type="button" role="radio" aria-checked={nyType === 'gudstjeneste'} class={nyType === 'gudstjeneste' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('gudstjeneste'); remountTeller += 1; }} title="Gudstjeneste">{@html mdi('church')}<span>Gudstjeneste</span></button>
+					<button type="button" role="radio" aria-checked={nyType === 'vigsel'} class={nyType === 'vigsel' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('vigsel'); remountTeller += 1; }} title="Vigsel">{@html mdi('heart')}<span>Vigsel</span></button>
 					<button type="button" role="radio" aria-checked={nyType === 'gravferd'} class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('gravferd'); remountTeller += 1; }} title="Gravferd">{@html mdi('flower-tulip')}<span>Gravferd</span></button>
 				</div>
 				<label>
@@ -689,6 +712,33 @@
 							app.current && markDirtyIModal();
 						}}>Slett {fjernMerkede.size} alternativ{fjernMerkede.size === 1 ? '' : 'er'}</button>
 					<button class="primary" onclick={() => { markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'velgTekster'}
+					<p class="m-hint">Velg 2–4 tekster. Bare merkede tekster følger med gudtjenesten. Bokstavene stemmer med lista brudeparet har fått.</p>
+					<div class="m-bokstav-rad">
+						<input class="m-bokstav-inn" placeholder="Bokstaver, f.eks. B, E, H" bind:value={bokstavInput}
+							onkeydown={(e) => { if (e.key === 'Enter') { settBokstaver(); e.preventDefault(); } }} />
+						<button onclick={() => settBokstaver()}>Velg bokstaver</button>
+						<span class="m-bokstav-telling" class:m-treng-merk={m.valgte.size < 2 || m.valgte.size > 4}>{m.valgte.size} valgt</span>
+					</div>
+					<div class="m-tekst-liste">
+						{#each m.seksjon.items as it, idx (it.id)}
+							<label class="m-tekst-rad">
+								<input type="checkbox" checked={m.valgte.has(idx)}
+									onchange={(e) => {
+										const n = new Set(m.valgte);
+										if (e.target.checked) n.add(idx); else n.delete(idx);
+										m.valgte = n;
+									}} />
+								<span class="m-tekst-bokstav">{skriftBokstav(it, idx)}</span>
+								<span class="m-tekst-navn">{it.heading}</span>
+							</label>
+						{/each}
+					</div>
+					<div class="m-bun">
+						<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>
+						<button onclick={() => { m.valgte = new Set(); }}>Nullstill</button>
+						<button class="primary" onclick={() => { applyVelgTekster(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+					</div>
 				{:else if m.type === 'fjernFlere'}
 					<button class="m-fare" onclick={ok} disabled={valgteFjern.length === 0}>
 						Slett {valgteFjern.length} alternativ{valgteFjern.length === 1 ? '' : 'er'}

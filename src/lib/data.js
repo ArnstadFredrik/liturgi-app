@@ -2503,8 +2503,6 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2017",
-		"builtinKey": "vigsel-2017",
-		"kind": "template",
 		"name": "Vigsel (bokmål, 2017)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",
 		"sections": [
@@ -2624,7 +2622,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "1 Mos 1,27-28a",
 						"text": "Det står skrevet i Første Mosebok:\nGud skapte mennesket i sitt bilde, i Guds bilde skapte han det,\ntil mann og kvinne skapte han dem. Gud velsignet dem og sa til dem:\n«Vær fruktbare og bli mange,\nfyll jorden og legg den under dere!»\nBIBELREF | 1 Mos 1,27-28a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "A"
 					},
 					{
 						"id": "v2017-17",
@@ -2632,7 +2631,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "1 Mos 2,18",
 						"text": "Det står skrevet i Første Mosebok:\nDa sa Herren Gud: «Det er ikke godt for mennesket å være alene. Jeg vil lage en hjelper av samme slag.»\nBIBELREF | 1 Mos 2,18",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "B"
 					},
 					{
 						"id": "v2017-18",
@@ -2640,7 +2640,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Rut 1,16b-17a",
 						"text": "Det står skrevet i Ruts bok:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo. Ditt folk er mitt folk,\nog din Gud er min Gud. Der du dør, vil jeg dø,\nog der vil jeg begraves.\nBIBELREF | Rut 1,16b-17a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "C"
 					},
 					{
 						"id": "v2017-19",
@@ -2648,7 +2649,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Salme 23",
 						"text": "Det står skrevet i Salmenes bok:\nHerren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile.\nHan gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt. For du er med meg. Din kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender. Du salver mitt hode med olje.\nMitt beger renner over. Bare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "D"
 					},
 					{
 						"id": "v2017-20",
@@ -2656,7 +2658,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Salme 91,1-2.4.9",
 						"text": "Det står skrevet i Salmenes bok:\nDen som sitter i skjul hos Den høyeste og finner nattely i skyggen av Den veldige, han sier til Herren: «Min tilflukt og min borg, min Gud som jeg setter min lit til!» Under hans vinger kan du søke ly, han dekker deg med sine fjær.\nHans trofasthet er skjold og vern. «Du, Herre, er min tilflukt.» Den høyeste har du gjort til din bolig.\nBIBELREF | Salme 91,1-2.4.9",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "E"
 					},
 					{
 						"id": "v2017-21",
@@ -2664,7 +2667,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Sal 100",
 						"text": "Det står skrevet i Salmenes bok:\nRop med jubel for Herren, all jorden!\nTjen Herren med glede, kom fram for ham med jubel!\nKjenn at Herren er Gud! Han har skapt oss, vi er hans, vi er hans folk og den flokken han gjeter.\nKom gjennom portene hans med takkesang,\ninn i forgårdene med lovsang! Lov ham, velsign hans navn! Herren er god, evig er hans miskunn, hans trofasthet varer fra slekt til slekt.\nBIBELREF | Sal 100",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "F"
 					},
 					{
 						"id": "v2017-22",
@@ -2672,7 +2676,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Sal 103,1-5",
 						"text": "Det står skrevet i Salmenes bok:\nVelsign Herren, min sjel!\nAlt som i meg er, velsign hans hellige navn.\nVelsign Herren, min sjel! Glem ikke alt det gode han gjør. Han tilgir all din skyld og leger alle dine sykdommer.\nHan frir ditt liv fra graven og kroner deg med barmhjertighet og kjærlighet. Han metter ditt liv med det gode, du blir ung igjen som ørnen.\nBIBELREF | Sal 103,1-5",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "G"
 					},
 					{
 						"id": "v2017-23",
@@ -2680,7 +2685,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fork 4,9-10a.12",
 						"text": "Det står skrevet i Forkynnerensbok:\nDet er bedre å være to enn én; de får god lønn for sitt strev. For om de faller, kan den ene hjelpe den andre opp.\nOm én blir overvunnet, kan to holde stand.\nEn tretvinnet tråd\nryker ikke så fort.\nBIBELREF | Fork 4,9-10a.12",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "H"
 					},
 					{
 						"id": "v2017-24",
@@ -2688,7 +2694,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 2,9-10a.13b-14",
 						"text": "Det står skrevet i Høysangen:\nMin kjæreste ligner en gasell, en ung hjort.\nDer står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret. Min kjæreste tar til orde og sier: Stå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg, la meg få høre stemmen din!\nFor stemmen er myk og skikkelsen skjønn.\nBIBELREF | Høys 2,9-10a.13b-14",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "I"
 					},
 					{
 						"id": "v2017-25",
@@ -2696,7 +2703,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 2,8-14.16-17 + 8,6-7a",
 						"text": "Det står skrevet i Høysangen:\n(Denne lesningen kan leses av én tekstleser eller av kvinne (I) og mann (II).)\n{{r}}I |{{/r}} Hør, det er min kjæreste, der kommer han, løpende over fjellene, hoppende over høydene. Min kjæreste ligner en gasell, en ung hjort. Der står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret.\nMin kjæreste tar til orde og sier:\n{{r}}II |{{/r}} Stå opp, min elskede, min vakre jente, og kom! Nå er vinteren omme, regnet er forbi, det er borte. Landet dekkes av blomster. Sangens tid er inne, turtelduen kan høres i landet. Frukten på fikentreet modner, blomsten på vinstokken dufter.\nStå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg,\nla meg få høre stemmen din! For stemmen er myk og skikkelsen skjønn.\n{{r}}I |{{/r}} Min kjæreste er min, og jeg er hans, han som gjeter mellom liljene. Helt til dagen blåser skyggene bort, spring som gasellen, min kjæreste, som en ung hjort over kløfter og fjell!\n{{r}}I/II |{{/r}} Sett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 2,8-14.16-17 + 8,6-7a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "J"
 					},
 					{
 						"id": "v2017-26",
@@ -2704,7 +2712,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 8,6-7a",
 						"text": "Det står skrevet i Høysangen:\nSett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 8,6-7a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "K"
 					},
 					{
 						"id": "v2017-27",
@@ -2712,7 +2721,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 5,13-16",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Dere er jordens salt! Men hvis saltet mister sin kraft,\nhvordan skal det da bli gjort til salt igjen? Det duger ikke lenger til noe, men kastes ut og tråkkes ned av menneskene.\nDere er verdens lys! En by som ligger på et fjell, kan ikke skjules. Heller ikke tenner man en oljelampe og setter den under et kar.\nNei, man setter den på en holder, så den lyser for alle i huset.\nSlik skal deres lys skinne for menneskene, så de kan se de gode gjerningene dere gjør, og prise deres Far i himmelen!\nBIBELREF | Matt 5,13-16",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "L"
 					},
 					{
 						"id": "v2017-28",
@@ -2720,7 +2730,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 6,25-34",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Vær ikke bekymret for livet, hva dere skal spise,\neller hva dere skal drikke, heller ikke for kroppen, hva dere skal kle dere med. Er ikke livet mer enn maten og kroppen mer enn klærne?\nSe på fuglene under himmelen! De sår ikke, de høster ikke og samler ikke i hus,\nmen den Far dere har i himmelen, gir dem føde likevel. Er ikke dere mer verdt enn de? Hvem av dere kan vel med all sin bekymring legge en eneste alen til sin livslengde? Og hvorfor er dere bekymret for klærne? Se på liljene på marken, hvordan de vokser! De strever ikke og spinner ikke, men jeg sier dere: Selv ikke Salomo i all sin prakt var kledd som en av dem. Når Gud kler gresset på marken så fint, det som gror i dag og kastes i ovnen i morgen, hvor mye mer skal han ikke da kle dere – dere lite troende!\nSå gjør dere ikke bekymringer, og si ikke: ‘Hva skal vi spise?' eller: ‘Hva skal vi drikke?' eller: ‘Hva skal vi kle oss med?' Alt dette er hedningene opptatt av.\nMen den Far dere har i himmelen, vet jo at dere trenger alt dette.\nSøk først Guds rike og hans rettferdighet, så skal dere få alt det andre i tillegg.\nSå gjør dere ingen bekymringer for morgendagen; morgendagen skal bekymre seg for seg selv. Hver dag har nok med sin egen plage.\nBIBELREF | Matt 6,25-34",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "M"
 					},
 					{
 						"id": "v2017-29",
@@ -2728,7 +2739,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 7,7-8.12",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Be, så skal dere få. Let, så skal dere finne.\nBank på, så skal det lukkes opp for dere. For den som ber, han får,\nog den som leter, han finner, og den som banker på, skal det lukkes opp for. Alt dere vil at andre skal gjøre mot dere, det skal også dere gjøre mot dem. For dette er loven og profetene.\nBIBELREF | Matt 7,7-8.12",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "N"
 					},
 					{
 						"id": "v2017-30",
@@ -2736,7 +2748,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 7,24-25",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Hver den som hører disse mine ord og gjør det de sier, ligner en klok mann som bygde huset sitt på fjell. Regnet styrtet, elvene flommet, og vindene blåste og slo mot huset.\nMen det falt ikke, for det var bygd på fjell.\nBIBELREF | Matt 7,24-25",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "O"
 					},
 					{
 						"id": "v2017-31",
@@ -2744,7 +2757,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 19,4-6",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Har dere ikke lest at Skaperen fra begynnelsen av skapte dem til mann og kvinne og sa: «Derfor skal mannen forlate sin far og sin mor og holde seg til sin hustru, og de to skal være ett.» Så er de ikke lenger to; deres liv er ett.\nDet som Gud altså har sammenføyd, skal mennesker ikke skille.\nBIBELREF | Matt 19,4-6",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "P"
 					},
 					{
 						"id": "v2017-32",
@@ -2752,7 +2766,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Joh 13, 34-35",
 						"text": "Det står skrevet i evangeliet etter Johannes:\nEt nytt bud gir jeg dere: Dere skal elske hverandre. Som jeg har elsket dere, skal dere elske hverandre. Ved dette skal alle forstå at dere er mine disipler:\nAt dere har kjærlighet til hverandre.\nBIBELREF | Joh 13, 34-35",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "Q"
 					},
 					{
 						"id": "v2017-33",
@@ -2760,7 +2775,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Joh 15,9-12[-17]",
 						"text": "Det står skrevet i evangeliet etter Johannes:\nJesus sa: Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet!\nHvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud:\nDere skal elske hverandre som jeg har elsket dere.\n[Ingen har større kjærlighet enn den som gir livet for vennene sine.\nDere er mine venner hvis dere gjør det jeg befaler dere. Jeg kaller dere ikke lenger tjenere, for tjeneren vet ikke hva herren hans gjør. Jeg kaller dere venner, for jeg har gjort kjent for dere alt jeg har hørt av min Far.\nDere har ikke utvalgt meg, men jeg har utvalgt dere og satt dere til å gå ut og bære frukt, en frukt som varer. Da skal Far gi dere alt dere ber om i mitt navn. Dette er mitt bud til dere: Elsk hverandre!]\nBIBELREF | Joh 15,9-12[-17]",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "R"
 					},
 					{
 						"id": "v2017-34",
@@ -2768,15 +2784,17 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Rom 8,38-39",
 						"text": "Det står skrevet i Paulus' brev til romerne:\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,38-39",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "S"
 					},
 					{
 						"id": "v2017-35",
 						"type": "tekst",
 						"heading": "1 Kor 13",
-						"text": "Det står skrevet i Paulus' første brev til korinterne:\n(Kapitlet kan leses i sin helhet eller i utdrag.)\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer, skal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13",
+						"text": "Det står skrevet i Paulus' første brev til korinterne:\n@NOTAT Kapitlet kan leses i sin helhet eller i utdrag.\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer, skal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "T"
 					},
 					{
 						"id": "v2017-36",
@@ -2784,7 +2802,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Gal 3, 26-28",
 						"text": "Det står skrevet i Paulus' brev til galaterne:\nFor dere er alle Guds barn ved troen, i Kristus Jesus.\nAlle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus.\nBIBELREF | Gal 3, 26-28",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "U"
 					},
 					{
 						"id": "v2017-37",
@@ -2792,7 +2811,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Ef 3,14-21",
 						"text": "Det står skrevet i Paulus' brev til efeserne:\nDerfor bøyer jeg mine knær for Far, han som har gitt navn til alt som kalles far i himmel og på jord. Må han som er så rik på herlighet, gi deres indre menneske kraft og styrke ved sin Ånd. Må Kristus ved troen bo i deres hjerter og dere stå rotfestet og grunnfestet i kjærlighet. Må dere sammen med alle de hellige bli i stand til å fatte bredden og lengden, høyden og dybden, ja, kjenne Kristi kjærlighet, som overgår all kunnskap. Må dere bli fylt av hele Guds fylde!\nHan som virker i oss med sin kraft og kan gjøre uendelig mye mer enn det vi ber om og forstår, ham være ære i kirken og i Kristus Jesus gjennom alle slekter og evigheter! Amen.\nBIBELREF | Ef 3,14-21",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "V"
 					},
 					{
 						"id": "v2017-38",
@@ -2800,7 +2820,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fil 2,1-5",
 						"text": "Det står skrevet i Paulus' brev til filipperne:\nOm det da er trøst i Kristus, oppmuntring i kjærligheten, fellesskap i Ånden, om det finnes medfølelse og barmhjertighet, så gjør nå min glede fullkommen: Ha samme sinnelag og samme kjærlighet, vær ett i sjel og sinn.\nGjør ikke noe av selvhevdelse og tom ærgjerrighet, men vær ydmyke og sett de andre høyere enn dere selv. Tenk ikke bare på deres eget beste, men også på de andres. La samme sinnelag være i dere som også var i Kristus Jesus!\nBIBELREF | Fil 2,1-5",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "W"
 					},
 					{
 						"id": "v2017-39",
@@ -2808,16 +2829,18 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fil 4,4-8",
 						"text": "Det står skrevet i Paulus' brev til filipperne:\nGled dere alltid i Herren! Igjen vil jeg si: Gled dere!\nLa alle mennesker få merke at dere er vennlige. Herren er nær.\nVær ikke bekymret for noe! Men legg alt dere har på hjertet, fram for Gud. Be og kall på ham med takk. Og Guds fred, som overgår all forstand,\nskal bevare deres hjerter og tanker i Kristus Jesus. Til slutt, søsken: Alt som er sant og edelt, rett og rent, alt som er verdt å elske og akte, alt som er til glede og alt som fortjener ros, legg vinn på det!\nBIBELREF | Fil 4,4-8",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "X"
 					},
 					{
 						"id": "v2017-40",
 						"type": "tekst",
 						"heading": "1 Joh 4,7-12",
 						"text": "Det står skrevet i Johannes' første brev:\nMine kjære, la oss elske hverandre! For kjærligheten er fra Gud,\nog hver den som elsker, er født av Gud og kjenner Gud.\nDen som ikke elsker, har aldri kjent Gud, for Gud er kjærlighet.\nOg ved dette ble Guds kjærlighet åpenbart blant oss, at Gud sendte sin enbårne Sønn til verden for at vi skulle leve ved ham.\nJa, dette er kjærligheten, ikke at vi har elsket Gud, men at han har elsket oss\nog sendt sin Sønn til soning for våre synder.\nMine kjære, har Gud elsket oss slik, da skylder også vi å elske hverandre. Ingen har noen gang sett Gud. Men dersom vi elsker hverandre, blir Gud i oss, og hans kjærlighet er fullendt i oss.\nBIBELREF | 1 Joh 4,7-12",
-						"instr": "Bibeltekstene er Hentet fra Bibel 2011 © Det Norske Bibelselskap",
+						"instr": "",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "Y"
 					}
 				]
 			},
@@ -2858,11 +2881,11 @@ export const BUILTIN_TEMPLATES = [
 						"alts": [
 							{
 								"label": "Kort",
-								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel): Vil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n(Svar:) Ja.\n{{r}}L |{{/r}} Så gi hverandre hånden på det.\n(Paret vender seg mot hverandre og gir hverandre høyre hånd. Liturgen legger sin hånd på parets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær\nhar dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel): Vil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Vil du elske og ære ham/henne/NN\nog bli trofast hos ham/henne/NN\ni gode og onde dager inntil døden skiller dere?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Så gi hverandre hånden på det.\n@NOTAT Paret vender seg mot hverandre og gir hverandre høyre hånd. Liturgen legger sin hånd på parets hender.\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær\nhar dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
 							},
 							{
 								"label": "Lang",
-								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel),\nsom står ved din side, til din ektefelle?\n(Svar:) Ja.\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n{{r}}L |{{/r}} Gjenta etter meg.\n(Paret vender seg til hverandre. De gir hverandre høyre hånd og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for led (L) , deretter fremsier paret det, den ene først (P).)\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}P |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}P |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}P |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}P |{{/r}} inntil døden skiller oss.\n(Deretter gjentas løfteavleggelsen på samme måte av den andre.)\n(Liturgen legger sin hånd på parets hender.)\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
+								"text": "{{r}}L |{{/r}} For Gud vår Skapers ansikt og i disse vitners nærvær spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel),\nsom står ved din side, til din ektefelle?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Likeså spør jeg deg, (fullt navn uten tittel):\nVil du ha (fullt navn uten tittel), som står ved din side, til din ektefelle?\n@NOTAT Svar:\nJa.\n\n{{r}}L |{{/r}} Gjenta etter meg.\n@NOTAT Paret vender seg til hverandre. De gir hverandre høyre hånd og blir stående slik mens de avgir løftet. Liturgen leser løftet ledd for led (L) , deretter fremsier paret det, den ene først (P).\n{{r}}L |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}P |{{/r}} Jeg tar deg (navnet nevnes) til min ektefelle.\n{{r}}L |{{/r}} Jeg vil elske og ære deg\n{{r}}P |{{/r}} Jeg vil elske og ære deg\n{{r}}L |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}P |{{/r}} og bli trofast hos deg i gode og onde dager\n{{r}}L |{{/r}} inntil døden skiller oss.\n{{r}}P |{{/r}} inntil døden skiller oss.\n@NOTAT Deretter gjentas løfteavleggelsen på samme måte av den andre.\n@NOTAT Liturgen legger sin hånd på parets hender.\n{{r}}L |{{/r}} For Guds ansikt og i disse vitners nærvær har dere nå lovet hverandre at dere vil leve sammen i ekteskap, og gitt hverandre hånden på det.\nDerfor erklærer jeg at dere er rette ektefolk."
 							}
 						],
 						"selAlt": 0,
@@ -2888,11 +2911,11 @@ export const BUILTIN_TEMPLATES = [
 						"alts": [
 							{
 								"label": "Kort",
-								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet om troskap.\n(Hver av dem setter ringen på fingeren til den andre.)"
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet om troskap.\n@NOTAT Hver av dem setter ringen på fingeren til den andre."
 							},
 							{
-								"label": "B",
-								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet dere har gitt hverandre.\nGjenta etter meg.\n(Liturgen (L) leser ordene ledd for ledd, deretter fremsier ekteparet dem, den ene først (P).)\n{{r}}L |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}P |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}L |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap.\n{{r}}P |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap."
+								"label": "Lang",
+								"text": "{{r}}L |{{/r}} Gi nå hverandre ringene, som dere skal bære til tegn på løftet dere har gitt hverandre.\nGjenta etter meg.\n@NOTAT \n\n@NOTAT Liturgen (L) leser ordene ledd for ledd, deretter fremsier ekteparet dem, den ene først (P).\n{{r}}L |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}P |{{/r}} (Navnet), jeg gir deg denne ring\n{{r}}L |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap.\n{{r}}P |{{/r}} som et tegn på mitt løfte om kjærlighet og troskap."
 							}
 						],
 						"selAlt": 0,
@@ -2972,15 +2995,15 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "Under den følgende stille bønn kan en klemte tre ganger tre bønneslag med en av kirkens klokker.\nHer kan det også fremføres egnet vokal- eller instrumentalmusikk.",
 						"alts": [
 							{
-								"label": "A",
-								"text": "(L, vendt mot menigheten.)\n{{r}}L |{{/r}} La oss prise Herren.\n(Menigheten reiser seg.)\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen. Amen. Amen."
+								"label": "La oss prise Herren",
+								"text": "@NOTAT L, vendt mot menigheten.\n{{r}}L |{{/r}} La oss prise Herren.\n@NOTAT Menigheten reiser seg.\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. \nHerren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen. Amen. Amen."
 							},
 							{
-								"label": "B",
-								"text": "(L, vendt mot menigheten.)\n{{r}}L |{{/r}} Ta imot velsignelsen.\n(Menigheten reiser seg.)\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. Herren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen."
+								"label": "Ta imot velsignelsen",
+								"text": "@NOTAT L, vendt mot menigheten.\n{{r}}L |{{/r}} Ta imot velsignelsen.\n@NOTAT Menigheten reiser seg.\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig. \nHerren løfte sitt åsyn på deg og gi deg fred. ✠\n{{r}}M |{{/r}} Amen."
 							}
 						],
-						"selAlt": 0,
+						"selAlt": 1,
 						"text": ""
 					}
 				]
@@ -3000,7 +3023,10 @@ export const BUILTIN_TEMPLATES = [
 				]
 			}
 		],
-		"erOriginal": true
+		"erOriginal": true,
+		"visInstr": true,
+		"visRoles": true,
+		"visSalmeinfo": true
 	},
 	{
 		"id": "vigsel-2003",
@@ -3127,7 +3153,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Salme 23",
 						"text": "Det står skrevet i Salmenes bok:\nHerren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile. Han gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt. For du er med meg.\nDin kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender. Du salver mitt hode med olje.\nMitt beger renner over. Bare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "A"
 					},
 					{
 						"id": "v2003-17",
@@ -3135,7 +3162,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Sal 36, 6-10",
 						"text": "Det står skrevet i Salmenes bok:\nHerre, til himmelen rekker din miskunn, din trofasthet når til skyene.\nDin rettferd er som mektige fjell,\nsom det store havdyp er dine dommer.\nHerre, du berger både mennesker og dyr.\nHvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly. De får nyte overfloden i ditt hus,\ndu lar dem drikke av din gledes bekk.\nFor hos deg er livets kilde,\ni ditt lys ser vi lys.\nBIBELREF | Sal 36, 6-10",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "B"
 					},
 					{
 						"id": "v2003-18",
@@ -3143,7 +3171,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Salme 91,1-2.4.9",
 						"text": "Det står skrevet i Salmenes bok:\nDen som sitter i skjul hos Den høyeste og finner nattely i skyggen av Den veldige, han sier til Herren: «Min tilflukt og min borg, min Gud som jeg setter min lit til!» Under hans vinger kan du søke ly, han dekker deg med sine fjær.\nHans trofasthet er skjold og vern. «Du, Herre, er min tilflukt.» Den høyeste har du gjort til din bolig.\nBIBELREF | Salme 91,1-2.4.9",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "C"
 					},
 					{
 						"id": "v2003-19",
@@ -3151,7 +3180,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Sal 100",
 						"text": "Det står skrevet i Salmenes bok:\nRop med jubel for Herren, all jorden!\nTjen Herren med glede, kom fram for ham med jubel!\nKjenn at Herren er Gud! Han har skapt oss, vi er hans, vi er hans folk og den flokken han gjeter.\nKom gjennom portene hans med takkesang,\ninn i forgårdene med lovsang! Lov ham, velsign hans navn! Herren er god, evig er hans miskunn,\nhans trofasthet varer fra slekt til slekt.\nBIBELREF | Sal 100",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "D"
 					},
 					{
 						"id": "v2003-20",
@@ -3159,7 +3189,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Sal 103,1-5",
 						"text": "Det står skrevet i Salmenes bok:\nVelsign Herren, min sjel!\nAlt som i meg er, velsign hans hellige navn.\nVelsign Herren, min sjel! Glem ikke alt det gode han gjør. Han tilgir all din skyld og leger alle dine sykdommer.\nHan frir ditt liv fra graven og kroner deg med barmhjertighet og kjærlighet. Han metter ditt liv med det gode, du blir ung igjen som ørnen.\nBIBELREF | Sal 103,1-5",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "E"
 					},
 					{
 						"id": "v2003-21",
@@ -3167,7 +3198,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 2,9-10a.13b-14",
 						"text": "Det står skrevet i Høysangen:\nMin kjæreste ligner en gasell, en ung hjort.\nDer står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret. Min kjæreste tar til orde og sier: Stå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg, la meg få høre stemmen din!\nFor stemmen er myk og skikkelsen skjønn.\nBIBELREF | Høys 2,9-10a.13b-14",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "F"
 					},
 					{
 						"id": "v2003-22",
@@ -3175,7 +3207,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 2,8-14.16-17 + 8,6-7a",
 						"text": "Det står skrevet i Høysangen:\n(Denne lesningen kan leses av én tekstleser eller av kvinne (I) og mann (II).)\n{{r}}I |{{/r}} Hør, det er min kjæreste, der kommer han, løpende over fjellene, hoppende over høydene.\nMin kjæreste ligner en gasell, en ung hjort. Der står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret.\nMin kjæreste tar til orde og sier:\n{{r}}II |{{/r}} Stå opp, min elskede, min vakre jente, og kom! Nå er vinteren omme, regnet er forbi, det er borte.\nLandet dekkes av blomster. Sangens tid er inne, turtelduen kan høres i landet. Frukten på fikentreet modner, blomsten på vinstokken dufter.\nStå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg,\nla meg få høre stemmen din! For stemmen er myk og skikkelsen skjønn.\n{{r}}I |{{/r}} Min kjæreste er min, og jeg er hans, han som gjeter mellom liljene. Helt til dagen blåser skyggene bort, spring som gasellen, min kjæreste, som en ung hjort over kløfter og fjell!\n{{r}}I/II |{{/r}} Sett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 2,8-14.16-17 + 8,6-7a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "G"
 					},
 					{
 						"id": "v2003-23",
@@ -3183,7 +3216,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Høys 8,6-7a",
 						"text": "Det står skrevet i Høysangen:\nSett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 8,6-7a",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "H"
 					},
 					{
 						"id": "v2003-24",
@@ -3191,7 +3225,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 5,13-16",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Dere er jordens salt! Men hvis saltet mister sin kraft,\nhvordan skal det da bli gjort til salt igjen? Det duger ikke lenger til noe, men kastes ut og tråkkes ned av menneskene.\nDere er verdens lys! En by som ligger på et fjell, kan ikke skjules. Heller ikke tenner man en oljelampe og setter den under et kar.\nNei, man setter den på en holder, så den lyser for alle i huset.\nSlik skal deres lys skinne for menneskene, så de kan se de gode gjerningene dere gjør, og prise deres Far i himmelen!\nBIBELREF | Matt 5,13-16",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "I"
 					},
 					{
 						"id": "v2003-25",
@@ -3199,7 +3234,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 6,25-34",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Vær ikke bekymret for livet, hva dere skal spise,\neller hva dere skal drikke, heller ikke for kroppen, hva dere skal kle dere med. Er ikke livet mer enn maten og kroppen mer enn klærne?\nSe på fuglene under himmelen! De sår ikke, de høster ikke og samler ikke i hus,\nmen den Far dere har i himmelen, gir dem føde likevel. Er ikke dere mer verdt enn de?\nHvem av dere kan vel med all sin bekymring legge en eneste alen til sin livslengde? Og hvorfor er dere bekymret for klærne? Se på liljene på marken, hvordan de vokser! De strever ikke og spinner ikke, men jeg sier dere: Selv ikke Salomo i all sin prakt var kledd som en av dem. Når Gud kler gresset på marken så fint, det som gror i dag\nog kastes i ovnen i morgen, hvor mye mer skal han ikke da kle dere – dere lite troende!\nSå gjør dere ikke bekymringer, og si ikke: ‘Hva skal vi spise?’ eller: ‘Hva skal vi drikke?’ eller: ‘Hva skal vi kle oss med?’ Alt dette er hedningene opptatt av.\nMen den Far dere har i himmelen, vet jo at dere trenger alt dette.\nSøk først Guds rike og hans rettferdighet, så skal dere få alt det andre i tillegg.\nSå gjør dere ingen bekymringer for morgendagen; morgendagen skal bekymre seg for seg selv.\nHver dag har nok med sin egen plage.\nBIBELREF | Matt 6,25-34",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "J"
 					},
 					{
 						"id": "v2003-26",
@@ -3207,7 +3243,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 7,7-8.12",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Be, så skal dere få. Let, så skal dere finne.\nBank på, så skal det lukkes opp for dere. For den som ber, han får,\nog den som leter, han finner, og den som banker på, skal det lukkes opp for. Alt dere vil at andre skal gjøre mot dere, det skal også dere gjøre mot dem. For dette er loven og profetene.\nBIBELREF | Matt 7,7-8.12",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "K"
 					},
 					{
 						"id": "v2003-27",
@@ -3215,7 +3252,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Matt 7,24-25",
 						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Hver den som hører disse mine ord og gjør det de sier, ligner en klok mann som bygde huset sitt på fjell. Regnet styrtet, elvene flommet, og vindene blåste og slo mot huset.\nMen det falt ikke, for det var bygd på fjell.\nBIBELREF | Matt 7,24-25",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "L"
 					},
 					{
 						"id": "v2003-28",
@@ -3223,7 +3261,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Joh 15,9-12[-17]",
 						"text": "Det står skrevet i evangeliet etter Johannes:\nJesus sa: Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet!\nHvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere\nog deres glede kan bli fullkommen. Og dette er mitt bud:\nDere skal elske hverandre som jeg har elsket dere.\n[Ingen har større kjærlighet enn den som gir livet for vennene sine.\nDere er mine venner hvis dere gjør det jeg befaler dere. Jeg kaller dere ikke lenger tjenere, for tjeneren vet ikke hva herren hans gjør. Jeg kaller dere venner, for jeg har gjort kjent for dere alt jeg har hørt av min Far. Dere har ikke utvalgt meg, men jeg har utvalgt dere og satt\ndere til å gå ut og bære frukt, en frukt som varer. Da skal Far gi dere alt dere ber om i mitt navn. Dette er mitt bud til dere: Elsk hverandre!]\nBIBELREF | Joh 15,9-12[-17]",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "M"
 					},
 					{
 						"id": "v2003-29",
@@ -3231,7 +3270,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Rom 8,38-39",
 						"text": "Det står skrevet i Paulus’ brev til romerne:\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt,\nverken det som er i det høye eller i det dype, eller noen annen skapning,\nskal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,38-39",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "N"
 					},
 					{
 						"id": "v2003-30",
@@ -3239,7 +3279,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "1 Kor 13",
 						"text": "Det står skrevet i Paulus’ første brev til korinterne:\n(Kapitlet kan leses i sin helhet eller i utdrag.)\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer,\nskal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "O"
 					},
 					{
 						"id": "v2003-31",
@@ -3247,7 +3288,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Ef 3,14-21",
 						"text": "Det står skrevet i Paulus’ brev til efeserne:\nDerfor bøyer jeg mine knær for Far, han som har gitt navn til alt som kalles far i himmel og på jord. Må han som er så rik på herlighet, gi deres indre menneske kraft og styrke ved sin Ånd. Må Kristus ved troen bo i deres hjerter\nog dere stå rotfestet og grunnfestet i kjærlighet. Må dere sammen med alle de hellige\nbli i stand til å fatte bredden og lengden, høyden og dybden, ja, kjenne Kristi kjærlighet, som overgår all kunnskap. Må dere bli fylt av hele Guds fylde!\nHan som virker i oss med sin kraft og kan gjøre uendelig mye mer enn det vi ber om og\nforstår, ham være ære i kirken og i Kristus Jesus gjennom alle slekter og evigheter! Amen.\nBIBELREF | Ef 3,14-21",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "P"
 					},
 					{
 						"id": "v2003-32",
@@ -3255,7 +3297,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fil 2,1-5",
 						"text": "Det står skrevet i Paulus’ brev til filipperne:\nOm det da er trøst i Kristus, oppmuntring i kjærligheten, fellesskap i Ånden, om det finnes medfølelse og barmhjertighet, så gjør nå min glede fullkommen: Ha samme sinnelag og samme kjærlighet, vær ett i sjel og sinn.\nGjør ikke noe av selvhevdelse og tom ærgjerrighet, men vær ydmyke og sett de andre høyere enn dere selv. Tenk ikke bare på deres eget beste, men også på de andres.\nLa samme sinnelag være i dere som også var i Kristus Jesus!\nBIBELREF | Fil 2,1-5",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "Q"
 					},
 					{
 						"id": "v2003-33",
@@ -3263,7 +3306,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Fil 4,4-8",
 						"text": "Det står skrevet i Paulus’ brev til filipperne:\nGled dere alltid i Herren! Igjen vil jeg si: Gled dere!\nLa alle mennesker få merke at dere er vennlige. Herren er nær.\nVær ikke bekymret for noe! Men legg alt dere har på hjertet, fram for Gud. Be og kall på ham med takk. Og Guds fred, som overgår all forstand,\nskal bevare deres hjerter og tanker i Kristus Jesus. Til slutt, søsken: Alt som er sant og edelt, rett og rent, alt som er verdt å elske og akte, alt som er til glede og alt som fortjener ros, legg vinn på det!\nBIBELREF | Fil 4,4-8",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "R"
 					},
 					{
 						"id": "v2003-34",
@@ -3271,7 +3315,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Kol 3, 12b-14",
 						"text": "Det står skrevet i Paulus’ brev til kolosserne:\nKle dere derfor i inderlig medfølelse og vær gode, milde, ydmyke og tålmodige,\nså dere bærer over med hverandre og tilgir hverandre hvis den ene har noe å bebreide den andre. Som Herren har tilgitt dere, skal dere tilgi hverandre.\nOg over alt dette: Kle dere i kjærlighet, som er båndet som binder sammen\nog gjør fullkommen.\nBIBELREF | Kol 3, 12b-14",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "S"
 					},
 					{
 						"id": "v2003-35",
@@ -3279,7 +3324,8 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "1 Joh 4,7-12",
 						"text": "Det står skrevet i Johannes’ første brev:\nMine kjære, la oss elske hverandre! For kjærligheten er fra Gud,\nog hver den som elsker, er født av Gud og kjenner Gud.\nDen som ikke elsker, har aldri kjent Gud, for Gud er kjærlighet.\nOg ved dette ble Guds kjærlighet åpenbart blant oss, at Gud sendte sin enbårne Sønn til verden\nfor at vi skulle leve ved ham.\nJa, dette er kjærligheten, ikke at vi har elsket Gud, men at han har elsket oss\nog sendt sin Sønn til soning for våre synder.\nMine kjære, har Gud elsket oss slik, da skylder også vi å elske hverandre. Ingen har noen gang sett Gud. Men dersom vi elsker hverandre, blir Gud i oss, og hans kjærlighet er fullendt i oss.\nBIBELREF | 1 Joh 4,7-12",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"bokstav": "T"
 					}
 				]
 			},

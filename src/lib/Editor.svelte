@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox, chooseSectionsModal, prompt } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
@@ -134,6 +134,9 @@
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
+				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}
+					<button class="sec-velg-tekster" title="Velg hvilke tekster som skal være med" onclick={() => velgTeksterModal(sec)}>{@html mdi("format-list-bulleted", 14)} Velg tekster …</button>
+				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet ned" onclick={() => flyttSeksjon(si, 1)} disabled={si === o.sections.length - 1}>{@html mdi("arrow-down", 13)}</button>
 				<button onclick={() => addItem(si)}>+ ledd</button>
 				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>{@html mdi("delete-outline", 14)}</button>
@@ -154,7 +157,7 @@
 						ondrop={(e) => onDrop(e, si, ii)}
 						ondragend={onDragEnd}
 					>
-						<Item {it} {si} {ii} />
+						<Item {it} {si} {ii} bokstav={/skriftlesning/i.test(sec.title) ? skriftBokstav(it, ii) : null} />
 					</div>
 				{/each}
 			</div>
