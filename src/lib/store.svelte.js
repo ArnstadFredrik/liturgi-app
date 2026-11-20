@@ -338,7 +338,7 @@ export function registrerÅpenMal(obj, dev) {
 }
 
 export function closeEditor() {
-	// fjern gudtjenesten/malen fra «åpne»-listene — alle lukkeveier går hit
+	// fjern gudstjenesten/malen fra «åpne»-listene — alle lukkeveier går hit
 	if (app.kind === 'service' && app.current) {
 		const e = entryFor(app.current);
 		if (e) app.åpneTjenester.splice(app.åpneTjenester.indexOf(e), 1);

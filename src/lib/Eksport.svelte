@@ -891,7 +891,7 @@
 		return true;
 	}
 
-	/** Kopi av gudtjenesten med bare valgte ledd aktivert for en profil. */
+	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
 	function klonMedValg(svc, profil, brProfil = null) {
 		const kopi = JSON.parse(JSON.stringify(svc));
 		// lagrede valg i filen går foran øktens midlertidige valg
@@ -908,7 +908,7 @@
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
-				// «Fjern fra gudtjenesten» i kontekstmenyen gjelder også for eksport
+				// «Fjern fra gudstjenesten» i kontekstmenyen gjelder også for eksport
 				if (original && original.enabled === false) { it.enabled = false; return; }
 				if (!visSalmeinfo) {
 					it.text = stripSalmeinfo(it.text);

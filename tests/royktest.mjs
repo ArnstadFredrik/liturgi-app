@@ -16,7 +16,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 const PORT = 9877;
-const ELLER_MALER = ['gravferd', 'Ordning for hovedgudtjeneste', 'Dåp i hovedgudtjenesten', 'Dåp i egen', 'Forbønn', 'Vigsel (bokmål, 2017)', 'Vigsel (bokmål, 2003)', 'Konfirmasjonstidens'];
+const ELLER_MALER = ['gravferd', 'Ordning for hovedgudstjeneste', 'Dåp i hovedgudstjenesten', 'Dåp i egen', 'Forbønn', 'Vigsel (bokmål, 2017)', 'Vigsel (bokmål, 2003)', 'Konfirmasjonstidens'];
 const ELECTRON = join(fileURLToPath(new URL('..', import.meta.url)), 'node_modules', '.bin', 'electron');
 
 let feil = 0, pass = 0;

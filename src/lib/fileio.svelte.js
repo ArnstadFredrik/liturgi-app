@@ -449,9 +449,9 @@ export async function loadTemplatesFromDisk() {
 		const eksisterende = new Set([...list.originaler, ...list.brukermaler].map((x) => x.name));
 		for (const bt of BUILTIN_TEMPLATES) {
 			if (eksisterende.has(bt.name)) continue;
-			// originaler: hovedgudtjenesten, gravferdsordningen og maler flagget erOriginal
+			// originaler: hovedgudstjenesten, gravferdsordningen og maler flagget erOriginal
 			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
-			const sub = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
+			const sub = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
 			const data = JSON.parse(JSON.stringify(bt));
 			for (const sec of data.sections) for (const it of sec.items) autoMarkMigrate(it);
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(bt.name).toLowerCase().replace(/\s+/g, '-');
@@ -540,7 +540,7 @@ export async function loadTemplatesFromDisk() {
 		// kirkeårsprefasjonene (KBM 2020) er en egen «virtuell kilde» i biblioteket:
 		// 12 kirkeårsbestemte (først) + de generelle a–g — hentet fra
 		// nattverd-prefasjon-leddet i hovedgudstjenesten (BUILTIN)
-		// NB: det kan ligge flere (stale) disk-kopier av hovedgudtjenesten — velg
+		// NB: det kan ligge flere (stale) disk-kopier av hovedgudstjenesten — velg
 		// den versjonen av nattverd-prefasjonen som har FLEST alts (disk-kopiene
 		// oppdateres ikke automatisk når data.js får nye alternativer)
 		const builtinHovedmal = BUILTIN_TEMPLATES.find((t) => t.id === 'hovedgudstjeneste2020');
@@ -569,7 +569,7 @@ export async function loadTemplatesFromDisk() {
 					const intro = it.introAlts?.[it.selIntro ?? 0]?.text ?? '';
 					const avsl = it.avslutningAlts?.[it.selAvsl ?? 0]?.text ?? '';
 					// bibDup: alternativet er innholdsmessig identisk med originalmalen
-					// (Ordning for hovedgudtjenesten) og skal ikke inn i bibliotekslisten
+					// (Ordning for hovedgudstjenesten) og skal ikke inn i bibliotekslisten
 					if (it.bibDup) continue;
 					const alts = (it.alts?.length ? it.alts : [{ label: '', text: it.text }])
 						.filter((a) => !a.bibDup)
