@@ -34,10 +34,8 @@ export function skriftBokstav(it, idx) {
  *  bare ha 2–4 av dem. Merk de ønskede — bare merkede ledd følger med
  *  (enabled). Bokstavfeltet lar brudeparets svar (f.eks. «B, E, H») sette
  *  merkingen direkte. */
-/** Hvilken liturgitype har malen? (egendefinert felt eller navn). */
-export function malType(t) {
-	return t.liturgiType ?? (/vigsel/i.test(t.name || '') ? 'vigsel' : /gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
-}
+/** MalType er flyttet til maltyper.js (ren modul — testbar i node). */
+export { malType } from './maltyper.js';
 
 /** Del-gruppe-modal: legg til / slett / velg del-grupper for en seksjon.
  *  Gruppelista lagres på malen (delGrupper); seksjonen merkes med

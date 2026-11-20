@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { BUILTIN_TEMPLATES, DEAKTIVERTE_MALER } from '../../src/lib/data.js';
 import { litHtml, litEditHtml, litLinjeHtml } from '../../src/lib/lit.js';
@@ -187,14 +188,65 @@ test('litLinjeHtml: punktliste prefiks + chip', () => {
 
 test('ingen «gudtjeneste» uten s i kildekoden (kernel-skrivefelle)', () => {
 	const { execSync } = createRequire(import.meta.url)('node:child_process');
-	const root = new URL('../../', import.meta.url).pathname;
+	const root = fileURLToPath(new URL('../../', import.meta.url));
+	// case-insensitiv: treffer både «gudtjeneste» og «Gudtjeneste». Unntatt:
+	// - hovedgudstjeneste-navn er OK? NEI — de skal også ha s («hovedgudstjeneste» er feil).
+	// - fileio.svelte.js normaliseringslinjer (bevisst gammel skrivemåte for legacy-data)
+	// - selve testen (denne filen)
 	let ut = '';
 	try {
 		ut = execSync(
-			`grep -rn 'gudtjeneste' ${JSON.stringify(root + 'src')} --include='*.js' --include='*.svelte' | grep -v 'hovedgudtjeneste' | grep -v 'liturgiType === ' || true`,
+			`grep -rni 'gudtjeneste' ${JSON.stringify(root + 'src')} --include='*.js' --include='*.svelte' --include='*.css'`
+			+ ` | grep -v 'normaliser gammel skrivemåte'`
+			+ ` | grep -v 'liturgiType === ' || true`,
 			{ encoding: 'utf8' }
 		);
 	} catch { ut = ''; }
 	const treff = ut.split('\n').filter((l) => l.trim());
 	assert.deepStrictEqual(treff, [], 'funnet «gudtjeneste» uten s: ' + treff.join(' | '));
+});
+
+
+// ---- opprett-modulen (Ny gudtjeneste): type-klassifisering og listene ----
+import { malType, malerForType, kanBrukes, TYPER } from '../../src/lib/maltyper.js';
+
+test('opprett-modulen: malType klassifiserer ALLE maler i de tre typene', () => {
+	for (const t of [...BUILTIN_TEMPLATES, ...DEAKTIVERTE_MALER]) {
+		assert.ok(TYPER.includes(malType(t)), t.name + ': ukjent type «' + malType(t) + '»');
+	}
+});
+
+test('opprett-modulen: gudtjeneste-listen viser originalmalene (ikke dåp-i-HG)', () => {
+	const liste = malerForType(BUILTIN_TEMPLATES, 'gudstjeneste');
+	const ider = liste.map((t) => t.id);
+	// hver brukbar gudstjeneste-mal fra frøet skal være i listen — unntatt dåp-i-HG
+	// (kun lenket del av HG, kanGudstjeneste=false) og deaktiverte maler
+	for (const t of BUILTIN_TEMPLATES) {
+		if (t.id.startsWith('dop-i-hovedgudstjenesten')) {
+			assert.ok(!ider.includes(t.id), 'dåp-i-HG skal ikke være opprettingsmal');
+			assert.strictEqual(t.kanGudstjeneste, false, 'dåp-i-HG mangler kanGudstjeneste=false');
+			continue;
+		}
+		if (malType(t) === 'gudstjeneste' && kanBrukes) assert.ok(ider.includes(t.id), 'gudstjeneste-listen mangler ' + t.id);
+	}
+	// deaktiverte (Bakke og Gyland) kommer ikke fra frøet
+	assert.ok(!liste.some((t) => t.id === 'bakke-gyland-2025'), 'deaktivert mal i listen');
+	// dåp-i-egen lastes fra disk (brukerens mal) — den skal klassifiseres som gudtjeneste
+	assert.strictEqual(malType({ name: 'Dåp i egen gudtjeneste (bokmål, 2017)' }), 'gudstjeneste');
+});
+
+test('opprett-modulen: vigsel- og gravferd-listene viser originalmalene', () => {
+	const vigsel = malerForType(BUILTIN_TEMPLATES, 'vigsel').map((t) => t.id);
+	for (const id of ['vigsel-2003', 'vigsel-2017', 'forb-borgerlig-ekteskap-2017']) {
+		assert.ok(vigsel.includes(id), 'vigsel-listen mangler ' + id);
+	}
+	const gravferd = malerForType(BUILTIN_TEMPLATES, 'gravferd').map((t) => t.id);
+	assert.ok(gravferd.includes('gravferd-2003'), 'gravferd-listen mangler gravferd-2003');
+});
+
+test('opprett-modulen: liturgiType-feltet vinner over navn-gjetningen', () => {
+	assert.strictEqual(malType({ name: 'Vigsel (bokmål, 2003)' }), 'vigsel');
+	assert.strictEqual(malType({ name: 'Ordning for gravferd (bokmål, 2003)' }), 'gravferd');
+	assert.strictEqual(malType({ name: 'Ukjent navn' }), 'gudstjeneste');
+	assert.strictEqual(malType({ name: 'Prestens notatblokk', liturgiType: 'vigsel' }), 'vigsel');
 });

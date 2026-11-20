@@ -63,7 +63,7 @@
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i originalmaler …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>

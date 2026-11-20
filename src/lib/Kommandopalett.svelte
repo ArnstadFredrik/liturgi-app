@@ -23,8 +23,8 @@
 		{ id: 'bibliotek', navn: 'Bibliotek', kategori: 'Gå til', taster: '⌘3', enabled: () => true, kjor: () => kjorMenyId('bibliotek') },
 		{ id: 'kirkeaar', navn: 'Kirkeåret', kategori: 'Gå til', taster: '⌘4', enabled: () => true, kjor: () => kjorMenyId('kirkeaar') },
 		{ id: 'innstillinger', navn: 'Innstillinger', kategori: 'Gå til', taster: '⌘,', enabled: () => true, kjor: () => kjorMenyId('innstillinger') },
-		{ id: 'salmeoversikt', navn: 'Salmeoversikt', kategori: 'Gudtjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('salmeoversikt') },
-		{ id: 'eksport', navn: 'Eksport', kategori: 'Gudtjeneste', taster: '⌘E', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('eksport') },
+		{ id: 'salmeoversikt', navn: 'Salmeoversikt', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('salmeoversikt') },
+		{ id: 'eksport', navn: 'Eksport', kategori: 'Gudstjeneste', taster: '⌘E', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('eksport') },
 		{ id: 'vis-leddinnhold', navn: 'Vis leddinnhold (eksport)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('vis-leddinnhold') },
 		{ id: 'koblet-visning', navn: 'Koblet visning (eksport)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: () => kjorMenyId('koblet-visning') },
 		// eksportvalgene (samme som Eksportvalg-menyen / kontekstmenyen)
