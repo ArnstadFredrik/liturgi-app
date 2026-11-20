@@ -1613,7 +1613,7 @@ export const BUILTIN_TEMPLATES = [
 				]
 			},
 			{
-				"title": "Jordpåkastelse - Gravferd",
+				"title": "Jordpåkastelse",
 				"items": [
 					{
 						"id": "gf-16",
@@ -1767,7 +1767,7 @@ export const BUILTIN_TEMPLATES = [
 				"delGruppe": "gravferd"
 			},
 			{
-				"title": "Jordpåkastelse — Bisettelse",
+				"title": "Jordpåkastelse",
 				"items": [
 					{
 						"id": "gf-25",
@@ -1782,7 +1782,7 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "gf-26",
 						"type": "instruks",
-						"heading": "19 Senkning (krematorium)",
+						"heading": "19 Senkning",
 						"text": "",
 						"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
 						"alts": [],
@@ -1792,7 +1792,7 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "gf-27",
 						"type": "tekst",
-						"heading": "20 Jordpåkastelse (krematorium)",
+						"heading": "20 Jordpåkastelse",
 						"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den Hellige Ånds navn.\n\n@NOTAT Deretter kaster liturgen tre ganger jord på kisten og sier:\n{{r}}Første gang: {{/r}}Av jord er du kommet.\n{{r}}Andre gang:{{/r}} Til jord skal du bli.\n{{r}}Tredje gang:{{/r}} Av jorden skal du igjen oppstå.",
 						"instr": "",
 						"alts": [],
@@ -1802,7 +1802,7 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "gf-28",
 						"type": "tekst",
-						"heading": "21 Skriftord og velsignelse (krematorium)",
+						"heading": "21 Skriftord og velsignelse",
 						"text": "",
 						"instr": "",
 						"alts": [
@@ -1828,7 +1828,7 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "gf-30",
 						"type": "salme",
-						"heading": "22 Salme (krematorium)",
+						"heading": "22 Salme",
 						"text": "",
 						"instr": "",
 						"alts": [],
@@ -1839,7 +1839,7 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "gf-31",
 						"type": "instruks",
-						"heading": "23 Postludium (krematorium)",
+						"heading": "23 Postludium",
 						"text": "",
 						"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
 						"alts": [],
@@ -1859,476 +1859,6 @@ export const BUILTIN_TEMPLATES = [
 		]
 	},
 	{
-		"id": "dop-i-egen-gudtjeneste-2017",
-		"name": "Dåp i egen gudtjeneste (bokmål, 2017)",
-		"description": "Ordning for Dåp i egen gudtjeneste — vedtatt av Kirkemøtet 2017. Hele gudstjenesten bygd opp rundt dåpshandlingen.",
-		"sections": [
-			{
-				"title": "Samling",
-				"items": [
-					{
-						"id": "deg-1",
-						"type": "instruks",
-						"heading": "Preludium",
-						"instr": "Vedtatt av Kirkemøtet 2017 (Kirkemøtet 06/17).\nFør gudstjenesten begynner, tar dåpsfølget plass i kirken.\nUnder ledd 1 Preludium kan det ordnes en prosesjon. Hvis en bruker prosesjonskors, skal dette alltid bæres foran dåpsfølget.\nProsesjon og inngangssalme kan eventuelt kombineres. Tilsvarende kan forsamlingen eventuelt gå ut i prosesjon etter postludiet.\nVed dåpshandlingen nevnes bare dåpskandidatens fornavn (uten mellomnavn eller slektsnavn), mens det fulle navnet brukes andre steder i handlingen.\nLiturgen bærer stola i hvitt eller i kirkeårstidens farge.\nDet spilles et preludium, normalt som forspill til inngangssalmen. Dåpskandidatene, både barn som bæres og de som går selv, kommer inn i kirken i prosesjon under preludiet. De tar plass etter stedetsskikk.\nMenigheten reiser seg for å ta imot prosesjonen.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					},
-					{
-						"id": "deg-2",
-						"type": "tekst",
-						"heading": "Inngangssalme",
-						"instr": "Menigheten blir stående under inngangssalmen.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					},
-					{
-						"id": "deg-3",
-						"type": "tekst",
-						"heading": "Inngangsord",
-						"alts": [
-							{
-								"label": "Hovedvariant",
-								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
-							},
-							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn: Vår skaper, frigjører og livgiver.\n(Menigheten setter seg.)\n(Her kan det kort sies noe om gudstjenesten som følger. Dåpskandidatenes fulle navn nevnes.)\n(Her kan følge)"
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-4",
-						"type": "tekst",
-						"heading": "Samlingsbønn",
-						"instr": "En annen egnet samlingsbønn.",
-						"alts": [
-							{
-								"label": "A",
-								"text": "{{r}}L/ML |{{/r}} Hellige Gud, vi priser deg for alt som lar oss kjenne at du er god.\nTakk for at du i dåpen knytter rike løfter til vårt liv. Her for ditt ansikt ber vi: Gi oss åpne sinn, takknemlige hjerter og villige hender, så vi kan ta imot ditt ord, lovprise deg for din godhet, og i ord og gjerning vitne om dine storverk."
-							},
-							{
-								"label": "B",
-								"text": "{{r}}L/ML |{{/r}} Hellige Gud, du som har gitt oss livet i gave.\nTakk for at du tar imot oss i dåpen og styrker oss i nattverdens måltid.\nLed oss ved ditt ord og gjør oss åpne for det du vil gi oss."
-							},
-							{
-								"label": "C",
-								"text": "{{r}}A |{{/r}} Treenige Gud, du som i dåpen har gitt oss et hjem i din kirke og satt oss et evig mål hos deg: Led oss på dine veier."
-							}
-						],
-						"selAlt": 0,
-						"introAlts": [
-							{
-								"label": "Innledning",
-								"text": "{{r}}L |{{/r}} La oss be."
-							}
-						],
-						"selIntro": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-5",
-						"type": "tekst",
-						"heading": "Mottakelse til dåp",
-						"alts": [
-							{
-								"label": "Ved dåp av barn",
-								"text": "{{r}}L |{{/r}} Med takk og glede bringer vi i dag dette barnet/disse barna til Gud i den hellige dåp. I dåpen tar Gud imot oss og forener oss med den korsfestede og oppstandne Jesus Kristus."
-							},
-							{
-								"label": "Ved dåp av større barn, unge eller voksne",
-								"text": "{{r}}L |{{/r}} Med takk og glede bringer vi i dag NN/dere til Gud i den hellige dåp. I dåpen tar Gud imot oss og forener oss medden korsfestede og oppstandne Jesus Kristus.\n(Følgende skriftord kan leses)\n{{r}}L |{{/r}} For så høyt har Gud elsket verden at han ga sin Sønn, den enbårne, for at hver den som tror på ham, ikke skal gå tapt, men ha evig liv. Joh 3,16\n{{r}}L |{{/r}} Hør hvor vennlig Jesus tar imot barna og åpner Guds rike for dem:\n(Teksten leses av en i dåpsfølget, en annen medliturg eller liturgen)\n{{r}}ML/L |{{/r}} De bar små barn til Jesus for at han skulle røre ved dem, men disiplene viste dem bort. Da Jesus så det, ble han sint og sa til dem: «La de små barna komme til meg, og hindre dem ikke! For Guds rike tilhører slike som dem. Sannelig, jeg sier dere: Den som ikke tar imot Guds rike slik som et lite barn, skal ikke komme inn i det.» Og han tok dem inn til seg, la hendene på dem og velsignet dem. Mark 10,13–16"
-							},
-							{
-								"label": "Ved dåp av større barn, unge eller voksne kan denne teksten erstattes med",
-								"text": "{{r}}L |{{/r}} Hør hva apostelen Paulus sier om dåpen:\n{{r}}ML/L |{{/r}} Det ble åpenbart hvor god vår Gud og frelser er, og at han elsker menneskene: Han frelste oss, ikke på grunn av våre rettferdige gjerninger, men fordi han er barmhjertig. Han frelste oss ved badet som gjenføder og fornyer ved Den hellige ånd, som han så rikelig har øst ut over oss ved Jesus Kristus, vår frelser, så vi skulle bli rettferdige ved hans nåde og bli arvinger til det evige liv, som er vårt håp. Tit 3,4–7"
-							},
-							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} Jesus sier at vi blir født på ny i dåpen:\n{{r}}ML/L |{{/r}} Det var en mann som het Nikodemus. Han var fariseer og en av jødenes rådsherrer. Han kom til Jesus om natten og sa:\n«Rabbi, vi vet at du er en lærer som er kommet fra Gud. For ingen kan gjøre de tegnene du gjør, uten at Gud er med ham.» Jesus svarte: «Sannelig, sannelig, jeg sier deg: Den som ikke blir født på ny, kan ikke se Guds rike.» «Hvordan kan en som er gammel, bli født?» sa Nikodemus. «Kan noen komme inn i mors liv igjen og bli født for andre gang?» Jesus svarte:\n«Sannelig, sannelig, jeg sier deg: Den som ikke blir født av vann og Ånd, kan ikke komme inn i Guds rike.» Joh 3,1–5"
-							},
-							{
-								"label": "Eller 2",
-								"text": "{{r}}L |{{/r}} Hør hva apostelen Paulus sier om dåpen:\n{{r}}ML/L |{{/r}} Vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans. Vi vet at vårt gamle menneske ble korsfestet med ham, for at den kroppen som er underlagt synden, skulle tilintetgjøres og vi ikke lenger være slaver under synden. For den som er død, er befridd fra synden. Er vi døde med Kristus, tror vi at vi også skal leve medham. Rom 6,3–8\n{{r}}L |{{/r}} La oss takke og be:\n{{r}}ML/L |{{/r}} Evige Gud, du som gir liv til alt som lever, og har skapt oss i ditt bilde:\nVi takker deg for NN/NN (fornavn). Hun/Han/De er dyrebar(e) i dine øyne. Omslutt henne/ham/dem med din kjærlighet og gi henne/ham/dem et hjem i din kirke. Amen."
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					}
-				]
-			},
-			{
-				"title": "Ordet",
-				"items": [
-					{
-						"id": "deg-6",
-						"type": "tekst",
-						"heading": "Skriftlesning",
-						"alts": [
-							{
-								"label": "",
-								"text": "{{r}}L |{{/r}} La oss høre Herrens ord.\n@NOTAT En eller to av de følgende tekstene eller av søndagens tekster fra Tekstbok for Den norske kirke leses.\n@NOTAT Tekstene leses gjerne av en fra dåpsfølget eller av en annen medliturg.\n{{r}}L |{{/r}} Jesus sier at vi blir født på ny i dåpen. Slik står det skrevet i evangeliet etter Johannes:\n{{r}}ML/L |{{/r}} Det var en mann som het Nikodemus. Han var fariseer og en av jødenes rådsherrer. Han kom til Jesus om natten og sa: «Rabbi, vi vet at du er en lærer som er kommet fra Gud. For ingen kan gjøre de tegnene du gjør, uten at Gud er med ham.» Jesus svarte: «Sannelig, sannelig, jeg sier deg: Den som ikke blir født på ny, kan ikke se Guds rike.» «Hvordan kan en som er gammel, bli født?» sa Nikodemus. «Kan noen komme inn i mors liv igjen og bli født for andre gang?» Jesus svarte: «Sannelig, sannelig, jegsier deg: Den som ikkeblirfødt av vann og Ånd, kan ikke komme inn i Guds rike.» \nBIBELREF | Joh 3,1–5"
-							},
-							{
-								"label": "",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til Titus:\n{{r}}ML/L |{{/r}} Det ble åpenbart hvor god vår Gud og frelser er, og at han elsker menneskene: Han frelste oss, ikke på grunn av våre rettferdige gjerninger, men fordi han er barmhjertig. Han frelste oss ved badet som gjenføder og fornyer ved Den hellige ånd, som han så rikelig har øst ut over oss ved Jesus Kristus, vår frelser, så vi skulle bli rettferdige ved hans nåde og bli arvinger til det evige liv, som er vårt håp. \nBIBELREF | Tit 3,4–7"
-							},
-							{
-								"label": "",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans. \nBIBELREF | Rom 6,3–5"
-							},
-							{
-								"label": "",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Galatia:\n{{r}}ML/L |{{/r}} Dere er alle Guds barn ved troen, i Kristus Jesus. Alle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus. \nBIBELREF | Gal 3,26–28"
-							},
-							{
-								"label": "",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus vitner om det vi som døpte eier i troen. Slik står det skrevet i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd? For jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre. \nBIBELREF | Rom 8,35.38–39"
-							},
-							{
-								"label": "andre",
-								"text": "@NOTAT Andre eksempler på egnede tekster\nSal 8,4–6.10; Sal 139,13–16; Matt 3,13–17; Mark 9,33–37; Joh 3,5–8; Apg\n2,37–41, Apg 8,36–38; Ef 3,14–21; 1 Joh 3,1–2"
-							}
-						],
-						"selAlt": 0,
-						"text": "",
-						"avslutningAlts": [
-							{
-								"label": "Avslutning",
-								"text": "@NOTAT Tekstlesningen kan avsluttes med\n{{r}}ML/L | {{/r}}Slik lyder Herrens ord."
-							}
-						],
-						"selAvsl": 0
-					},
-					{
-						"id": "deg-7",
-						"type": "tekst",
-						"heading": "Dåpssalme",
-						"instr": "Dåpssalmen kan eventuelt deles, slik at noen vers synges før og noen vers etter prekenen.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					},
-					{
-						"id": "deg-8",
-						"type": "tekst",
-						"heading": "Preken",
-						"instr": "Liturgen holder en kort preken knyttet til en eller flere av tekstene som er lest.\nPrekenen kan avsluttes med lovprisningen:",
-						"text": "",
-						"alts": [],
-						"selAlt": 0,
-						"avslutningAlts": [
-							{
-								"label": "A",
-								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd, som var og er og blir én sann Gud fra evighet og til evighet."
-							},
-							{
-								"label": "B",
-								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd: Vår skaper, frigjører og livgiver."
-							}
-						],
-						"selAvsl": 0
-					}
-				]
-			},
-			{
-				"title": "Forbønn",
-				"items": [
-					{
-						"id": "deg-9",
-						"type": "tekst",
-						"heading": "Menighetens forbønn",
-						"instr": "Forbønn kan utelates i denne ordningen.\nEtter bønneleddene følger et kort menighetssvar.\nEn annen egnet forbønn, gjerne lokalt utformet.",
-						"alts": [
-							{
-								"label": "Treenigh Forbønn",
-								"text": "{{r}}ML/L |{{/r}} Far i himmelen: Takk for at du skapte oss,\nog takk for at du skapte jorden vi bor på.\nTakk for at du kjenner oss og elsker oss.\nHjelp oss til å ta vare på hverandre og på alt det du har skapt.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n\n{{r}}ML/L |{{/r}} Kjære Jesus:\nDu har seiret over døden og det onde.\nDu er vår venn og vil være med oss alle dager.\nTakk for at vi får være trygge hos deg.\nVær hos alle som er ensomme og redde.\nLær oss å være til stede for hverandre.\nHjelp oss å kjempe mot undertrykkelse og urett.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n{{r}}\n{{/r}}\n{{r}}ML/L |{{/r}} Gode Hellige Ånd:\nDu viser oss veien vi skal gå.\nGi oss vilje og kraft til å gå den.\nGi oss visdom og styrke så vi kan stå sammen.\nDu har kalt oss til å være din kirke.\nKom til oss med dine gaver\nog hjelp oss til å være lys og salt i verden.\n{{r}}M |{{/r}} Herre, hør vår bønn."
-							}
-						],
-						"selAlt": 0,
-						"text": "",
-						"introAlts": [
-							{
-								"label": "Innledning",
-								"text": "{{r}}L |{{/r}} La oss takke og be:"
-							}
-						],
-						"selIntro": 0
-					}
-				]
-			},
-			{
-				"title": "Dåp",
-				"items": [
-					{
-						"id": "deg-10",
-						"type": "tekst",
-						"heading": "Dåpsbefalingen",
-						"alts": [
-							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} La oss høre Jesu ord og befaling om den hellige dåp:\n@NOTAT Teksten leses av en i dåpsfølget, en annen medliturg eller liturgen\n{{r}}ML/L |{{/r}} Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende. \nBIBELREF | Matt 28, 18–20"
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-11",
-						"type": "tekst",
-						"heading": "Fadderansvaret",
-						"alts": [
-							{
-								"label": "Ved dåp av barn",
-								"text": "{{r}}L |{{/r}} Vil foreldre og faddere reise seg.\nDere skal være vitner om at dette barnet/disse barna er døpt med den kristne dåp. Sammen med vår menighet og hele kirken får dere del i et hellig ansvar: å vise omsorg for henne/ham/dem, be for henne/ham/dem, lære henne/ham/dem selv å be og hjelpe henne/ham/dem til å bruke Guds ord og delta i den hellige nattverd, så hun/han/de kan leve og vokse i den kristne tro."
-							},
-							{
-								"label": "Ved dåp av større barn, unge eller voksne",
-								"text": "{{r}}L |{{/r}} Vil (foreldre og) faddere reise seg.\nDere skal være vitner om at NN/disse er døpt med den kristne dåp. Sammen med vår menighet og hele kirken får dere del i et hellig ansvar: å vise omsorg for henne/ ham/dem, be for henne/ham/dem og hjelpe henne/ham/ dem til å bruke Guds ord og delta i den hellige nattverd, så hun/han/de kan leve og vokse i den kristne tro."
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-12",
-						"type": "tekst",
-						"heading": "Forsakelsen og troen",
-						"alts": [
-							{
-								"label": "Ved dåp av barn",
-								"text": "{{r}}L |{{/r}} La oss sammen bekjenne forsakelsen og troen som vi døpes til.\n(Alle reiser seg.)"
-							},
-							{
-								"label": "Ved dåp av større barn, unge eller voksne",
-								"text": "{{r}}L |{{/r}} Vil du sammen med denne menigheten bekjenne forsakelsen og troen som vi døpes til?\n(Dåpskandidaten:)\nJa.\n(Dåpskandidaten kan om nødvendig bekrefte sitt ja, her og ved dåpshandlingen, på andre måter enn med verbalt språk.)\n(De som selv kan svare på spørsmålet, spørres først. Når alle har svart, sier liturgen)\n{{r}}L |{{/r}} La oss sammen bekjenne forsakelsen og troen.\n(Alle reiser seg.)\n{{r}}A |{{/r}} Jeg forsaker djevelen og alle hans gjerninger og alt hans vesen.\n{{r}}A |{{/r}} Jeg tror på Gud Fader, den\n{{r}}A |{{/r}} allmektige, himmelens og jordens skaper.\n{{r}}A |{{/r}} Jeg tror på Jesus Kristus,\n{{r}}A |{{/r}} Guds enbårne Sønn, vår Herre,\n{{r}}A |{{/r}} som ble unnfanget ved Den hellige ånd,\n{{r}}A |{{/r}} født av jomfru Maria,\n{{r}}A |{{/r}} pint under Pontius Pilatus,\n{{r}}A |{{/r}} korsfestet, død og begravet, fór ned til dødsriket,\n{{r}}A |{{/r}} stod opp fra de døde tredje dag, fór opp til himmelen,\n{{r}}A |{{/r}} sitter ved Guds, den allmektige Faders høyre hånd,\n{{r}}A |{{/r}} skal derfra komme igjen\n{{r}}A |{{/r}} for å dømme levende og døde.\n{{r}}A |{{/r}} Jeg tror på Den hellige ånd, en hellig, allmenn kirke,\n{{r}}A |{{/r}} de helliges samfunn, syndenes forlatelse, legemets oppstandelse og det evige liv. Amen. Den apostoliske trosbekjennelse"
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-13",
-						"type": "tekst",
-						"heading": "Dåpshandlingen",
-						"instr": "Vannet helles i døpefonten.",
-						"alts": [
-							{
-								"label": "Ved dåp av barn",
-								"text": "{{r}}L |{{/r}} Hva heter barnet?\n@NOTAT Den som bærer barnet, sier barnets fornavn.\n{{r}}L |{{/r}} Vil dere at NN skal døpes til Faderens og Sønnens og Den hellige ånds navn og oppdras til et liv i den kristne forsakelse og tro?\n@NOTAT Den som bærer barnet, foreldre/foresatte og faddere, svarer\nJa."
-							},
-							{
-								"label": "Ved dåp av større barn, unge eller voksne",
-								"text": "{{r}}L |{{/r}} Hva heter du?\n@NOTAT Den som skal døpes, svarer selv ved å si fornavnet sitt. Om nødvendig kan en annen si navnet.\n{{r}}L |{{/r}} NN, vil du bli døpt til Faderens og Sønnens og Den hellige ånds navn og leve i den kristne forsakelse og tro?\n@NOTAT Den som skal døpes, svarer\nJa."
-							}
-						],
-						"selAlt": 0,
-						"avslutningAlts": [
-							{
-								"label": "Korsets tegn, dåpen og lysene",
-								"text": "@NOTAT Liturgen vender seg mot barnets/dåpskandidatens ansikt og ber bønnen med åpen håndflate.\n{{r}}L |{{/r}} Gud bevare din utgang og din inngang fra nå og til evig tid. Jeg tegner deg med det hellige korsets tegn, til vitnesbyrd om at du skal tilhøre den korsfestede og oppstandne Jesus Kristus og tro på ham.\n{{r}}L |{{/r}} NN, etter vår Herre Jesu Kristi ord og befaling døper jeg deg til Faderens og Sønnens og Den hellige ånds navn.\n@NOTAT Mens dette sies, øser liturgen med hånden rikelig med vann over hodet til den som døpes, tre ganger.\n@NOTAT Liturgen legger, gjerne sammen med fadderne, hånden på den døptes hode og sier\n{{r}}L |{{/r}} Den allmektige Gud har i dåpen gitt deg sin hellige Ånd, født deg på ny og tatt deg inn i sin troende menighet. Gud styrke deg med sin nåde til det evige liv.\nFred være med deg."
-							}
-						],
-						"selAvsl": 0,
-						"text": "",
-						"introAlts": [
-							{
-								"label": "Innledning",
-								"text": "{{r}}L |{{/r}} Barmhjertige Gud, vi takker deg for at dåpens vann ved ditt ord er en nådens kilde, der du tilgir oss vår synd, frelser oss fra dødens makt og gir oss løfte om det evige liv. Send din Ånd så hun/han/de som døpes reises opp til det nye livet med Jesus Kristus, vår Herre.\n@NOTAT Mellom hver dåp kan det synges et vers fra en egnet salme.\n@NOTAT Dåpsfølget går frem til døpefonten."
-							}
-						],
-						"selIntro": 0
-					},
-					{
-						"id": "i61biz6a",
-						"type": "tekst",
-						"heading": "Presentasjon av den døpte",
-						"text": "@NOTAT Barnet vendes mot menigheten eller løftes opp. Ved dåp av større barn, unge eller voksne kan disse vende seg mot menigheten. Følgende ord siesInstruks\n{{r}}L |{{/r}} Dette er NN, Guds barn, døpt inn i vår menighet og Kristi verdensvide kirke.",
-						"instr": "",
-						"alts": [],
-						"selAlt": null,
-						"enabled": true,
-						"optional": false,
-						"salmeNr": "",
-						"salmeTittel": ""
-					},
-					{
-						"id": "itrpsbnq",
-						"type": "tekst",
-						"heading": "Lystenning",
-						"text": "@NOTAT Etter hver dåp og presentasjon kan det tennes et lys. Liturgen kan siInstruks\n{{r}}L |{{/r}} Et lys er tent for NN.\n@NOTAT InstruksLysene settes i en lysholder.\n@NOTAT Når alle dåpslysene er tent, sier liturgen\n{{r}}L |{{/r}} Jesus sier: «Jeg er verdens lys. Den som følger meg, skal ikke vandre i mørket, men ha livets lys.» Joh 8,12",
-						"instr": "",
-						"alts": [],
-						"selAlt": null,
-						"enabled": true,
-						"optional": false,
-						"salmeNr": "",
-						"salmeTittel": ""
-					},
-					{
-						"id": "deg-14",
-						"type": "tekst",
-						"heading": "Bønn og lovprisning",
-						"alts": [
-							{
-								"label": "A",
-								"text": "{{r}}ML/L |{{/r}} Trofaste Gud,\nvi takker deg for dåpen,\nder du tar imot oss og kaller oss ved navn.\nVi ber for NN/barna/dem som er døpt i dag.\nVær med henne/ham/dem gjennom livet\nog bevar henne/ham/dem i dåpens nåde.\nStyrk foreldre og faddere i deres oppgave.\nGud, hør vår bønn."
-							},
-							{
-								"label": "B",
-								"text": "{{r}}ML/L |{{/r}} Trofaste Gud,\nvi takker deg for dåpen,\nder du tar oss inn i din kirke.\nVi ber for NN/barna/dem som er døpt i dag.\nHold din vernende hånd over henne/ham/dem,\nog gi kjærlighet og visdom til alle som har ansvar for henne/ham/dem.\nGud, hør vår bønn."
-							},
-							{
-								"label": "C",
-								"text": "{{r}}ML/L |{{/r}} Trofaste Gud,\nvi takker deg for dåpen\nog løftet om at Jesus er med oss alle våre dager.\nVi ber for NN/dem som er døpt i dag.\nBevar henne/ham/dem i troen på deg,\nså hun/han/de kan vandre i lyset\nog nå det evige mål i ditt rike.\nGud, hør vår bønn.\n(Fadervår fremsies.)\n(Dersom det er nattverd i dåpsgudstjenesten, kan Fadervår falle bort her.)\n{{r}}L |{{/r}} La oss sammen be den bønnen Jesus har lært oss:\n{{r}}A |{{/r}} Vår Far i himmelen!\n{{r}}A |{{/r}} La navnet ditt helliges.\n{{r}}A |{{/r}} La riket ditt komme.\n{{r}}A |{{/r}} La viljen din skje på jorden slik som i himmelen.\n{{r}}A |{{/r}} Gi oss i dag vårt daglige brød,\n{{r}}A |{{/r}} og tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\n{{r}}A |{{/r}} Og la oss ikke komme i fristelse, men frels oss fra det onde.\n{{r}}A |{{/r}} For riket er ditt og makten og æren i evighet.\n{{r}}A |{{/r}} Amen.\n(Det er også anledning til å benytte Fadervår etter 1977-liturgien eller etter 1920- liturgien.)\n{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde! 1 Pet 1,3\n(Dersom det feires nattverd i dåpsgudstjenesten, finner den sted her.)"
-							}
-						],
-						"selAlt": 0,
-						"introAlts": [
-							{
-								"label": "Innledning",
-								"text": "{{r}}L |{{/r}} La oss takke og be."
-							}
-						],
-						"selIntro": 0,
-						"text": ""
-					},
-					{
-						"id": "i6lhnela",
-						"type": "tekst",
-						"heading": "Vår Far",
-						"text": "@NOTAT ",
-						"instr": "",
-						"alts": [
-							{
-								"label": "",
-								"text": "@NOTAT Dersom det er nattverd i dåpsgudstjenesten, kan Fadervår falle bort her.Instruks\n{{r}}L |{{/r}} La oss sammen be den bønnen Jesus har lært oss:\nVår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse, men frels oss fra det onde.\nFor riket er ditt og makten og æren i evighet.\nAmen.\n@NOTAT Det er også anledning til å benytte Fadervår etter 1977-liturgien eller etter 1920- liturgien.Instruks"
-							}
-						],
-						"selAlt": 0,
-						"enabled": true,
-						"optional": false,
-						"salmeNr": "",
-						"salmeTittel": ""
-					},
-					{
-						"id": "i5dyfbm0",
-						"type": "tekst",
-						"heading": "Avslutningsord",
-						"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde! \nBIBELREF | 1 Pet 1,3\n@NOTAT Dersom det feires nattverd i dåpsgudstjenesten, finner den sted her.",
-						"instr": "",
-						"alts": [],
-						"selAlt": null,
-						"enabled": true,
-						"optional": false,
-						"salmeNr": "",
-						"salmeTittel": ""
-					},
-					{
-						"id": "deg-15",
-						"type": "tekst",
-						"heading": "Musikk",
-						"instr": "Her kan det fremføres egnet sang eller instrumentalmusikk ved deltakere i dåpsfølget eller andre.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					}
-				]
-			},
-			{
-				"title": "Sendelse",
-				"items": [
-					{
-						"id": "deg-16",
-						"type": "tekst",
-						"heading": "Utgangssalme",
-						"instr": "Menigheten står under salmen og velsignelsen.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					},
-					{
-						"id": "deg-17",
-						"type": "tekst",
-						"heading": "Innledende Velsignelse",
-						"instr": "Velsignelsen fremsies eller synges.\nVelsignelsen kan mottas ved at den enkelte gjør korsets tegn.\nInnledning til velsignelsen kan være:",
-						"alts": [
-							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred.\n@NOTAT Dersom velsignelsen messes, synger menigheten\n{{r}}M |{{/r}} Amen. Amen. Amen.\n@NOTAT "
-							}
-						],
-						"selAlt": 0,
-						"text": "",
-						"introAlts": [
-							{
-								"label": "Lovprisning BENEDICAMUS",
-								"text": "{{r}}L |{{/r}} La oss prise Herren.\n{{r}}M |{{/r}} **Gud være lovet. Halleluja. Halleluja. Halleluja**."
-							},
-							{
-								"label": "Hilsen SALUTATIO",
-								"text": "{{r}}L synger eller sier |{{/r}} Herren væremed dere\n{{r}}M |{{/r}} **Og med deg være Herren**"
-							},
-							{
-								"label": "Ta imot velsignelsen",
-								"text": "{{r}}L sier |{{/r}} Ta imot velsignelsen"
-							}
-						],
-						"selIntro": 0
-					},
-					{
-						"id": "ij1dz9qv",
-						"type": "tekst",
-						"heading": "Bønnelag",
-						"text": "Tre ganger tre bønneslag.",
-						"instr": "",
-						"alts": [],
-						"selAlt": null,
-						"enabled": true,
-						"optional": false,
-						"salmeNr": "",
-						"salmeTittel": ""
-					},
-					{
-						"id": "deg-18",
-						"type": "tekst",
-						"heading": "Utsendelse",
-						"instr": "Dersom menigheten blir sittende under det etterfølgende postludiet, kan utsendelsesordene sies etter postludiet.",
-						"alts": [
-							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} Gå i fred."
-							},
-							{
-								"label": "Eller 2",
-								"text": "{{r}}L |{{/r}} Gå i fred. Tjen Herren med glede.\n(Et annet utsendelsesord som passer til dagens særpreg, kan benyttes i stedet.)"
-							}
-						],
-						"selAlt": 0,
-						"text": ""
-					},
-					{
-						"id": "deg-19",
-						"type": "instruks",
-						"heading": "Postludium",
-						"instr": "Dersom det er utgangsprosesjon, kan menigheten følge etter prosesjonen. Etter gudstjenesten kan kirkerommet være åpent en stund, med anledning til fotografering, eventuelt til lystenning og stille bønn.",
-						"text": "",
-						"alts": [],
-						"selAlt": 0
-					}
-				]
-			}
-		],
-		"erOriginal": true,
-		"visInstr": true,
-		"visRoles": true,
-		"visSalmeinfo": true
-	},
-	{
 		"id": "forb-borgerlig-ekteskap-2017",
 		"builtinKey": "forb-borgerlig-ekteskap-2017",
 		"kind": "template",
@@ -2336,7 +1866,7 @@ export const BUILTIN_TEMPLATES = [
 		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
 		"sections": [
 			{
-				"title": "Forbønn for borgerlig inngått ekteskap 2017",
+				"title": "1 Preludium/Inngang",
 				"items": [
 					{
 						"id": "forb2017-1",
@@ -2346,7 +1876,12 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"alts": [],
 						"selAlt": 0
-					},
+					}
+				]
+			},
+			{
+				"title": "2 Inngangsord",
+				"items": [
 					{
 						"id": "forb2017-2",
 						"type": "tekst",
@@ -2367,23 +1902,277 @@ export const BUILTIN_TEMPLATES = [
 						],
 						"selAlt": 0,
 						"text": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "3 Salme",
+				"items": [
 					{
 						"id": "forb2017-3",
 						"type": "salme",
 						"heading": "3 Salme",
 						"salmeNr": "",
 						"salmeTittel": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "4 Skriftlesning",
+				"items": [
 					{
 						"id": "forb2017-4",
 						"type": "tekst",
 						"heading": "4 Skriftlesning",
 						"text": "{{r}}L |{{/r}} Gud har skapt oss i sitt bilde\ntil å leve i fellesskap med seg og med hverandre.\nEkteskapet er Guds gode gave.\nÅ leve sammen som ektefeller\ner å leve i tillit og kjærlighet,\ndele gleder og sorger\nog trofast stå ved hverandres side livet ut.\nDet står skrevet i Salmenes bok:\nHvor dyrebar er din kjærlighet, Gud!\nI skyggen av dine vinger søker menneskebarna ly.\nDe får nyte overfloden i ditt hus,\ndu lar dem drikke av din gledes bekk.\nFor hos deg er livets kilde,\ni ditt lys ser vi lys\nBIBELREF | Sal 36, 8-10\nLa oss høre hva Guds ord sier om kjærlighet og troskap:\nKle dere derfor i inderlig medfølelse\nog vær gode, milde, ydmyke og tålmodige,\nså dere bærer over med hverandre og\ntilgir hverandre hvis den ene har noe å bebreide den andre. Som Herren har tilgitt dere, skal dere tilgi hverandre.\nOg over alt dette: Kle dere i kjærlighet,\nsom er båndet som binder sammen\nog gjør fullkommen.\nBIBELREF | Kol 3,12b-14\n{{r}}L |{{/r}} La oss videre høre fra Guds ord.\n(2-4 av de følgende tekstene eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene.)\n(Skriftlesningene kan leses av medlemmer av festfølget. De som skal lese, går samlet frem til lesepulten.)\n(Ekteparet og menigheten sitter under lesningen. Siste lesning avsluttes med:)\nSlik lyder Herrens ord.",
-						"instr": "Her kan følge.",
+						"alts": [],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
+				"items": [
+					{
+						"id": "v2017-15",
+						"type": "tekst",
+						"heading": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
+						"text": "{{r}}L |{{/r}} La oss videre høre fra Guds ord.",
+						"instr": "2-4 av de følgende tekster eller andre høvelige skriftlesninger, minst én fra hvert av de to testamentene. Skriftlesningene kan leses av medlemmer av bryllupsfølget. De som skal lese, går samlet frem til lesepulten. Paret og menigheten sitter under lesningen.",
 						"alts": [],
 						"selAlt": 0
 					},
+					{
+						"id": "v2017-16",
+						"type": "tekst",
+						"heading": "1 Mos 1,27-28a",
+						"text": "Det står skrevet i Første Mosebok:\nGud skapte mennesket i sitt bilde, i Guds bilde skapte han det,\ntil mann og kvinne skapte han dem. Gud velsignet dem og sa til dem:\n«Vær fruktbare og bli mange,\nfyll jorden og legg den under dere!»\nBIBELREF | 1 Mos 1,27-28a",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "A"
+					},
+					{
+						"id": "v2017-17",
+						"type": "tekst",
+						"heading": "1 Mos 2,18",
+						"text": "Det står skrevet i Første Mosebok:\nDa sa Herren Gud: «Det er ikke godt for mennesket å være alene. Jeg vil lage en hjelper av samme slag.»\nBIBELREF | 1 Mos 2,18",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "B"
+					},
+					{
+						"id": "v2017-18",
+						"type": "tekst",
+						"heading": "Rut 1,16b-17a",
+						"text": "Det står skrevet i Ruts bok:\nDit du går, vil jeg gå,\nog hvor du bor, vil jeg bo. Ditt folk er mitt folk,\nog din Gud er min Gud. Der du dør, vil jeg dø,\nog der vil jeg begraves.\nBIBELREF | Rut 1,16b-17a",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "C"
+					},
+					{
+						"id": "v2017-19",
+						"type": "tekst",
+						"heading": "Salme 23",
+						"text": "Det står skrevet i Salmenes bok:\nHerren er min hyrde, jeg mangler ikke noe.\nHan lar meg ligge i grønne enger,\nhan leder meg til vann der jeg finner hvile.\nHan gir meg nytt liv.\nHan fører meg på rettferdighets stier for sitt navns skyld.\nOm jeg enn skulle vandre i dødsskyggens dal, frykter jeg ikke noe ondt. For du er med meg. Din kjepp og din stav, de trøster meg.\nDu dekker bord for meg like foran mine fiender. Du salver mitt hode med olje.\nMitt beger renner over. Bare godhet og miskunn skal følge meg alle mine dager, og jeg skal bo i Herrens hus gjennom alle tider.\nBIBELREF | Salme 23",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "D"
+					},
+					{
+						"id": "v2017-20",
+						"type": "tekst",
+						"heading": "Salme 91,1-2.4.9",
+						"text": "Det står skrevet i Salmenes bok:\nDen som sitter i skjul hos Den høyeste og finner nattely i skyggen av Den veldige, han sier til Herren: «Min tilflukt og min borg, min Gud som jeg setter min lit til!» Under hans vinger kan du søke ly, han dekker deg med sine fjær.\nHans trofasthet er skjold og vern. «Du, Herre, er min tilflukt.» Den høyeste har du gjort til din bolig.\nBIBELREF | Salme 91,1-2.4.9",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "E"
+					},
+					{
+						"id": "v2017-21",
+						"type": "tekst",
+						"heading": "Sal 100",
+						"text": "Det står skrevet i Salmenes bok:\nRop med jubel for Herren, all jorden!\nTjen Herren med glede, kom fram for ham med jubel!\nKjenn at Herren er Gud! Han har skapt oss, vi er hans, vi er hans folk og den flokken han gjeter.\nKom gjennom portene hans med takkesang,\ninn i forgårdene med lovsang! Lov ham, velsign hans navn! Herren er god, evig er hans miskunn, hans trofasthet varer fra slekt til slekt.\nBIBELREF | Sal 100",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "F"
+					},
+					{
+						"id": "v2017-22",
+						"type": "tekst",
+						"heading": "Sal 103,1-5",
+						"text": "Det står skrevet i Salmenes bok:\nVelsign Herren, min sjel!\nAlt som i meg er, velsign hans hellige navn.\nVelsign Herren, min sjel! Glem ikke alt det gode han gjør. Han tilgir all din skyld og leger alle dine sykdommer.\nHan frir ditt liv fra graven og kroner deg med barmhjertighet og kjærlighet. Han metter ditt liv med det gode, du blir ung igjen som ørnen.\nBIBELREF | Sal 103,1-5",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "G"
+					},
+					{
+						"id": "v2017-23",
+						"type": "tekst",
+						"heading": "Fork 4,9-10a.12",
+						"text": "Det står skrevet i Forkynnerensbok:\nDet er bedre å være to enn én; de får god lønn for sitt strev. For om de faller, kan den ene hjelpe den andre opp.\nOm én blir overvunnet, kan to holde stand.\nEn tretvinnet tråd\nryker ikke så fort.\nBIBELREF | Fork 4,9-10a.12",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "H"
+					},
+					{
+						"id": "v2017-24",
+						"type": "tekst",
+						"heading": "Høys 2,9-10a.13b-14",
+						"text": "Det står skrevet i Høysangen:\nMin kjæreste ligner en gasell, en ung hjort.\nDer står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret. Min kjæreste tar til orde og sier: Stå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg, la meg få høre stemmen din!\nFor stemmen er myk og skikkelsen skjønn.\nBIBELREF | Høys 2,9-10a.13b-14",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "I"
+					},
+					{
+						"id": "v2017-25",
+						"type": "tekst",
+						"heading": "Høys 2,8-14.16-17 + 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\n(Denne lesningen kan leses av én tekstleser eller av kvinne (I) og mann (II).)\n{{r}}I |{{/r}} Hør, det er min kjæreste, der kommer han, løpende over fjellene, hoppende over høydene. Min kjæreste ligner en gasell, en ung hjort. Der står han bak muren vår. Han kikker inn gjennom vinduene, gløtter inn gjennom gitteret.\nMin kjæreste tar til orde og sier:\n{{r}}II |{{/r}} Stå opp, min elskede, min vakre jente, og kom! Nå er vinteren omme, regnet er forbi, det er borte. Landet dekkes av blomster. Sangens tid er inne, turtelduen kan høres i landet. Frukten på fikentreet modner, blomsten på vinstokken dufter.\nStå opp, min elskede, min vakre jente, og kom!\nMin due i fjellkløften, i ly under bratte klipper, la meg få se deg,\nla meg få høre stemmen din! For stemmen er myk og skikkelsen skjønn.\n{{r}}I |{{/r}} Min kjæreste er min, og jeg er hans, han som gjeter mellom liljene. Helt til dagen blåser skyggene bort, spring som gasellen, min kjæreste, som en ung hjort over kløfter og fjell!\n{{r}}I/II |{{/r}} Sett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 2,8-14.16-17 + 8,6-7a",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "J"
+					},
+					{
+						"id": "v2017-26",
+						"type": "tekst",
+						"heading": "Høys 8,6-7a",
+						"text": "Det står skrevet i Høysangen:\nSett meg som et segl på ditt hjerte, et stempel på din arm!\nFor kjærligheten er sterk som døden, lidenskapen er ubøyelig som dødsriket. Den brenner som flammende ild, en Herrens brann.\nVeldige vann slukker ikke kjærligheten, elver skyller den ikke bort.\nBIBELREF | Høys 8,6-7a",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "K"
+					},
+					{
+						"id": "v2017-27",
+						"type": "tekst",
+						"heading": "Matt 5,13-16",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Dere er jordens salt! Men hvis saltet mister sin kraft,\nhvordan skal det da bli gjort til salt igjen? Det duger ikke lenger til noe, men kastes ut og tråkkes ned av menneskene.\nDere er verdens lys! En by som ligger på et fjell, kan ikke skjules. Heller ikke tenner man en oljelampe og setter den under et kar.\nNei, man setter den på en holder, så den lyser for alle i huset.\nSlik skal deres lys skinne for menneskene, så de kan se de gode gjerningene dere gjør, og prise deres Far i himmelen!\nBIBELREF | Matt 5,13-16",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "L"
+					},
+					{
+						"id": "v2017-28",
+						"type": "tekst",
+						"heading": "Matt 6,25-34",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Vær ikke bekymret for livet, hva dere skal spise,\neller hva dere skal drikke, heller ikke for kroppen, hva dere skal kle dere med. Er ikke livet mer enn maten og kroppen mer enn klærne?\nSe på fuglene under himmelen! De sår ikke, de høster ikke og samler ikke i hus,\nmen den Far dere har i himmelen, gir dem føde likevel. Er ikke dere mer verdt enn de? Hvem av dere kan vel med all sin bekymring legge en eneste alen til sin livslengde? Og hvorfor er dere bekymret for klærne? Se på liljene på marken, hvordan de vokser! De strever ikke og spinner ikke, men jeg sier dere: Selv ikke Salomo i all sin prakt var kledd som en av dem. Når Gud kler gresset på marken så fint, det som gror i dag og kastes i ovnen i morgen, hvor mye mer skal han ikke da kle dere – dere lite troende!\nSå gjør dere ikke bekymringer, og si ikke: ‘Hva skal vi spise?' eller: ‘Hva skal vi drikke?' eller: ‘Hva skal vi kle oss med?' Alt dette er hedningene opptatt av.\nMen den Far dere har i himmelen, vet jo at dere trenger alt dette.\nSøk først Guds rike og hans rettferdighet, så skal dere få alt det andre i tillegg.\nSå gjør dere ingen bekymringer for morgendagen; morgendagen skal bekymre seg for seg selv. Hver dag har nok med sin egen plage.\nBIBELREF | Matt 6,25-34",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "M"
+					},
+					{
+						"id": "v2017-29",
+						"type": "tekst",
+						"heading": "Matt 7,7-8.12",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Be, så skal dere få. Let, så skal dere finne.\nBank på, så skal det lukkes opp for dere. For den som ber, han får,\nog den som leter, han finner, og den som banker på, skal det lukkes opp for. Alt dere vil at andre skal gjøre mot dere, det skal også dere gjøre mot dem. For dette er loven og profetene.\nBIBELREF | Matt 7,7-8.12",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "N"
+					},
+					{
+						"id": "v2017-30",
+						"type": "tekst",
+						"heading": "Matt 7,24-25",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Hver den som hører disse mine ord og gjør det de sier, ligner en klok mann som bygde huset sitt på fjell. Regnet styrtet, elvene flommet, og vindene blåste og slo mot huset.\nMen det falt ikke, for det var bygd på fjell.\nBIBELREF | Matt 7,24-25",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "O"
+					},
+					{
+						"id": "v2017-31",
+						"type": "tekst",
+						"heading": "Matt 19,4-6",
+						"text": "Det står skrevet i evangeliet etter Matteus:\nJesus sa: Har dere ikke lest at Skaperen fra begynnelsen av skapte dem til mann og kvinne og sa: «Derfor skal mannen forlate sin far og sin mor og holde seg til sin hustru, og de to skal være ett.» Så er de ikke lenger to; deres liv er ett.\nDet som Gud altså har sammenføyd, skal mennesker ikke skille.\nBIBELREF | Matt 19,4-6",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "P"
+					},
+					{
+						"id": "v2017-32",
+						"type": "tekst",
+						"heading": "Joh 13, 34-35",
+						"text": "Det står skrevet i evangeliet etter Johannes:\nEt nytt bud gir jeg dere: Dere skal elske hverandre. Som jeg har elsket dere, skal dere elske hverandre. Ved dette skal alle forstå at dere er mine disipler:\nAt dere har kjærlighet til hverandre.\nBIBELREF | Joh 13, 34-35",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "Q"
+					},
+					{
+						"id": "v2017-33",
+						"type": "tekst",
+						"heading": "Joh 15,9-12[-17]",
+						"text": "Det står skrevet i evangeliet etter Johannes:\nJesus sa: Som Far har elsket meg, har jeg elsket dere. Bli i min kjærlighet!\nHvis dere holder mine bud, blir dere i min kjærlighet, slik jeg har holdt min Fars bud og blir i hans kjærlighet. Dette har jeg sagt dere for at min glede kan være i dere og deres glede kan bli fullkommen. Og dette er mitt bud:\nDere skal elske hverandre som jeg har elsket dere.\n[Ingen har større kjærlighet enn den som gir livet for vennene sine.\nDere er mine venner hvis dere gjør det jeg befaler dere. Jeg kaller dere ikke lenger tjenere, for tjeneren vet ikke hva herren hans gjør. Jeg kaller dere venner, for jeg har gjort kjent for dere alt jeg har hørt av min Far.\nDere har ikke utvalgt meg, men jeg har utvalgt dere og satt dere til å gå ut og bære frukt, en frukt som varer. Da skal Far gi dere alt dere ber om i mitt navn. Dette er mitt bud til dere: Elsk hverandre!]\nBIBELREF | Joh 15,9-12[-17]",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "R"
+					},
+					{
+						"id": "v2017-34",
+						"type": "tekst",
+						"heading": "Rom 8,38-39",
+						"text": "Det står skrevet i Paulus' brev til romerne:\nFor jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre.\nBIBELREF | Rom 8,38-39",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "S"
+					},
+					{
+						"id": "v2017-35",
+						"type": "tekst",
+						"heading": "1 Kor 13",
+						"text": "Det står skrevet i Paulus' første brev til korinterne:\n@NOTAT Kapitlet kan leses i sin helhet eller i utdrag.\nOm jeg taler med menneskers og englers tunger, men ikke har kjærlighet, da er jeg bare drønnende malm eller en klingende bjelle.\nOm jeg har profetisk gave, kjenner alle hemmeligheter og eier all kunnskap, om jeg har all tro så jeg kan flytte fjell, men ikke har kjærlighet, da er jeg intet.\nOm jeg gir alt jeg eier til brød for de fattige, ja, om jeg gir meg selv til å brennes, men ikke har kjærlighet, da har jeg ingen ting vunnet.\nKjærligheten er tålmodig, kjærligheten er velvillig, den misunner ikke, skryter ikke, er ikke hovmodig. Kjærligheten krenker ikke, søker ikke sitt eget, er ikke oppfarende og gjemmer ikke på det onde. Den gleder seg ikke over urett, men har sin glede i sannheten.\nKjærligheten utholder alt, tror alt, håper alt, tåler alt. Kjærligheten tar aldri slutt. Profetgavene skal bli borte, tungene skal tie og kunnskapen forgå.\nFor vi forstår stykkevis og taler profetisk stykkevis. Men når det fullkomne kommer, skal det som er stykkevis, ta slutt. Da jeg var barn, talte jeg som et barn, tenkte jeg som et barn, forsto jeg som et barn. Men da jeg ble voksen, la jeg av det barnslige.\nNå ser vi i et speil, i en gåte, da skal vi se ansikt til ansikt. Nå forstår jeg stykkevis, da skal jeg erkjenne fullt ut, slik Gud kjenner meg fullt ut. Så blir de stående, disse tre: tro, håp og kjærlighet. Men størst blant dem er kjærligheten.\nBIBELREF | 1 Kor 13",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "T"
+					},
+					{
+						"id": "v2017-36",
+						"type": "tekst",
+						"heading": "Gal 3, 26-28",
+						"text": "Det står skrevet i Paulus' brev til galaterne:\nFor dere er alle Guds barn ved troen, i Kristus Jesus.\nAlle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus.\nBIBELREF | Gal 3, 26-28",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "U"
+					},
+					{
+						"id": "v2017-37",
+						"type": "tekst",
+						"heading": "Ef 3,14-21",
+						"text": "Det står skrevet i Paulus' brev til efeserne:\nDerfor bøyer jeg mine knær for Far, han som har gitt navn til alt som kalles far i himmel og på jord. Må han som er så rik på herlighet, gi deres indre menneske kraft og styrke ved sin Ånd. Må Kristus ved troen bo i deres hjerter og dere stå rotfestet og grunnfestet i kjærlighet. Må dere sammen med alle de hellige bli i stand til å fatte bredden og lengden, høyden og dybden, ja, kjenne Kristi kjærlighet, som overgår all kunnskap. Må dere bli fylt av hele Guds fylde!\nHan som virker i oss med sin kraft og kan gjøre uendelig mye mer enn det vi ber om og forstår, ham være ære i kirken og i Kristus Jesus gjennom alle slekter og evigheter! Amen.\nBIBELREF | Ef 3,14-21",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "V"
+					},
+					{
+						"id": "v2017-38",
+						"type": "tekst",
+						"heading": "Fil 2,1-5",
+						"text": "Det står skrevet i Paulus' brev til filipperne:\nOm det da er trøst i Kristus, oppmuntring i kjærligheten, fellesskap i Ånden, om det finnes medfølelse og barmhjertighet, så gjør nå min glede fullkommen: Ha samme sinnelag og samme kjærlighet, vær ett i sjel og sinn.\nGjør ikke noe av selvhevdelse og tom ærgjerrighet, men vær ydmyke og sett de andre høyere enn dere selv. Tenk ikke bare på deres eget beste, men også på de andres. La samme sinnelag være i dere som også var i Kristus Jesus!\nBIBELREF | Fil 2,1-5",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "W"
+					},
+					{
+						"id": "v2017-39",
+						"type": "tekst",
+						"heading": "Fil 4,4-8",
+						"text": "Det står skrevet i Paulus' brev til filipperne:\nGled dere alltid i Herren! Igjen vil jeg si: Gled dere!\nLa alle mennesker få merke at dere er vennlige. Herren er nær.\nVær ikke bekymret for noe! Men legg alt dere har på hjertet, fram for Gud. Be og kall på ham med takk. Og Guds fred, som overgår all forstand,\nskal bevare deres hjerter og tanker i Kristus Jesus. Til slutt, søsken: Alt som er sant og edelt, rett og rent, alt som er verdt å elske og akte, alt som er til glede og alt som fortjener ros, legg vinn på det!\nBIBELREF | Fil 4,4-8",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "X"
+					},
+					{
+						"id": "v2017-40",
+						"type": "tekst",
+						"heading": "1 Joh 4,7-12",
+						"text": "Det står skrevet i Johannes' første brev:\nMine kjære, la oss elske hverandre! For kjærligheten er fra Gud,\nog hver den som elsker, er født av Gud og kjenner Gud.\nDen som ikke elsker, har aldri kjent Gud, for Gud er kjærlighet.\nOg ved dette ble Guds kjærlighet åpenbart blant oss, at Gud sendte sin enbårne Sønn til verden for at vi skulle leve ved ham.\nJa, dette er kjærligheten, ikke at vi har elsket Gud, men at han har elsket oss\nog sendt sin Sønn til soning for våre synder.\nMine kjære, har Gud elsket oss slik, da skylder også vi å elske hverandre. Ingen har noen gang sett Gud. Men dersom vi elsker hverandre, blir Gud i oss, og hans kjærlighet er fullendt i oss.\nBIBELREF | 1 Joh 4,7-12",
+						"instr": "",
+						"alts": [],
+						"selAlt": 0,
+						"bokstav": "Y"
+					}
+				]
+			},
+			{
+				"title": "5 Salme",
+				"items": [
 					{
 						"id": "forb2017-5",
 						"type": "tekst",
@@ -2392,7 +2181,12 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"alts": [],
 						"selAlt": 0
-					},
+					}
+				]
+			},
+			{
+				"title": "6 Tale",
+				"items": [
 					{
 						"id": "forb2017-6",
 						"type": "instruks",
@@ -2401,7 +2195,12 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"alts": [],
 						"selAlt": 0
-					},
+					}
+				]
+			},
+			{
+				"title": "7 Fremstilling av ekteparet",
+				"items": [
 					{
 						"id": "forb2017-7",
 						"type": "tekst",
@@ -2419,7 +2218,12 @@ export const BUILTIN_TEMPLATES = [
 						],
 						"selAlt": 0,
 						"text": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "8 Forbønn",
+				"items": [
 					{
 						"id": "forb2017-8",
 						"type": "tekst",
@@ -2459,7 +2263,12 @@ export const BUILTIN_TEMPLATES = [
 						],
 						"selAvsl": 0,
 						"text": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "9 Musikk/symbolhandlinger",
+				"items": [
 					{
 						"id": "forb2017-9",
 						"type": "instruks",
@@ -2468,14 +2277,24 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"alts": [],
 						"selAlt": 0
-					},
+					}
+				]
+			},
+			{
+				"title": "10 Salme",
+				"items": [
 					{
 						"id": "forb2017-10",
 						"type": "salme",
 						"heading": "10 Salme",
 						"salmeNr": "",
 						"salmeTittel": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "11 Velsignelse",
+				"items": [
 					{
 						"id": "forb2017-11",
 						"type": "tekst",
@@ -2492,7 +2311,12 @@ export const BUILTIN_TEMPLATES = [
 						],
 						"selAlt": 0,
 						"text": ""
-					},
+					}
+				]
+			},
+			{
+				"title": "12 Postludium/Utgang",
+				"items": [
 					{
 						"id": "forb2017-12",
 						"type": "instruks",
