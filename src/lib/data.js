@@ -80,7 +80,9 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"text": "",
-						"selAlt": 0
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "s5",
@@ -139,7 +141,9 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"text": "",
-						"selAlt": 0
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "s6",
@@ -310,7 +314,8 @@ export const BUILTIN_TEMPLATES = [
 						],
 						"text": "",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "o14",
@@ -415,7 +420,9 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"text": "",
-						"selAlt": 0
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "o18",
@@ -461,7 +468,9 @@ export const BUILTIN_TEMPLATES = [
 							}
 						],
 						"text": "",
-						"selAlt": 0
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "o18b",
@@ -1740,7 +1749,8 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}P |{{/r}} vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠"
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "gf-24",
@@ -1811,7 +1821,8 @@ export const BUILTIN_TEMPLATES = [
 								"text": "{{r}}L |{{/r}} vendt til sørgeskaren\nTa imot velsignelsen.\nHerren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. ✠"
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "gf-30",
@@ -1843,7 +1854,6 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "dop-i-egen-gudtjeneste-2017",
-		"builtinKey": "dop-i-egen-gudtjeneste-2017",
 		"kind": "template",
 		"name": "Dåp i egen gudtjeneste (bokmål, 2017)",
 		"description": "Ordning for Dåp i egen gudtjeneste — vedtatt av Kirkemøtet 2017. Hele gudstjenesten bygd opp rundt dåpshandlingen.",
@@ -1955,28 +1965,39 @@ export const BUILTIN_TEMPLATES = [
 						"heading": "Skriftlesning",
 						"alts": [
 							{
-								"label": "Hovedvariant",
-								"text": "{{r}}L |{{/r}} La oss høre Herrens ord.\n(En eller to av de følgende tekstene eller av søndagens tekster fra Tekstbok for Den norske kirke leses.)\n(Tekstene leses gjerne av en fra dåpsfølget eller av en annen medliturg.)\n{{r}}L |{{/r}} Jesus sier at vi blir født på ny i dåpen. Slik står det skrevet i evangeliet etter Johannes:\n{{r}}ML/L |{{/r}} Det var en mann som het Nikodemus. Han var fariseer og en av jødenes rådsherrer. Han kom til Jesus om natten og sa: «Rabbi, vi vet at du er en lærer som er kommet fra Gud. For ingen kan gjøre de tegnene du gjør, uten at Gud er med ham.» Jesus svarte: «Sannelig, sannelig, jeg sier deg: Den som ikke blir født på ny, kan ikke se Guds rike.» «Hvordan kan en som er gammel, bli født?» sa Nikodemus. «Kan noen komme inn i mors liv igjen og bli født for andre gang?» Jesus svarte: «Sannelig, sannelig, jegsier deg: Den som ikkeblirfødt av vann og Ånd, kan ikke komme inn i Guds rike.» Joh 3,1–5"
+								"label": "",
+								"text": "{{r}}L |{{/r}} La oss høre Herrens ord.\n@NOTAT En eller to av de følgende tekstene eller av søndagens tekster fra Tekstbok for Den norske kirke leses.\n@NOTAT Tekstene leses gjerne av en fra dåpsfølget eller av en annen medliturg.\n{{r}}L |{{/r}} Jesus sier at vi blir født på ny i dåpen. Slik står det skrevet i evangeliet etter Johannes:\n{{r}}ML/L |{{/r}} Det var en mann som het Nikodemus. Han var fariseer og en av jødenes rådsherrer. Han kom til Jesus om natten og sa: «Rabbi, vi vet at du er en lærer som er kommet fra Gud. For ingen kan gjøre de tegnene du gjør, uten at Gud er med ham.» Jesus svarte: «Sannelig, sannelig, jeg sier deg: Den som ikke blir født på ny, kan ikke se Guds rike.» «Hvordan kan en som er gammel, bli født?» sa Nikodemus. «Kan noen komme inn i mors liv igjen og bli født for andre gang?» Jesus svarte: «Sannelig, sannelig, jegsier deg: Den som ikkeblirfødt av vann og Ånd, kan ikke komme inn i Guds rike.» \nBIBELREF | Joh 3,1–5"
 							},
 							{
-								"label": "Eller",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til Titus:\n{{r}}ML/L |{{/r}} Det ble åpenbart hvor god vår Gud og frelser er, og at han elsker menneskene: Han frelste oss, ikke på grunn av våre rettferdige gjerninger, men fordi han er barmhjertig. Han frelste oss ved badet som gjenføder og fornyer ved Den hellige ånd, som han så rikelig har øst ut over oss ved Jesus Kristus, vår frelser, så vi skulle bli rettferdige ved hans nåde og bli arvinger til det evige liv, som er vårt håp. Tit 3,4–7"
+								"label": "",
+								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til Titus:\n{{r}}ML/L |{{/r}} Det ble åpenbart hvor god vår Gud og frelser er, og at han elsker menneskene: Han frelste oss, ikke på grunn av våre rettferdige gjerninger, men fordi han er barmhjertig. Han frelste oss ved badet som gjenføder og fornyer ved Den hellige ånd, som han så rikelig har øst ut over oss ved Jesus Kristus, vår frelser, så vi skulle bli rettferdige ved hans nåde og bli arvinger til det evige liv, som er vårt håp. \nBIBELREF | Tit 3,4–7"
 							},
 							{
-								"label": "Eller 2",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans. Rom 6,3–5"
+								"label": "",
+								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Vet dere ikke at alle vi som ble døpt til Kristus Jesus, ble døpt til hans død? Vi ble begravet med ham da vi ble døpt med denne dåpen til døden. Og som Kristus ble reist opp fra de døde ved sin Fars herlighet, skal også vi vandre i et nytt liv. Har vi vokst sammen med Kristus i en død som er lik hans, skal vi være ett med ham i en oppstandelse som er lik hans. \nBIBELREF | Rom 6,3–5"
 							},
 							{
-								"label": "Eller 3",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Galatia:\n{{r}}ML/L |{{/r}} Dere er alle Guds barn ved troen, i Kristus Jesus. Alle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus. Gal 3,26–28"
+								"label": "",
+								"text": "{{r}}L |{{/r}} Apostelen Paulus sier om dåpen i brevet til menigheten i Galatia:\n{{r}}ML/L |{{/r}} Dere er alle Guds barn ved troen, i Kristus Jesus. Alle dere som er døpt til Kristus, har kledd dere i Kristus. Her er ikke jøde eller greker, her er ikke slave eller fri, her er ikke mann og kvinne. Dere er alle én i Kristus Jesus. \nBIBELREF | Gal 3,26–28"
 							},
 							{
-								"label": "Eller 4",
-								"text": "{{r}}L |{{/r}} Apostelen Paulus vitner om det vi som døpte eier i troen. Slik står det skrevet i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd? For jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre. Rom 8,35.38–39\n(Andre eksempler på egnede tekster)\n(Sal 8,4–6.10; Sal 139,13–16; Matt 3,13–17; Mark 9,33–37; Joh 3,5–8; Apg)\n(2,37–41, Apg 8,36–38; Ef 3,14–21; 1 Joh 3,1–2)\n(Tekstlesningen kan avsluttes med)\nSlik lyder Herrens ord."
+								"label": "",
+								"text": "{{r}}L |{{/r}} Apostelen Paulus vitner om det vi som døpte eier i troen. Slik står det skrevet i brevet til menigheten i Rom:\n{{r}}ML/L |{{/r}} Hvem kan skille oss fra Kristi kjærlighet? Nød, angst, forfølgelse, sult, nakenhet, fare eller sverd? For jeg er viss på at verken død eller liv, verken engler eller krefter, verken det som nå er eller det som kommer, eller noen makt, verken det som er i det høye eller i det dype, eller noen annen skapning, skal kunne skille oss fra Guds kjærlighet i Kristus Jesus, vår Herre. \nBIBELREF | Rom 8,35.38–39"
+							},
+							{
+								"label": "andre",
+								"text": "@NOTAT Andre eksempler på egnede tekster\nSal 8,4–6.10; Sal 139,13–16; Matt 3,13–17; Mark 9,33–37; Joh 3,5–8; Apg\n2,37–41, Apg 8,36–38; Ef 3,14–21; 1 Joh 3,1–2"
 							}
 						],
 						"selAlt": 0,
-						"text": ""
+						"text": "",
+						"avslutningAlts": [
+							{
+								"label": "Avslutning",
+								"text": "@NOTAT Tekstlesningen kan avsluttes med\n{{r}}ML/L | {{/r}}Slik lyder Herrens ord."
+							}
+						],
+						"selAvsl": 0
 					},
 					{
 						"id": "deg-7",
@@ -1992,9 +2013,20 @@ export const BUILTIN_TEMPLATES = [
 						"type": "tekst",
 						"heading": "Preken",
 						"instr": "Liturgen holder en kort preken knyttet til en eller flere av tekstene som er lest.\nPrekenen kan avsluttes med lovprisningen:",
-						"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd, som var og er og blir én sann Gud fra evighet og til evighet.",
+						"text": "",
 						"alts": [],
-						"selAlt": 0
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd, som var og er og blir én sann Gud fra evighet og til evighet."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd: Vår skaper, frigjører og livgiver."
+							}
+						],
+						"selAvsl": 0
 					}
 				]
 			},
@@ -2008,16 +2040,19 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "Forbønn kan utelates i denne ordningen.\nEtter bønneleddene følger et kort menighetssvar.\nEn annen egnet forbønn, gjerne lokalt utformet.",
 						"alts": [
 							{
-								"label": "Hovedvariant",
-								"text": "{{r}}L |{{/r}} La oss takke og be:"
-							},
-							{
-								"label": "Eller",
-								"text": "{{r}}ML/L |{{/r}} Far i himmelen: Takk for at du skapte oss,\nog takk for at du skapte jorden vi bor på.\nTakk for at du kjenner oss og elsker oss.\nHjelp oss til å ta vare på hverandre og på alt det du har skapt.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n{{r}}ML/L |{{/r}} Kjære Jesus:\nDu har seiret over døden og det onde.\nDu er vår venn og vil være med oss alle dager.\nTakk for at vi får være trygge hos deg.\nVær hos alle som er ensomme og redde.\nLær oss å være til stede for hverandre.\nHjelp oss å kjempe mot undertrykkelse og urett.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n{{r}}ML/L |{{/r}} Gode Hellige Ånd:\nDu viser oss veien vi skal gå.\nGi oss vilje og kraft til å gå den.\nGi oss visdom og styrke så vi kan stå sammen.\nDu har kalt oss til å være din kirke.\nKom til oss med dine gaver\nog hjelp oss til å være lys og salt i verden.\n{{r}}M |{{/r}} Herre, hør vår bønn."
+								"label": "Treenigh Forbønn",
+								"text": "{{r}}ML/L |{{/r}} Far i himmelen: Takk for at du skapte oss,\nog takk for at du skapte jorden vi bor på.\nTakk for at du kjenner oss og elsker oss.\nHjelp oss til å ta vare på hverandre og på alt det du har skapt.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n\n{{r}}ML/L |{{/r}} Kjære Jesus:\nDu har seiret over døden og det onde.\nDu er vår venn og vil være med oss alle dager.\nTakk for at vi får være trygge hos deg.\nVær hos alle som er ensomme og redde.\nLær oss å være til stede for hverandre.\nHjelp oss å kjempe mot undertrykkelse og urett.\n{{r}}M |{{/r}} Herre, hør vår bønn.\n{{r}}\n{{/r}}\n{{r}}ML/L |{{/r}} Gode Hellige Ånd:\nDu viser oss veien vi skal gå.\nGi oss vilje og kraft til å gå den.\nGi oss visdom og styrke så vi kan stå sammen.\nDu har kalt oss til å være din kirke.\nKom til oss med dine gaver\nog hjelp oss til å være lys og salt i verden.\n{{r}}M |{{/r}} Herre, hør vår bønn."
 							}
 						],
 						"selAlt": 0,
-						"text": ""
+						"text": "",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss takke og be:"
+							}
+						],
+						"selIntro": 0
 					}
 				]
 			},
@@ -2031,7 +2066,7 @@ export const BUILTIN_TEMPLATES = [
 						"alts": [
 							{
 								"label": "Eller",
-								"text": "{{r}}L |{{/r}} La oss høre Jesu ord og befaling om den hellige dåp:\n(Teksten leses av en i dåpsfølget, en annen medliturg eller liturgen)\n{{r}}ML/L |{{/r}} Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende. Matt 28, 18–20"
+								"text": "{{r}}L |{{/r}} La oss høre Jesu ord og befaling om den hellige dåp:\n@NOTAT Teksten leses av en i dåpsfølget, en annen medliturg eller liturgen\n{{r}}ML/L |{{/r}} Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende. \nBIBELREF | Matt 28, 18–20"
 							}
 						],
 						"selAlt": 0,
@@ -2078,27 +2113,56 @@ export const BUILTIN_TEMPLATES = [
 						"instr": "Vannet helles i døpefonten.",
 						"alts": [
 							{
-								"label": "Hovedvariant",
-								"text": "{{r}}L |{{/r}} Barmhjertige Gud, vi takker deg for at dåpens vann ved ditt ord er en nådens kilde, der du tilgir oss vår synd, frelser oss fra dødens makt og gir oss løfte om det evige liv. Send din Ånd så hun/han/de som døpes reises opp til det nye livet med Jesus Kristus, vår Herre.\n(Mellom hver dåp kan det synges et vers fra en egnet salme.)\n(Dåpsfølget går frem til døpefonten.)"
-							},
-							{
 								"label": "Ved dåp av barn",
-								"text": "{{r}}L |{{/r}} Hva heter barnet?\n(Den som bærer barnet, sier barnets fornavn.)\n{{r}}L |{{/r}} Vil dere at NN skal døpes til Faderens og Sønnens og Den hellige ånds navn og oppdras til et liv i den kristne forsakelse og tro?\n(Den som bærer barnet, foreldre/foresatte og faddere, svarer)\nJa."
+								"text": "{{r}}L |{{/r}} Hva heter barnet?\n@NOTAT Den som bærer barnet, sier barnets fornavn.\n{{r}}L |{{/r}} Vil dere at NN skal døpes til Faderens og Sønnens og Den hellige ånds navn og oppdras til et liv i den kristne forsakelse og tro?\n@NOTAT Den som bærer barnet, foreldre/foresatte og faddere, svarer\nJa."
 							},
 							{
 								"label": "Ved dåp av større barn, unge eller voksne",
-								"text": "{{r}}L |{{/r}} Hva heter du?\n(Den som skal døpes, svarer selv ved å si fornavnet sitt. Om nødvendig kan en annen si navnet.)\n{{r}}L |{{/r}} NN, vil du bli døpt til Faderens og Sønnens og Den hellige ånds navn og leve i den kristne forsakelse og tro?\n(Den som skal døpes, svarer)\nJa."
+								"text": "{{r}}L |{{/r}} Hva heter du?\n@NOTAT Den som skal døpes, svarer selv ved å si fornavnet sitt. Om nødvendig kan en annen si navnet.\n{{r}}L |{{/r}} NN, vil du bli døpt til Faderens og Sønnens og Den hellige ånds navn og leve i den kristne forsakelse og tro?\n@NOTAT Den som skal døpes, svarer\nJa."
 							}
 						],
 						"selAlt": 0,
 						"avslutningAlts": [
 							{
 								"label": "Korsets tegn, dåpen og lysene",
-								"text": "(Liturgen vender seg mot barnets/dåpskandidatens ansikt og ber bønnen med åpen håndflate.)\n{{r}}L |{{/r}} Gud bevare din utgang og din inngang fra nå og til evig tid. Jeg tegner deg med det hellige korsets tegn  til vitnesbyrd om at du skal tilhøre den korsfestede og oppstandne Jesus Kristus og tro på ham.\n{{r}}L |{{/r}} NN, etter vår Herre Jesu Kristi ord og befaling døper jeg deg til Faderens og Sønnens og Den hellige ånds navn.\n(Mens dette sies, øser liturgen med hånden rikelig med vann over hodet til den som døpes, tre ganger.)\n(Liturgen legger, gjerne sammen med fadderne, hånden på den døptes hode og sier)\n{{r}}L |{{/r}} Den allmektige Gud har i dåpen gitt deg sin hellige Ånd, født deg på ny og tatt deg inn i sin troende menighet. Gud styrke deg med sin nåde til det evige liv.\nFred være med deg.\n(Barnet vendes mot menigheten eller løftes opp. Ved dåp av større barn, unge eller voksne kan disse vende seg mot menigheten. Følgende ord sies)\n{{r}}L |{{/r}} Dette er NN, Guds barn, døpt inn i vår menighet og Kristi verdensvide kirke.\n(Etter hver dåp og presentasjon kan det tennes et lys. Liturgen kan si)\n{{r}}L |{{/r}} Et lys er tent for NN.\n(Lysene settes i en lysholder.)\n(Når alle dåpslysene er tent, sier liturgen)\n{{r}}L |{{/r}} Jesus sier: «Jeg er verdens lys. Den som følger meg, skal ikke vandre i mørket, men ha livets lys.» Joh 8,12"
+								"text": "@NOTAT Liturgen vender seg mot barnets/dåpskandidatens ansikt og ber bønnen med åpen håndflate.\n{{r}}L |{{/r}} Gud bevare din utgang og din inngang fra nå og til evig tid. Jeg tegner deg med det hellige korsets tegn, til vitnesbyrd om at du skal tilhøre den korsfestede og oppstandne Jesus Kristus og tro på ham.\n{{r}}L |{{/r}} NN, etter vår Herre Jesu Kristi ord og befaling døper jeg deg til Faderens og Sønnens og Den hellige ånds navn.\n@NOTAT Mens dette sies, øser liturgen med hånden rikelig med vann over hodet til den som døpes, tre ganger.\n@NOTAT Liturgen legger, gjerne sammen med fadderne, hånden på den døptes hode og sier\n{{r}}L |{{/r}} Den allmektige Gud har i dåpen gitt deg sin hellige Ånd, født deg på ny og tatt deg inn i sin troende menighet. Gud styrke deg med sin nåde til det evige liv.\nFred være med deg."
 							}
 						],
 						"selAvsl": 0,
-						"text": ""
+						"text": "",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Barmhjertige Gud, vi takker deg for at dåpens vann ved ditt ord er en nådens kilde, der du tilgir oss vår synd, frelser oss fra dødens makt og gir oss løfte om det evige liv. Send din Ånd så hun/han/de som døpes reises opp til det nye livet med Jesus Kristus, vår Herre.\n@NOTAT Mellom hver dåp kan det synges et vers fra en egnet salme.\n@NOTAT Dåpsfølget går frem til døpefonten."
+							}
+						],
+						"selIntro": 0
+					},
+					{
+						"id": "i61biz6a",
+						"type": "tekst",
+						"heading": "Presentasjon av den døpte",
+						"text": "@NOTAT Barnet vendes mot menigheten eller løftes opp. Ved dåp av større barn, unge eller voksne kan disse vende seg mot menigheten. Følgende ord siesInstruks\n{{r}}L |{{/r}} Dette er NN, Guds barn, døpt inn i vår menighet og Kristi verdensvide kirke.",
+						"instr": "",
+						"alts": [],
+						"selAlt": null,
+						"enabled": true,
+						"optional": false,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "itrpsbnq",
+						"type": "tekst",
+						"heading": "Lystenning",
+						"text": "@NOTAT Etter hver dåp og presentasjon kan det tennes et lys. Liturgen kan siInstruks\n{{r}}L |{{/r}} Et lys er tent for NN.\n@NOTAT InstruksLysene settes i en lysholder.\n@NOTAT Når alle dåpslysene er tent, sier liturgen\n{{r}}L |{{/r}} Jesus sier: «Jeg er verdens lys. Den som følger meg, skal ikke vandre i mørket, men ha livets lys.» Joh 8,12",
+						"instr": "",
+						"alts": [],
+						"selAlt": null,
+						"enabled": true,
+						"optional": false,
+						"salmeNr": "",
+						"salmeTittel": ""
 					},
 					{
 						"id": "deg-14",
@@ -2129,6 +2193,37 @@ export const BUILTIN_TEMPLATES = [
 						"text": ""
 					},
 					{
+						"id": "i6lhnela",
+						"type": "tekst",
+						"heading": "Vår Far",
+						"text": "@NOTAT ",
+						"instr": "",
+						"alts": [
+							{
+								"label": "",
+								"text": "@NOTAT Dersom det er nattverd i dåpsgudstjenesten, kan Fadervår falle bort her.Instruks\n{{r}}L |{{/r}} La oss sammen be den bønnen Jesus har lært oss:\nVår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld, slik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse, men frels oss fra det onde.\nFor riket er ditt og makten og æren i evighet.\nAmen.\n@NOTAT Det er også anledning til å benytte Fadervår etter 1977-liturgien eller etter 1920- liturgien.Instruks"
+							}
+						],
+						"selAlt": 0,
+						"enabled": true,
+						"optional": false,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "i5dyfbm0",
+						"type": "tekst",
+						"heading": "Avslutningsord",
+						"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde! \nBIBELREF | 1 Pet 1,3\n@NOTAT Dersom det feires nattverd i dåpsgudstjenesten, finner den sted her.",
+						"instr": "",
+						"alts": [],
+						"selAlt": null,
+						"enabled": true,
+						"optional": false,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
 						"id": "deg-15",
 						"type": "tekst",
 						"heading": "Musikk",
@@ -2154,20 +2249,44 @@ export const BUILTIN_TEMPLATES = [
 					{
 						"id": "deg-17",
 						"type": "tekst",
-						"heading": "Velsignelsen",
+						"heading": "Innledende Velsignelse",
 						"instr": "Velsignelsen fremsies eller synges.\nVelsignelsen kan mottas ved at den enkelte gjør korsets tegn.\nInnledning til velsignelsen kan være:",
 						"alts": [
 							{
-								"label": "Hovedvariant",
-								"text": "{{r}}ML/L |{{/r}} synger: La oss prise Herren.\n(Menigheten reiser seg.)\n{{r}}M |{{/r}} Gud være lovet. Halleluja. Halleluja. Halleluja."
-							},
-							{
 								"label": "Eller",
-								"text": "{{r}}L |{{/r}} Ta imot velsignelsen.\n(Menigheten reiser seg.)\n{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred. \n(Dersom velsignelsen messes, synger menigheten)\n{{r}}M |{{/r}} Amen. Amen. Amen.\nTre ganger tre bønneslag."
+								"text": "{{r}}L |{{/r}} Herren velsigne deg og bevare deg.\nHerren la sitt ansikt lyse over deg og være deg nådig.\nHerren løfte sitt åsyn på deg og gi deg fred.\n@NOTAT Dersom velsignelsen messes, synger menigheten\n{{r}}M |{{/r}} Amen. Amen. Amen.\n@NOTAT "
 							}
 						],
 						"selAlt": 0,
-						"text": ""
+						"text": "",
+						"introAlts": [
+							{
+								"label": "Lovprisning BENEDICAMUS",
+								"text": "{{r}}L |{{/r}} La oss prise Herren.\n{{r}}M |{{/r}} **Gud være lovet. Halleluja. Halleluja. Halleluja**."
+							},
+							{
+								"label": "Hilsen SALUTATIO",
+								"text": "{{r}}L synger eller sier |{{/r}} Herren væremed dere\n{{r}}M |{{/r}} **Og med deg være Herren**"
+							},
+							{
+								"label": "Ta imot velsignelsen",
+								"text": "{{r}}L sier |{{/r}} Ta imot velsignelsen"
+							}
+						],
+						"selIntro": 0
+					},
+					{
+						"id": "ij1dz9qv",
+						"type": "tekst",
+						"heading": "Bønnelag",
+						"text": "Tre ganger tre bønneslag.",
+						"instr": "",
+						"alts": [],
+						"selAlt": null,
+						"enabled": true,
+						"optional": false,
+						"salmeNr": "",
+						"salmeTittel": ""
 					},
 					{
 						"id": "deg-18",
@@ -2199,7 +2318,14 @@ export const BUILTIN_TEMPLATES = [
 				]
 			}
 		],
-		"erOriginal": true
+		"erOriginal": true,
+		"__devMal": true,
+		"__devId": "dop-i-egen-gudtjeneste-2017",
+		"__devKey": "dop-i-egen-gudtjeneste-2017",
+		"visInstr": true,
+		"visRoles": true,
+		"visSalmeinfo": true,
+		"__åpenMalId": "i398073m"
 	},
 	{
 		"id": "forb-borgerlig-ekteskap-2017",
@@ -3839,7 +3965,9 @@ export const DEAKTIVERTE_MALER = [
 								"label": "Avslutning",
 								"text": "{{r}}ML |{{/r}} Gud, vi ber.\n{{r}}A |{{/r}} Amen."
 							}
-						]
+						],
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "l-6",
@@ -3907,7 +4035,9 @@ export const DEAKTIVERTE_MALER = [
 								"text": "{{r}}L |{{/r}} Så høy som himmelen er over jorden, så veldig er hans miskunn over dem som frykter ham. Så langt som øst er fra vest, tar han syndene våre bort fra oss.\nBIBELREF | Sal 103,11-12"
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "l-8",
@@ -4275,7 +4405,8 @@ export const DEAKTIVERTE_MALER = [
 								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd: Vår skaper, frigjører og livgiver."
 							}
 						],
-						"selAlt": 0
+						"selAlt": 0,
+						"selAvsl": 0
 					},
 					{
 						"id": "l-33",
@@ -4362,7 +4493,8 @@ export const DEAKTIVERTE_MALER = [
 								"label": "Innledning",
 								"text": "{{r}}ML/L |{{/r}} La oss be for kirken og verden."
 							}
-						]
+						],
+						"selIntro": 0
 					},
 					{
 						"id": "l-37",
