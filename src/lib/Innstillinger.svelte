@@ -212,8 +212,10 @@ function settForbModul(v) {
 							dd/yy/p osv.). Byttes også i menylinjen og kontekstmenyen.
 						</div>
 					</div>
-					<button class="inn-handling" class:av={!vimAktiv} onclick={() => settVim(!vimAktiv)}>
-						{vimAktiv ? 'På' : 'Av'}
+					<button class="inn-bryter" role="switch" aria-checked={vimAktiv}
+						title={vimAktiv ? 'Vim-modus er på' : 'Vim-modus er av'}
+						onclick={() => settVim(!vimAktiv)}>
+						<span class="inn-bryter-spore"><span class="inn-bryter-klump"></span></span>
 					</button>
 				</div>
 			{:else}

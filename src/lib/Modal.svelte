@@ -732,6 +732,9 @@
 					<button onclick={() => settBokstaver()}>Velg bokstaver</button>
 					<span class="m-bokstav-telling" class:m-treng-merk={m.valgte.size < 2 || m.valgte.size > 4}>{m.valgte.size} valgt</span>
 				</div>
+				{#if m.valgte.size > 4}
+					<p class="m-tekst-advarsel">{m.valgte.size} tekster er merket — leselista i ordningen blir lang. Vanlig er 2–4.</p>
+				{/if}
 				<div class="m-tekst-liste">
 					{#each m.seksjon.items as it, idx (it.id)}
 						{#if skriftBokstav(it, idx)}
