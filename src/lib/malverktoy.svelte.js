@@ -163,7 +163,7 @@ export async function lagreTilProsjekt() {
 	if (window.liturgi?.listTemplates) {
 		const list = await window.liturgi.listTemplates();
 		if (list?.ok) {
-			const sub = (seed.erOriginal || /hovedgudtjeneste|gravferd/i.test(seed.name)) ? 'originaler' : 'brukermaler';
+			const sub = (seed.erOriginal || /hovedgudstjeneste|gravferd/i.test(seed.name)) ? 'originaler' : 'brukermaler';
 			if (o.__devKey && !seed.builtinKey) seed.builtinKey = o.__devKey;
 			// gjenbruk eksisterende seed-sti for samme navn — en hardkodet .liturgi
 			// ved siden av en eksisterende .limal ga TO filer med samme navn/id

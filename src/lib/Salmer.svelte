@@ -1,5 +1,5 @@
 <script>
-	// Salmeoversikt: alle salmeleddene i gudtjenesten i én liste — fyll inn
+	// Salmeoversikt: alle salmeleddene i gudstjenesten i én liste — fyll inn
 	// nummer og/eller tittel og hent alle tekstene i ÉN registrering.
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { formaterSalme, salmeAlts } from '$lib/lit.js';
@@ -8,7 +8,7 @@
 
 	const o = $derived(app.current);
 
-	// rader: {si, ii, it} for hvert salmeledd i gudtjenesten
+	// rader: {si, ii, it} for hvert salmeledd i gudstjenesten
 	const salmer = $derived.by(() => {
 		const ut = [];
 		if (!o?.sections) return ut;
@@ -112,7 +112,7 @@
 
 <div id="salmer-modul">
 	<header class="sal-overhode">
-		<button class="eks-tilbake" onclick={() => { app.visning = 'hjem'; }} title="Tilbake til gudtjenesten">{@html mdi('chevron-left', 15)}</button>
+		<button class="eks-tilbake" onclick={() => { app.visning = 'hjem'; }} title="Tilbake til gudstjenesten">{@html mdi('chevron-left', 15)}</button>
 		<div class="sal-tittel">
 			<h2>Salmeoversikt</h2>
 			<span class="sal-under">{o?.name ?? ''}{o?.date ? ' · ' + o.date : ''}</span>
@@ -147,6 +147,6 @@
 				</div>
 			{/each}
 		</div>
-		<p class="sal-notis">«Hent alle» søker og registrerer salmer som mangler tekst i én samlet registrering (dato og gudtjenestetype fra gudtjenesten). Rader med tekst fra før hentes bare enkeltvis.</p>
+		<p class="sal-notis">«Hent alle» søker og registrerer salmer som mangler tekst i én samlet registrering (dato og gudstjenestetype fra gudstjenesten). Rader med tekst fra før hentes bare enkeltvis.</p>
 	{/if}
 </div>

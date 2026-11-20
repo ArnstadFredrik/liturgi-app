@@ -16,11 +16,11 @@
 
 	/** Søk + filtre (type/kilde) + sortering etter type så navn. */
 	let q = $state('');
-	let typeFilter = $state('alle'); // alle | gudtjeneste | vigsel | gravferd
+	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
 	let kildeFilter = $state('alle'); // alle | originaler | brukermaler
 
-	const typeRekkefolge = { gudtjeneste: 0, vigsel: 1, gravferd: 2 };
-	const typeNavn = { gudtjeneste: 'Gudtjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
+	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
+	const typeNavn = { gudstjeneste: 'Gudtjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
 		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
@@ -97,7 +97,7 @@
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i maler …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudtjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>
