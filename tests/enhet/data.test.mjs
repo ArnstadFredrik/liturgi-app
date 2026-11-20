@@ -85,6 +85,21 @@ test('HG-ordningen: dåpsdelen er lenket til «Dåp i hovedgudstjenesten»', () 
 	for (const it of dopLedd) assert.ok(it.id.startsWith('h-l-dap'), 'dåp-malens ledd-id-er: ' + it.id);
 });
 
+test('vigsel-malene: skriftlesningene har docx-bokstavene (2017: A-Y, 2003: A-T)', () => {
+	forventet = { 'vigsel-2017': 25, 'vigsel-2003': 20 };
+	for (const [id, antall] of Object.entries(forventet)) {
+		const t = BUILTIN_TEMPLATES.find((x) => x.id === id);
+		assert.ok(t, id + ' finnes');
+		const sec = t.sections.find((x) => /^Skriftlesninger ved/.test(x.title));
+		assert.ok(sec, id + ': skriftlesninger-listen finnes');
+		const medBokstav = sec.items.filter((it) => /^[A-Z]$/.test(it.bokstav ?? ''));
+		assert.equal(medBokstav.length, antall, id + ': ' + antall + ' bokstaver');
+		const forventede = Array.from({ length: antall }, (_, i) => String.fromCharCode(65 + i));
+		assert.deepEqual(medBokstav.map((it) => it.bokstav), forventede, id + ': sekvensielle A, B, C ...');
+	}
+	var forventet;
+});
+
 test('valgt-indeksene (selAlt/selIntro/selAvsl) peker innenfor rekkevidde', () => {
 	// Item.svelte leser alts[selAlt].text — en ugyldig indeks krasjer hele treet
 	for (const t of BUILTIN_TEMPLATES) {

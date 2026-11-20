@@ -536,6 +536,21 @@ textarea {
 .sec-flytt { padding: 2px 6px; }
 /* lenket ledd (dåpen i HG-ordningen): ikke-redigerbar, med (i)-info */
 .lenket-info { color: var(--muted); cursor: help; display: inline-flex; align-items: center; }
+/* bokstav-merke (skriftlesninger A-Y) */
+.bokstav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 0 4px; }
+.sec-velg-tekster { display: inline-flex; align-items: center; gap: 4px; }
+/* velgTekster-modal */
+.m-tekst-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; min-height: 0; max-height: 46vh; padding: 4px 0; }
+.m-tekst-rad { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+.m-tekst-rad:hover { background: var(--card); }
+.m-tekst-bokstav { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; flex: none; }
+.m-tekst-navn { flex: 1; }
+.m-bokstav-rad { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.m-bokstav-inn { flex: 0 0 220px; }
+.m-bokstav-telling { margin-left: auto; color: var(--muted); font-size: 12px; }
+.m-bokstav-telling.m-treng-merk { color: #c0392b; font-weight: 600; }
+.m-hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+.m-bun { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
 .item:has(.lenket-info) .item-title { color: var(--muted); font-style: italic; }
 .item:has(.lenket-info) { opacity: 0.75; }
 

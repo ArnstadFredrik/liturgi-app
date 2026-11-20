@@ -43,7 +43,7 @@
 				nr: String(it.salmeNr ?? '').trim(),
 				tittel: String(it.salmeTittel ?? '').trim(),
 				dato: o.date ?? '',
-				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste'
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : o.liturgiType === 'vigsel' ? 'Vigsel' : 'Gudstjeneste'
 			});
 			if (!r?.ok) {
 				toast.error(r?.error === 'Ikke konfigurert' ? 'Registrer bruker for gudstjeneste.no i Innstillinger' : (r?.error ?? 'Klarte ikke hente salmen'));
@@ -73,7 +73,7 @@
 		try {
 			const r = await window.liturgi.salmeHentFlere({
 				dato: o.date ?? '',
-				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste',
+				navn: o.liturgiType === 'gravferd' ? 'Gravferd' : o.liturgiType === 'vigsel' ? 'Vigsel' : 'Gudstjeneste',
 				salmer: rene.map(({ it }) => ({
 					key: it.id,
 					nr: String(it.salmeNr ?? '').trim(),

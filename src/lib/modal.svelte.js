@@ -21,6 +21,28 @@ export function confirmBox(title, message, ok) {
 }
 
 /** Bekreftelse ved lukking med ulagrede endringer: Avbryt / Lagre / Lukk uten å lagre. */
+/** Bokstav for en skriftlesning: eksplisitt bokstav-felt, ellers posisjon
+ *  i seksjonen (A = første ledd). Stemmer med docx-originalenes A.-B.-C.-
+ *  nummerering (upperLetter). */
+export function skriftBokstav(it, idx) {
+	// KUN eksplisitt bokstav (fra docx-originalen) — posisjon-fallback gir feil
+	// bokstaver når lista har et ubokstavført innledningsledd først.
+	return it.bokstav ?? '';
+}
+
+/** Velg skriftlesninger: lista har mange tekster (A–Y), en gudtjeneste skal
+ *  bare ha 2–4 av dem. Merk de ønskede — bare merkede ledd følger med
+ *  (enabled). Bokstavfeltet lar brudeparets svar (f.eks. «B, E, H») sette
+ *  merkingen direkte. */
+export function velgTeksterModal(seksjon) {
+	showModal({
+		type: 'velgTekster',
+		title: 'Velg skriftlesninger — ' + (seksjon.title ?? ''),
+		seksjon,
+		valgte: new Set((seksjon.items ?? []).map((it, i) => (it.enabled !== false ? i : -1)).filter((i) => i >= 0))
+	});
+}
+
 export function lukkModal(onLagre, onForkast) {
 	showModal({
 		type: 'lukk',

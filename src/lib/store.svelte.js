@@ -97,6 +97,7 @@ export function instantiate(it) {
 	return {
 		id: uid(), tplId: it.id ?? null, type: it.type ?? 'tekst',
 		heading: it.heading ?? '', optional: !!it.optional,
+		bokstav: it.bokstav ?? null, // skriftlesninger: bokstav fra docx-originalen (A–Y)
 		text: autoMark(it.text ?? ''), instr: autoMark(it.instr ?? ''),
 		alts: (it.alts ?? []).map((a) => ({ label: a.label ?? '', text: autoMark(a.text ?? '') })),
 		selAlt: it.selAlt ?? ((it.alts ?? []).length ? 0 : null), enabled: it.enabled !== false,
@@ -124,7 +125,7 @@ function migrateItem(it) {
 export function newServiceFromTemplate(tpl, include) {
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
-		liturgiType: tpl.liturgiType ?? (/gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
+		liturgiType: tpl.liturgiType ?? (/vigsel/i.test(tpl.name || '') ? 'vigsel' : /gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec.title, include))
@@ -388,7 +389,7 @@ export function createService(name, date, tplId, include, kirkeaar, tekster) {
 	s.visSalmeinfo = true;
 	// navneforslag: tom navn → «[dato] - [gudstjeneste|Gravferd] - [Kirkeårsdag]»
 	// (kirkeårsdag bare for gudstjenester — gravferd har ingen)
-	const typeNavn = s.liturgiType === 'gravferd' ? 'Gravferd' : 'Gudstjeneste';
+	const typeNavn = s.liturgiType === 'gravferd' ? 'Gravferd' : s.liturgiType === 'vigsel' ? 'Vigsel' : 'Gudstjeneste';
 	const navneDeler = [date, typeNavn, kirkeaar?.name].filter(Boolean);
 	s.name = name || (navneDeler.length > 1 ? navneDeler.join(' - ') : tpl.name);
 	s.date = date;
