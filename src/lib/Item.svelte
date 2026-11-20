@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty, uid } from '$lib/store.svelte.js';
-	import { chooseOneModal, valgModal, fjernFlereModal } from '$lib/modal.svelte.js';
+	import { chooseOneModal, valgModal, fjernFlereModal, adminAltsModal } from '$lib/modal.svelte.js';
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
@@ -143,6 +143,14 @@
 		chooseOneModal(l, it[selNokkel] ?? 0, (ny) => { if (selNokkel) it[selNokkel] = ny; markDirty(); });
 	}
 
+	/** Nytt hovedavsnitt (kontekstmeny): prompt + tom seksjon sist. */
+	function nyttHovedavsnitt() {
+		prompt('Nytt hovedavsnitt', 'Navn på avsnittet', (title) => {
+			app.current.sections.push({ title: title || 'Nytt avsnitt', items: [] });
+			markDirty();
+		});
+	}
+
 	/** Innledning/avslutning: opprett gruppen ved første alternativ. */
 	function opprettGruppe(liste, selNokkel, label) {
 		it[liste] = [{ label, text: '' }];
@@ -176,21 +184,24 @@
 		const har = Array.isArray(l) && l.length;
 		const radLabel = (i) => (l[i]?.label || 'Alternativ ' + String.fromCharCode(97 + i));
 		openContextMenu(e.clientX, e.clientY, [
-			...(har ? [{ label: 'Legg til alternativ', action: () => leggTilAlt(liste, selNokkel === 'selIntro' || selNokkel === 'selAvsl' ? liste : liste, selNokkel) }] : []),
-			...(har ? [{ label: 'Legg til tomt alternativ fra biblioteket …', action: () => hentAltFraBib(liste, selNokkel) }] : []),
+			...(har ? [{ label: 'Administrer alternativer …', action: () => adminAlts(liste, selNokkel) }] : []),
 			...(har ? ['sep'] : []),
 			...(har ? l.map((a, i) => ({
 				label: (selNokkel && it[selNokkel] === i ? '✓ ' : '') + radLabel(i),
 				action: () => { if (selNokkel) it[selNokkel] = i; markDirty(); }
 			})) : []),
 			...(har ? ['sep'] : []),
-			...(har && l.length > 1 ? [{ label: 'Fjern alternativer …', action: () => fjernFlere(liste, selNokkel) }] : []),
 			...(!har ? [{ label: 'Opprett «' + label + '»-gruppe', action: () => opprettGruppe(liste, selNokkel, label) }] : []),
 			...(har && (selNokkel === 'selIntro' || selNokkel === 'selAvsl') ? [
 				{ label: 'Fjern hele ' + label.toLowerCase(), action: () => fjernGruppe(liste, selNokkel), danger: true }
 			] : []),
 			...(!har ? [{ label: 'Hent fra biblioteket …', action: () => hentGruppeFraBib(liste, selNokkel, label) }] : [])
 		]);
+	}
+
+/** Administrer alternativer: navn/slett/nytt/hent i én modal (jobber live). */
+	function adminAlts(liste, selNokkel) {
+		adminAltsModal(it, liste, selNokkel, 'Administrer alternativer — ' + (it.heading || ''));
 	}
 
 	/** Fjern alternativer: multi-select-modal; slett merkede fra bunnen og opp. */
@@ -294,6 +305,7 @@
 			{ label: 'Flytt ned', action: () => move(1), disabled: ii === items.length - 1 },
 			'sep',
 			{ label: 'Legg til del over', action: () => nyttLedd(0) },
+			{ label: 'Nytt hovedavsnitt …', action: () => nyttHovedavsnitt() },
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
