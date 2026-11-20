@@ -273,6 +273,13 @@ button.wide { width: 100%; }
 .m-velg-rad:hover { background: var(--panel2); }
 .m-velg-rad.sel { background: var(--accent-dim); border-color: var(--accent); font-weight: 600; }
 .m-velg-visning { border-left: 1px solid var(--border); padding-left: 14px; overflow-y: auto; max-height: 55vh; }
+/* fjernFlere: checkboksliste + rød sletteknapp */
+.m-fjern-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; max-height: 55vh; }
+.m-fjern-rad { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); }
+.m-fjern-rad:hover { background: var(--panel2); }
+.m-fjern-rad input { cursor: pointer; }
+button.m-fare { background: var(--danger-dim, rgba(192, 57, 43, 0.14)); border-color: rgba(192, 57, 43, 0.45); color: var(--role, #c0392b); font-weight: 600; }
+button.m-fare:disabled { opacity: 0.45; }
 /* malredigering: «ta med i gudstjenesten»-bryter i leddhodet */
 .ta-med { margin-left: auto; font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
 .ta-med input { cursor: pointer; }

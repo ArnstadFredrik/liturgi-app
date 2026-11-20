@@ -43,6 +43,11 @@ export function chooseOneModal(options, sel, ok) {
 	showModal({ type: 'chooseOne', options, sel, ok });
 }
 
+/** Fjern-flere-modal: checkboksliste, ok() kalles med de valgte INDEKSENE. */
+export function fjernFlereModal(options, tittel, ok) {
+	showModal({ type: 'fjernFlere', options, title: tittel, ok });
+}
+
 /** Sorterte prefasjon-alternativer ved dato-valg: kirkeårsbestemte først
  *  (aktuell periode øverst), deretter generelle (nattverdbønn a–g).
  *  Rekkefølgen i dokumentet er uendret — sorteringen vises kun i velgeren. */
