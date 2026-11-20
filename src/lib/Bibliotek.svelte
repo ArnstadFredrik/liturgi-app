@@ -167,16 +167,16 @@ function grupperEtterLedd(rader) {
 </script>
 
 <div id="biblio-side">
-	<div id="biblio-hode">
-		<div class="biblio-faner">
-			<div class="fb-visning-velger">
-				<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
-				<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
-			</div>
+	<div class="biblio-faner">
+		<div class="fb-visning-velger">
+			<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
+			<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
 		</div>
 	</div>
 	{#if bibliotekFane === 'maler'}
+		<div id="maler-side">
 		<Maler />
+		</div>
 	{:else}
 	<h2>Bibliotek</h2>
 		<p class="maler-ingress">

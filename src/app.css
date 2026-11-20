@@ -1198,7 +1198,8 @@ sub { font-size: 0.75em; }
 /* innstillinger: faner + av/på */
 .inn-faner { margin: 6px 0 14px; }
 .inn-handling.av { background: var(--panel2, var(--border)); color: var(--muted); }
-.biblio-faner { margin-bottom: 8px; }
+.biblio-faner { margin-bottom: 8px; position: sticky; top: 0; z-index: 20;
+	padding: 8px 0; background: var(--card, var(--panel)); }
 
 /* vim-statuslinje nederst i redigeringsvinduet */
 .fb-statuslinje { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 3px 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); background: color-mix(in srgb, var(--panel, var(--card)) 60%, transparent); }
