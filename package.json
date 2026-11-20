@@ -12,9 +12,9 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "VITE_DEV_MODE=1 vite build --mode development",
-    "electron:dev": "npm run build:dev && electron .",
+    "electron:dev": "npm run build:dev && electron . --remote-debugging-port=9230",
     "preview": "vite preview",
-    "electron": "electron .",
+    "electron": "electron . --remote-debugging-port=9230",
     "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac",
     "test": "node --test tests/enhet/",
     "test:royk": "npm run build && node tests/royktest.mjs"
