@@ -450,18 +450,24 @@
 					</div>
 				</div>
 			{:else if m.type === 'fjernFlere'}
-				<p class="muted m-velg-hint">Merk alternativene som skal slettes — forhåndsvisning til høyre:</p>
-				<div class="m-velg-to-kolonner">
-					<div class="m-velg-liste m-fjern-liste">
+				<p class="muted m-velg-hint">Klikk på kortet for å se alternativet — krysse av for å markere det for sletting.</p>
+				<div class="m-bib-cols">
+					<div class="m-bib-list m-fjern-liste">
 						{#each m.options as o, ai (ai)}
-							<label class="chk m-fjern-rad" class:sel={visAlt === ai}>
+							<div class="m-fjern-rad">
 								<input type="checkbox" checked={valgteFjern.includes(ai)}
-									onchange={(e) => { if (e.currentTarget.checked) valgteFjern = [...valgteFjern, ai]; else valgteFjern = valgteFjern.filter((x) => x !== ai); }} />
-								<button type="button" class="m-fjern-navn" onclick={() => (visAlt = ai)}>{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</button>
-							</label>
+									aria-label={'Marker «' + (o.label || 'Alternativ ' + String.fromCharCode(97 + ai)) + '» for sletting'}
+									onchange={(e) => { if (e.currentTarget.checked) valgteFjern = [...valgteFjern, ai]; else valgteFjern = valgteFjern.filter((x) => x !== ai); }}
+									onclick={(e) => e.stopPropagation()} />
+								<button type="button" class="m-bib-alt-row m-fjern-kort" class:sel={visAlt === ai}
+									onclick={() => (visAlt = ai)}>
+									<span class="alt-label">{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</span>
+									<span class="m-bib-alt m-bib-lit">{@html litHtml(o.text || '')}</span>
+								</button>
+							</div>
 						{/each}
 					</div>
-					<div class="m-velg-visning lit-text">
+					<div class="m-bib-list m-bib-altliste m-fjern-visning lit-text">
 						{@html litHtml(m.options[visAlt]?.text || '')}
 					</div>
 				</div>
