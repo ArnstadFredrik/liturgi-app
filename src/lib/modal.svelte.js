@@ -39,8 +39,8 @@ export function chooseSectionsModal(titles, ok) {
 	showModal({ type: 'choose', titles, ok });
 }
 
-export function chooseOneModal(options, sel, ok) {
-	showModal({ type: 'chooseOne', options, sel, ok });
+export function chooseOneModal(options, sel, ok, onAvbryt, title = 'Velg alternativ', okLabel = 'OK') {
+	showModal({ type: 'chooseOne', options, sel, ok, onAvbryt, title, okLabel });
 }
 
 /** Fjern-flere-modal: checkboksliste, ok() kalles med de valgte INDEKSENE. */
