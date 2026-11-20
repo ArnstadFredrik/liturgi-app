@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8" /><title>Liturgi — eksport</title>
+<link rel="stylesheet" href="stil.css" />
+<style>
+.eksg { grid-template-columns: 220px 300px 1fr; }
+.navlenker { display: flex; gap: 12px; padding: 0 12px; align-items: center; height: 100%; font-size: 12.5px; color: var(--muted); }
+.navlenker a { text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+.navlenker a.sel { background: var(--accent-soft); color: var(--foreground); font-weight: 600; }
+/* profiler */
+.profil-rad { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.profil-rad:hover { background: var(--accent-soft); }
+.profil-rad.valgt { background: var(--accent-soft); font-weight: 700; }
+.profil-rad .ikon { width: 26px; height: 26px; border-radius: 6px; background: var(--input); display: grid; place-items: center; font-size: 13px; }
+/* innstillinger */
+.bryter { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.bryter .switch { width: 34px; height: 20px; border-radius: 10px; background: var(--border); position: relative; flex-shrink: 0; }
+.bryter .switch.paa { background: var(--accent); }
+.bryter .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--card-raised); box-shadow: 0 1px 2px rgb(0 0 0 / .2); }
+.bryter .switch.paa::after { left: 16px; }
+.bryter .tekst { flex: 1; }
+.bryter .tekst .navn { font-weight: 600; font-size: 12.5px; }
+.bryter .tekst .hjel { font-size: 11px; color: var(--muted); }
+/* forhåndsvisning */
+.sider { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.side { aspect-ratio: 1 / 1.414; background: var(--card-raised); border: 1px solid var(--border); border-radius: 6px; box-shadow: var(--skygge); padding: 14px 12px; font-family: Georgia, serif; font-size: 8.5px; line-height: 1.5; overflow: hidden; }
+.side .sh { text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 7.5px; color: var(--primary); margin-bottom: 8px; }
+.side .mint { text-align: center; font-style: italic; margin: 6px 0; }
+.side-etikett { font-size: 10.5px; color: var(--muted); margin: 8px 0 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toolbar">
+    <span class="tittel">Liturgi</span>
+    <div class="navlenker">
+      <a href="hjem.html">Hjem</a>
+      <a href="index.html">Redigering</a>
+      <a class="sel" href="eksport.html">Eksport</a>
+      <a href="kirkeaar.html">Kirkeåret</a>
+    </div>
+    <div class="sok-hoyre">
+      <button class="btn btn-secondary" onclick="document.documentElement.classList.toggle('dark')">◐ Tema</button>
+    </div>
+  </div>
+  <div class="grid eksg">
+    <!-- PROFILER -->
+    <div class="panel">
+      <div class="sidehead">Profiler</div>
+      <div class="profil-rad valgt"><span class="ikon">⬢</span> Prest</div>
+      <div class="profil-rad"><span class="ikon">⬡</span> Medarbeider</div>
+      <div class="profil-rad"><span class="ikon">👥</span> Menighet</div>
+      <div class="profil-rad"><span class="ikon">🖥️</span> Skjerm</div>
+      <div class="profil-rad"><span class="ikon">✎</span> Barne explanatory</div>
+      <div style="display:flex; gap:6px; margin-top:10px">
+        <input placeholder="Ny profil …" style="flex:1; background:var(--input); border:1px solid var(--border); border-radius:var(--radius); padding:6px 8px; color:var(--foreground); font:inherit" />
+        <button class="btn btn-secondary">Legg til</button>
+      </div>
+      <div class="sidehead">Dokument</div>
+      <div class="kort" style="font-size:12px">
+        <div style="font-weight:700">Kristi kongedag</div>
+        <div style="color:var(--muted)">22. november 2026</div>
+      </div>
+    </div>
+    <!-- INNSTILLINGER -->
+    <div class="panel">
+      <div class="sidehead">Formater</div>
+      <div class="bryter"><span class="switch paa"></span><span class="tekst"><span class="navn">Word (.docx)</span><span class="hjel">Prest / Medarbeider / Menighet</span></span></div>
+      <div class="bryter"><span class="switch"></span><span class="tekst"><span class="navn">PowerPoint (.pptx)</span><span class="hjel">Skjerm-profilen, 38 pt</span></span></div>
+      <div class="bryter"><span class="switch"></span><span class="tekst"><span class="navn">PDF</span><span class="hjel">Utskriftsvennlig</span></span></div>
+      <div class="sidehead">Innhold</div>
+      <div class="bryter"><span class="switch paa"></span><span class="tekst"><span class="navn">Instruksjoner</span><span class="hjel">Menighet tar aldri med</span></span></div>
+      <div class="bryter"><span class="switch paa"></span><span class="tekst"><span class="navn">Salmer</span></span></div>
+      <div class="bryter"><span class="switch"></span><span class="tekst"><span class="navn">Bibeltekster med noter</span></span></div>
+      <div class="sidehead">Utskrift</div>
+      <div class="felt"><label>Avstand</label>
+        <div style="display:flex; gap:6px">
+          <button class="chip sel">Tett</button><button class="chip">Normal</button><button class="chip">Luftig</button>
+        </div>
+      </div>
+      <div class="felt"><label>Skriftstørrelse (skjerm)</label>
+        <input type="range" min="30" max="46" value="38" style="width:100%; accent-color: var(--primary)" />
+        <div style="color:var(--muted); font-size:11px">38 pt · sentrert · kun manuelle slides</div>
+      </div>
+      <div class="felt"><label>Filnavn</label><input value="2026-11-22 - Kristi kongedag - Prest" /></div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:6px">Eksporter</button>
+    </div>
+    <!-- FORHÅNDSVISNING -->
+    <div class="main">
+      <div class="sidehead" style="margin-top:0">Forhåndsvisning · Prest</div>
+      <div class="sider">
+        <div class="side">
+          <div class="sh">Gudstjeneste</div>
+          <div style="text-align:center; font-weight:700; font-size:10px">Kristi kongedag</div>
+          <div class="mint">22. november 2026 kl. 11.00</div>
+          <div style="margin-top:10px">I. Samling</div>
+          <div style="color:var(--muted)">Klokkeren ringer tre gonger.</div>
+          <div style="margin-top:6px">II. Inngang</div>
+          <div style="color:var(--muted)">Salme 42 · Vel signing i treenighetens navn.</div>
+        </div>
+        <div class="side">
+          <div class="sh">Gudstjeneste</div>
+          <div style="margin-top:6px">III. Skriftlesning</div>
+          <div style="color:var(--muted)">Jeremia 23, 5–6 · Johannes 18, 33–37</div>
+          <div style="margin-top:8px">IV. Trosbekjennelse</div>
+          <div style="margin-top:8px">V. Preken</div>
+          <div style="color:var(--muted); font-style:italic">Kongen som kneeler for sannheten</div>
+        </div>
+        <div class="side">
+          <div class="sh">Gudstjeneste</div>
+          <div style="margin-top:6px">VI. Forbønn</div>
+          <div style="color:var(--muted)">La oss be. Fader vår …</div>
+          <div style="margin-top:8px">VII. Nattverd</div>
+          <div style="margin-top:8px">VIII. Velsignelse</div>
+          <div class="mint">Gå i fred og gjør det gode.</div>
+        </div>
+      </div>
+      <div class="side-etikett">3 sider · A4 · Georgia 11 pt</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
