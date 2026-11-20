@@ -197,6 +197,14 @@ button.wide { width: 100%; }
 .w-mal:hover { background: var(--panel2); }
 .w-mal-nm { flex: 1; color: var(--text); overflow-wrap: anywhere; cursor: pointer; }
 .w-mal-nm:hover { text-decoration: underline; }
+.mal-filter { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.mal-sok { width: 100%; box-sizing: border-box; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
+.mal-sok:focus { outline: none; border-color: var(--accent); }
+.mal-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.mal-chips button { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
+.mal-chips button:hover { color: var(--text); }
+.mal-chips button.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+.w-mal-type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); white-space: nowrap; }
 .w-mal-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
 .w-mal-del { color: var(--danger); }
 .w-mal-handlinger { display: flex; gap: 6px; margin-top: 10px; }
