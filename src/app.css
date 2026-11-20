@@ -273,13 +273,12 @@ button.wide { width: 100%; }
 .m-velg-rad:hover { background: var(--panel2); }
 .m-velg-rad.sel { background: var(--accent-dim); border-color: var(--accent); font-weight: 600; }
 .m-velg-visning { border-left: 1px solid var(--border); padding-left: 14px; overflow-y: auto; max-height: 55vh; }
-/* fjernFlere: checkboksliste + rød sletteknapp */
-.m-fjern-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; max-height: 55vh; }
-.m-fjern-rad { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); }
-.m-fjern-rad:hover { background: var(--panel2); }
-.m-fjern-rad input { cursor: pointer; }
-.m-fjern-navn { border: none; background: none; padding: 0; font: inherit; color: var(--text); text-align: left; cursor: pointer; flex: 1; }
-.m-fjern-rad.sel { background: var(--accent-dim); }
+/* fjernFlere: checkboks UTENFOR kortet + kort med forhåndsvisning */
+.m-fjern-rad { display: flex; align-items: flex-start; gap: 10px; }
+.m-fjern-rad input { cursor: pointer; margin-top: 10px; width: 15px; height: 15px; }
+.m-fjern-kort { flex: 1; min-height: 0; }
+.m-fjern-kort.sel { border-color: var(--accent); background: var(--accent-dim); }
+.m-fjern-visning { font-size: 13.5px; line-height: 1.5; }
 button.m-fare { background: var(--danger-dim, rgba(192, 57, 43, 0.14)); border-color: rgba(192, 57, 43, 0.45); color: var(--role, #c0392b); font-weight: 600; }
 button.m-fare:disabled { opacity: 0.45; }
 /* malredigering: «ta med i gudstjenesten»-bryter i leddhodet */
