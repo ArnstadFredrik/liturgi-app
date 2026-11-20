@@ -1,5 +1,6 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
+	import Modulfaner from '$lib/Modulfaner.svelte';
 	import { app, veksleSidebar, veksleToc, loadStore } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';
@@ -55,7 +56,47 @@
 		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		document.getElementById('sec-' + i)?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
 	}
+	/** Modul-navigasjon: tittel + fane-stripe i SAMME posisjon for alle
+	 *  moduler med undermoduler (Gudtjeneste, Bibliotek, Innstillinger). */
+	const modul = $derived.by(() => {
+		const andre = ['kirkeaar', 'forberedelse', 'bibliotek', 'maler', 'innstillinger', 'malverktoy'];
+		// en åpen gudtjeneste: redigering/salmer/eksport (visning kan stå på
+		// 'hjem' mens dokumentet er åpent — fallback-renderer da editoren)
+		if (app.current && app.kind === 'service' && !andre.includes(app.visning)) {
+			return {
+				tittel: 'Gudtjeneste',
+				aktiv: app.visning === 'salmer' ? 'salmer' : app.visning === 'eksport' ? 'eksport' : 'redigering',
+				faner: [
+					{ id: 'redigering', navn: 'Redigering', velg: () => { app.visning = 'editor'; } },
+					{ id: 'salmer', navn: 'Salmer', velg: () => { app.visning = 'salmer'; } },
+					{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
+				]
+			};
+		}
+		if (app.visning === 'bibliotek' || app.visning === 'maler') {
+			return {
+				tittel: 'Bibliotek',
+				aktiv: app.visning,
+				faner: [
+					{ id: 'bibliotek', navn: 'Bibliotek', velg: () => { app.visning = 'bibliotek'; } },
+					{ id: 'maler', navn: 'Maler', velg: () => { app.visning = 'maler'; } }
+				]
+			};
+		}
+		if (app.visning === 'innstillinger') {
+			return {
+				tittel: 'Innstillinger',
+				aktiv: app.innFane ?? 'generelt',
+				faner: [
+					{ id: 'generelt', navn: 'Generelt', velg: () => { app.innFane = 'generelt'; } },
+					{ id: 'prekenforberedelse', navn: 'Prekenforberedelse', velg: () => { app.innFane = 'prekenforberedelse'; } }
+				]
+			};
+		}
+		return null;
+	});
 </script>
+
 
 <div id="app" class:sidebar-skjult={app.sidebarSkjult} class:toc-skjult={app.tocSkjult} class:toc-aktiv={!!app.current || app.portalToc}>
 	<button class="ikon-btn sidebar-toggle" onclick={veksleSidebar}
@@ -64,6 +105,12 @@
 	</button>
 	<Sidebar />
 	<main id="main">
+		{#if modul}
+			<header class="modul-topp">
+				<span class="modul-tittel">{modul.tittel}</span>
+				<Modulfaner faner={modul.faner} aktiv={modul.aktiv} />
+			</header>
+		{/if}
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
 		{:else if app.visning === 'salmer' && app.current}

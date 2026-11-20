@@ -2,7 +2,6 @@
 	// Salmeoversikt: alle salmeleddene i gudstjenesten i én liste — fyll inn
 	// nummer og/eller tittel og hent alle tekstene i ÉN registrering.
 	import { app, markDirty } from '$lib/store.svelte.js';
-	import Modulfaner from './Modulfaner.svelte';
 	import { formaterSalme, salmeAlts } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
@@ -112,11 +111,6 @@
 </script>
 
 <div id="salmer-modul">
-	<Modulfaner aktiv="salmer" faner={[
-		{ id: 'redigering', navn: 'Redigering', velg: () => { app.visning = 'editor'; } },
-		{ id: 'salmer', navn: 'Salmer' },
-		{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
-	]} />
 	<header class="sal-overhode">
 		<div class="sal-tittel">
 			<h2>Salmeoversikt</h2>

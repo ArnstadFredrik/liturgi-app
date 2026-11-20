@@ -5,7 +5,6 @@
 	import EditableText from '$lib/EditableText.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import Maler from './Maler.svelte';
-	let bibliotekFane = $state('bibliotek');
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -167,13 +166,7 @@ function grupperEtterLedd(rader) {
 </script>
 
 <div id="biblio-side">
-	<div class="biblio-faner">
-		<div class="fb-visning-velger">
-			<button class:sel={bibliotekFane === 'bibliotek'} onclick={() => bibliotekFane = 'bibliotek'}>Bibliotek</button>
-			<button class:sel={bibliotekFane === 'maler'} onclick={() => bibliotekFane = 'maler'}>Maler</button>
-		</div>
-	</div>
-	{#if bibliotekFane === 'maler'}
+	{#if app.visning === 'maler'}
 		<div id="maler-side">
 		<Maler />
 		</div>

@@ -11,7 +11,7 @@
 	/** Vis baner relative til hjemmekatalogen (~) — db-en lagrer absolutt bane. */
 	const kortSti = (sti) => (sti || '').replace(/^\/Users\/[^/]+(?=\/|$)/, '~');
 	let jobber = false;
-	let innFane = $state('generelt'); // generelt | prekenforberedelse
+	// aktiv undermodul: app.innFane ('generelt' | 'prekenforberedelse') — styres fra modul-topp
 	let forbModul = $state(false); // Kirkeårets generering + prekenforberedelse-knappen
 	let forbRediger = $state(false); // modulen i sidemenyen (redigeringsmodulen)
 	let vimAktiv = $state(false); // global vim-modus
@@ -162,18 +162,11 @@ function settForbModul(v) {
 </script>
 
 <div id="innstillinger">
-	<h2>Innstillinger</h2>
-	<div class="inn-faner">
-		<div class="fb-visning-velger">
-			<button class:sel={innFane === 'generelt'} onclick={() => innFane = 'generelt'}>Generelt</button>
-			<button class:sel={innFane === 'prekenforberedelse'} onclick={() => innFane = 'prekenforberedelse'}>Prekenforberedelse</button>
-		</div>
-	</div>
 	{#if versjon}
 		<p class="inn-versjon">Versjon {versjon}{bygg ? ` · bygg ${bygg}` : ''}</p>
 	{/if}
 
-	{#if innFane === 'generelt'}
+	{#if app.innFane === 'generelt'}
 	<div class="inn-seksjon">
 		<div class="inn-seksjon-tittel">Generelt</div>
 		<div class="inn-kort">
