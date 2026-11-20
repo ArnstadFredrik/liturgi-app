@@ -149,6 +149,7 @@
 							// kun dra fra leddhodet — ikke fra tittel/tekst/input/contenteditable
 							draggable = !!e.target.closest('.item-head') && !e.target.closest('[contenteditable], input, textarea');
 						}}
+						ondragstart={(e) => onDragStart(e, si, ii)}
 						ondragover={(e) => onDragOver(e, si, ii)}
 						ondrop={(e) => onDrop(e, si, ii)}
 						ondragend={onDragEnd}
