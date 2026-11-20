@@ -9,6 +9,23 @@
 
 	const o = $derived(app.current);
 
+	/** Del-gruppe-statistikk: gruppene som finnes i dokumentet + antall
+	 *  avsnitt i hver. «Standard» = avsnitt uten delGruppe. Vis bare når
+	 *  dokumentet bruker del-grupper (gravferd og brukermaler med markering). */
+	const delGruppeStats = $derived.by(() => {
+		const secs = o?.sections ?? [];
+		if (!secs.length) return [];
+		const grupper = app.kind === 'template'
+			? (o?.delGrupper ?? [])
+			: (app.templates.find((t) => t.id === o?.templateId)?.delGrupper ?? []);
+		const brukt = secs.some((s) => s.delGruppe);
+		if (!brukt && !grupper.length) return [];
+		const ut = grupper.map((g) => ({ navn: g[0].toUpperCase() + g.slice(1), antall: secs.filter((s) => s.delGruppe === g).length }));
+		const standard = secs.filter((s) => !s.delGruppe).length;
+		if (standard || !grupper.length) ut.push({ navn: 'Standard', antall: standard });
+		return ut;
+	});
+
 	function onSave() {
 		if (app.current?.__devMal) { lagreTilProsjekt(); return; } // ⌘S på dev-mal → «Lagre til prosjektet»
 		saveCurrent();
@@ -115,6 +132,16 @@
 		{/if}
 	</div>
 </div>
+
+{#if delGruppeStats.length}
+	<hr class="side-skiller insp-skiller" />
+	<div class="insp-gruppe">
+		<div class="sidehead">Del-grupper</div>
+		{#each delGruppeStats as st (st.navn)}
+			<div class="insp-rad insp-linje del-stat"><span>{st.navn}</span><span class="del-antall">{st.antall} avsnitt</span></div>
+		{/each}
+	</div>
+{/if}
 
 <hr class="side-skiller insp-skiller" />
 
