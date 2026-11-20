@@ -16,44 +16,6 @@
 
 	let { it, si, ii } = $props();
 
-	/* ---------- drag-drop av ledd (flytt med hodet) ---------- */
-	// dragstart: leddets (si, ii); dragover på andre ledd: markér før/etter;
-	// drop: flytt item mellom seksjoner i app.current (gudstjeneste OG mal).
-	let dragOver = $state(null); // { si, ii, før: true|false }
-	function dragStart(e) {
-		window.__leddDrag = { si, ii }; // dataTransfer.getData er tom under dragover
-		e.dataTransfer.effectAllowed = 'move';
-		e.dataTransfer.setData('text/plain', 'liturgi-ledd');
-	}
-	function dragOverItem(e) {
-		if (!window.__leddDrag) return;
-		const r = e.currentTarget.getBoundingClientRect();
-		const før = e.clientY < r.top + r.height / 2;
-		if (dragOver?.si === si && dragOver?.ii === ii && dragOver.før === før) return;
-		dragOver = { si, ii, før };
-		e.preventDefault(); // tillat drop
-	}
-	function dragLeaveItem() {
-		if (dragOver?.si === si && dragOver?.ii === ii) dragOver = null;
-	}
-	function dropItem(e) {
-		e.preventDefault();
-		const d = window.__leddDrag;
-		const mål = dragOver;
-		window.__leddDrag = null;
-		dragOver = null;
-		if (!d || !mål) return;
-		// samme posisjon (rettholdt over/under mot samme ledd)? → ingenting
-		if (d.si === si && (d.ii === ii || (d.ii === ii - 1 && !mål.før))) return;
-		const cur = app.current;
-		// innsettingsindeks: før = ii, etter = ii + 1 — i SAMME seksjon justeres
-		// for at kilden (lavere indeks) er fjernet først
-		let ti = mål.før ? ii : ii + 1;
-		if (d.si === si && d.ii < ti) ti--;
-		const [flyttet] = cur.sections[d.si].items.splice(d.ii, 1);
-		cur.sections[si].items.splice(ti, 0, flyttet);
-		markDirty();
-	}
 
 	const TYPE_LABEL = { tekst: 'Tekst', instruks: 'Instruks', salme: 'Salme', lesning: 'Lesning', bønn: 'Bønn' };
 
@@ -356,13 +318,8 @@
 	}
 </script>
 
-<div class="item" class:off={it.enabled === false} oncontextmenu={context}
-		class:dd-over={dragOver?.si === si && dragOver?.ii === ii && dragOver.før}
-		class:dd-over-under={dragOver?.si === si && dragOver?.ii === ii && !dragOver.før}
-		ondragover={dragOverItem} ondragleave={dragLeaveItem} ondrop={dropItem}>
-	<div class="item-head" draggable="true" ondragstart={dragStart}
-		ondragend={() => { window.__leddDrag = null; dragOver = null; }}
-		title="Dra for å flytte leddet">
+<div class="item" class:off={it.enabled === false} oncontextmenu={context}>
+	<div class="item-head" title="Dra i linjen over for å flytte leddet">
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
 		</span>

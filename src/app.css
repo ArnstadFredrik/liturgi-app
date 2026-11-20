@@ -515,12 +515,21 @@ textarea {
 .section[id] { scroll-margin-top: 90px; }
 .sec-items { min-height: 20px; }
 /* drag-and-drop */
+/* drag-and-drop */
 .dnd-wrap { cursor: grab; }
-.dnd-wrap/* drak-markør: tykk linje MELLOM leddene (ikke markering av hele leddet) */
-.drag-target { box-shadow: 0 -3px 0 0 var(--accent) inset; }
-.drag-target-etter { box-shadow: 0 3px 0 0 var(--accent) inset; }
+/* drak-markør: tykk linje MELLOM leddene (ikke ramme rundt hele leddet) */
+.dnd-wrap.drag-target::before,
+.dnd-wrap.drag-target-etter::before {
+	content: '';
+	display: block;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--accent);
+	margin: 4px 8px;
+}
+.dnd-wrap.drag-target .item { margin-top: 0; }
+.dnd-wrap.drag-target-etter .item { margin-bottom: 0; }
 .sec-flytt { padding: 2px 6px; }
-.dnd-wrap.drag-target .item { border-color: var(--accent); }
 
 /* ---------- Kontekstmeny ---------- */
 .ctx-overlay { position: fixed; inset: 0; z-index: 200; }
