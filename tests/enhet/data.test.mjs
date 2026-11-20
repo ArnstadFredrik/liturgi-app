@@ -85,6 +85,26 @@ test('HG-ordningen: dåpsdelen er lenket til «Dåp i hovedgudstjenesten»', () 
 	for (const it of dopLedd) assert.ok(it.id.startsWith('h-l-dap'), 'dåp-malens ledd-id-er: ' + it.id);
 });
 
+test('valgt-indeksene (selAlt/selIntro/selAvsl) peker innenfor rekkevidde', () => {
+	// Item.svelte leser alts[selAlt].text — en ugyldig indeks krasjer hele treet
+	for (const t of BUILTIN_TEMPLATES) {
+		for (const sec of t.sections) {
+			for (const it of sec.items) {
+				for (const [liste, nokkel] of [['alts', 'selAlt'], ['introAlts', 'selIntro'], ['avslutningAlts', 'selAvsl']]) {
+					const l = it[liste];
+					if (Array.isArray(l) && l.length) {
+						const v = it[nokkel];
+						// undefined er OK (runtime fallbacker med ?? 0) — men et TALL
+						// utenfor rekkevidden krasjer (alts[selAlt].text → undefined)
+						assert.ok(v === undefined || (typeof v === 'number' && v >= 0 && v < l.length),
+							`${t.name} / ${it.heading}: ${nokkel}=${JSON.stringify(v)} utenfor 0..${l.length - 1}`);
+					}
+				}
+			}
+		}
+	}
+});
+
 test('unike mal-id-er og unike ledd-id-er (duplikat = keyed each-krasj)', () => {
 	const alle = [...BUILTIN_TEMPLATES, ...(DEAKTIVERTE_MALER ?? [])];
 	const ider = alle.map((t) => t.id);

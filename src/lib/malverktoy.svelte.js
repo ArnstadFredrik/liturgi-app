@@ -107,6 +107,18 @@ export async function åpneUtkast(fil) {
 	bt.__devKey = bt.builtinKey ?? null;
 	bt.kind = 'template';
 	delete bt.builtinKey;
+	// Valgt-indeksene kan peke utenfor rekkevidden i utkast (f.eks. etter
+	// sletting i adminAlts) — klem dem inn, ellers krasjer Item-renderen.
+	for (const sec of bt.sections ?? []) {
+		for (const it of sec.items ?? []) {
+			for (const [liste, nokkel] of [['alts', 'selAlt'], ['introAlts', 'selIntro'], ['avslutningAlts', 'selAvsl']]) {
+				const l = it[liste];
+				if (Array.isArray(l) && l.length) {
+					if (typeof it[nokkel] !== 'number' || it[nokkel] >= l.length) it[nokkel] = 0;
+				}
+			}
+		}
+	}
 	registrerÅpenMal(bt, true);
 	app.visning = 'hjem';
 	app.dirty = false;

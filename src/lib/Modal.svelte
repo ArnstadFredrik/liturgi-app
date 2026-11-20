@@ -678,6 +678,14 @@
 							for (const idx of idxer) m.it[m.liste].splice(idx, 1);
 							fjernMerkede = new Set();
 							visAdmin = 0;
+							// KRITISK: valgt-indeksen (selAlt/selIntro/selAvsl) kan peke utenfor
+							// rekkevidden etter sletting — Item.svelte leser alts[selAlt].text
+							// ved neste render og krasjer hele treet (frys, 20. nov).
+							if (m.selNokkel) {
+								const n = (m.it[m.liste] ?? []).length;
+								const na = m.it[m.selNokkel];
+								if (n === 0 || typeof na !== 'number' || na >= n) m.it[m.selNokkel] = Math.max(0, n - 1);
+							}
 							app.current && markDirtyIModal();
 						}}>Slett {fjernMerkede.size} alternativ{fjernMerkede.size === 1 ? '' : 'er'}</button>
 					<button class="primary" onclick={() => { markDirtyIModal(); closeModal(); }}>Ferdig</button>
