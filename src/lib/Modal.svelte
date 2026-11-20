@@ -48,6 +48,7 @@
 	});
 	let valgte = $state([]);
 	let valgteFjern = $state([]); // fjernFlere: indekser krysset av for sletting
+	let visAlt = $state(0); // fjernFlere: hvilket alternativ vises i høyre kolonne
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
 	let tekster = $state(null);
@@ -106,6 +107,7 @@
 			valgtAlt = m.sel ?? 0;
 		} else if (m?.type === 'fjernFlere') {
 			valgteFjern = [];
+			visAlt = 0;
 		} else if (m?.type === 'bib') {
 			bibQ = m.def ?? '';
 			bibValgt = -1;
@@ -448,15 +450,20 @@
 					</div>
 				</div>
 			{:else if m.type === 'fjernFlere'}
-				<p class="muted m-velg-hint">Merk alternativene som skal slettes:</p>
-				<div class="m-fjern-liste">
-					{#each m.options as o, ai (ai)}
-						<label class="chk m-fjern-rad">
-							<input type="checkbox" checked={valgteFjern.includes(ai)}
-								onchange={(e) => { if (e.currentTarget.checked) valgteFjern = [...valgteFjern, ai]; else valgteFjern = valgteFjern.filter((x) => x !== ai); }} />
-							<span>{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</span>
-						</label>
-					{/each}
+				<p class="muted m-velg-hint">Merk alternativene som skal slettes — forhåndsvisning til høyre:</p>
+				<div class="m-velg-to-kolonner">
+					<div class="m-velg-liste m-fjern-liste">
+						{#each m.options as o, ai (ai)}
+							<label class="chk m-fjern-rad" class:sel={visAlt === ai}>
+								<input type="checkbox" checked={valgteFjern.includes(ai)}
+									onchange={(e) => { if (e.currentTarget.checked) valgteFjern = [...valgteFjern, ai]; else valgteFjern = valgteFjern.filter((x) => x !== ai); }} />
+								<button type="button" class="m-fjern-navn" onclick={() => (visAlt = ai)}>{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</button>
+							</label>
+						{/each}
+					</div>
+					<div class="m-velg-visning lit-text">
+						{@html litHtml(m.options[visAlt]?.text || '')}
+					</div>
 				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">

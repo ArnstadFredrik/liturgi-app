@@ -278,6 +278,8 @@ button.wide { width: 100%; }
 .m-fjern-rad { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); }
 .m-fjern-rad:hover { background: var(--panel2); }
 .m-fjern-rad input { cursor: pointer; }
+.m-fjern-navn { border: none; background: none; padding: 0; font: inherit; color: var(--text); text-align: left; cursor: pointer; flex: 1; }
+.m-fjern-rad.sel { background: var(--accent-dim); }
 button.m-fare { background: var(--danger-dim, rgba(192, 57, 43, 0.14)); border-color: rgba(192, 57, 43, 0.45); color: var(--role, #c0392b); font-weight: 600; }
 button.m-fare:disabled { opacity: 0.45; }
 /* malredigering: «ta med i gudstjenesten»-bryter i leddhodet */
