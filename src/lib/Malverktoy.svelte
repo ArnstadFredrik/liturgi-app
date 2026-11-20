@@ -5,6 +5,17 @@
 	// produksjon — +page.svelte gate'er den på __DEV_MODE__ + app.devModus,
 	// og IPC-handleren i main.cjs nekter i pakket app.
 	import { BUILTIN_TEMPLATES } from '$lib/data.js';
+	import { malType } from '$lib/modal.svelte.js';
+
+	/** Søk + type-filter + sortering etter type så navn (samme som malmodulen). */
+	let q = $state('');
+	let typeFilter = $state('alle'); // alle | gudtjeneste | vigsel | gravferd
+	const typeRekkefolge = { gudtjeneste: 0, vigsel: 1, gravferd: 2 };
+	const visMal = $derived(
+		BUILTIN_TEMPLATES
+			.filter((bt) => (!q || bt.name.toLowerCase().includes(q.toLowerCase())) && (typeFilter === 'alle' || malType(bt) === typeFilter))
+			.sort((a, b) => (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
+	);
 	import { app } from '$lib/store.svelte.js';
 	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast } from '$lib/malverktoy.svelte.js';
 	import { mdi } from '$lib/mdi.js';
@@ -49,8 +60,17 @@
 		</div>
 	{/if}
 
+	<div class="mal-filter">
+		<input class="mal-sok" placeholder="Søk i originalmaler …" bind:value={q} />
+		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
+			{#each [['alle', 'Alle'], ['gudtjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
+			{/each}
+		</div>
+	</div>
+
 	<ul class="mal-liste">
-		{#each BUILTIN_TEMPLATES as bt (bt.id)}
+		{#each visMal as bt (bt.id)}
 			<li>
 				<div class="mal-info">
 					<span class="navn">{bt.name}</span>
@@ -60,6 +80,8 @@
 					{@html mdi('pencil')} Åpne i redigering
 				</button>
 			</li>
+		{:else}
+			<li class="muted">Ingen treff.</li>
 		{/each}
 	</ul>
 </div>

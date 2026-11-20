@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal, malType } from '$lib/modal.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -25,10 +25,7 @@
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
-	function malType(t) {
-		return t.liturgiType ?? (/vigsel/i.test(t.name || '') ? 'vigsel' : /gravferd/i.test(t.name || '') ? 'gravferd' : 'gudstjeneste');
-	}
-	/** Kan malen brukes direkte til å opprette gudstjenester? (malen kan selv
+		/** Kan malen brukes direkte til å opprette gudstjenester? (malen kan selv
 	 *  bestemme: «Dåp i hovedgudstjenesten» er bare en del av gudstjenesten.)
 	 *  Standard er ja — malen må eksplisitt si kanGudstjeneste: false. */
 	function kanBrukes(t) {
