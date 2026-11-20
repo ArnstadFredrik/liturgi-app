@@ -1,6 +1,6 @@
 <script>
 	/** Cmd+K-kommandopalett: søk i alle menylinje-alternativene. */
-	import { app, veksleSidebar, veksleToc, toggleTheme } from './store.svelte.js';
+	import { app, veksleSidebar, veksleToc, toggleTheme, veksleVim } from './store.svelte.js';
 	import { saveCurrent, saveCurrentToFile, openFileToStore, kjorMenyId, erOriginalMal } from './fileio.svelte.js';
 
 	let aapen = $state(false);
@@ -45,7 +45,8 @@
 		{ id: 'apne-mappe', navn: 'Åpne mappe (vis filen i Finder)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current?.filePath, kjor: () => kjorMenyId('apne-mappe') },
 		{ id: 'veksle-sidebar', navn: 'Vis/skjul sidemenyen', kategori: 'Visning', taster: '⌘\\', enabled: () => true, kjor: () => veksleSidebar() },
 		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘\\', enabled: () => true, kjor: () => veksleToc() },
-		{ id: 'tema', navn: app.theme === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => toggleTheme() }
+		{ id: 'tema', navn: app.theme === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => toggleTheme() },
+		{ id: 'vim', navn: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => veksleVim() }
 	];
 
 	const filtrert = $derived.by(() => {
