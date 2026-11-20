@@ -243,6 +243,12 @@ button.wide { width: 100%; }
 .inn-stier span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #innstillinger code { background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
 .inn-handling { flex-shrink: 0; }
+/* ekte av/på-bryter (samme uttrykk som .avpaa-bryter i radene) */
+.inn-bryter { flex-shrink: 0; border: none; background: none; padding: 4px; cursor: pointer; }
+.inn-bryter-spore { display: block; width: 34px; height: 20px; border-radius: 10px; background: rgba(128, 128, 128, 0.35); position: relative; transition: background 0.18s ease; }
+.inn-bryter-klump { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); transition: left 0.18s ease; }
+.inn-bryter[aria-checked="true"] .inn-bryter-spore { background: var(--accent); }
+.inn-bryter[aria-checked="true"] .inn-bryter-klump { left: 16px; }
 .inn-rad-felt { align-items: flex-start; }
 /* hjemskjerm: bønn som ren tekst (avsnitt per linje), referanse under bibeltekst */
 .w-bønn p { margin: 0 0 6px; }
@@ -567,6 +573,8 @@ textarea {
 #modal label.m-tekst-rad { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; border-radius: 6px; cursor: pointer; }
 #modal label.m-tekst-rad input[type="checkbox"] { width: auto; flex: none; margin: 0; }
 .m-tekst-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; min-height: 0; padding: 4px 0; border: 1px solid var(--border); border-radius: 8px; }
+#modal.bred .m-tekst-liste { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 20px; align-content: start; }
+.m-tekst-advarsel { color: var(--warn); font-size: 12px; margin: 4px 0 0; }
 .m-tekst-rad:hover { background: var(--card); }
 .m-tekst-rad { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
 .m-tekst-rad:hover { background: var(--card); }
@@ -1184,6 +1192,10 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 11.5px; padding: 3px 10px; cursor: pointer; border-radius: 6px; }
 .fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
 .fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
+/* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler
+   (Gudtjeneste: Redigering/Salmer/Eksport · Bibliotek: Bibliotek/Maler ·
+   Innstillinger: Generelt/Prekenforberedelse) */
+.mod-faner { display: flex; justify-content: flex-end; margin-bottom: 10px; }
 /* vim-bryter + modus-badge */
 .fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }
 .fb-vim.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
