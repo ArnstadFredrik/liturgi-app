@@ -48,6 +48,12 @@ export function fjernFlereModal(options, tittel, ok) {
 	showModal({ type: 'fjernFlere', options, title: tittel, ok });
 }
 
+/** Administrer alternativer: navneendring, nytt tomt, slett merkede, hent fra
+ *  biblioteket (enkeltledd eller hele leddet) — jobber LIVE på it[liste]. */
+export function adminAltsModal(it, liste, selNokkel, tittel) {
+	showModal({ type: 'adminAlts', it, liste, selNokkel, title: tittel });
+}
+
 /** Sorterte prefasjon-alternativer ved dato-valg: kirkeårsbestemte først
  *  (aktuell periode øverst), deretter generelle (nattverdbønn a–g).
  *  Rekkefølgen i dokumentet er uendret — sorteringen vises kun i velgeren. */

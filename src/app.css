@@ -277,6 +277,9 @@ button.wide { width: 100%; }
 .m-fjern-rad { display: flex; align-items: flex-start; gap: 10px; }
 .m-fjern-rad input { cursor: pointer; margin-top: 10px; width: 15px; height: 15px; }
 .m-fjern-kort { flex: 1; min-height: 0; }
+.m-alts-navn { border: 1px solid var(--border); border-radius: 5px; background: var(--panel2);
+	color: var(--text); font: inherit; font-size: 12.5px; padding: 3px 8px; width: 100%; }
+.m-alts-navn:focus { outline: none; border-color: var(--accent); }
 .m-fjern-kort.sel { border-color: var(--accent); background: var(--accent-dim); }
 .m-fjern-visning { font-size: 13.5px; line-height: 1.5; }
 button.m-fare { background: var(--danger-dim, rgba(192, 57, 43, 0.14)); border-color: rgba(192, 57, 43, 0.45); color: var(--role, #c0392b); font-weight: 600; }
@@ -513,7 +516,10 @@ textarea {
 .sec-items { min-height: 20px; }
 /* drag-and-drop */
 .dnd-wrap { cursor: grab; }
-.dnd-wrap.drag-target { box-shadow: 0 -2px 0 0 var(--accent) inset, 0 2px 0 0 var(--accent) inset; }
+.dnd-wrap/* drak-markør: tykk linje MELLOM leddene (ikke markering av hele leddet) */
+.drag-target { box-shadow: 0 -3px 0 0 var(--accent) inset; }
+.drag-target-etter { box-shadow: 0 3px 0 0 var(--accent) inset; }
+.sec-flytt { padding: 2px 6px; }
 .dnd-wrap.drag-target .item { border-color: var(--accent); }
 
 /* ---------- Kontekstmeny ---------- */

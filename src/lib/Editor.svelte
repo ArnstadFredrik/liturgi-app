@@ -23,18 +23,23 @@
 	function onDragOver(e, si, ii) {
 		e.preventDefault();
 		e.dataTransfer.dropEffect = 'move';
-		dragOver = { si, ii };
+		// linje-markør: over/under midten bestemmer OM leddet (før) eller ETTER
+		const r = e.currentTarget.getBoundingClientRect();
+		dragOver = { si, ii, før: e.clientY < r.top + r.height / 2 };
 	}
 	function onDrop(e, si, ii) {
 		e.preventDefault();
-		window.__dsLog?.push('onDrop si=' + si + ' ii=' + ii);
 		try {
 			const from = JSON.parse(e.dataTransfer.getData('text/plain'));
-			if (from && !(from.si === si && from.ii === ii)) {
+			const mål = dragOver ?? { si, ii, før: true };
+			// samme posisjon? (samme seksjon og allerede rett før/etter målet)
+			sammePosisjon: if (!(from.si === mål.si && from.ii === mål.ii && mål.før) &&
+				!(from.si === mål.si && from.ii === mål.ii - 1 && !mål.før)) {
+				// innsettingsindeks: før = ii, etter = ii + 1
+				let target = mål.før ? ii : ii + 1;
+				if (from.si === mål.si && from.ii < target) target--;
 				const [moved] = o.sections[from.si].items.splice(from.ii, 1);
-				let target = ii;
-				if (from.si === si && from.ii < ii) target = ii - 1;
-				o.sections[si].items.splice(target, 0, moved);
+				o.sections[mål.si].items.splice(target, 0, moved);
 				markDirty();
 			}
 		} catch { /* ugyldig data — ignorer */ }
@@ -52,6 +57,14 @@
 			});
 			markDirty();
 		});
+	}
+
+	function flyttSeksjon(si, retning) {
+		const til = si + retning;
+		if (til < 0 || til >= o.sections.length) return;
+		const [sec] = o.sections.splice(si, 1);
+		o.sections.splice(til, 0, sec);
+		markDirty();
 	}
 
 	function addSection() {
@@ -120,6 +133,8 @@
 				<span class="sec-title" contenteditable="plaintext-only" spellcheck="false"
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
+				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
+				<button class="sec-flytt" title="Flytt avsnittet ned" onclick={() => flyttSeksjon(si, 1)} disabled={si === o.sections.length - 1}>{@html mdi("arrow-down", 13)}</button>
 				<button onclick={() => addItem(si)}>+ ledd</button>
 				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>{@html mdi("delete-outline", 14)}</button>
 			</div>
@@ -127,7 +142,8 @@
 				{#each sec.items as it, ii (it.id)}
 					<div
 						class="dnd-wrap"
-						class:drag-target={dragOver && dragOver.si === si && dragOver.ii === ii}
+						class:drag-target={dragOver && dragOver.si === si && dragOver.ii === ii && dragOver.før}
+						class:drag-target-etter={dragOver && dragOver.si === si && dragOver.ii === ii && !dragOver.før}
 						draggable={draggable}
 						onmousedown={(e) => {
 							// kun dra fra leddhodet — ikke fra tittel/tekst/input/contenteditable
@@ -148,7 +164,5 @@
 		{#if app.kind === 'service'}
 			<button onclick={hentFraMal}>Hent del fra mal</button>
 		{/if}
-		<button onclick={addSection}>+ Nytt hovedavsnitt</button>
-		<button onclick={addAlt}>+ Alternativ til siste ledd</button>
 	</div>
 </div>

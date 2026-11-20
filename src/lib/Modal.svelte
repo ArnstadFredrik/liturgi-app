@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal } from '$lib/modal.svelte.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lookupKirkeaar, hentTekster, kirkeaarDager, lesTeksterCache } from '$lib/kirkeaar.js';
@@ -49,6 +49,8 @@
 	let valgte = $state([]);
 	let valgteFjern = $state([]); // fjernFlere: indekser krysset av for sletting
 	let visAlt = $state(0); // fjernFlere: hvilket alternativ vises i høyre kolonne
+	let fjernMerkede = $state(new Set()); // adminAlts: merkede indekser
+	let visAdmin = $state(0); // adminAlts: forhåndsvisning
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
 	let tekster = $state(null);
@@ -108,6 +110,9 @@
 		} else if (m?.type === 'fjernFlere') {
 			valgteFjern = [];
 			visAlt = 0;
+		} else if (m?.type === 'adminAlts') {
+			fjernMerkede = new Set();
+			visAdmin = 0;
 		} else if (m?.type === 'bib') {
 			bibQ = m.def ?? '';
 			bibValgt = -1;
@@ -330,12 +335,46 @@
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);
 		else if (m.type === 'fjernFlere') m.ok([...valgteFjern].sort((a, b) => b - a));
+		else if (m.type === 'adminAlts') return; // live-redigering — Ferdig lukker
 		else if (m.type === 'bib') {
 			const gruppe = bibGrupper[bibValgt];
 			m.ok(gruppe, m.mode === 'innhold' ? gruppe?.rader[bibAltValgt] : null);
 		} else if (m.type === 'kirkeaarListe') m.ok(kValgt != null ? filtrerteDager[kValgt] : null);
 		// lukk kun hvis ok-callbacken ikke byttet til en ny modal
 		if (app.modal === forrige) closeModal();
+	}
+
+	/** adminAlts-hjelpere: jobber direkte på m.it[m.liste] (Svelte-proxy). */
+	function nyttTomt() {
+		const l = m.it[m.liste];
+		if (!Array.isArray(l)) m.it[m.liste] = [];
+		m.it[m.liste].push({ label: 'Alternativ ' + String.fromCharCode(97 + m.it[m.liste].length), text: '' });
+		visAdmin = m.it[m.liste].length - 1;
+		markDirtyIModal();
+	}
+	function hentFraBib(mode) {
+		// SNAPSHOTT lokalt: bibSokModal bytter app.modal, så `m` peker på
+		// bib-modalen når callbacken kjører — ikke administratoren.
+		const it = m.it, liste = m.liste, selNokkel = m.selNokkel, tittel = m.title;
+		const def = (it?.heading ?? '').replace(/^[*\d–\-\s]+/, '').trim();
+		bibSokModal(def, mode, (gruppe, alt) => {
+			if (!gruppe) return;
+			if (mode === 'innhold' && alt) {
+				it[liste].push({ label: alt.label || 'Alternativ ' + String.fromCharCode(97 + it[liste].length), text: alt.text });
+				visAdmin = it[liste].length - 1;
+			} else if (mode === 'ledd') {
+				// hele leddet: ERSTATT alternativene med gruppen sine
+				it[liste] = gruppe.rader.map((r) => ({ label: r.label || '', text: r.text }));
+				visAdmin = 0;
+			}
+			fjernMerkede = new Set();
+			markDirtyIModal();
+			// gjenåpne administratoren over den oppdaterte listen
+			adminAltsModal(it, liste, selNokkel, tittel);
+		});
+	}
+	function markDirtyIModal() {
+		import('$lib/store.svelte.js').then((st) => st.markDirty());
 	}
 
 	function onKey(e) {
@@ -471,6 +510,36 @@
 						{@html litHtml(m.options[visAlt]?.text || '')}
 					</div>
 				</div>
+			{:else if m.type === 'adminAlts'}
+				<p class="muted m-velg-hint">Navn kan endres rett i feltet — klikk kortet for forhåndsvisning, hake markerer for sletting.</p>
+				<div class="m-bib-cols">
+					<div class="m-bib-list m-fjern-liste">
+						{#each m.it[m.liste] as o, ai (ai)}
+							<div class="m-fjern-rad">
+								<input type="checkbox" checked={fjernMerkede.has(ai)}
+									aria-label={'Marker «' + (o.label || 'Alternativ ' + String.fromCharCode(97 + ai)) + '» for sletting'}
+									onchange={(e) => {
+										const n = new Set(fjernMerkede);
+										if (e.currentTarget.checked) n.add(ai); else n.delete(ai);
+										fjernMerkede = n;
+									}}
+									onclick={(e) => e.stopPropagation()} />
+								<button type="button" class="m-bib-alt-row m-fjern-kort" class:sel={visAdmin === ai}
+									onclick={() => (visAdmin = ai)}>
+									<input class="m-alts-navn" value={o.label ?? ''} placeholder="Navn på alternativet"
+										oninput={(e) => { o.label = e.currentTarget.value; markDirtyIModal(); }}
+										onclick={(e) => e.stopPropagation()}
+										onkeydown={(e) => e.stopPropagation()} spellcheck="false" />
+									<span class="m-bib-alt m-bib-lit">{@html litHtml(o.text || '')}</span>
+								</button>
+							</div>
+						{/each}
+						{#if !m.it[m.liste]?.length}<p class="m-kirkeaar muted">Ingen alternativer.</p>{/if}
+					</div>
+					<div class="m-bib-list m-bib-altliste m-fjern-visning lit-text">
+						{@html litHtml(m.it[m.liste]?.[visAdmin]?.text || '')}
+					</div>
+				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">
 					Søk i hovedgudstjenesten
@@ -554,7 +623,20 @@
 				{#if m.type === 'lukk'}
 					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
 				{/if}
-				{#if m.type === 'fjernFlere'}
+				{#if m.type === 'adminAlts'}
+					<button onclick={() => nyttTomt()}>Nytt tomt alternativ</button>
+					<button onclick={() => hentFraBib('innhold')}>Hent innhold fra biblioteket …</button>
+					<button onclick={() => hentFraBib('ledd')}>Hent hele leddet fra biblioteket …</button>
+					<button class="m-fare" disabled={fjernMerkede.size === 0}
+						onclick={() => {
+							const idxer = [...fjernMerkede].sort((a, b) => b - a);
+							for (const idx of idxer) m.it[m.liste].splice(idx, 1);
+							fjernMerkede = new Set();
+							visAdmin = 0;
+							app.current && markDirtyIModal();
+						}}>Slett {fjernMerkede.size} alternativ{fjernMerkede.size === 1 ? '' : 'er'}</button>
+					<button class="primary" onclick={() => { markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'fjernFlere'}
 					<button class="m-fare" onclick={ok} disabled={valgteFjern.length === 0}>
 						Slett {valgteFjern.length} alternativ{valgteFjern.length === 1 ? '' : 'er'}
 					</button>
