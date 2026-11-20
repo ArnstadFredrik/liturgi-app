@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty, uid } from '$lib/store.svelte.js';
-	import { chooseOneModal, valgModal } from '$lib/modal.svelte.js';
+	import { chooseOneModal, valgModal, fjernFlereModal } from '$lib/modal.svelte.js';
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
@@ -184,8 +184,7 @@
 				action: () => { if (selNokkel) it[selNokkel] = i; markDirty(); }
 			})) : []),
 			...(har ? ['sep'] : []),
-			...(har && l.length > 1 ? [{ label: 'Fjern dette alternativet …', action: () => velgFjern(liste, selNokkel, label) }] : []),
-			...(har && l.length > 1 ? [{ label: 'Fjern siste alternativ', action: () => fjernAlt(liste, l.length - 1, selNokkel) }] : []),
+			...(har && l.length > 1 ? [{ label: 'Fjern alternativer …', action: () => fjernFlere(liste, selNokkel) }] : []),
 			...(!har ? [{ label: 'Opprett «' + label + '»-gruppe', action: () => opprettGruppe(liste, selNokkel, label) }] : []),
 			...(har && (selNokkel === 'selIntro' || selNokkel === 'selAvsl') ? [
 				{ label: 'Fjern hele ' + label.toLowerCase(), action: () => fjernGruppe(liste, selNokkel), danger: true }
@@ -194,10 +193,13 @@
 		]);
 	}
 
-	/** Fjern-alternativ: velg hvilken (modal). */
-	function velgFjern(liste, selNokkel, label) {
+	/** Fjern alternativer: multi-select-modal; slett merkede fra bunnen og opp. */
+	function fjernFlere(liste, selNokkel) {
 		const l = it[liste];
-		chooseOneModal(l, it[selNokkel] ?? 0, (ny) => fjernAlt(liste, ny, selNokkel));
+		fjernFlereModal(l, 'Fjern valgte ledd' + (it.heading ? ' — ' + it.heading : ''), (idxer) => {
+			for (const idx of idxer) fjernAlt(liste, idx, selNokkel); // bunnen først
+			toast.success(idxer.length + ' alternativ(er) slettet');
+		});
 	}
 
 	/** Hent ET alternativ fra biblioteket inn i gruppen (legg til som nytt). */

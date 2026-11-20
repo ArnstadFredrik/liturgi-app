@@ -47,6 +47,7 @@
 		}
 	});
 	let valgte = $state([]);
+	let valgteFjern = $state([]); // fjernFlere: indekser krysset av for sletting
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
 	let tekster = $state(null);
@@ -103,6 +104,8 @@
 			valgte = [...m.titles];
 		} else if (m?.type === 'chooseOne') {
 			valgtAlt = m.sel ?? 0;
+		} else if (m?.type === 'fjernFlere') {
+			valgteFjern = [];
 		} else if (m?.type === 'bib') {
 			bibQ = m.def ?? '';
 			bibValgt = -1;
@@ -324,6 +327,7 @@
 			return;
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);
+		else if (m.type === 'fjernFlere') m.ok([...valgteFjern].sort((a, b) => b - a));
 		else if (m.type === 'bib') {
 			const gruppe = bibGrupper[bibValgt];
 			m.ok(gruppe, m.mode === 'innhold' ? gruppe?.rader[bibAltValgt] : null);
@@ -443,6 +447,17 @@
 						{@html litHtml(m.options[valgtAlt]?.text || '')}
 					</div>
 				</div>
+			{:else if m.type === 'fjernFlere'}
+				<p class="muted m-velg-hint">Merk alternativene som skal slettes:</p>
+				<div class="m-fjern-liste">
+					{#each m.options as o, ai (ai)}
+						<label class="chk m-fjern-rad">
+							<input type="checkbox" checked={valgteFjern.includes(ai)}
+								onchange={(e) => { if (e.currentTarget.checked) valgteFjern = [...valgteFjern, ai]; else valgteFjern = valgteFjern.filter((x) => x !== ai); }} />
+							<span>{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</span>
+						</label>
+					{/each}
+				</div>
 			{:else if m.type === 'bib'}
 				<label class="m-bib-q">
 					Søk i hovedgudstjenesten
@@ -526,9 +541,15 @@
 				{#if m.type === 'lukk'}
 					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
 				{/if}
-				<button class="primary" onclick={ok} disabled={m.type === 'bib' && bibValgt === -1 || m.type === 'kirkeaarListe' && kValgt == null}>
-					{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' ? 'Opprett' : 'Hent inn')}
-				</button>
+				{#if m.type === 'fjernFlere'}
+					<button class="m-fare" onclick={ok} disabled={valgteFjern.length === 0}>
+						Slett {valgteFjern.length} alternativ{valgteFjern.length === 1 ? '' : 'er'}
+					</button>
+				{:else}
+					<button class="primary" onclick={ok} disabled={m.type === 'bib' && bibValgt === -1 || m.type === 'kirkeaarListe' && kValgt == null}>
+						{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' ? 'Opprett' : 'Hent inn')}
+					</button>
+				{/if}
 			</div>
 		</div>
 	</div>
