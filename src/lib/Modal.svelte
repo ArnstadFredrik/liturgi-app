@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal } from '$lib/modal.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -20,7 +20,8 @@
 	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
 	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
-	let jordpaa = $state('gravferd'); // gravferd: 'gravferd' | 'bisettelse' (delGruppe på seksjonene)
+	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
+	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
@@ -53,6 +54,7 @@
 	let visAlt = $state(0); // fjernFlere: hvilket alternativ vises i høyre kolonne
 	let fjernMerkede = $state(new Set()); // adminAlts: merkede indekser
 	let bokstavInput = $state(''); // velgTekster: brudeparets bokstaver
+	let dgNyttNavn = $state(''); // delGruppe: navn på ny gruppe
 	let visAdmin = $state(0); // adminAlts: forhåndsvisning
 	let valgtAlt = $state(0);
 	let kirkeaar = $state(null);
@@ -297,10 +299,22 @@
 	function velgType(type) {
 		nyType = type;
 		malerForType = app.templates.filter((t) => malType(t) === type && kanBrukes(t));
+		tplId = malerForType[0]?.id ?? ''; // preselect før øvrige effekter
+		if (type === 'gravferd') oppdaterJordpaaGrupper();
 		if (type === 'gudstjeneste') {
 			manuellK = null;
 			autoKirkeaar();
 		}
+	}
+
+	function oppdaterJordpaaGrupper() {
+		// del-gruppene hentes fra den valgte malen — ingen selvrefererende
+		// $effect (den ga en uendelig Svelte-loop ved gravferd-valg)
+		// ved type-bytte er tplId ennå ikke oppdatert ($effect kjører etter render)
+		// — fall tilbake til den første malen i den nye typen
+		const mal = app.templates.find((t) => t.id === tplId) ?? malerForType[0];
+		jordpaaGrupper = (mal?.delGrupper ?? []).slice();
+		if (!jordpaaGrupper.includes(jordpaa)) jordpaa = jordpaaGrupper[0] ?? null;
 	}
 
 	function nullstillKirkeaar() {
@@ -353,7 +367,7 @@
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);
 		else if (m.type === 'fjernFlere') m.ok([...valgteFjern].sort((a, b) => b - a));
-		else if (m.type === 'adminAlts' || m.type === 'velgTekster') return; // live-redigering — Ferdig lukker
+		else if (m.type === 'adminAlts' || m.type === 'velgTekster' || m.type === 'delGruppe') return; // live-redigering — Ferdig lukker
 		else if (m.type === 'bib') {
 			const gruppe = bibGrupper[bibValgt];
 			m.ok(gruppe, m.mode === 'innhold' ? gruppe?.rader[bibAltValgt] : null);
@@ -430,6 +444,33 @@
 		bokstavInput = '';
 	}
 
+	function leggTilGruppe() {
+		if (!m || m.type !== 'delGruppe') return;
+		const navn = dgNyttNavn.trim();
+		if (!navn) return;
+		if (!m.grupper.includes(navn)) m.grupper.push(navn);
+		m.valgt = navn;
+		dgNyttNavn = '';
+	}
+
+	function slettGruppe(navn) {
+		if (!m || m.type !== 'delGruppe') return;
+		m.grupper = m.grupper.filter((g) => g !== navn);
+		// rydd gruppen fra alle seksjonene i malen
+		for (const sec of m.mal.sections ?? []) {
+			if (sec.delGruppe === navn) sec.delGruppe = null;
+		}
+		if (m.valgt === navn) m.valgt = null;
+		markDirtyIModal();
+	}
+
+	function applyDelGruppe() {
+		if (!m || m.type !== 'delGruppe') return;
+		// lagre gruppelista på malen + sett seksjonens delGruppe
+		m.mal.delGrupper = [...m.grupper];
+		m.seksjon.delGruppe = m.valgt;
+	}
+
 	function applyVelgTekster() {
 		if (!m || m.type !== 'velgTekster') return;
 		(m.seksjon.items ?? []).forEach((it, idx) => {
@@ -475,7 +516,7 @@
 				</div>
 				<label>
 					Mal
-					<select bind:value={tplId}>
+					<select bind:value={tplId} onchange={() => oppdaterJordpaaGrupper()}>
 						{#each malerForType as t (t.id)}
 							<option value={t.id}>{t.name}</option>
 						{/each}
@@ -519,15 +560,13 @@
 						<!-- Jordpåkastelse: av/på-knapper — logikken er fortsatt radioknapper
 						     (bind:group, kun én av to kan være på) -->
 						<div class="m-chk m-chk-jord">
-							<span class="m-jordpaa-label">Jordpåkastelse:</span>
-							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'gravferd'} onclick={() => { jordpaa = 'gravferd'; }}>
-								<span class="avpaa-tekst">Gravferd</span>
-								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-							</button>
-							<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === 'bisettelse'} onclick={() => { jordpaa = 'bisettelse'; }}>
-								<span class="avpaa-tekst">Bisettelse</span>
-								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-							</button>
+							<span class="m-jordpaa-label">Del-gruppe:</span>
+							{#each jordpaaGrupper as g, gi (g)}
+								<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === g} onclick={() => { jordpaa = g; }}>
+									<span class="avpaa-tekst">{g[0].toUpperCase() + g.slice(1)}</span>
+									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+								</button>
+							{/each}
 						</div>
 						<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
 				{/if}
@@ -714,13 +753,35 @@
 						{/if}
 					{/each}
 				</div>
+			{:else if m.type === 'delGruppe'}
+				<p class="muted m-velg-hint">Velg hvilken del-gruppe avsnittet tilhører. «Ny gravferd» viser bare avsnitt i den valgte gruppen. Grupper uten avsnitt kan slettes.</p>
+				<div class="m-dg-liste">
+					<button type="button" class="m-dg-rad" class:sel={!m.valgt} onclick={() => { m.valgt = null; }}>
+						<span>Ingen (alltid med)</span>
+					</button>
+					{#each m.grupper as g, gi (g)}
+						<div class="m-dg-rad" class:sel={m.valgt === g} role="radio" aria-checked={m.valgt === g}
+							onclick={() => { m.valgt = g; }}>
+							<span class="m-dg-navn">{g}</span>
+							<button type="button" class="m-dg-slett" title="Slett gruppen (ryddes fra alle avsnitt)"
+								onclick={(e) => { e.stopPropagation(); slettGruppe(g); }}>{@html mdi('delete-outline', 14)}</button>
+						</div>
+					{/each}
+				</div>
+				<div class="m-dg-ny">
+					<input placeholder="Ny gruppe, f.eks. Bisettelse i kapell" bind:value={dgNyttNavn}
+						onkeydown={(e) => { if (e.key === 'Enter') { leggTilGruppe(); e.preventDefault(); } }} />
+					<button onclick={() => leggTilGruppe()}>Legg til</button>
+				</div>
 			{/if}
 			<div id="modal-actions">
 				<button onclick={() => { const f = m.onAvbryt; closeModal(); f?.(); }}>{m.cancelLabel ?? 'Avbryt'}</button>
 				{#if m.type === 'lukk'}
 					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
 				{/if}
-				{#if m.type === 'velgTekster'}
+				{#if m.type === 'delGruppe'}
+					<button class="primary" onclick={() => { applyDelGruppe(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'velgTekster'}
 					<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>
 					<button onclick={() => { m.valgte = new Set(); }}>Nullstill</button>
 					<button class="primary" onclick={() => { applyVelgTekster(); markDirtyIModal(); closeModal(); }}>Ferdig</button>

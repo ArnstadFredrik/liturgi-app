@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, chooseOneModal } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, delGruppeModal } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
@@ -51,14 +51,9 @@
 
 	function velgDelGruppe(sec) {
 		// del-gruppe: markerer seksjonen slik at «Ny gravferd» vet hvilken
-		// variant (hoveddel/bisettelse) den er — uavhengig av tittelen
-		chooseOneModal(
-			[{ label: 'Ingen (alltid med)' }, { label: 'Gravferd' }, { label: 'Bisettelse' }],
-			sec.delGruppe === 'gravferd' ? 1 : sec.delGruppe === 'bisettelse' ? 2 : 0,
-			(idx) => { sec.delGruppe = idx === 1 ? 'gravferd' : idx === 2 ? 'bisettelse' : null; markDirty(); },
-			null,
-			'Del-gruppe for «' + (sec.title ?? '') + '»'
-		);
+		// variant den er — uavhengig av tittelen. Gruppelista lagres på malen
+		// og kan utvides/slettes i modalen.
+		delGruppeModal(app.current, sec);
 	}
 
 	function addItem(si) {
@@ -146,7 +141,7 @@
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				{#if app.kind === 'template'}
-					<button class="sec-delgruppe" title="Del-gruppe: bruker «Ny gravferd» til å velge denne delen (uavhengig av tittelen)" onclick={() => velgDelGruppe(sec)}>{@html mdi("tag-outline", 13)} {sec.delGruppe === 'gravferd' ? 'Gravferd-del' : sec.delGruppe === 'bisettelse' ? 'Bisettelse-del' : 'Del-gruppe'}</button>
+					<button class="sec-delgruppe" title="Del-gruppe: bruker «Ny gravferd» til å velge denne delen (uavhengig av tittelen)" onclick={() => velgDelGruppe(sec)}>{@html mdi("tag-outline", 13)} {sec.delGruppe ?? 'Del-gruppe'}</button>
 				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}

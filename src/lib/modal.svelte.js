@@ -34,6 +34,19 @@ export function skriftBokstav(it, idx) {
  *  bare ha 2–4 av dem. Merk de ønskede — bare merkede ledd følger med
  *  (enabled). Bokstavfeltet lar brudeparets svar (f.eks. «B, E, H») sette
  *  merkingen direkte. */
+/** Del-gruppe-modal: legg til / slett / velg del-grupper for en seksjon.
+ *  Gruppelista lagres på malen (delGrupper); seksjonen merkes med
+ *  delGruppe, og «Ny gravferd» viser bare avsnitt i den valgte gruppen. */
+export function delGruppeModal(mal, seksjon) {
+	showModal({
+		type: 'delGruppe',
+		title: 'Del-gruppe for «' + (seksjon.title ?? '') + '»',
+		mal, seksjon,
+		grupper: [...(mal.delGrupper ?? [])],
+		valgt: seksjon.delGruppe ?? null
+	});
+}
+
 export function velgTeksterModal(seksjon) {
 	showModal({
 		type: 'velgTekster',
