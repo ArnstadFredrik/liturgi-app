@@ -96,8 +96,8 @@ export function sorterPrefasjoner(options, dato, periode) {
 
 /** Søk i hovedgudstjenestens bibliotek. mode: 'innhold' (ett alternativ) | 'ledd' (hele leddet).
  *  ok(m Gruppe, alt) — alt er valgt alternativ i 'innhold'-moden. */
-export function bibSokModal(def, mode, ok) {
-	showModal({ type: 'bib', title: 'Hent fra biblioteket', def: def ?? '', mode, ok });
+export function bibSokModal(def, mode, ok, onAvbryt) {
+	showModal({ type: 'bib', title: 'Hent fra biblioteket', def: def ?? '', mode, ok, onAvbryt });
 }
 
 export function closeModal() {
