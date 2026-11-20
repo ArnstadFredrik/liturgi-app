@@ -540,11 +540,15 @@ textarea {
 .bokstav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 0 4px; }
 .sec-velg-tekster { display: inline-flex; align-items: center; gap: 4px; }
 /* velgTekster-modal */
-.m-tekst-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; min-height: 0; max-height: 46vh; padding: 4px 0; }
+#modal label.m-tekst-rad { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 5px 8px; border-radius: 6px; cursor: pointer; }
+#modal label.m-tekst-rad input[type="checkbox"] { width: auto; flex: none; margin: 0; }
+.m-tekst-liste { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; min-height: 0; padding: 4px 0; border: 1px solid var(--border); border-radius: 8px; }
+.m-tekst-rad:hover { background: var(--card); }
 .m-tekst-rad { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
 .m-tekst-rad:hover { background: var(--card); }
 .m-tekst-bokstav { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; flex: none; }
-.m-tekst-navn { flex: 1; }
+.m-tekst-navn { flex: 1; color: var(--text); font-size: 13px; }
+#modal .m-tekst-tittel { color: var(--muted); font-size: 12px; font-weight: 600; padding: 4px 8px 2px; }
 .m-bokstav-rad { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .m-bokstav-inn { flex: 0 0 220px; }
 .m-bokstav-telling { margin-left: auto; color: var(--muted); font-size: 12px; }
