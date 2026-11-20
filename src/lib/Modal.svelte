@@ -1,6 +1,7 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal } from '$lib/modal.svelte.js';
+	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lookupKirkeaar, hentTekster, kirkeaarDager, lesTeksterCache } from '$lib/kirkeaar.js';
@@ -371,7 +372,7 @@
 			markDirtyIModal();
 			// gjenåpne administratoren over den oppdaterte listen
 			adminAltsModal(it, liste, selNokkel, tittel);
-		});
+		}, () => adminAltsModal(it, liste, selNokkel, tittel));
 	}
 	function markDirtyIModal() {
 		import('$lib/store.svelte.js').then((st) => st.markDirty());
@@ -526,18 +527,23 @@
 									onclick={(e) => e.stopPropagation()} />
 								<button type="button" class="m-bib-alt-row m-fjern-kort" class:sel={visAdmin === ai}
 									onclick={() => (visAdmin = ai)}>
-									<input class="m-alts-navn" value={o.label ?? ''} placeholder="Navn på alternativet"
-										oninput={(e) => { o.label = e.currentTarget.value; markDirtyIModal(); }}
-										onclick={(e) => e.stopPropagation()}
-										onkeydown={(e) => e.stopPropagation()} spellcheck="false" />
-									<span class="m-bib-alt m-bib-lit">{@html litHtml(o.text || '')}</span>
+									<span class="m-fjern-kort-navn">{o.label || 'Alternativ ' + String.fromCharCode(97 + ai)}</span>
 								</button>
 							</div>
 						{/each}
 						{#if !m.it[m.liste]?.length}<p class="m-kirkeaar muted">Ingen alternativer.</p>{/if}
 					</div>
-					<div class="m-bib-list m-bib-altliste m-fjern-visning lit-text">
-						{@html litHtml(m.it[m.liste]?.[visAdmin]?.text || '')}
+					<div class="m-bib-list m-bib-altliste m-fjern-visning">
+						{#key visAdmin}
+							{#if m.it[m.liste]?.[visAdmin]}
+								<input class="m-alts-navn" value={m.it[m.liste][visAdmin].label ?? ''}
+									placeholder="Navn på alternativet" spellcheck="false"
+									oninput={(e) => { m.it[m.liste][visAdmin].label = e.currentTarget.value; markDirtyIModal(); }}
+									onkeydown={(e) => e.stopPropagation()} />
+								<EditableText bind:value={m.it[m.liste][visAdmin].text} kind="lit"
+									startRedigering={true} visFerdig={false} />
+							{/if}
+						{/key}
 					</div>
 				</div>
 			{:else if m.type === 'bib'}
