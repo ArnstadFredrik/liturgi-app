@@ -40,7 +40,7 @@
 	--radius-modal: 14px;
 	color-scheme: light;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; accent-color: var(--accent); }
 html, body { height: 100%; margin: 0; }
 body {
 	background: var(--bg);
@@ -222,7 +222,7 @@ button.wide { width: 100%; }
 #maler-side { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }
 #maler-side h2 { color: var(--text); margin-bottom: 4px; }
 .maler-ingress { color: var(--muted); font-size: 0.9em; margin-top: 0; }
-.malgruppe { margin: 22px 0 0; display: flex; flex-direction: column; gap: 4px; }
+.malgruppe { margin: 18px 0 0; display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 10px 12px; }
 .malgruppe .sidehead { margin-bottom: 4px; }
 .maler-tom { color: var(--muted); font-size: 0.9em; margin: 4px 0; }
 /* Innstillinger — mac System Settings-stil: seksjonstittel + kort med rader */
@@ -308,7 +308,7 @@ button.m-fare { background: var(--danger-dim, rgba(192, 57, 43, 0.14)); border-c
 button.m-fare:disabled { opacity: 0.45; }
 /* malredigering: «ta med i gudstjenesten»-bryter i leddhodet */
 .ta-med { margin-left: auto; font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
-.ta-med input { cursor: pointer; }
+.ta-med input { cursor: pointer; width: 15px; height: 15px; accent-color: var(--accent); }
 /* ledd fjernet fra gudstjenesten: nedtonet og låst i eksportlisten */
 .eksport-rad.deaktivert { opacity: 0.45; }
 .eksport-rad.deaktivert .eksport-rad-nm { text-decoration: line-through; }
@@ -477,12 +477,14 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 #ed-date-line { display: none; }
 
 /* ---------- Sections / items ---------- */
-.section { margin-top: 30px; }
-.sec-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 10px; }
+/* Seksjoner som kort (designplanen): myk kant + kort-radius, tittelraden
+   skiller med hårfin linje i stedet for tykk rød strek */
+.section { margin-top: 22px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 14px 16px 10px; }
+.sec-head { display: flex; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
 .sec-title { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; flex: 1; cursor: text; }
 .sec-head .del-sec { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 13px; }
 .sec-head .del-sec:hover { color: var(--danger); }
-.item { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin: 10px 0; padding: 12px 14px; }
+.item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius, 8px); margin: 8px 0; padding: 12px 14px; }
 .item.off { opacity: 0.45; }
 .item-head { display: flex; align-items: center; gap: 8px; }
 .item-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
@@ -738,8 +740,9 @@ textarea {
 	overflow-y: auto;
 	display: flex; flex-direction: column; gap: 6px;
 }
-/* macOS native: TOC-menyen matcher sidemenyen (vibrancy gjennom, kilde-liste-rader) */
-html.electron #toc-side { background: transparent; border-left: none; padding-top: 44px; }
+/* macOS native: TOC-menyen matcher sidemenyen — samme varme tint over
+   vibrancy (transparent viste macOS sin nøytrale mørke vibrancy) */
+html.electron #toc-side { background: color-mix(in srgb, var(--panel) 78%, transparent); border-left: none; padding-top: 44px; }
 html:not(.electron) #toc-side { padding-top: 36px; }
 #toc-side .list li { padding: 5px 8px; font-size: 12.5px; border-radius: 6px; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
@@ -983,7 +986,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* HIG sidebars: sidefeltikoner bruker appens aksentfarge som standard */
 #sidebar .wide .sf-ikon, #toc-side .wide .sf-ikon { color: var(--accent); }
 /* dokumentpanelet (DokInsp) i TOC */
-.insp-gruppe { display: flex; flex-direction: column; gap: 6px; }
+.insp-gruppe { display: flex; flex-direction: column; gap: 6px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 10px 12px; margin-bottom: 10px; }
 .insp-rad input[type='date'] { width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 13px; }
 .insp-info { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; font-size: 12.5px; color: var(--muted); }
 .insp-info .insp-linje { display: flex; align-items: center; gap: 6px; }
