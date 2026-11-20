@@ -740,6 +740,15 @@ function createWindow(port) {
 	// diagnostikk: alle renderer-konsollmeldinger → stdout
 	win.webContents.on('console-message', (_e, level, message, line, sourceId) => {
 		console.log('[renderer]', level, message.slice(0, 300), sourceId.split('/').pop() + ':' + line);
+		// Permanent feillogg (post-mortem ved frys): nivå 3 = error
+		if (level >= 3) {
+			try {
+				const fs = require('node:fs');
+				const path = require('node:path');
+				const fil = path.join(app.getPath('userData'), 'feil.log');
+				fs.appendFileSync(fil, new Date().toISOString() + ' [' + level + '] ' + message.slice(0, 2000) + ' @' + sourceId.split('/').pop() + ':' + line + '\n');
+			} catch {}
+		}
 	});
 	win.webContents.on('did-finish-load', () => {
 		win.webContents.executeJavaScript(`window.addEventListener('error', (e) => console.error('WINDOW-ERROR:', e.message, e.filename, e.lineno, e.colno, e.error && e.error.stack ? e.error.stack.slice(0, 3000) : '')); window.addEventListener('unhandledrejection', (e) => console.error('WINDOW-REJ:', String(e.reason && e.reason.stack || e.reason).slice(0, 3000)));`).catch(() => {});
