@@ -482,6 +482,43 @@ export async function loadTemplatesFromDisk() {
 			disk.push(data);
 		}
 		app.templates = disk;
+
+		// LENKE-SYNK: «Dåp i hovedgudstjenesten» er KILDEN for dåpsdelen i
+		// «Ordning for hovedgudstjeneste» (samme stabile ledd-id-er h-l-dap*).
+		// Innholdet kopieres fra dåp-malen til HG ved hver innlesing — HG-ordningen
+		// er dermed bare en visning av dåp-malen på sitt sted i gudstjenesten.
+		const dopMal = disk.find((t) => t.id === 'dop-i-hovedgudstjenesten-2017');
+		const hg = disk.find((t) => t.id === 'hovedgudstjeneste2020');
+		if (dopMal && hg) {
+			// __lenket Dåp-seksjon med markeringsledd (dev-mal) eller tom (frø/disk):
+			// gjenopprett full seksjonsstruktur fra dåp-malen
+			for (const sec of hg.sections) {
+				if (!sec.__lenket) continue;
+				if (sec.items.length === 1 && sec.items[0].id === 'h-l-dap-lenke') continue;
+				if (sec.items.length === 0) {
+					// frø/disk: seksjonen er tom — alle leddene kommer fra dåp-malen
+					sec.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));
+					console.log('[lenke-synk] Dåp-seksjonen i HG bygget fra dåp-malen (' + sec.items.length + ' ledd)');
+				}
+			}
+			const dopLedd = new Map();
+			for (const sec of dopMal.sections) for (const it2 of sec.items) dopLedd.set(it2.id, it2);
+			let oppdatert = 0;
+			for (const sec of hg.sections) {
+				for (const it2 of sec.items) {
+					const kilde = dopLedd.get(it2.id);
+					if (!kilde) continue;
+					// innholdsfeltene fra dåp-malen; heading/struktur beholdes fra HG
+					for (const f of ['text', 'instr', 'alts', 'selAlt', 'introAlts', 'selIntro', 'avslutningAlts', 'selAvsl']) {
+						if (f in kilde) it2[f] = kilde[f];
+						else delete it2[f];
+					}
+					if (it2.alts && it2.selAlt === undefined) it2.selAlt = 0;
+					oppdatert++;
+				}
+			}
+			if (oppdatert) console.log('[lenke-synk] ' + oppdatert + ' dåpsledd i HG oppdatert fra dåp-malen');
+		}
 		// synkroniser originalene inn i SQLite-biblioteket – kun hvis antall rader
 		// ikke stemmer (f.eks. første oppstart eller etter oppdatert original)
 		const cnt = isElectron && window.liturgi.bibCounts ? await window.liturgi.bibCounts() : null;
