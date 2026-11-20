@@ -833,7 +833,7 @@ listenForFinderOpen();
 listenForSaveThenClose();
 
 // ---------- mac-menylinjen: handlinger fra toppmenyen ----------
-function nyGudtjenesteFraMeny(type = 'gudstjeneste') {
+function nyGudstjenesteFraMeny(type = 'gudstjeneste') {
 	if (!app.templates.length) { toast.error('Ingen maler å base ny gudstjeneste på'); return; }
 	newServiceModal((name, date, tplId, include, kirkeaar, tekster) => {
 		createService(name, date, tplId, include, kirkeaar, tekster);
@@ -854,8 +854,8 @@ function lagreSomMalFraMeny() {
 /** Kjør en meny-handling (brukes av mac-menyen og Cmd+K-kommandopaletten). */
 export async function kjorMenyId(id) {
 	switch (id) {
-		case 'ny-gudstjeneste': nyGudtjenesteFraMeny(); break;
-		case 'ny-gravferd': nyGudtjenesteFraMeny('gravferd'); break;
+		case 'ny-gudstjeneste': nyGudstjenesteFraMeny(); break;
+		case 'ny-gravferd': nyGudstjenesteFraMeny('gravferd'); break;
 		case 'apne-fil': openFileToStore(); break;
 		case 'lagre': saveCurrent(); break;
 		case 'lagre-som': saveCurrentToFile(); break;

@@ -105,7 +105,7 @@
 </script>
 
 <div class="insp-gruppe" oncontextmenu={natMeny}>
-	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudtjeneste'}</div>
+	<div class="sidehead">{app.kind === 'template' ? 'Mal' : 'Gudstjeneste'}</div>
 	{#if app.kind === 'service'}
 		<div class="insp-rad">
 			<input type="date" bind:value={o.date} onchange={onDatoEndret} />

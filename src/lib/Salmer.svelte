@@ -126,7 +126,7 @@
 	</header>
 
 	{#if salmer.length === 0}
-		<p class="sal-tom">Gudtjenesten har ingen salmeledd. Legg til et ledd og skift typen til «Salme», eller opprett salmeleddene her.</p>
+		<p class="sal-tom">Gudstjenesten har ingen salmeledd. Legg til et ledd og skift typen til «Salme», eller opprett salmeleddene her.</p>
 	{:else}
 		<div class="sal-liste">
 			{#each salmer as { si, ii, it } (it.id)}

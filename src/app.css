@@ -1194,7 +1194,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
 .fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
 /* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler
-   (Gudtjeneste: Redigering/Salmer/Eksport · Bibliotek: Bibliotek/Maler ·
+   (Gudstjeneste: Redigering/Salmer/Eksport · Bibliotek: Bibliotek/Maler ·
    Innstillinger: Generelt/Prekenforberedelse) */
 .mod-faner { display: flex; }
 .modul-topp { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px 0; margin-bottom: 12px; }
@@ -1366,3 +1366,11 @@ sub { font-size: 0.75em; }
 }
 .biblio-badge.orig { background: var(--accent); }
 .biblio-rad { position: relative; padding-right: 34px; }
+
+
+
+
+
+
+
+

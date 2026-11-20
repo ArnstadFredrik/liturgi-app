@@ -58,7 +58,7 @@ Begge temaene: `--radius: 8px` (små elementer 6, kort 12, modal 14).
 |---|---|---|
 | Button (primary / secondary / ghost / destructive) | `avpaa`, `.w-mal button`, toolbar | primary=rød, ghost=toolbar, destructive=Slett |
 | Input / Textarea | `#modal input`, søkefelt | `--input`-bakgrunn, `--ring`-fokus |
-| Select | mal-velger i Ny gudtjeneste | som input |
+| Select | mal-velger i Ny gudstjeneste | som input |
 | Checkbox / Radio (chips-stil) | `m-chk-jord`, filtre | `--accent-soft` valgt |
 | Chip / Badge | type-merker, filtre | pill, 20 px radius |
 | Card / Panel | `insp-gruppe`, `malgruppe`, `utkast-boks` | `--card` + `--border` + 12 radius |

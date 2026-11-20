@@ -57,14 +57,14 @@
 		document.getElementById('sec-' + i)?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
 	}
 	/** Modul-navigasjon: tittel + fane-stripe i SAMME posisjon for alle
-	 *  moduler med undermoduler (Gudtjeneste, Bibliotek, Innstillinger). */
+	 *  moduler med undermoduler (Gudstjeneste, Bibliotek, Innstillinger). */
 	const modul = $derived.by(() => {
 		const andre = ['kirkeaar', 'forberedelse', 'bibliotek', 'maler', 'innstillinger', 'malverktoy'];
-		// en åpen gudtjeneste: redigering/salmer/eksport (visning kan stå på
+		// en åpen gudstjeneste: redigering/salmer/eksport (visning kan stå på
 		// 'hjem' mens dokumentet er åpent — fallback-renderer da editoren)
 		if (app.current && app.kind === 'service' && !andre.includes(app.visning)) {
 			return {
-				tittel: 'Gudtjeneste',
+				tittel: 'Gudstjeneste',
 				aktiv: app.visning === 'salmer' ? 'salmer' : app.visning === 'eksport' ? 'eksport' : 'redigering',
 				faner: [
 					{ id: 'redigering', navn: 'Redigering', velg: () => { app.visning = 'editor'; } },
