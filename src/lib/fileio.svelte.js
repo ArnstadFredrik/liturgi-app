@@ -527,19 +527,19 @@ export async function loadTemplatesFromDisk() {
 			const entries = [];
 			for (const sec of tpl.sections) {
 				for (const it of sec.items) {
-					// innledning/avslutning komponeres inn i hver bibliotekrad
+					// innledning/avslutning sendes som egne kolonner — strukturen
+					// (innledning/hoveddel/avslutning) bevares ved «hent ledd»
 					const intro = it.introAlts?.[it.selIntro ?? 0]?.text ?? '';
 					const avsl = it.avslutningAlts?.[it.selAvsl ?? 0]?.text ?? '';
-					const komponer = (t) => [intro, t, avsl].filter((s) => s && s.trim()).join('\n\n');
 					// bibDup: alternativet er innholdsmessig identisk med originalmalen
 					// (Ordning for hovedgudtjenesten) og skal ikke inn i bibliotekslisten
 					if (it.bibDup) continue;
 					const alts = (it.alts?.length ? it.alts : [{ label: '', text: it.text }])
 						.filter((a) => !a.bibDup)
-						.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: komponer(a.text) }));
+						.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: a.text ?? '' }));
 					for (const a of alts) {
 						// ledd_id: mal-itemets stabile id — tittelen (heading) er kun visning
-						entries.push({ seksjon: sec.title, ledd: it.heading, ledd_id: it.id ?? '', alt_label: a.alt_label, tekst: a.tekst });
+						entries.push({ seksjon: sec.title, ledd: it.heading, ledd_id: it.id ?? '', alt_label: a.alt_label, tekst: a.tekst, intro_tekst: intro, avsl_tekst: avsl });
 					}
 				}
 			}
@@ -622,11 +622,10 @@ export async function regenererBibliotek() {
 				for (const it of sec.items) {
 					const intro = it.introAlts?.[it.selIntro ?? 0]?.text ?? '';
 					const avsl = it.avslutningAlts?.[it.selAvsl ?? 0]?.text ?? '';
-					const komponer = (t) => [intro, t, avsl].filter((s) => s && s.trim()).join('\n\n');
 					const alts = it.alts?.length
-						? it.alts.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: komponer(a.text) }))
-						: [{ alt_label: '', tekst: komponer(it.text) }];
-					for (const a of alts) entries.push({ seksjon: sec.title, ledd: it.heading, alt_label: a.alt_label, tekst: a.tekst });
+						? it.alts.map((a) => ({ alt_label: a.label || 'Alternativ', tekst: a.text ?? '' }))
+						: [{ alt_label: '', tekst: it.text ?? '' }];
+					for (const a of alts) entries.push({ seksjon: sec.title, ledd: it.heading, alt_label: a.alt_label, tekst: a.tekst, intro_tekst: intro, avsl_tekst: avsl });
 				}
 			}
 			await window.liturgi.bibSync(data.name, entries);

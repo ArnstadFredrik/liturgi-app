@@ -52,6 +52,9 @@ function openDb() {
 		// gamle rader: ledd_id = ledd (tittelen var identiteten fram til nå)
 		db.exec('UPDATE bibliotek SET ledd_id = ledd');
 	}
+	for (const kol of ['intro_tekst', 'avsl_tekst']) {
+		if (!kolonner.includes(kol)) db.exec(`ALTER TABLE bibliotek ADD COLUMN ${kol} TEXT NOT NULL DEFAULT ''`);
+	}
 	return db;
 }
 
@@ -120,7 +123,7 @@ function bibSync(source, entries) {
 	const db = openDb();
 	db.prepare('DELETE FROM bibliotek WHERE kilde = ?').run(source);
 	const ins = db.prepare(
-		'INSERT INTO bibliotek (kilde, seksjon, ledd, ledd_id, alt_label, tekst) VALUES (?, ?, ?, ?, ?, ?)'
+		'INSERT INTO bibliotek (kilde, seksjon, ledd, ledd_id, alt_label, tekst, intro_tekst, avsl_tekst) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 	);
 	// sikre unike (ledd, alt_label) — tabellens primærnøkkel. Hjemme her (i stedet
 	// for hos hver kaller) slik at alle synkveier er trygge.
@@ -131,7 +134,7 @@ function bibSync(source, entries) {
 				let l = e.alt_label ?? '', n = sett.has(e.ledd + '|' + l) ? 1 : 0;
 				while (sett.has(e.ledd + '|' + l)) { n++; l = (e.alt_label || 'Alternativ') + ' ' + n; }
 				sett.add(e.ledd + '|' + l);
-				ins.run(source, e.seksjon, e.ledd, e.ledd_id ?? '', l, e.tekst ?? '');
+				ins.run(source, e.seksjon, e.ledd, e.ledd_id ?? '', l, e.tekst ?? '', e.intro_tekst ?? '', e.avsl_tekst ?? '');
 			}
 		})();
 		return { ok: true };
@@ -144,10 +147,10 @@ function bibSync(source, entries) {
  *  seg uten at antallet gjør det — stikkprøven må fange begge deler). */
 function bibSig() {
 	// ordens-uavhengig: summen av per-rad-hasher er lik uansett rekkefølge
-	const rows = openDb().prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst FROM bibliotek').all();
+	const rows = openDb().prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst, intro_tekst, avsl_tekst FROM bibliotek').all();
 	const sig = {};
 	for (const r of rows) {
-		const s = r.seksjon + '\u0001' + r.ledd + '\u0001' + r.ledd_id + '\u0001' + r.alt_label + '\u0001' + r.tekst;
+		const s = r.seksjon + '\u0001' + r.ledd + '\u0001' + r.ledd_id + '\u0001' + r.alt_label + '\u0001' + r.tekst + '\u0001' + (r.intro_tekst ?? '') + '\u0001' + (r.avsl_tekst ?? '')
 		let h = 5381;
 		for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
 		if (!sig[r.kilde]) sig[r.kilde] = { n: 0, hash: 0 };
@@ -162,7 +165,7 @@ function bibSearch(q, limit = 500) {
 	// Hvert søkeord telles hvis det er prefiks av et ord i ledd/seksjon —
 	// ord i HVA SOM HELST rekkefølge («hellig sanctus» finner «Sanctus»).
 	const rows = openDb()
-		.prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst FROM bibliotek')
+		.prepare('SELECT kilde, seksjon, ledd, ledd_id, alt_label, tekst, intro_tekst, avsl_tekst FROM bibliotek')
 		.all();
 	// egne ledd fra bibliotek_bruker kommer med som kilde «Mine ledd» (+ mappe)
 	const egne = openDb()

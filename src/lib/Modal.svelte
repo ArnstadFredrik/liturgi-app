@@ -170,14 +170,26 @@
 		const r = await window.liturgi.bibSearch((q ?? '').trim() || 'forbønn');
 		if (sek !== bibReq) return;
 		const rows = r.ok ? r.rows : [];
-		// grupper per ledd
+		// grupper per ledd; intro/avslutning følger med som struktur
 		const grupper = new Map();
 		for (const row of rows) {
 			const key = row.kilde + '|' + row.ledd;
 			if (!grupper.has(key)) grupper.set(key, { kilde: row.kilde, seksjon: row.seksjon, ledd: row.ledd, rader: [] });
-			grupper.get(key).rader.push({ label: row.alt_label, text: row.tekst });
+			grupper.get(key).rader.push({ label: row.alt_label, text: row.tekst, intro_tekst: row.intro_tekst ?? '', avsl_tekst: row.avsl_tekst ?? '' });
 		}
-		bibGrupper = [...grupper.values()];
+		// identiske grupper (samme ledd og samme innhold) slås sammen —
+		// fire like dåpsbefalinger fra fire kilder er bare én gyldig variant
+		const dedupe = new Map();
+		for (const g2 of grupper.values()) {
+			const nøkkel = g2.ledd.toLowerCase().trim() + '|' + JSON.stringify(g2.rader.map((x) => [x.label, x.text, x.intro_tekst, x.avsl_tekst]));
+			if (!dedupe.has(nøkkel)) { g2.kilder = [g2.kilde]; dedupe.set(nøkkel, g2); }
+			else if (!dedupe.get(nøkkel).kilder.includes(g2.kilde)) {
+				const g1 = dedupe.get(nøkkel);
+				g1.kilder.push(g2.kilde);
+				g1.kilde = g1.kilder[0] + ' (+' + (g1.kilder.length - 1) + ' kilder)';
+			}
+		}
+		bibGrupper = [...dedupe.values()];
 		bibValgt = bibGrupper.length ? 0 : -1;
 		bibAltValgt = 0;
 		}

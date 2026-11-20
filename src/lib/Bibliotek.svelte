@@ -336,7 +336,7 @@ function grupperEtterLedd(rader) {
 							</div>
 							{/if}
 						</div>
-						<div class="lit-text biblio-forhvisning">{@html litHtml(valgt.tekst)}</div>
+						<div class="lit-text biblio-forhvisning">{@html litHtml((valgt.intro_tekst ? valgt.intro_tekst + '\n\n' : '') + (valgt.tekst || '') + (valgt.avsl_tekst ? '\n\n' + valgt.avsl_tekst : ''))}</div>
 					</div>
 				{:else}
 					<div class="biblio-kort biblio-tom">

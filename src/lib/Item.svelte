@@ -302,15 +302,22 @@
 			if (!gruppe) return;
 			const alts = gruppe.rader.map((r) => ({ label: r.label, text: r.text }));
 			if (mode === 'innhold' && alt) {
+				// kun hoveddelen erstattes — leddets egen innledning/avslutning
+				// (og alternativgrupper) røres ikke
 				it.text = alt.text;
-				it.alts = [];
-				it.selAlt = null;
 			} else {
+				// hele leddet: rekonstruer strukturen (innledning/hoveddel/avslutning)
 				it.heading = gruppe.ledd;
 				it.text = '';
 				it.alts = alts.length > 1 ? alts : [];
 				it.selAlt = alts.length > 1 ? 0 : null;
 				if (alts.length === 1) it.text = alts[0].text;
+				const intro = gruppe.rader[0]?.intro_tekst;
+				const avsl = gruppe.rader[0]?.avsl_tekst;
+				if (intro) { it.introAlts = [{ label: 'Innledning', text: intro }]; it.selIntro = 0; }
+				else delete it.introAlts;
+				if (avsl) { it.avslutningAlts = [{ label: 'Avslutning', text: avsl }]; it.selAvsl = 0; }
+				else delete it.avslutningAlts;
 			}
 			markDirty();
 			toast.success('Hentet «' + gruppe.ledd + '» fra ' + gruppe.kilde);
