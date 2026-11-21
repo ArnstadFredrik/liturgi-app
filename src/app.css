@@ -645,6 +645,7 @@ textarea {
 .m-deler-celle.merket { border-style: solid; color: var(--text); }
 .m-deler-celle.merket::after { color: var(--accent); }
 .m-deler-celle:hover { border-color: var(--accent); background: var(--accent-dim); }
+.m-deler-celle-wrap { position: relative; min-width: 0; }
 .m-deler-meny {
 	position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; left: auto;
 	min-width: 210px; max-height: 280px; overflow-y: auto;
@@ -654,7 +655,6 @@ textarea {
 	animation: deler-meny-in 120ms ease-out;
 }
 @keyframes deler-meny-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-.m-deler-rad:first-of-type .m-deler-meny { top: auto; bottom: calc(100% + 6px); }
 .m-deler-sep { height: 1px; background: var(--border); margin: 4px 6px; }
 /* Menyvalg à la shadcn DropdownMenuCheckbox/RadioItem: indikator-kolonne
  * (check-ikon) til venstre, fullbredde rad med hover-highlight. */

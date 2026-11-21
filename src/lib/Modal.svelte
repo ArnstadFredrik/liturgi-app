@@ -957,13 +957,11 @@
 					{#each m.mal.sections as sec, si (si)}
 						<div class="m-deler-rad">
 							<span class="m-deler-navn">{sec.title}</span>
-							<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ' }; }}>
+														<div class="m-deler-celle-wrap alt">
+<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ' }; }}>
 								<span>{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
 							</button>
-							<button type="button" class="m-deler-celle" onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon' }; }}>
-								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
-							</button>
-							{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
+{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
 								<div class="m-deler-meny" role="menu">
 									{#each m.alternativer as t (t)}
 										<button type="button" class="m-alt-rad" role="menuitemcheckbox" aria-checked={secAlternativer(sec).includes(t)}
@@ -974,7 +972,13 @@
 									{/each}
 									{#if !m.alternativer.length}<span class="muted m-alt-tom">Ingen alternativer i katalogen.</span>{/if}
 								</div>
-							{:else if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
+							{/if}
+							</div>
+							<div class="m-deler-celle-wrap var">
+<button type="button" class="m-deler-celle" onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon' }; }}>
+								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
+							</button>
+{#if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
 								<div class="m-deler-meny" role="menu">
 									<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!sec.delGruppe}
 										onclick={() => { sec.delGruppe = undefined; markDirtyIModal(); }}>
@@ -992,7 +996,9 @@
 									{#if !m.variasjoner.length}<span class="muted m-alt-tom">Ingen variasjoner i katalogen.</span>{/if}
 								</div>
 							{/if}
-						</div>
+							</div>
+
+													</div>
 					{/each}
 				</div>
 				<button class="wide" onclick={() => { adminVisning = adminVisning ? 0 : 1; apenCelle = null; }}>Administrer alternativer og variasjoner …</button>
