@@ -349,11 +349,16 @@ ipcMain.handle('svc:save-as', async (_e, { defaultName, json }) => {
 			title: 'Lagre liturgi',
 			defaultPath: path.join(servicesDir(), defaultName),
 			filters: [
-				{ name: 'Liturgi-fil', extensions: ['liturgi'] },
+				{ name: 'Liturgi-filer', extensions: ['liturgi', 'limal'] },
 				{ name: 'JSON', extensions: ['json'] }
 			]
 		});
 		if (canceled || !filePath) return { ok: false, canceled: true };
+		// aldri dobbelt-etternavn: mangler valgt sti filens etternavn, legges det på
+		const ønsketEtternavn = path.extname(defaultName);
+		if (ønsketEtternavn && !filePath.toLowerCase().endsWith(ønsketEtternavn.toLowerCase())) {
+			filePath = filePath.replace(/\.(liturgi|limal|json)$/i, '') + ønsketEtternavn;
+		}
 		fs.writeFileSync(filePath, json, 'utf8');
 		return { ok: true, filePath };
 	} catch (err) {
