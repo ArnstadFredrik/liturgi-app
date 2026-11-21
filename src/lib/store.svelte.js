@@ -154,6 +154,7 @@ function migrateItem(it) {
 export function newServiceFromTemplate(tpl, include) {
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
+		malForm: tpl.malForm ?? 'bokmål',
 		liturgiType: tpl.liturgiType ?? (/vigsel/i.test(tpl.name || '') ? 'vigsel' : /gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections

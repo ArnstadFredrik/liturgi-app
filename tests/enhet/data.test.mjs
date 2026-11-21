@@ -208,7 +208,7 @@ test('ingen «gudtjeneste» uten s i kildekoden (kernel-skrivefelle)', () => {
 
 
 // ---- opprett-modulen (Ny gudtjeneste): type-klassifisering og listene ----
-import { malType, malerForType, kanBrukes, TYPER } from '../../src/lib/maltyper.js';
+import { malType, malerForType, kanBrukes, malFormFor, TYPER } from '../../src/lib/maltyper.js';
 
 test('opprett-modulen: malType klassifiserer ALLE maler i de tre typene', () => {
 	for (const t of [...BUILTIN_TEMPLATES, ...DEAKTIVERTE_MALER]) {
@@ -249,4 +249,12 @@ test('opprett-modulen: liturgiType-feltet vinner over navn-gjetningen', () => {
 	assert.strictEqual(malType({ name: 'Ordning for gravferd (bokmål, 2003)' }), 'gravferd');
 	assert.strictEqual(malType({ name: 'Ukjent navn' }), 'gudstjeneste');
 	assert.strictEqual(malType({ name: 'Prestens notatblokk', liturgiType: 'vigsel' }), 'vigsel');
+});
+
+test('målform: manglende felt = bokmål; malerForType filtrerer på målform', () => {
+	assert.strictEqual(malFormFor({}), 'bokmål');
+	assert.strictEqual(malFormFor({ malForm: 'nynorsk' }), 'nynorsk');
+	const nn = { id: 'x', name: 'Test (nynorsk)', malForm: 'nynorsk' };
+	assert.deepStrictEqual(malerForType([nn, { id: 'y', name: 'Annen' }], 'gudstjeneste', 'nynorsk').map((t) => t.id), ['x']);
+	assert.deepStrictEqual(malerForType([nn, { id: 'y', name: 'Annen' }], 'gudstjeneste', 'bokmål').map((t) => t.id), ['y']);
 });

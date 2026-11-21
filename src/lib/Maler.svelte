@@ -5,6 +5,7 @@
 	import { exportWord } from '$lib/export.js';
 	import { malType } from '$lib/modal.svelte.js';
 	import { veksleMalFavoritt, erMalFavoritt } from '$lib/store.svelte.js';
+	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -117,6 +118,7 @@
 		{#each visOriginaler as t (t.id)}
 			<div class="w-mal">
 				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
+				<span class="w-mal-type">{målformLabel(malFormFor(t))}</span>
 				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
 				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
@@ -134,6 +136,7 @@
 		{#each visBrukere as t (t.id)}
 			<div class="w-mal">
 				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
+				<span class="w-mal-type">{målformLabel(malFormFor(t))}</span>
 				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
 				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
