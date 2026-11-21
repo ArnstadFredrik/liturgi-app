@@ -169,6 +169,14 @@ export function sorterPrefasjoner(options, dato, periode) {
 
 /** Søk i hovedgudstjenestens bibliotek. mode: 'innhold' (ett alternativ) | 'ledd' (hele leddet).
  *  ok(m Gruppe, alt) — alt er valgt alternativ i 'innhold'-moden. */
+/** Hent hoveddeler og ledd: modal med fanenavigasjon (Bibliotek / Fra mal).
+ *  Bibliotek-fanen søker i ledd-biblioteket (SQLite); Fra mal-fanen viser
+ *  den valgte malens struktur som tre (Oversikt-stil) med hent inn/lenk
+ *  per hoveddel og hent inn per ledd. ok(payload) får valget. */
+export function hentDelerModal(ok, onAvbryt) {
+	showModal({ type: 'hentDeler', title: 'Hent hoveddeler og ledd', ok, onAvbryt });
+}
+
 export function bibSokModal(def, mode, ok, onAvbryt) {
 	showModal({ type: 'bib', title: 'Hent fra biblioteket', def: def ?? '', mode, ok, onAvbryt });
 }

@@ -41,7 +41,15 @@
 	let adminVisning = $state(0);
 	let katNyAlt = $state('');
 	let katNyVar = $state('');
-	let delerFane = $state('hoveddeler'); // hoveddeler | innstillinger
+	let delerFane = $state('hoveddeler');
+	// Hent hoveddeler/ledd-modalen
+	let hdFane = $state('bibliotek'); // bibliotek | framl
+	let hdSoek = $state('');
+	let hdRader = $state([]); // bibliotekrader (bibUserList)
+	let hdValgt = $state(null); // valgt gruppe { ledd, rader }
+	let hdMalId = $state('');
+	let hdTil = $state(''); // 'sist' eller seksjonstittel (innsettingspunkt)
+	let hdMaler = $state([]); // hoveddeler | innstillinger
 	let dragSi = $state(null); // drag-and-drop av hoveddeler
 	let dragOverSi = $state(null);
 	let dragFor = $state(false);
@@ -437,6 +445,72 @@
 			if (!m.mal.delGrupper.includes(navn)) m.mal.delGrupper = [...m.mal.delGrupper, navn];
 			katNyVar = '';
 		}
+	}
+
+	/* ---- Hent hoveddeler/ledd ---- */
+	function hdLastRader() {
+		if (!window.liturgi?.bibUserList) return;
+		window.liturgi.bibUserList().then((r) => { hdRader = Array.isArray(r?.rows) ? r.rows : (Array.isArray(r) ? r : []); });
+	}
+
+	function hdGrupper(rader) {
+		const m = new Map();
+		for (const r of rader) {
+			if (!m.has(r.ledd)) m.set(r.ledd, []);
+			m.get(r.ledd).push(r);
+		}
+		return [...m.entries()].map(([ledd, rs]) => ({ ledd, rader: rs }));
+	}
+
+	function hdValgteGrupper() {
+		const ord = hdSoek.toLowerCase().split(/[\s,]+/).filter((w) => w.length >= 2);
+		let rader = hdRader;
+		if (ord.length) {
+			rader = hdRader
+				.map((r) => {
+					const hay = (r.ledd + ' ' + r.mappe + ' ' + (r.tags ?? '') + ' ' + (r.alt_label ?? '')).toLowerCase();
+					return { r, score: ord.filter((w) => hay.includes(w)).length };
+				})
+				.filter((x) => x.score > 0)
+				.sort((a, b) => b.score - a.score)
+				.map((x) => x.r);
+		}
+		return hdGrupper(rader);
+	}
+
+	function hdVelgMal(id) {
+		hdMalId = id;
+	}
+
+	function hdMalerListe() {
+		return app.templates
+			.slice()
+			.sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? ''), 'no'))
+			.map((t) => ({ id: t.id, name: t.name }));
+	}
+
+	function hdMal() {
+		return app.templates.find((t) => t.id === hdMalId) ?? null;
+	}
+
+	function hdKopi(items) {
+		return JSON.parse(JSON.stringify(items ?? []));
+	}
+
+	function hdHentLedd(gruppe) {
+		m.ok({ type: 'ledd', kilde: 'bibliotek', gruppe, til: hdTil });
+	}
+
+	function hdHentSeksjon(tittel) {
+		m.ok({ type: 'seksjon', kilde: 'mal', malId: hdMalId, tittel, til: hdTil });
+	}
+
+	function hdLenk(tittel) {
+		m.ok({ type: 'lenk', malId: hdMalId, tittel, til: hdTil });
+	}
+
+	function hdHentMalLedd(tittel, ii) {
+		m.ok({ type: 'ledd', kilde: 'mal', malId: hdMalId, tittel, leddIdx: ii, til: hdTil });
 	}
 
 	function slettKatalog(hva, navn) {
@@ -1012,6 +1086,73 @@
 				{/if}
 			{:else if m.type === 'delerTabell'}
 				<DelerTabell mal={m.mal} />
+			{:else if m.type === 'hentDeler'}
+				<div class="fb-visning-velger m-deler-faner" role="tablist">
+					<button role="tab" aria-selected={hdFane === 'bibliotek'} class:sel={hdFane === 'bibliotek'} onclick={() => { hdFane = 'bibliotek'; hdLastRader(); }}>Bibliotek</button>
+					<button role="tab" aria-selected={hdFane === 'framl'} class:sel={hdFane === 'framl'} onclick={() => { hdFane = 'framl'; hdMaler = hdMalerListe(); if (!hdMalId) hdMalId = hdMaler[0]?.id ?? ''; }}>Fra mal</button>
+				</div>
+				<label class="hd-til">
+					Sett inn i
+					<select bind:value={hdTil}>
+						<option value="">Sist i gudstjenesten</option>
+						{#each app.current?.sections ?? [] as s (s.title)}
+							<option value={s.title}>Etter «{s.title}»</option>
+						{/each}
+					</select>
+				</label>
+				{#if hdFane === 'bibliotek'}
+					<div class="hd-soek">
+						<input placeholder="Søk i biblioteket …" bind:value={hdSoek} />
+					</div>
+					<div class="hd-liste">
+						{#each hdValgteGrupper() as g2 (g2.ledd)}
+							<div class="hd-gruppe" class:sel={hdValgt?.ledd === g2.ledd}
+								onclick={() => { hdValgt = hdValgt?.ledd === g2.ledd ? null : g2; }}>
+								<span class="hd-gruppe-navn">{g2.ledd}</span>
+								<span class="hd-gruppe-antall">{g2.rader.length}</span>
+							</div>
+							{#if hdValgt?.ledd === g2.ledd}
+								<div class="hd-varianter">
+									{#each g2.rader as r (r.id)}
+										<div class="hd-variant"><span>{r.alt_label || 'Variant'}</span></div>
+									{/each}
+									<button type="button" class="hd-hent" onclick={() => hdHentLedd(hdValgt)}>Hent inn ledd</button>
+								</div>
+							{/if}
+						{/each}
+						{#if !hdValgteGrupper().length}<p class="muted hd-tom">Ingen treff.</p>{/if}
+					</div>
+				{:else}
+					<label class="hd-velg-mal">
+						Mal
+						<select bind:value={hdMalId} onchange={() => hdVelgMal(hdMalId)}>
+							{#each hdMaler as t (t.id)}
+								<option value={t.id}>{t.name}</option>
+							{/each}
+						</select>
+					</label>
+					<div class="hd-tre">
+						{#each hdMal()?.sections ?? [] as sec (sec.title)}
+							<div class="hd-sec">
+								<div class="hd-sec-rad">
+									<span class="hd-sec-navn">{sec.title}</span>
+									<span class="hd-sec-knapper">
+										<button type="button" onclick={() => hdHentSeksjon(sec.title)}>Hent inn</button>
+										<button type="button" title="Lenk hoveddelen til malen — innholdet fornyes ved åpning" onclick={() => hdLenk(sec.title)}>Lenk</button>
+									</span>
+								</div>
+								<div class="hd-led-liste">
+									{#each sec.items ?? [] as it, ii (ii)}
+										<div class="hd-led">
+											<span class="hd-led-tekst">{(it.heading ?? '').replace(/^[*=#\s]+/, '').trim() || '[tomt ledd]'}</span>
+											<button type="button" title="Hent dette leddet" onclick={() => hdHentMalLedd(sec.title, ii)}>Hent inn</button>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
 				<div class="m-dg-liste">

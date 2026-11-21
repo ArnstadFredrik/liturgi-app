@@ -381,9 +381,26 @@ export function syncDirty() {
 
 /* ---------- CRUD ---------- */
 
+/** Generisk lenke-synk: seksjoner med __lenket { malId, tittel } fyller/
+ *  fornyer innholdet sitt fra malen ved åpning (samme idé som den
+ *  hardkodede dåp-i-HG-lenken, men generelt). */
+export function synkLenkedeSeksjoner(o) {
+	if (!o?.sections) return;
+	for (const sec of o.sections) {
+		const l = sec.__lenket;
+		if (!l?.malId || !l?.tittel) continue;
+		const mal = app.templates.find((t) => t.id === l.malId);
+		const kilde = mal?.sections?.find((s) => s.title === l.tittel);
+		if (!kilde) continue;
+		sec.title = kilde.title;
+		sec.items = JSON.parse(JSON.stringify(kilde.items ?? []));
+	}
+}
+
 export function openService(id) {
 	const s = app.services.find((x) => x.id === id);
 	if (!s) return;
+	synkLenkedeSeksjoner(s);
 	app.current = s;
 	app.kind = 'service';
 }

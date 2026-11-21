@@ -644,6 +644,30 @@ textarea {
 .m-deler-drag { color: var(--muted); cursor: grab; display: flex; align-items: center; justify-content: center; padding: 3px 0; border-radius: 6px; touch-action: none; }
 .m-deler-drag:active { cursor: grabbing; }
 /* (4) markör-linje over/under mottaker-rad under drag */
+/* ---- Hent hoveddeler/ledd-modal (Bibliotek / Fra mal) ---- */
+.hd-til, .hd-velg-mal { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin: 2px 0 8px; }
+.hd-til select, .hd-velg-mal select { flex: 1; }
+.hd-soek input { width: 100%; }
+.hd-liste { display: flex; flex-direction: column; gap: 4px; max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
+.hd-gruppe { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+.hd-gruppe:hover { background: var(--accent-dim); }
+.hd-gruppe.sel { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.hd-gruppe-antall { font-size: 10.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 1px 8px; }
+.hd-varianter { padding: 4px 10px 8px 22px; display: flex; flex-direction: column; gap: 4px; }
+.hd-variant { font-size: 12px; color: var(--muted); padding: 3px 0; }
+.hd-hent { align-self: flex-start; font: inherit; font-size: 12.5px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 8px; padding: 5px 12px; cursor: pointer; margin-top: 4px; }
+.hd-tom { padding: 12px; text-align: center; }
+.hd-tre { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+.hd-sec { border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; }
+.hd-sec-rad { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hd-sec-navn { font-weight: 600; font-size: 13px; }
+.hd-sec-knapper { display: inline-flex; gap: 6px; }
+.hd-sec-knapper button, .hd-led button { font: inherit; font-size: 11.5px; border: 1px solid var(--border); background: var(--panel2, var(--panel)); color: var(--muted); border-radius: 7px; padding: 3px 9px; cursor: pointer; }
+.hd-sec-knapper button:hover, .hd-led button:hover { color: var(--foreground); background: var(--accent-dim); }
+.hd-led-liste { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+.hd-led { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 2px 3px 18px; font-size: 12.5px; }
+.hd-led-tekst { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .m-deler-rad.drag-target::before,
 .m-deler-rad.drag-target-etter::before {
 	content: '';

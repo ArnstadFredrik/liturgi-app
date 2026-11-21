@@ -3,7 +3,8 @@
 	 *  hoveddeler med leddene som under-rader, med drag-and-drop på begge
 	 *  nivåer (omorganisering uten å forlate oversikten). Ingen
 	 *  alternativ-/variasjonskolonner — den detaljen ligger i «Deler …». */
-	import { app, markDirty } from '$lib/store.svelte.js';
+	import { app, markDirty, persist, uid } from '$lib/store.svelte.js';
+	import { hentDelerModal } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	let visLed = $state(true);
@@ -122,6 +123,71 @@
 		nullstillDrag();
 	}
 
+	/** Innsettingspunkt: index i sections ut fra 'til' ('sist' eller tittel). */
+	function innsettingsIdx(til) {
+		const secs = app.current.sections;
+		if (!til) return secs.length;
+		const i = secs.findIndex((s) => s.title === til);
+		return i === -1 ? secs.length : i + 1;
+	}
+
+	/** Lag et ledd-objekt fra en bibliotekgruppe (samme mapping som
+	 *  «Hent ledd fra biblioteket» i Item.svelte). */
+	function leddFraBib(gruppe) {
+		const alts = gruppe.rader.map((r) => ({ label: r.alt_label || r.label || 'Variant', text: r.tekst ?? r.text ?? '' }));
+		const nytt = {
+			id: uid(), type: 'tekst', heading: gruppe.ledd,
+			text: alts.length === 1 ? alts[0].text : '',
+			instr: '', enabled: true, optional: false, salmeNr: '', salmeTittel: '',
+			alts: alts.length > 1 ? alts : [],
+			selAlt: alts.length > 1 ? 0 : null
+		};
+		const intro = gruppe.rader[0]?.intro_tekst;
+		const avsl = gruppe.rader[0]?.avsl_tekst;
+		if (intro) { nytt.introAlts = [{ label: 'Innledning', text: intro }]; nytt.selIntro = 0; }
+		if (avsl) { nytt.avslutningAlts = [{ label: 'Avslutning', text: avsl }]; nytt.selAvsl = 0; }
+		return nytt;
+	}
+
+	/** Hent-modalens ok-behandler: legger inn hoveddel/ledd i dokumentet. */
+	function hentOk(p) {
+		const o = app.current;
+		if (!o) return;
+		if (p.type === 'ledd') {
+			let item = null;
+			if (p.kilde === 'bibliotek') item = leddFraBib(p.gruppe);
+			else {
+				const mal = app.templates.find((t) => t.id === p.malId);
+				const kilde = mal?.sections?.find((s) => s.title === p.tittel);
+				const it = kilde?.items?.[p.leddIdx];
+				item = it ? JSON.parse(JSON.stringify(it)) : null;
+			}
+			if (!item) return;
+			const sec = o.sections.find((s) => s.title === p.til) ?? o.sections[0];
+			if (!sec) { app.visning = 'editor'; markDirty(); return; }
+			sec.items.push(item);
+		} else {
+			const mal = app.templates.find((t) => t.id === p.malId);
+			const kilde = mal?.sections?.find((s) => s.title === p.tittel);
+			if (!kilde) return;
+			const ny = {
+				title: kilde.title,
+				delGruppe: kilde.delGruppe,
+				alternativer: kilde.alternativer ? [...kilde.alternativer] : undefined,
+				items: JSON.parse(JSON.stringify(kilde.items ?? []))
+			};
+			if (p.type === 'lenk') ny.__lenket = { malId: p.malId, tittel: p.tittel };
+			const at = innsettingsIdx(p.til);
+			o.sections.splice(at, 0, ny);
+		}
+		markDirty();
+		persist?.();
+	}
+
+	function åpneHentModal() {
+		hentDelerModal(hentOk);
+	}
+
 	/** klikk på en rad → til redigering, rull til hoveddelen */
 	function tilRedigering(si) {
 		app.visning = 'editor';
@@ -138,6 +204,7 @@
 			<span>{visLed ? 'Skjul ledd' : 'Vis ledd'}</span>
 		</button>
 		<span class="muted ovr-hint">Dra hoveddelene og leddene for å endre rekkefølgen. Klikk på en rad for å redigere.</span>
+		<button class="ovr-vis-led" onclick={åpneHentModal} title="Hent hoveddeler og ledd fra biblioteket eller en mal">{@html mdi('download', 14)}<span>Hent …</span></button>
 	</div>
 
 	{#if app.current?.sections?.length}

@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn, synkLenkedeSeksjoner } from './store.svelte.js';
 import { BUILTIN_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -279,6 +279,8 @@ function åpneNy(obj) {
 
 function åpneIFil(data, filePath) {
 	dokumentValg(data);
+	// fyll lenkede hoveddeler fra malene deres først (generisk __lenket-synk)
+	synkLenkedeSeksjoner(data);
 	// stabil nøkkel for «åpne gudstjenester»-markering (ikke-enumerert: lagres ikke i filen)
 	if (!data.__åpenId) Object.defineProperty(data, '__åpenId', { value: uid(), enumerable: false });
 	data.filePath = filePath;
