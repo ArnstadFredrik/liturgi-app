@@ -957,10 +957,10 @@
 						<div class="m-deler-rad">
 							<span class="m-deler-navn">{sec.title}</span>
 							<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ' }; }}>
-								{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}
+								<span>{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
 							</button>
 							<button type="button" class="m-deler-celle" onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon' }; }}>
-								{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}
+								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 							</button>
 							{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
 								<div class="m-deler-meny">
@@ -972,6 +972,7 @@
 							{:else if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
 								<div class="m-deler-meny">
 									<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={!sec.delGruppe} onchange={() => { sec.delGruppe = undefined; markDirtyIModal(); }} /> Standard</label>
+									<div class="m-deler-sep"></div>
 									{#each m.variasjoner as v (v)}
 										<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={sec.delGruppe === v} onchange={() => { sec.delGruppe = v; markDirtyIModal(); }} /> {v[0].toUpperCase() + v.slice(1)}</label>
 									{/each}

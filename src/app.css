@@ -622,18 +622,47 @@ textarea {
 #modal .m-dg-navn { flex: 1; }
 #modal .m-dg-slett { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: inline-flex; }
 #modal .m-dg-slett:hover { color: var(--role, #c0392b); }
-/* Deler-tabell (alternativer + variasjoner pr hoveddel) */
+/* Deler-tabell (alternativer + variasjoner pr hoveddel).
+ * Dropdown-menyene følger shadcn DropdownMenu/Select-konvensjonene:
+ * solid popover-bakgrunn, border, skygge, kompakte fullbredde-rader med
+ * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
+ * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
 .m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 8px 0; }
 .m-deler-rad { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
 .m-deler-head { background: var(--panel2); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
-.m-deler-celle { text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-deler-celle {
+	display: flex; align-items: center; justify-content: space-between; gap: 6px;
+	text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px;
+	border: 1px dashed var(--border); background: transparent; color: var(--muted);
+	min-width: 0;
+}
+.m-deler-celle > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-deler-celle::after { content: '▾'; font-size: 9px; color: var(--muted); flex: none; }
 .m-deler-celle.merket { border-style: solid; color: var(--text); }
-.m-deler-celle:hover { border-color: var(--accent); }
-.m-deler-meny { position: absolute; z-index: 40; top: calc(100% - 4px); right: 8px; left: auto; min-width: 190px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--skygge, 0 6px 24px rgba(0,0,0,0.18)); padding: 8px; display: flex; flex-direction: column; gap: 4px; }
-.m-deler-rad:first-of-type .m-deler-meny { top: auto; bottom: calc(100% + 4px); }
-.m-alt-rad { display: flex; gap: 6px; align-items: center; font-size: 12.5px; cursor: pointer; }
+.m-deler-celle.merket::after { color: var(--accent); }
+.m-deler-celle:hover { border-color: var(--accent); background: var(--accent-dim); }
+.m-deler-meny {
+	position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; left: auto;
+	min-width: 210px; max-height: 280px; overflow-y: auto;
+	background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+	box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.16);
+	padding: 5px; display: flex; flex-direction: column; gap: 1px;
+	animation: deler-meny-in 120ms ease-out;
+}
+@keyframes deler-meny-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.m-deler-rad:first-of-type .m-deler-meny { top: auto; bottom: calc(100% + 6px); }
+.m-deler-sep { height: 1px; background: var(--border); margin: 4px 6px; }
+.m-alt-rad {
+	display: flex; gap: 8px; align-items: center;
+	font-size: 12.5px; color: var(--text); cursor: pointer; user-select: none;
+	padding: 6px 10px; border-radius: 7px; transition: background 120ms ease;
+}
+.m-alt-rad:hover { background: var(--accent-dim); }
+.m-alt-rad input[type='checkbox'], .m-alt-rad input[type='radio'] {
+	accent-color: var(--accent); width: 15px; height: 15px; margin: 0; flex: none; cursor: pointer;
+}
 .m-deler-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-top: 10px; }
 .m-deler-adm-tittel { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; margin: 0 0 6px; }
 .m-deler-adm-rad { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; font-size: 12.5px; }
