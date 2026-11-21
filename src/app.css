@@ -696,6 +696,10 @@ textarea {
 .ovr-sec-rad { display: flex; align-items: center; gap: 10px; padding: 9px 12px; }
 .ovr-navn { font-weight: 600; cursor: pointer; }
 .ovr-navn:hover { color: var(--accent); }
+/* lenket-merke + slett-knapp i oversiktsraden */
+.ovr-lenket { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; color: var(--accent); border: 1px solid var(--accent); border-radius: 99px; padding: 1px 8px; }
+.ovr-slett { display: inline-flex; align-items: center; border: none; background: transparent; color: var(--muted); border-radius: 6px; padding: 3px; cursor: pointer; }
+.ovr-slett:hover { color: #c0392b; background: var(--accent-dim); }
 .ovr-antall { margin-left: auto; font-size: 11.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 1px 9px; }
 .ovr-led-liste { border-top: 1px solid var(--border); padding: 4px 0 6px; display: flex; flex-direction: column; }
 .ovr-led { display: flex; align-items: center; gap: 8px; padding: 3px 12px 3px 26px; position: relative; }

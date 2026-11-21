@@ -392,8 +392,10 @@ export function synkLenkedeSeksjoner(o) {
 		const mal = app.templates.find((t) => t.id === l.malId);
 		const kilde = mal?.sections?.find((s) => s.title === l.tittel);
 		if (!kilde) continue;
-		sec.title = kilde.title;
-		sec.items = JSON.parse(JSON.stringify(kilde.items ?? []));
+		// bare skriv ved faktisk endring (hindrer reaktiv self-loop ved kall fra effekter)
+		const nytt = JSON.stringify(kilde.items ?? []);
+		if (sec.title !== kilde.title) sec.title = kilde.title;
+		if (JSON.stringify(sec.items ?? []) !== nytt) sec.items = JSON.parse(nytt);
 	}
 }
 

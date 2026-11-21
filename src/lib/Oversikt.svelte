@@ -3,11 +3,18 @@
 	 *  hoveddeler med leddene som under-rader, med drag-and-drop på begge
 	 *  nivåer (omorganisering uten å forlate oversikten). Ingen
 	 *  alternativ-/variasjonskolonner — den detaljen ligger i «Deler …». */
-	import { app, markDirty, persist, uid } from '$lib/store.svelte.js';
-	import { hentDelerModal } from '$lib/modal.svelte.js';
+	import { app, markDirty, persist, uid, synkLenkedeSeksjoner } from '$lib/store.svelte.js';
+	import { hentDelerModal, confirmBox } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	let visLed = $state(true);
+
+	// lenkede hoveddeler fornyes fra malene hver gang Oversikten besøkes
+	$effect(() => {
+		if (app.visning === 'oversikt' && app.kind === 'service') {
+			synkLenkedeSeksjoner(app.current);
+		}
+	});
 	let visningForklart = $state(true);
 
 	// drag-tilstand: seksjonsdrag vs. ledddrag
@@ -123,6 +130,20 @@
 		nullstillDrag();
 	}
 
+	/** Slett en hoveddel fra oversikten (bekreftelse når den har ledd). */
+	function slettSeksjon(si) {
+		const sec = app.current.sections[si];
+		if (!sec) return;
+		const ant = sec.items?.length ?? 0;
+		const utfor = () => {
+			app.current.sections.splice(si, 1);
+			markDirty();
+		};
+		if (ant) {
+			confirmBox('Slette hoveddelen?', `\u00ab${sec.title}\u00bb har ${ant} ledd og slettes med alt innholdet. Vil du slette den?`, utfor);
+		} else utfor();
+	}
+
 	/** Innsettingspunkt: index i sections ut fra 'til' ('sist' eller tittel). */
 	function innsettingsIdx(til) {
 		const secs = app.current.sections;
@@ -221,7 +242,9 @@
 							title="Dra for å endre rekkefølge på hoveddelen">{@html mdi('drag-vertical', 14)}</span>
 						<span class="ovr-navn" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 							onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{sec.title}</span>
+						{#if sec.__lenket}<span class="ovr-lenket" title="Koblet til malen — innholdet fornyes ved åpning">{@html mdi('link-variant', 11)} lenket</span>{/if}
 						<span class="ovr-antall">{sec.items?.length ?? 0} ledd</span>
+						<button class="ovr-slett" title="Slett hoveddelen" onclick={() => slettSeksjon(si)}>{@html mdi('delete-outline', 14)}</button>
 					</div>
 					{#if visLed && sec.items?.length}
 						<div class="ovr-led-liste">
