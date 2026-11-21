@@ -10,6 +10,18 @@
 	import Eksport from '$lib/Eksport.svelte';
 	import Salmer from '$lib/Salmer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
+
+	/** ⌥⌘@ veksler dokumentpanelet (høyremenyen). e.code === 'Backslash' er den
+	 *  FYSISKE @-tasten på norsk tastatur (layout-uavhengig) — Electron-menyens
+	 *  accelerator '\\\\' traff ikke @-tasten på norsk layout, så bindingen
+	 *  ligger her i stedet (menyen har bare klikkbart punkt, ingen accelerator,
+	 *  for å unngå dobbeltveksling). */
+	function globalTaster(e) {
+		if ((e.metaKey || e.ctrlKey) && e.altKey && e.code === 'Backslash') {
+			e.preventDefault();
+			veksleToc();
+		}
+	}
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
 	import Forberedelse from '$lib/Forberedelse.svelte';
 	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
@@ -164,4 +176,4 @@
 <Kommandopalett />
 <KirkeaarCache />
 
-<svelte:window onbeforeunload={(e) => { if (app.dirty) e.preventDefault(); }} />
+<svelte:window onbeforeunload={(e) => { if (app.dirty) e.preventDefault(); }} onkeydown={globalTaster} />

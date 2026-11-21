@@ -683,7 +683,7 @@ function byggMeny(win, st = {}) {
 			label: 'Vis',
 			submenu: [
 				{ label: 'Sidemeny', accelerator: 'CmdOrCtrl+\\', click: () => send('veksle-sidebar') },
-				{ label: 'Dokumentpanel', accelerator: 'CmdOrCtrl+Alt+\\', click: () => send('veksle-toc') },
+				{ label: 'Dokumentpanel (⌥⌘@)', click: () => send('veksle-toc') },
 				{ label: 'Vim-modus', type: 'checkbox', checked: !!st.vim, click: () => send('veksle-vim') },
 				{ type: 'separator' },
 				{ label: 'Prekenforberedelse', enabled: !!st.forbModul, click: () => send('forb-modul') },
