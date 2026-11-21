@@ -186,20 +186,26 @@ test('litLinjeHtml: punktliste prefiks + chip', () => {
 	assert.ok(ut.includes('chip') || ut.includes('liste'), 'punktliste-prefiks ikke rendret som chip/liste');
 });
 
-test('ingen «gudtjeneste» uten s i kildekoden (kernel-skrivefelle)', () => {
+test('ingen «gudtjeneste» uten s i kodebasen (kernel-skrivefelle)', () => {
 	const { execSync } = createRequire(import.meta.url)('node:child_process');
 	const root = fileURLToPath(new URL('../../', import.meta.url));
-	// case-insensitiv: treffer både «gudtjeneste» og «Gudtjeneste». Unntatt:
-	// - hovedgudstjeneste-navn er OK? NEI — de skal også ha s («hovedgudstjeneste» er feil).
-	// - fileio.svelte.js normaliseringslinjer (bevisst gammel skrivemåte for legacy-data)
+	// case-insensitiv: treffer «gudtjeneste» OG «Gudtjeneste» (og i ord som
+	// «hovedgudtjeneste»). Unntatt:
+	// - fileio.svelte.js normaliseringslinjer (bevisst gammel skrivemåte for
+	//   legacy-data — nøkkelen MÅ være feilstavet for å matche gamle filer)
 	// - selve testen (denne filen)
 	let ut = '';
 	try {
 		ut = execSync(
-			`grep -rni 'gudtjeneste' ${JSON.stringify(root + 'src')} --include='*.js' --include='*.svelte' --include='*.css'`
+			`grep -rni 'gudtjeneste' ${JSON.stringify(root)}`
+			+ ` --include='*.js' --include='*.cjs' --include='*.svelte' --include='*.css' --include='*.mjs' --include='*.md' --include='*.html'`
 			+ ` | grep -v 'normaliser gammel skrivemåte'`
-			+ ` | grep -v 'liturgiType === ' || true`,
-			{ encoding: 'utf8' }
+			+ ` | grep -v 'liturgiType === '`
+			+ ` | grep -v 'data.test.mjs'`
+			+ ` | grep -v '/.svelte-kit/'`
+			+ ` | grep -v '/build/'`
+			+ ` | grep -v '/app/' || true`,
+			{ encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
 		);
 	} catch { ut = ''; }
 	const treff = ut.split('\n').filter((l) => l.trim());
