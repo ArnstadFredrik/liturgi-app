@@ -52,7 +52,7 @@ ipcMain.handle('liturgi:save-file', async (_e, payload) => {
 			?? (/\.json$/i.test(defaultName)
 				? [{ name: 'JSON', extensions: ['json'] }]
 				: [
-					{ name: 'Liturgi-fil', extensions: ['liturgi'] },
+					{ name: 'Liturgi-filer', extensions: ['liturgi', 'limal'] },
 					{ name: 'JSON', extensions: ['json'] }
 				]);
 		let filePath;

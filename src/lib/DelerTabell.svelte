@@ -109,7 +109,7 @@
 	}
 </script>
 
-<div id="maldeler-side">
+<div class="deler-tabell-rom">
 	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
 	{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
