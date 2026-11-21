@@ -186,18 +186,42 @@ export function newServiceFromTemplate(tpl, include) {
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec, include))
-			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativ: sec.alternativ, items: sec.items.map(instantiate) }))
+			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativer: secAlternativer(sec), items: sec.items.map(instantiate) }))
 	};
+}
+
+/** seksjonens alternativ-merker — array; gammel enkelt-streng (sec.alternativ)
+ *  støttes fortsatt (bakoverkompatibel med maler lagret før flervalget). */
+export function secAlternativer(sec) {
+	if (Array.isArray(sec?.alternativer)) return sec.alternativer.filter(Boolean);
+	if (sec?.alternativ) return [sec.alternativ];
+	return [];
+}
+
+/** Alternativ-katalogen for en mal: eksplisitt liste + tagger i bruk +
+ *  tittel-utledede standarder («Dåp»-seksjon → dåp, nattverd i tittel → nattverd).
+ *  «Opprett gudstjeneste» bygger bryterne sine fra denne. */
+export function malAlternativer(mal) {
+	const sett = new Set(mal?.alternativer ?? []);
+	for (const sec of mal?.sections ?? []) {
+		for (const t of secAlternativer(sec)) sett.add(t);
+		const title = sec?.title ?? '';
+		if (title === 'Dåp') sett.add('dåp');
+		if (/nattverd/i.test(title)) sett.add('nattverd');
+	}
+	return [...sett];
 }
 
 /* Dåp og Nattverd kan slås av ved oppretting. To mekanismer:
  *  1. tittel-regler (hardkodet): seksjon «Dåp» / tittel med nattverd
- *  2. alternativ-merke fra malredigeringen (sec.alternativ = 'dåp'/'nattverd')
+ *  2. alternativ-merker fra malredigeringen (sec.alternativer, flervalg —
+ *     en del kan være merket med både dåp og nattverd)
  * Godtar både seksjonsobjekt og gammel tittel-streng (bakoverkompatibelt). */
 export function includeSection(sec, include) {
 	const obj = typeof sec === 'string' ? { title: sec } : sec;
-	if (obj.alternativ === 'dåp' && include && include.dåp === false) return false;
-	if (obj.alternativ === 'nattverd' && include && include.nattverd === false) return false;
+	for (const t of secAlternativer(obj)) {
+		if (include && include[t] === false) return false;
+	}
 	if (obj.title === 'Dåp' && include && include.dåp === false) return false;
 	if (/nattverd/i.test(obj.title ?? '') && include && include.nattverd === false) return false;
 	return true;
@@ -217,7 +241,7 @@ export function insertSectionsFromTemplate(svc, titles) {
 			const pos = svc.sections.findIndex((s) => s.title === tpl.sections[j].title);
 			if (pos !== -1) { at = pos; break; }
 		}
-		svc.sections.splice(at, 0, { title: tsec.title, delGruppe: tsec.delGruppe, alternativ: tsec.alternativ, items: tsec.items.map(instantiate) });
+		svc.sections.splice(at, 0, { title: tsec.title, delGruppe: tsec.delGruppe, alternativer: secAlternativer(tsec), items: tsec.items.map(instantiate) });
 	}
 }
 
