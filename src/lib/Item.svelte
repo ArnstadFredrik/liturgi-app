@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty, uid } from '$lib/store.svelte.js';
-	import { chooseOneModal, valgModal, fjernFlereModal, adminAltsModal } from '$lib/modal.svelte.js';
+	import { chooseOneModal, valgModal, fjernFlereModal, adminAltsModal, prompt } from '$lib/modal.svelte.js';
 	import { bibSokModal } from '$lib/modal.svelte.js';
 	import { toast } from 'svelte-sonner';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';

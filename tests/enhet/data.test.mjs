@@ -218,6 +218,27 @@ test('ingen «gudtjeneste» uten s i kodebasen (kernel-skrivefelle)', () => {
 	assert.deepStrictEqual(treff, [], 'funnet «gudtjeneste» uten s: ' + treff.join(' | '));
 });
 
+test('prompt() må alltid importeres fra modal.svelte.js (window.prompt krasjer i Electron)', () => {
+	// window.prompt er ikke støttet i Electron — «Nytt hovedavsnitt» krasjet
+	// stille fordi Item.svelte manglet prompt-import (22. nov).
+	const root = fileURLToPath(new URL('../../', import.meta.url));
+	function gaa(dir) {
+		for (const navn of readdirSync(dir)) {
+			if (navn === 'node_modules' || navn === '.svelte-kit' || navn === 'build' || navn === 'app' || navn.startsWith('.')) continue;
+			const sti = join(dir, navn);
+			if (statSync(sti).isDirectory()) gaa(sti);
+			else if (/\.(svelte|js)$/.test(sti) && !sti.includes('modal.svelte.js')) {
+				const innhold = readFileSync(sti, 'utf8');
+				const kaller = (innhold.match(/(?<![\w.])prompt\s*\(/g) ?? []).length;
+				if (!kaller) continue;
+				const importerer = /import\s*\{[^}]*\bprompt\b[^}]*\}\s*from/.test(innhold);
+				assert.ok(importerer, sti.replace(root, '') + ' kaller prompt() uten å importere den fra modal.svelte.js');
+			}
+		}
+	}
+	gaa(join(root, 'src'));
+});
+
 
 // ---- opprett-modulen (Ny gudtjeneste): type-klassifisering og listene ----
 import { malType, malerForType, kanBrukes, malFormFor, TYPER } from '../../src/lib/maltyper.js';

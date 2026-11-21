@@ -185,15 +185,21 @@ export function newServiceFromTemplate(tpl, include) {
 		liturgiType: tpl.liturgiType ?? (/vigsel/i.test(tpl.name || '') ? 'vigsel' : /gravferd/i.test(tpl.name || '') ? 'gravferd' : 'gudstjeneste'),
 		name: tpl.name, date: '',
 		sections: tpl.sections
-			.filter((sec) => includeSection(sec.title, include))
-			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, items: sec.items.map(instantiate) }))
+			.filter((sec) => includeSection(sec, include))
+			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativ: sec.alternativ, items: sec.items.map(instantiate) }))
 	};
 }
 
-/* Dåp og Nattverd kan slås av ved oppretting */
-export function includeSection(title, include) {
-	if (title === 'Dåp' && include && include.dåp === false) return false;
-	if (/nattverd/i.test(title) && include && include.nattverd === false) return false;
+/* Dåp og Nattverd kan slås av ved oppretting. To mekanismer:
+ *  1. tittel-regler (hardkodet): seksjon «Dåp» / tittel med nattverd
+ *  2. alternativ-merke fra malredigeringen (sec.alternativ = 'dåp'/'nattverd')
+ * Godtar både seksjonsobjekt og gammel tittel-streng (bakoverkompatibelt). */
+export function includeSection(sec, include) {
+	const obj = typeof sec === 'string' ? { title: sec } : sec;
+	if (obj.alternativ === 'dåp' && include && include.dåp === false) return false;
+	if (obj.alternativ === 'nattverd' && include && include.nattverd === false) return false;
+	if (obj.title === 'Dåp' && include && include.dåp === false) return false;
+	if (/nattverd/i.test(obj.title ?? '') && include && include.nattverd === false) return false;
 	return true;
 }
 
@@ -211,7 +217,7 @@ export function insertSectionsFromTemplate(svc, titles) {
 			const pos = svc.sections.findIndex((s) => s.title === tpl.sections[j].title);
 			if (pos !== -1) { at = pos; break; }
 		}
-		svc.sections.splice(at, 0, { title: tsec.title, items: tsec.items.map(instantiate) });
+		svc.sections.splice(at, 0, { title: tsec.title, delGruppe: tsec.delGruppe, alternativ: tsec.alternativ, items: tsec.items.map(instantiate) });
 	}
 }
 

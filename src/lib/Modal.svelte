@@ -340,7 +340,9 @@
 		nyType = type;
 		malerForType = app.templates.filter((t) => malType(t) === type && kanBrukes(t) && malFormFor(t) === malForm);
 		tplId = malerForType[0]?.id ?? ''; // preselect før øvrige effekter
-		if (type === 'gravferd') oppdaterJordpaaGrupper();
+		// del-gruppene er pr valgt mal — uansett type (gudstjeneste-maler kan
+		// også ha del-grupper; mangler de, vises ingen del-gruppe-valg)
+		oppdaterJordpaaGrupper();
 		if (type === 'gudstjeneste') {
 			manuellK = null;
 			autoKirkeaar();
@@ -380,6 +382,11 @@
 				}
 				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
+				// del-gruppe pr valgt mal (gjelder alle typer): bare deler uten del-gruppe
+				// eller med den valgte gruppen tas med — hvis malen har del-grupper
+				if (jordpaaGrupper.length && app.current) {
+					app.current.sections = app.current.sections.filter((s) => !s.delGruppe || s.delGruppe === jordpaa);
+				}
 				if (nyType === 'vigsel' && app.current) {
 					const sk = app.current.sections.find((x) => /skriftlesning/i.test(x.title) && x.items.length >= 5);
 					if (sk) velgTeksterModal(sk); // spør om 2–4 tekster med en gang
@@ -633,9 +640,24 @@
 							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 						</button>
 					</div>
+					{#if jordpaaGrupper.length}
+						<!-- del-gruppe pr valgt mal (radio-enten/eller) — vises bare når
+						     malen faktisk har del-grupper -->
+						<div class="m-chk m-chk-jord">
+							<span class="m-jordpaa-label">Del-gruppe:</span>
+							{#each jordpaaGrupper as g, gi (g)}
+								<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === g} onclick={() => { jordpaa = g; }}>
+									<span class="avpaa-tekst">{g[0].toUpperCase() + g.slice(1)}</span>
+									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+								</button>
+							{/each}
+						</div>
+						<p class="m-kirkeaar muted">Bare delene uten del-gruppe eller med den valgte gruppen tas med.</p>
+					{/if}
 					{:else if nyType === 'gravferd'}
 						<!-- Jordpåkastelse: av/på-knapper — logikken er fortsatt radioknapper
 						     (bind:group, kun én av to kan være på) -->
+						{#if jordpaaGrupper.length}
 						<div class="m-chk m-chk-jord">
 							<span class="m-jordpaa-label">Del-gruppe:</span>
 							{#each jordpaaGrupper as g, gi (g)}
@@ -646,6 +668,7 @@
 							{/each}
 						</div>
 						<p class="m-kirkeaar muted">Gravferdsordningen bruker ikke kirkeårsdag, bibelteksthenting eller dåp/nattverd-valg. Bare den valgte jordpåkastelsesdelen tas med.</p>
+						{/if}
 				{/if}
 				{/key}
 			{:else if m.type === 'choose'}
@@ -859,6 +882,20 @@
 						</select>
 					</label>
 				{/if}
+			{:else if m.type === 'alternativ'}
+				<p class="muted m-velg-hint">Merk delen med et alternativ: «Ny gudstjeneste» tar bare med delen når «Med dåp»/«Med nattverd» er på. Deler uten alternativ tas alltid med.</p>
+				<div class="m-dg-liste" role="radiogroup" aria-label="Alternativ">
+					<button type="button" class="m-dg-rad" class:sel={!m.valgt} role="radio" aria-checked={!m.valgt}
+						onclick={() => { m.valgt = null; }}>
+						<span class="m-dg-navn">Ingen (alltid med)</span>
+					</button>
+					{#each ['dåp', 'nattverd'] as alt (alt)}
+						<button type="button" class="m-dg-rad" class:sel={m.valgt === alt} role="radio" aria-checked={m.valgt === alt}
+							onclick={() => { m.valgt = alt; }}>
+							<span class="m-dg-navn">{alt[0].toUpperCase() + alt.slice(1)}</span>
+						</button>
+					{/each}
+				</div>
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
 				<div class="m-dg-liste">
@@ -902,6 +939,8 @@
 				{/if}
 				{#if m.type === 'maalform'}
 					<button class="primary" onclick={() => { m.ok(m.valgt); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'alternativ'}
+					<button class="primary" onclick={() => { m.sec.alternativ = m.valgt ?? undefined; markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'delGruppe'}
 					<button class="primary" onclick={() => { applyDelGruppe(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'velgTekster'}
