@@ -190,21 +190,18 @@ test('ingen «gudtjeneste» uten s i kodebasen (kernel-skrivefelle)', () => {
 	const { execSync } = createRequire(import.meta.url)('node:child_process');
 	const root = fileURLToPath(new URL('../../', import.meta.url));
 	// case-insensitiv: treffer «gudtjeneste» OG «Gudtjeneste» (og i ord som
-	// «hovedgudtjeneste»). Unntatt:
-	// - fileio.svelte.js normaliseringslinjer (bevisst gammel skrivemåte for
-	//   legacy-data — nøkkelen MÅ være feilstavet for å matche gamle filer)
-	// - selve testen (denne filen)
+	// «hovedgudtjeneste»). Legacy-data er migrert — ingen unntak lenger i
+	// src/electron. Selve testen (denne filen) og genererte mapper er unntatt.
 	let ut = '';
 	try {
 		ut = execSync(
 			`grep -rni 'gudtjeneste' ${JSON.stringify(root)}`
 			+ ` --include='*.js' --include='*.cjs' --include='*.svelte' --include='*.css' --include='*.mjs' --include='*.md' --include='*.html'`
-			+ ` | grep -v 'normaliser gammel skrivemåte'`
-			+ ` | grep -v 'liturgiType === '`
 			+ ` | grep -v 'data.test.mjs'`
 			+ ` | grep -v '/.svelte-kit/'`
 			+ ` | grep -v '/build/'`
-			+ ` | grep -v '/app/' || true`,
+			+ ` | grep -v '/app/'`
+			+ ` | grep -v '/node_modules/' || true`,
 			{ encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
 		);
 	} catch { ut = ''; }

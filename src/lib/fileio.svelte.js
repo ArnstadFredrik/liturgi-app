@@ -297,8 +297,6 @@ function parseLiturgi(raw) {
 		const data = parsed?.liturgiFormat ? parsed.data : parsed;
 		if (!data || !Array.isArray(data.sections)) return null;
 		delete data.__dirty; // gamle filer kan ha flagget bakt inn — åpnes alltid rent
-		// normaliser gammel skrivemåte: liturgiType 'gudtjeneste' (uten s) → 'gudstjeneste'
-		if (data.liturgiType === 'gudtjeneste') data.liturgiType = 'gudstjeneste';
 		data.malForm = data.malForm ?? 'bokmål'; // gamle filer: bokmål er standard
 		return data;
 	} catch {
