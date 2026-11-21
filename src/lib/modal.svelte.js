@@ -71,6 +71,18 @@ export function maalformModal(o) {
 	});
 }
 
+/** Alternativ-modal: tag en hoveddel i en mal med 'dåp' eller 'nattverd'
+ *  (separat fra del-gruppe) — «Ny gudstjeneste» tar bare med delen når den
+ *  tilhørende av/på-bryteren er på. ok(valgt) med 'dåp'/'nattverd'/null. */
+export function alternativModal(sec) {
+	showModal({
+		type: 'alternativ',
+		title: 'Alternativ for «' + (sec.title ?? '') + '»',
+		sec,
+		valgt: sec.alternativ ?? null
+	});
+}
+
 export function delGruppeModal(mal, seksjon) {
 	showModal({
 		type: 'delGruppe',

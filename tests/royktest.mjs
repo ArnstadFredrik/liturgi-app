@@ -16,7 +16,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 const PORT = 9877;
-const ELLER_MALER = ['gravferd', 'Ordning for hovedgudstjeneste', 'Dåp i hovedgudstjenesten', 'Dåp i egen', 'Forbønn', 'Vigsel (bokmål, 2017)', 'Vigsel (bokmål, 2003)', 'Konfirmasjonstidens'];
+const ELLER_MALER = ['gravferd', 'Ordning for hovedgudstjeneste', 'Dåp i hovedgudtjenesten', 'Dåp i egen', 'Forbønn', 'Vigsel (2017)', 'Vigsel (2003)', 'Konfirmasjonstidens'];
 const ELECTRON = join(fileURLToPath(new URL('..', import.meta.url)), 'node_modules', '.bin', 'electron');
 
 let feil = 0, pass = 0;
@@ -65,7 +65,15 @@ try {
 
 	// ---- 3. fersk oppstart: state ok ----
 	await sleep(2500);
-	const start = await ev(`JSON.stringify({ maler: window.__app?.templates?.length ?? -1 })`);
+	// malene lastes asynkront fra disk i Electron-modus — poll til de er der
+	const start = await ev(`(async () => {
+		for (let i = 0; i < 30; i++) {
+			const n = window.__app?.templates?.length ?? 0;
+			if (n >= 8) return JSON.stringify({ maler: n });
+			await new Promise((r) => setTimeout(r, 500));
+		}
+		return JSON.stringify({ maler: window.__app?.templates?.length ?? -1 });
+	})()`, true);
 	const s0 = JSON.parse(start ?? '{}');
 	ok('malene er lastet inn i state (≥8)', s0.maler >= 8, 'fant ' + s0.maler);
 
@@ -86,7 +94,7 @@ try {
 			klikk('Maler'); await new Promise(r => setTimeout(r, 700));
 			const bs = [...document.querySelectorAll('button')].filter(x => x.textContent.trim() === 'Åpne');
 			const ord = ${JSON.stringify(mal)}.split(' ');
-			const b = bs.find(x => ord.some(w => (x.parentElement?.textContent ?? '').toLowerCase().includes(w.toLowerCase())));
+			const b = bs.find(x => ord.some(w => (x.closest('tr')?.textContent ?? x.parentElement?.textContent ?? '').toLowerCase().includes(w.toLowerCase())));
 			if (!b) return 'fant-ikke: ' + bs.map(x => (x.parentElement?.textContent ?? '').slice(0, 22)).join(' | ');
 			b.click();
 			// poll: vent til leddene er montert (tunge maler kan ta noen hundre ms)
