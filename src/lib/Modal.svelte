@@ -1,8 +1,8 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { erMalFavoritt } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	delGruppeModal, malType } from '$lib/modal.svelte.js';
-	import { MÅLFORMER, målformLabel, malFormFor } from '$lib/maltyper.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	delGruppeModal, maalformModal, malType } from '$lib/modal.svelte.js';
+	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
@@ -26,6 +26,7 @@
 	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
 	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
+	let maaltNyttNavn = $state(''); // ny målform i maalform-modalen
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
@@ -39,6 +40,18 @@
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
 	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudstjeneste)
 	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t) && malFormFor(t) === malForm));
+
+	// Målformene som FAKTISK finnes blant brukbare maler av valgt type —
+	// selector-listen genereres ut fra dette (tomme målformer vises ikke).
+	const tilgjengeligeMålformer = $derived([...new Set(
+		app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)).map((t) => malFormFor(t))
+	)]);
+
+	/** Visningsnavn i mal-listen: målformen er fjernet (den er eget valg),
+	 *  årstallet beholdes: «Vigsel (bokmål, 2003)» → «Vigsel (2003)». */
+	function visningsNavn(t) {
+		return (t.name ?? '').replace(/\s*(bokm\u00e5l|nynorsk|engelsk)\s*,?\s*/gi, '').replace(/\s{2,}/g, ' ').replace(/\(\s*\)/g, '').replace(/\s+,/g, ',').trim();
+	}
 
 	const nyListe = $derived.by(() => {
 		const favoritter = malerForType.filter((t) => erMalFavoritt(t.name));
@@ -54,6 +67,12 @@
 		if (m?.type === 'newService') {
 			const t = app.templates.find((x) => x.id === tplId);
 			if (!t || malType(t) !== nyType || !kanBrukes(t) || malFormFor(t) !== malForm) tplId = app.templates.find((x) => malType(x) === nyType && kanBrukes(x) && malFormFor(x) === malForm)?.id ?? '';
+			// målformen må finnes blant typens maler — ellers bytt til første tilgjengelige
+			if (tilgjengeligeMålformer.length && !tilgjengeligeMålformer.includes(malForm)) {
+				malForm = tilgjengeligeMålformer[0];
+				malerForType = app.templates.filter((x) => malType(x) === nyType && kanBrukes(x) && malFormFor(x) === malForm);
+				tplId = malerForType[0]?.id ?? '';
+			}
 		}
 	});
 	let valgte = $state([]);
@@ -460,6 +479,15 @@
 		bokstavInput = '';
 	}
 
+	function leggTilMaalform() {
+		if (!m || m.type !== 'maalform') return;
+		const navn = maaltNyttNavn.trim().toLowerCase();
+		if (!navn) return;
+		if (!m.former.includes(navn)) m.former = [...m.former, navn];
+		m.valgt = navn;
+		maaltNyttNavn = '';
+	}
+
 	function leggTilGruppe() {
 		if (!m || m.type !== 'delGruppe') return;
 		const navn = dgNyttNavn.trim();
@@ -533,7 +561,7 @@
 				<label>
 					Målform
 					<div class="fb-visning-velger" role="group" aria-label="Målform">
-						{#each MÅLFORMER as mf (mf)}
+						{#each tilgjengeligeMålformer as mf (mf)}
 							<button type="button" class:sel={malForm === mf} onclick={() => velgMalForm(mf)}>{målformLabel(mf)}</button>
 						{/each}
 					</div>
@@ -547,19 +575,19 @@
 						{#if nyListe.favoritter.length}
 							<optgroup label="Favoritter">
 								{#each nyListe.favoritter as t (t.id)}
-									<option value={t.id}>{t.name}</option>
+									<option value={t.id}>{visningsNavn(t)}</option>
 								{/each}
 							</optgroup>
 						{/if}
 						<optgroup label="Originaler">
 							{#each nyListe.originaler as t (t.id)}
-								<option value={t.id}>{t.name}</option>
+								<option value={t.id}>{visningsNavn(t)}</option>
 							{/each}
 						</optgroup>
 						{#if nyListe.brukere.length}
 							<optgroup label="Brukermaler">
 								{#each nyListe.brukere as t (t.id)}
-									<option value={t.id}>{t.name}</option>
+									<option value={t.id}>{visningsNavn(t)}</option>
 								{/each}
 							</optgroup>
 						{/if}
@@ -799,6 +827,21 @@
 						{/if}
 					{/each}
 				</div>
+			{:else if m.type === 'maalform'}
+				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
+				<div class="m-dg-liste">
+					{#each m.former as f (f)}
+						<div class="m-dg-rad" class:sel={m.valgt === f} role="radio" aria-checked={m.valgt === f}
+							onclick={() => { m.valgt = f; }}>
+							<span class="m-dg-navn">{målformLabel(f)}</span>
+						</div>
+					{/each}
+				</div>
+				<div class="m-dg-ny">
+					<input placeholder="Ny målform, f.eks. Sørsamisk" bind:value={maaltNyttNavn}
+						onkeydown={(e) => { if (e.key === 'Enter') { leggTilMaalform(); e.preventDefault(); } }} />
+					<button onclick={() => leggTilMaalform()}>Legg til</button>
+				</div>
 			{:else if m.type === 'delGruppe'}
 				<p class="muted m-velg-hint">Velg hvilken del-gruppe avsnittet tilhører. «Ny gravferd» viser bare avsnitt i den valgte gruppen. Grupper uten avsnitt kan slettes.</p>
 				<div class="m-dg-liste">
@@ -825,7 +868,9 @@
 				{#if m.type === 'lukk'}
 					<button onclick={() => { const f = m.onForkast; closeModal(); f?.(); }}>Lukk uten å lagre</button>
 				{/if}
-				{#if m.type === 'delGruppe'}
+				{#if m.type === 'maalform'}
+					<button class="primary" onclick={() => { m.ok(m.valgt); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'delGruppe'}
 					<button class="primary" onclick={() => { applyDelGruppe(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'velgTekster'}
 					<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>

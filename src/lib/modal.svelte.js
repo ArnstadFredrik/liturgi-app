@@ -40,6 +40,31 @@ export { malType } from './maltyper.js';
 /** Del-gruppe-modal: legg til / slett / velg del-grupper for en seksjon.
  *  Gruppelista lagres på malen (delGrupper); seksjonen merkes med
  *  delGruppe, og «Ny gravferd» viser bare avsnitt i den valgte gruppen. */
+/** Målform-modal: velg målform for malen, eller legg til nye. */
+export function maalformModal(o) {
+	const kjent = [...new Set([
+		...app.maalformer,
+		...app.templates.map((t) => (t.malForm ?? 'bokmål').toLowerCase()),
+		(o?.malForm ?? 'bokmål').toLowerCase()
+	])];
+	showModal({
+		type: 'maalform',
+		title: 'Målform',
+		former: kjent,
+		valgt: (o?.malForm ?? 'bokmål').toLowerCase(),
+		ok: (valgt) => {
+			if (!o || !valgt) return;
+			o.malForm = valgt;
+			if (!app.maalformer.includes(valgt)) {
+				app.maalformer = [...app.maalformer, valgt];
+				try { localStorage.setItem('maalformer', JSON.stringify(app.maalformer)); } catch {}
+				window.liturgi?.dbSet?.('maalformer', JSON.stringify(app.maalformer));
+			}
+			import('$lib/store.svelte.js').then((st) => st.markDirty());
+		}
+	});
+}
+
 export function delGruppeModal(mal, seksjon) {
 	showModal({
 		type: 'delGruppe',
