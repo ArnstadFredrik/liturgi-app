@@ -222,8 +222,23 @@ button.wide { width: 100%; }
 .w-mal-fav.av { color: var(--warn); }
 .w-mal-handlinger { display: flex; gap: 6px; margin-top: 10px; }
 /* Maler-undersiden */
-#maler-side { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }
+#maler-side {
+	/* responsiv: to gruppe-kolonner når det er plass, én på smale skjermer */
+	max-width: min(1100px, 92vw);
+	margin: 40px auto 80px;
+	padding: 0 24px;
+}
 #maler-side h2 { color: var(--text); margin-bottom: 4px; }
+#maler-side .mal-filter, #maler-side .maler-ingress, #maler-side h2 { grid-column: 1 / -1; }
+#maler-side .malgrupper {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+	gap: 0 20px;
+	align-items: start;
+}
+@media (max-width: 900px) {
+	#maler-side { max-width: 620px; }
+}
 .maler-ingress { color: var(--muted); font-size: 0.9em; margin-top: 0; }
 .malgruppe { margin: 18px 0 0; display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 10px 12px; }
 .malgruppe .sidehead { margin-bottom: 4px; }

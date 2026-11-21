@@ -1,7 +1,7 @@
 export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
-		"name": "Ordning for hovedgudstjeneste (bokmål, 2020)",
+		"name": "Ordning for hovedgudstjeneste (2020)",
 		"description": "Hovedmalen til Den norske kirke – Ordning for hovedgudstjenesten i bokmål, med alle alternativer.",
 		"sections": [
 			{
@@ -882,7 +882,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "dop-i-hovedgudstjenesten-2017",
-		"name": "Dåp i hovedgudstjenesten (bokmål, 2017)",
+		"name": "Dåp i hovedgudstjenesten (2017)",
 		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
 		"kanGudstjeneste": false,
 		"sections": [
@@ -1148,7 +1148,7 @@ export const BUILTIN_TEMPLATES = [
 	{
 		"id": "gravferd-2003",
 		"liturgiType": "gravferd",
-		"name": "Ordning for gravferd (bokmål, 2003)",
+		"name": "Ordning for gravferd (2003)",
 		"description": "Ordning for gravferd fra kirke eller krematorium — vedtatt av Kirkemøtet 2002, med alle alternativer og skriftlesningstekstgrupper.",
 		"sections": [
 			{
@@ -1863,7 +1863,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "forb-borgerlig-ekteskap-2017",
-		"name": "Forbønn for borgerlig inngått ekteskap (bokmål, 2017)",
+		"name": "Forbønn for borgerlig inngått ekteskap (2017)",
 		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
 		"sections": [
 			{
@@ -2339,7 +2339,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2017",
-		"name": "Vigsel (bokmål, 2017)",
+		"name": "Vigsel (2017)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",
 		"sections": [
 			{
@@ -2867,7 +2867,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2003",
-		"name": "Vigsel (bokmål, 2003)",
+		"name": "Vigsel (2003)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2002, i bruk fra mars 2003. Inkluderer skriftlesninger.",
 		"sections": [
 			{
@@ -3354,7 +3354,7 @@ export const BUILTIN_TEMPLATES = [
 		"id": "konfirmasjon-2021",
 		"builtinKey": "konfirmasjon-2021",
 		"kind": "template",
-		"name": "Konfirmasjonstidens gudstjenester (bokmål, 2021)",
+		"name": "Konfirmasjonstidens gudstjenester (2021)",
 		"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudstjeneste.",
 		"sections": [
 			{
