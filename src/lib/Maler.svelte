@@ -4,6 +4,8 @@
 	import { loadTemplatesFromDisk, erOriginalMal, deleteTemplateFile, newTemplateOnDisk, importerMalFil } from '$lib/fileio.svelte.js';
 	import { exportWord } from '$lib/export.js';
 	import { malType } from '$lib/modal.svelte.js';
+	import { veksleMalFavoritt, erMalFavoritt } from '$lib/store.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -26,11 +28,12 @@
 		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
 		return true;
 	}
+	const etterFavoritt = (a, b) => (erMalFavoritt(b.name) ? 1 : 0) - (erMalFavoritt(a.name) ? 1 : 0);
 	const visOriginaler = $derived(
-		kildeFilter === 'brukermaler' ? [] : originaler.filter(passer).sort((a, b) => (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
+		kildeFilter === 'brukermaler' ? [] : originaler.filter(passer).sort((a, b) => etterFavoritt(a, b) || (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
 	);
 	const visBrukere = $derived(
-		kildeFilter === 'originaler' ? [] : brukermaler.filter(passer).sort((a, b) => (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
+		kildeFilter === 'originaler' ? [] : brukermaler.filter(passer).sort((a, b) => etterFavoritt(a, b) || (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
 	);
 
 	async function eksporterMal(t) {
@@ -115,6 +118,7 @@
 			<div class="w-mal">
 				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
 				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
+				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
 				<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
 			</div>
@@ -131,6 +135,7 @@
 			<div class="w-mal">
 				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
 				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
+				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
 				<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
 				<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
