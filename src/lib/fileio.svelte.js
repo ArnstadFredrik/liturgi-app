@@ -510,7 +510,7 @@ export async function loadTemplatesFromDisk() {
 				// ny generisk lenkeformat: __lenket { malId, tittel } — får samme
 				// behandling som alle lenkede hoveddeler (merke + redigeringslås,
 				// innholdet fornyes av synkLenkedeSeksjoner)
-				sec.__lenket = { malId: dopMal.id, tittel: 'Dåp i hovedgudtjenesten' };
+				sec.__lenket = { malId: dopMal.id, tittel: "Dåp i hovedgudstjenesten" };
 				// fjern gamle markeringsledd og marker-heading fra den gamle ordningen
 				sec.items = (sec.items ?? []).filter((it) => it.id !== 'h-l-dap-lenke'
 					&& !/^Dåp \(lenket til/i.test(it.heading ?? ''));

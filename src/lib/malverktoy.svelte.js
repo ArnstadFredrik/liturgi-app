@@ -44,7 +44,7 @@ export async function åpneOriginal(bt) {
 			if (dapSec) {
 				// generisk lenkeformat: fullt innhold fra dåp-malen + __lenket-objekt;
 				// synkLenkedeSeksjoner fornyer innholdet, editor låser redigering
-				dapSec.__lenket = { malId: dopMal.id, tittel: 'Dåp i hovedgudtjenesten' };
+				dapSec.__lenket = { malId: dopMal.id, tittel: "Dåp i hovedgudstjenesten" };
 				if (!(dapSec.items ?? []).length) {
 					dapSec.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));
 				}
