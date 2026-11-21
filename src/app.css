@@ -651,12 +651,12 @@ textarea {
 .m-deler-rad.drag-target::before { top: -2px; }
 
 /* ---- Oversikt (undermodul i gudstjenestemodulen) ---- */
-#oversikt-side { max-width: min(860px, 92vw); }
+#oversikt-side { max-width: min(860px, 92vw); margin-inline: auto; padding: 6px 26px 48px; }
 .ovr-verktoy { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
 .ovr-hint { font-size: 12.5px; }
 .ovr-vis-led { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; padding: 5px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
 .ovr-vis-led:hover { color: var(--foreground); background: var(--accent-dim); }
-.ovr-liste { display: flex; flex-direction: column; gap: 10px; }
+.ovr-liste { display: flex; flex-direction: column; gap: 14px; }
 .ovr-seksjon { position: relative; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
 .ovr-sec-rad { display: flex; align-items: center; gap: 10px; padding: 9px 12px; }
 .ovr-navn { font-weight: 600; cursor: pointer; }
@@ -890,6 +890,10 @@ textarea {
    vibrancy (transparent viste macOS sin nøytrale mørke vibrancy) */
 html.electron #toc-side { background: color-mix(in srgb, var(--panel) 78%, transparent); border-left: none; padding-top: 44px; }
 html:not(.electron) #toc-side { padding-top: 36px; }
+/* Avsnitt-navigasjonen forblir synlig når panelet rulles (lang DokInsp under) */
+.toc-avsnitt { position: sticky; top: 0; z-index: 5; padding-bottom: 4px; background: inherit; }
+html.electron .toc-avsnitt { background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(10px); }
+html:not(.electron) .toc-avsnitt { background: color-mix(in srgb, var(--panel) 96%, transparent); }
 #toc-side .list li { padding: 5px 8px; font-size: 12.5px; border-radius: 6px; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
 #toc-side .list li.active { background: var(--accent-dim); box-shadow: inset -3px 0 0 0 var(--accent); }
@@ -1346,7 +1350,19 @@ svg.sf-ikon { vertical-align: -0.35em; }
 	gap: 10px 18px;
 	padding: 16px 24px 0;
 	margin-bottom: 12px;
+	position: sticky; top: 0; z-index: 30;
+	transition: padding 0.18s ease;
 }
+.modul-topp .modul-tittel { transition: font-size 0.18s ease; }
+/* ved rulling: bakgrunn som dekker innholdet + kompakt tittel */
+#main.main-scrollt .modul-topp {
+	padding: 8px 24px;
+	background: color-mix(in srgb, var(--panel) 88%, transparent);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	box-shadow: 0 1px 0 var(--border);
+}
+#main.main-scrollt .modul-tittel { font-size: 13.5px; }
 .modul-tittel { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; color: var(--text); }
 /* vim-bryter + modus-badge */
 .fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }

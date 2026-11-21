@@ -71,6 +71,18 @@
 	}
 	/** Modul-navigasjon: tittel + fane-stripe i SAMME posisjon for alle
 	 *  moduler med undermoduler (Gudstjeneste, Bibliotek, Innstillinger). */
+	/** Kompakt modul-heading ved rulling: fanestripen forblir synlig (sticky),
+	 *  og tittelen krymper når innholdet ruller under den. */
+	let mainEl = $state(null);
+	$effect(() => {
+		const el = mainEl;
+		if (!el) return;
+		const onScroll = () => el.classList.toggle('main-scrollt', el.scrollTop > 8);
+		el.addEventListener('scroll', onScroll, { passive: true });
+		onScroll();
+		return () => el.removeEventListener('scroll', onScroll);
+	});
+
 	const modul = $derived.by(() => {
 		const andre = ['kirkeaar', 'forberedelse', 'bibliotek', 'maler', 'innstillinger', 'malverktoy'];
 		// en åpen gudstjeneste: redigering/salmer/eksport (visning kan stå på
@@ -118,7 +130,7 @@
 		{@html mdi(app.sidebarSkjult ? 'menu-open' : 'page-layout-sidebar-left', 18)}
 	</button>
 	<Sidebar />
-	<main id="main">
+	<main id="main" bind:this={mainEl}>
 		{#if modul}
 			<header class="modul-topp">
 				<span class="modul-tittel">{modul.tittel}</span>
@@ -159,12 +171,14 @@
 	{/if}
 	<aside id="toc-side">
 		{#if app.current?.sections && app.current.sections.length > 1}
+			<div class="toc-avsnitt">
 			<div class="sidehead">Avsnitt</div>
 			<ul class="list">
 				{#each app.current.sections as sec, i (i)}
 					<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
 				{/each}
 			</ul>
+			</div>
 			<hr class="side-skiller" />
 		{/if}
 		{#if app.current}

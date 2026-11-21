@@ -134,7 +134,7 @@
 <div id="oversikt-side">
 	<div class="ovr-verktoy">
 		<button class="ovr-vis-led" onclick={() => { visLed = !visLed; }} title={visLed ? 'Skjul leddene' : 'Vis leddene'}>
-			{@html mdi('chevron-left', 14)}
+			{@html mdi(visLed ? 'chevron-up' : 'chevron-down', 14)}
 			<span>{visLed ? 'Skjul ledd' : 'Vis ledd'}</span>
 		</button>
 		<span class="muted ovr-hint">Dra hoveddelene og leddene for å endre rekkefølgen. Klikk på en rad for å redigere.</span>
