@@ -622,6 +622,21 @@ textarea {
 #modal .m-dg-navn { flex: 1; }
 #modal .m-dg-slett { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: inline-flex; }
 #modal .m-dg-slett:hover { color: var(--role, #c0392b); }
+/* Deler-tabell (alternativer + variasjoner pr hoveddel) */
+.m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 8px 0; }
+.m-deler-rad { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
+.m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
+.m-deler-head { background: var(--panel2); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
+.m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
+.m-deler-celle { text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-deler-celle.merket { border-style: solid; color: var(--text); }
+.m-deler-celle:hover { border-color: var(--accent); }
+.m-deler-meny { position: absolute; z-index: 40; top: calc(100% - 4px); right: 8px; left: auto; min-width: 190px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--skygge, 0 6px 24px rgba(0,0,0,0.18)); padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.m-deler-rad:first-of-type .m-deler-meny { top: auto; bottom: calc(100% + 4px); }
+.m-alt-rad { display: flex; gap: 6px; align-items: center; font-size: 12.5px; cursor: pointer; }
+.m-deler-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-top: 10px; }
+.m-deler-adm-tittel { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; margin: 0 0 6px; }
+.m-deler-adm-rad { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; font-size: 12.5px; }
 .m-dg-ny { display: flex; gap: 8px; margin-top: 8px; }
 .m-dg-ny input { flex: 1; }
 .m-bokstav-rad { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
