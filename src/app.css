@@ -630,10 +630,14 @@ textarea {
  * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
  * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
 .m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; }
-.m-deler-rad { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
+.m-deler-rad { display: grid; grid-template-columns: 24px 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
 .m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
+.m-deler-drag { color: var(--muted); cursor: grab; display: flex; align-items: center; justify-content: center; padding: 3px 0; border-radius: 6px; touch-action: none; }
+.m-deler-drag:hover { color: var(--text); background: var(--accent-dim); }
+.m-deler-drag:active { cursor: grabbing; }
+.m-deler-drag.aktiv { color: var(--accent); }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
 	text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px;

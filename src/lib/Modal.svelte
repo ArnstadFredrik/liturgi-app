@@ -40,6 +40,10 @@
 	let adminVisning = $state(0);
 	let katNyAlt = $state('');
 	let katNyVar = $state('');
+	let delerFane = $state('hoveddeler'); // hoveddeler | leggtil
+	let dragSi = $state(null); // drag-and-drop av hoveddeler
+	let dragOverSi = $state(null);
+	let dragFor = $state(false);
 		let maaltNyttNavn = $state(''); // ny målform i maalform-modalen
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
@@ -451,6 +455,36 @@
 			}
 		}
 		apenCelle = null;
+	}
+
+	/** Drag-and-drop: endre rekkefølge på hoveddelene (håndtaket først i raden) */
+	function startDragRad(e, si) {
+		dragSi = si;
+		e.dataTransfer.effectAllowed = 'move';
+		e.dataTransfer.setData('text/plain', 'deler-' + si);
+	}
+
+	function dragOverRad(e, si) {
+		if (dragSi === null || si === dragSi) return;
+		e.preventDefault();
+		e.dataTransfer.dropEffect = 'move';
+		const r = e.currentTarget.getBoundingClientRect();
+		dragFor = e.clientY < r.top + r.height / 2;
+		dragOverSi = si;
+	}
+
+	function droppRad(e, si) {
+		e.preventDefault();
+		if (dragSi === null) { dragSi = null; dragOverSi = null; return; }
+		const secs = m.mal.sections;
+		let target = dragFor ? si : si + 1;
+		if (dragSi < target) target--;
+		if (target !== dragSi) {
+			const flyttet = secs.splice(dragSi, 1)[0];
+			secs.splice(target, 0, flyttet);
+			markDirtyIModal();
+		}
+		dragSi = null; dragOverSi = null; dragFor = false;
 	}
 
 	function includeObj() {
@@ -959,10 +993,18 @@
 			{:else if m.type === 'delerTabell'}
 				<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett gudstjeneste».</p>
 				{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
+				<div class="fb-visning-velger m-deler-faner" role="tablist">
+					<button role="tab" aria-selected={delerFane === 'hoveddeler'} class:sel={delerFane === 'hoveddeler'} onclick={() => { delerFane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
+					<button role="tab" aria-selected={delerFane === 'leggtil'} class:sel={delerFane === 'leggtil'} onclick={() => { delerFane = 'leggtil'; apenCelle = null; }}>Legg til</button>
+				</div>
+				{#if delerFane === 'hoveddeler'}
 				<div class="m-deler-tabell">
-					<div class="m-deler-rad m-deler-head"><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
+					<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
 					{#each m.mal.sections as sec, si (si)}
-						<div class="m-deler-rad">
+							<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor}
+							ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
+							<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
+								ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>
 							<span class="m-deler-navn">{sec.title}</span>
 														<div class="m-deler-celle-wrap alt">
 <button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
@@ -1008,8 +1050,7 @@
 													</div>
 					{/each}
 				</div>
-				<button class="wide" onclick={() => { adminVisning = adminVisning ? 0 : 1; apenCelle = null; }}>Administrer alternativer og variasjoner …</button>
-				{#if adminVisning}
+				{:else}
 					<div class="m-deler-admin">
 						<div>
 							<p class="m-deler-adm-tittel">Alternativer</p>
