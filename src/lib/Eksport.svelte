@@ -280,6 +280,15 @@
 	const datoTekst = $derived(o?.date ? nlDate(o.date) : '');
 
 	// menylinje/kontekstmeny: «Vis navn» og «Hovedtitler» (print-profilene)
+	/** Lagre-meny: ett punkt for lagring (og .limal-kopi for maler) — holder
+	 *  verktøylinjen kompakt i stedet for to fulle knapper. */
+	function lagreMeny(e) {
+		const r = e.currentTarget.getBoundingClientRect();
+		const punkter = [{ label: 'Lagre', action: () => saveCurrent() }];
+		if (app.kind === 'template') punkter.push({ label: 'Lagre mal-fil (.limal)', action: () => saveCurrentToFile() });
+		openContextMenu(r.left, r.bottom + 4, punkter);
+	}
+
 	function eksMeny(x, y) {
 		const chk = (b) => !!b;
 		if (aktiv === 'Skjerm') {
@@ -365,6 +374,7 @@
 	const PX_PER_MM = 250 / 148; // forhåndsvisningsskala: A5-kortet er 250 px bredt ved zoom 1
 	let rendrerStatus = $state(''); // '' | 'oppdatert' — toast over visningen
 	let innstVersjon = $state(0); // økes ved setInnst — garanterer at forhåndsvisningen re-rendrer
+	let statusTimer = null; // debounca «Oppdatert»-banneret (ingen blink ved raske re-rendringer)
 	$effect(() => {
 		innstVersjon; // avhengighet: re-render når sideinnstillingene endres
 		if (aktiv === 'Skjerm') { pdfSider = []; rendrerStatus = ''; return; }
@@ -397,8 +407,9 @@
 			});
 			window.__eksSecSider = kart;
 			window.__eksLeddSider = leddKart;
-			rendrerStatus = 'oppdatert';
-			setTimeout(() => { rendrerStatus = ''; }, 1500);
+			if (rendrerStatus !== 'oppdatert') rendrerStatus = 'oppdatert';
+			clearTimeout(statusTimer);
+			statusTimer = setTimeout(() => { rendrerStatus = ''; statusTimer = null; }, 1500);
 		} catch (e) {
 			console.error('Forhåndsvisning feilet:', e);
 			rendrerStatus = '';
@@ -1101,6 +1112,7 @@
 
 
 		<div class="eks-baand">
+			<button class="eks-flere" title="Flere valg" onclick={(e) => eksMeny(e.clientX, e.clientY)}>{@html mdi('tune', 14)} Valg {@html mdi('chevron-down', 12)}</button>
 			{#if aktiv === 'Skjerm'}
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
@@ -1113,7 +1125,7 @@
 					</select></div>
 				</div>
 			</div>
-			<div class="eks-baand-gruppe">
+			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
 					<button class="eks-toggle" class:paa={pptLeddtitler} title="Leddtitler med på slidene (standard uten)" onclick={() => { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }}>{@html mdi('format-title', 14)} Leddtitler</button>
 					<button class="eks-toggle" class:paa={tomSlide} title="Blank side mellom leddene" onclick={() => settTomSlide(!tomSlide)}>{@html mdi('file-document-outline', 14)} Blank side</button>
@@ -1145,10 +1157,9 @@
 					<option value="normal">Normal</option>
 					<option value="luft">Luftig</option>
 				</select></div>
-				<button class="eks-lagre eks-verktoy-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
-				{#if app.kind === 'template'}<button class="eks-lagre" title="Lagre en kopi av malfilen (.limal)" onclick={() => saveCurrentToFile()}>{@html mdi('download')} Lagre mal-fil (.limal)</button>{/if}
+				<button class="eks-lagre eks-verktoy-lagre" title="Lagre" onclick={(e) => lagreMeny(e)}>{@html mdi('download')} Lagre {@html mdi('chevron-down', 12)}</button>
 			</div>
-			<div class="eks-baand-gruppe">
+			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
 					<label class="eks-felt eks-chk-pt"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
 					<label class="eks-felt eks-chk-pt"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>

@@ -2,6 +2,7 @@
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
+	import DelerTabell from '$lib/DelerTabell.svelte';
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
@@ -1010,85 +1011,7 @@
 					</label>
 				{/if}
 			{:else if m.type === 'delerTabell'}
-				<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett gudstjeneste».</p>
-				{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
-				<div class="fb-visning-velger m-deler-faner" role="tablist">
-					<button role="tab" aria-selected={delerFane === 'hoveddeler'} class:sel={delerFane === 'hoveddeler'} onclick={() => { delerFane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
-					<button role="tab" aria-selected={delerFane === 'innstillinger'} class:sel={delerFane === 'innstillinger'} onclick={() => { delerFane = 'innstillinger'; apenCelle = null; }}>Innstillinger</button>
-				</div>
-				{#if delerFane === 'hoveddeler'}
-				<div class="m-deler-tabell">
-					<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
-					{#each m.mal.sections as sec, si (si)}
-							<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor} class:deler-dragging={dragSi === si}
-							ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
-							<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
-								ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>
-							<span class="m-deler-navn">{sec.title}</span>
-														<div class="m-deler-celle-wrap alt">
-<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
-								<span>{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
-							</button>
-{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
-								<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
-									{#each m.alternativer as t (t)}
-										<button type="button" class="m-alt-rad" role="menuitemcheckbox" aria-checked={secAlternativer(sec).includes(t)}
-											onclick={() => veksleSecAlt(sec, t, !secAlternativer(sec).includes(t))}>
-											<span class="m-alt-ind">{#if secAlternativer(sec).includes(t)}{@html mdi('check', 14)}{/if}</span>
-											<span class="m-alt-tekst">{t[0].toUpperCase() + t.slice(1)}</span>
-										</button>
-									{/each}
-									{#if !m.alternativer.length}<span class="muted m-alt-tom">Ingen alternativer i katalogen.</span>{/if}
-								</div>
-							{/if}
-							</div>
-							<div class="m-deler-celle-wrap var">
-<button type="button" class="m-deler-celle" onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon', opp: vilBakOver(e.currentTarget) }; }}>
-								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
-							</button>
-{#if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
-								<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
-									<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!sec.delGruppe}
-										onclick={() => { sec.delGruppe = undefined; markDirtyIModal(); }}>
-										<span class="m-alt-ind">{#if !sec.delGruppe}{@html mdi('check', 14)}{/if}</span>
-										<span class="m-alt-tekst">Standard</span>
-									</button>
-									<div class="m-deler-sep"></div>
-									{#each m.variasjoner as v (v)}
-										<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={sec.delGruppe === v}
-											onclick={() => { sec.delGruppe = v; markDirtyIModal(); }}>
-											<span class="m-alt-ind">{#if sec.delGruppe === v}{@html mdi('check', 14)}{/if}</span>
-											<span class="m-alt-tekst">{v[0].toUpperCase() + v.slice(1)}</span>
-										</button>
-									{/each}
-									{#if !m.variasjoner.length}<span class="muted m-alt-tom">Ingen variasjoner i katalogen.</span>{/if}
-								</div>
-							{/if}
-							</div>
-
-													</div>
-					{/each}
-				</div>
-				{:else}
-					<div class="m-deler-admin">
-						<div>
-							<p class="m-deler-adm-tittel">Alternativer</p>
-							{#each m.alternativer as t (t)}
-								<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)}>{@html mdi('delete-outline', 14)}</button></div>
-							{/each}
-							{#if !m.alternativer.length}<p class="muted">Ingen alternativer ennå.</p>{/if}
-							<div class="m-dg-ny"><input placeholder="Nytt alternativ" bind:value={katNyAlt} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('alternativer', katNyAlt); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('alternativer', katNyAlt)}>Legg til</button></div>
-						</div>
-						<div>
-							<p class="m-deler-adm-tittel">Variasjoner (del-grupper)</p>
-							{#each m.variasjoner as v (v)}
-								<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)}>{@html mdi('delete-outline', 14)}</button></div>
-							{/each}
-							{#if !m.variasjoner.length}<p class="muted">Ingen variasjoner ennå.</p>{/if}
-							<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>
-						</div>
-					</div>
-				{/if}
+				<DelerTabell mal={m.mal} />
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
 				<div class="m-dg-liste">

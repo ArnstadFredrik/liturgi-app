@@ -167,9 +167,9 @@
 									<span class="ovr-drag" class:aktiv={!!dragLed} draggable="true"
 										ondragstart={(e) => startDragLed(e, si, ii)} ondragend={nullstillDrag}
 										title="Dra for å flytte leddet">{@html mdi('drag-vertical', 13)}</span>
-									{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
 									<span class="ovr-led-tekst" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 										onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{leddTekst(it)}</span>
+									{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
 								</div>
 							{/each}
 						</div>

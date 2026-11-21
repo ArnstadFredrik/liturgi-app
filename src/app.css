@@ -288,6 +288,12 @@ button.wide { width: 100%; }
 /* eksport-siden */
 .eks-tilbake { font-size: 15px; padding: 2px 10px; margin-right: 8px; }
 .eks-lagre { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.eks-flere { display: none; align-items: center; gap: 6px; font: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+.eks-flere:hover { color: var(--foreground); background: var(--accent-dim); }
+@media (max-width: 1240px) {
+	.eks-ekstra { display: none; }
+	.eks-flere { display: inline-flex; }
+}
 .eks-verktoy-lagre { margin-left: auto; }
 .eksport-standard-btn { margin-top: 6px; font-size: 12px; }
 .eksport-skiller { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
@@ -668,7 +674,7 @@ textarea {
 .ovr-led-tekst { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .ovr-led-tekst:hover { color: var(--foreground); }
 .ovr-led.borte .ovr-led-tekst { opacity: 0.45; text-decoration: line-through; text-decoration-color: var(--muted); }
-.ovr-led-ikke { margin-left: auto; font-size: 10.5px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 1px 8px; flex: none; }
+.ovr-led-ikke { margin-left: 8px; font-size: 10.5px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 1px 8px; flex: none; }
 .ovr-drag { color: var(--muted); cursor: grab; display: flex; align-items: center; justify-content: center; padding: 3px 0; border-radius: 6px; touch-action: none; flex: none; }
 .ovr-drag:active { cursor: grabbing; }
 .ovr-drag.aktiv { color: var(--accent); }
@@ -725,8 +731,7 @@ textarea {
 .m-alt-rad[aria-checked='true'] .m-alt-ind { visibility: visible; }
 .m-alt-tekst { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-alt-tom { padding: 6px 10px; font-size: 12px; display: block; }
-.m-deler-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-.m-deler-admin > div { background: var(--panel2, var(--panel)); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; }
+.m-deler-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 14px; margin-top: 10px; }
 .m-deler-adm-tittel { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 .m-deler-adm-rad { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 13px; }
 .m-deler-adm-rad:hover { background: var(--accent-dim); }
@@ -897,10 +902,15 @@ textarea {
    vibrancy (transparent viste macOS sin nøytrale mørke vibrancy) */
 html.electron #toc-side { background: color-mix(in srgb, var(--panel) 78%, transparent); border-left: none; padding-top: 44px; }
 html:not(.electron) #toc-side { padding-top: 36px; }
-/* Avsnitt-navigasjonen forblir synlig når panelet rulles (lang DokInsp under) */
-.toc-avsnitt { position: sticky; top: 0; z-index: 5; padding-bottom: 4px; background: inherit; }
-html.electron .toc-avsnitt { background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(10px); }
-html:not(.electron) .toc-avsnitt { background: color-mix(in srgb, var(--panel) 96%, transparent); }
+/* Avsnitt-navigasjonen: kort i samme stil som insp-gruppene, sticky */
+.toc-avsnitt {
+	position: sticky; top: 0; z-index: 5;
+	background: var(--panel2, var(--panel));
+	border: 1px solid var(--border);
+	border-radius: var(--radius-kort, 12px);
+	padding: 10px 12px 8px; margin-bottom: 6px;
+}
+html.electron .toc-avsnitt { background: color-mix(in srgb, var(--panel2, var(--panel)) 94%, transparent); backdrop-filter: blur(10px); }
 #toc-side .list { display: flex; flex-direction: column; gap: 2px; }
 #toc-side .list li { padding: 6px 10px; font-size: 12.5px; border-radius: 7px; cursor: pointer; font-weight: 500; transition: background 0.12s ease; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
