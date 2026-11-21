@@ -348,10 +348,16 @@ ipcMain.handle('svc:save-as', async (_e, { defaultName, json }) => {
 		const { canceled, filePath } = await dialog.showSaveDialog(win, {
 			title: 'Lagre liturgi',
 			defaultPath: path.join(servicesDir(), defaultName),
-			filters: [
-				{ name: 'Liturgi-filer', extensions: ['liturgi', 'limal'] },
-				{ name: 'JSON', extensions: ['json'] }
-			]
+			filters: /\.limal$/i.test(defaultName)
+				? [
+					{ name: 'Mal-fil (.limal)', extensions: ['limal'] },
+					{ name: 'Liturgi-fil (.liturgi)', extensions: ['liturgi'] },
+					{ name: 'JSON', extensions: ['json'] }
+				]
+				: [
+					{ name: 'Liturgi-filer', extensions: ['liturgi', 'limal'] },
+					{ name: 'JSON', extensions: ['json'] }
+				]
 		});
 		if (canceled || !filePath) return { ok: false, canceled: true };
 		// aldri dobbelt-etternavn: mangler valgt sti filens etternavn, legges det på

@@ -507,7 +507,13 @@ export async function loadTemplatesFromDisk() {
 			// gjenopprett full seksjonsstruktur fra dåp-malen
 			for (const sec of hg.sections) {
 				if (!sec.__lenket) continue;
-				if (sec.items.length === 1 && sec.items[0].id === 'h-l-dap-lenke') continue;
+				// ny generisk lenkeformat: __lenket { malId, tittel } — får samme
+				// behandling som alle lenkede hoveddeler (merke + redigeringslås,
+				// innholdet fornyes av synkLenkedeSeksjoner)
+				sec.__lenket = { malId: dopMal.id, tittel: 'Dåp i hovedgudtjenesten' };
+				// fjern gamle markeringsledd og marker-heading fra den gamle ordningen
+				sec.items = (sec.items ?? []).filter((it) => it.id !== 'h-l-dap-lenke'
+					&& !/^Dåp \(lenket til/i.test(it.heading ?? ''));
 				if (sec.items.length === 0) {
 					// frø/disk: seksjonen er tom — alle leddene kommer fra dåp-malen
 					sec.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));

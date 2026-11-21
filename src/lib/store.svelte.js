@@ -394,7 +394,8 @@ export function synkLenkedeSeksjoner(o) {
 		if (!kilde) continue;
 		// bare skriv ved faktisk endring (hindrer reaktiv self-loop ved kall fra effekter)
 		const nytt = JSON.stringify(kilde.items ?? []);
-		if (sec.title !== kilde.title) sec.title = kilde.title;
+		// tittelen beholdes fra dokumentet («Dåp» — ikke malens lange tittel);
+		// kun innholdet lenkes
 		if (JSON.stringify(sec.items ?? []) !== nytt) sec.items = JSON.parse(nytt);
 	}
 }

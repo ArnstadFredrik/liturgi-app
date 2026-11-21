@@ -42,16 +42,12 @@ export async function åpneOriginal(bt) {
 		if (dopMal) {
 			const dapSec = data.sections.find((s) => s.__lenket);
 			if (dapSec) {
-				// frøet har tom __lenket-seksjon (punkt 3): full struktur kommer fra dåp-malen
-				const full = JSON.parse(JSON.stringify(dapSec));
-				full.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));
-				data.__dapSeksjon = full;
-				dapSec.items = [{
-					id: 'h-l-dap-lenke', type: 'tekst',
-					heading: 'Dåp (lenket til «Dåp i hovedgudstjenesten» — kan ikke redigeres her)',
-					text: '', alts: [], selAlt: 0, enabled: true, optional: false,
-					__lenket: true
-				}];
+				// generisk lenkeformat: fullt innhold fra dåp-malen + __lenket-objekt;
+				// synkLenkedeSeksjoner fornyer innholdet, editor låser redigering
+				dapSec.__lenket = { malId: dopMal.id, tittel: 'Dåp i hovedgudtjenesten' };
+				if (!(dapSec.items ?? []).length) {
+					dapSec.items = JSON.parse(JSON.stringify(dopMal.sections.flatMap((ds) => ds.items)));
+				}
 			}
 		}
 	}
@@ -141,13 +137,6 @@ export async function lagreTilProsjekt() {
 	const orig = BUILTIN_TEMPLATES.find((bt) => bt.id === o.__devId || bt.id === o.id || bt.name === o.name);
 	if (!orig) { toast.error('Fant ikke originalmalen i data.js'); return false; }
 	// Dåp-seksjonen (lenket) settes tilbake før sammenligningen/skrivingen
-	if (o.__dapSeksjon) {
-		const dapSec = o.sections.find((s) => s.items.some((i) => i.id === 'h-l-dap-lenke'));
-		if (dapSec) {
-			dapSec.items = JSON.parse(JSON.stringify(o.__dapSeksjon.items));
-			delete o.__dapSeksjon;
-		}
-	}
 	const mal = malForDataJs(orig, o);
 	// seed-filen skrives fra den redigerte kopien (beholder normaliserte
 	// tomme felter, slik som dagens seed-format: text/instr som «""»)
