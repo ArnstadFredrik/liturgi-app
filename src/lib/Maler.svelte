@@ -1,6 +1,6 @@
 <script>
 	import { app, openTemplate, persist, uid } from '$lib/store.svelte.js';
-	import { confirmBox, prompt } from '$lib/modal.svelte.js';
+	import { confirmBox, nyLokalMalModal } from '$lib/modal.svelte.js';
 	import { loadTemplatesFromDisk, erOriginalMal, deleteTemplateFile, newTemplateOnDisk, importerMalFil } from '$lib/fileio.svelte.js';
 	import { exportWord } from '$lib/export.js';
 	import { malType } from '$lib/modal.svelte.js';
@@ -104,11 +104,16 @@
 	}
 
 	function nyLokalMal() {
-		prompt('Ny lokal mal', 'Navn på malen', async (name) => {
+		nyLokalMalModal(async (name, baseId) => {
+			if (!name) return;
+			const base = baseId ? app.templates.find((t) => t.id === baseId) : null;
 			if (isElectron) {
-				await newTemplateOnDisk(name);
+				await newTemplateOnDisk(name, base?.malForm ?? 'bokmål', base);
 			} else {
-				const t = { id: uid(), kind: 'template', name: name || 'Ny grunnordning', sections: [{ title: 'I. Samling', items: [] }] };
+				const t = {
+					id: uid(), kind: 'template', name, malForm: base?.malForm ?? 'bokmål',
+					sections: base ? $state.snapshot(base.sections ?? [{ title: 'I. Samling', items: [] }]) : [{ title: 'I. Samling', items: [] }]
+				};
 				app.templates.push(t);
 				persist();
 				openTemplate(t.id);

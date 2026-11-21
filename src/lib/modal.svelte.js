@@ -20,6 +20,12 @@ export function confirmBox(title, message, ok) {
 	showModal({ type: 'confirm', title, message, ok });
 }
 
+/** Ny lokal mal: tomt utgangspunkt eller kopi av en eksisterende mal.
+ *  ok(navn, baseId|null) — baseId er malen som utgangspunkt, null = tom. */
+export function nyLokalMalModal(ok) {
+	showModal({ type: 'nyMal', title: 'Ny lokal mal', ok });
+}
+
 /** Bekreftelse ved lukking med ulagrede endringer: Avbryt / Lagre / Lukk uten å lagre. */
 /** Bokstav for en skriftlesning: eksplisitt bokstav-felt, ellers posisjon
  *  i seksjonen (A = første ledd). Stemmer med docx-originalenes A.-B.-C.-
