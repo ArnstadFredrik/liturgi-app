@@ -22,6 +22,11 @@
 	let malForm = $state((pres?.malForm ?? localStorage.getItem('opprettMalForm') ?? 'bokmål').toLowerCase());
 	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType && kanBrukes(t) && malFormFor(t) === malForm)?.id ?? '') : '');
 	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
+	// Ny lokal mal: base = 'tom' | id på malen som utgangspunkt
+	let nyMalBase = $state(mInit?.type === 'nyMal' ? 'tom' : '');
+	const malerBase = $derived(mInit?.type === 'nyMal'
+		? app.templates.filter((t) => kanBrukes(t)).sort((a, b) => (erMalFavoritt(b.name) ? 1 : 0) - (erMalFavoritt(a.name) ? 1 : 0) || (a.name ?? '').localeCompare(b.name ?? '', 'no'))
+		: []);
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
 	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
@@ -361,6 +366,7 @@
 		if (!m) return;
 		const forrige = m;
 		if (m.type === 'prompt') m.ok(name.trim());
+		else if (m.type === 'nyMal') m.ok(name.trim(), nyMalBase === 'tom' ? null : nyMalBase);
 		else if (m.type === 'confirm' || m.type === 'valg') m.ok();
 		else if (m.type === 'lukk') { m.ok(); return; } // onLagre lukker selv (kan bli avbrutt av lagre-dialog)
 		else if (m.type === 'newService') {
@@ -827,6 +833,32 @@
 						{/if}
 					{/each}
 				</div>
+			{:else if m.type === 'nyMal'}
+				<p class="muted m-velg-hint">Lag en egen mal — helt tom, eller med en eksisterende mal som utgangspunkt (kopien får samme struktur, innhold og målform).</p>
+				<label>
+					Navn på malen
+					<input bind:value={name} onkeydown={onKey} />
+				</label>
+				<div class="m-dg-liste" role="radiogroup" aria-label="Utgangspunkt">
+					<button type="button" class="m-dg-rad" class:sel={nyMalBase === 'tom'} role="radio" aria-checked={nyMalBase === 'tom'}
+						onclick={() => { nyMalBase = 'tom'; }}>
+						<span class="m-dg-navn">Tom mal</span>
+					</button>
+					<button type="button" class="m-dg-rad" class:sel={nyMalBase !== 'tom'} role="radio" aria-checked={nyMalBase !== 'tom'}
+						onclick={() => { if (nyMalBase === 'tom') nyMalBase = malerBase[0]?.id ?? 'tom'; }}>
+						<span class="m-dg-navn">Kopi av eksisterende mal</span>
+					</button>
+				</div>
+				{#if nyMalBase !== 'tom' && malerBase.length}
+					<label>
+						Utgangspunkt
+						<select bind:value={nyMalBase}>
+							{#each malerBase as t (t.id)}
+								<option value={t.id}>{visningsNavn(t)}</option>
+							{/each}
+						</select>
+					</label>
+				{/if}
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
 				<div class="m-dg-liste">
@@ -903,7 +935,7 @@
 					</button>
 				{:else}
 					<button class="primary" onclick={ok} disabled={m.type === 'bib' && bibValgt === -1 || m.type === 'kirkeaarListe' && kValgt == null}>
-						{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' ? 'Opprett' : 'Hent inn')}
+						{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' || m.type === 'nyMal' ? 'Opprett' : 'Hent inn')}
 					</button>
 				{/if}
 			</div>

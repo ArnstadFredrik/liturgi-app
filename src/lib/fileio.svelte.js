@@ -717,12 +717,20 @@ export async function saveAsTemplateOnDisk(name) {
 	}
 }
 
-/** Opprett en ny, tom lokal mal direkte som fil på disk (kun Electron). */
-export async function newTemplateOnDisk(name, malForm = 'bokmål') {
+/** Opprett en ny lokal mal direkte som fil på disk (kun Electron).
+ *  base = eksisterende mal som utgangspunkt (kopierer sections + målform), null = tom. */
+export async function newTemplateOnDisk(name, malForm = 'bokmål', base = null) {
 	const t = {
 		id: uid(), kind: 'template', name: name || 'Ny grunnordning', malForm,
 		sections: [{ title: 'I. Samling', items: [] }]
 	};
+	if (base) {
+		t.malForm = base.malForm ?? 'bokmål';
+		// NB: structuredClone kaster DataCloneError på Svelte 5-proxies — dyp-kopi via JSON
+		// (sections er ren data: strenger/tall/lister)
+		t.sections = JSON.parse(JSON.stringify(base.sections ?? [{ title: 'I. Samling', items: [] }]));
+		t.visInstr = base.visInstr;
+	}
 	try {
 		const list = await window.liturgi.listTemplates();
 		const safe = safeNavn(t.name);
