@@ -1,6 +1,7 @@
 export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
+		"alternativer": ["dåp", "nattverd"],
 		"name": "Ordning for hovedgudstjeneste (2020)",
 		"description": "Hovedmalen til Den norske kirke – Ordning for hovedgudstjenesten i bokmål, med alle alternativer.",
 		"sections": [
