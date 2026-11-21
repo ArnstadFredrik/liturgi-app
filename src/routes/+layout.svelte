@@ -10,4 +10,10 @@
 
 {@render children()}
 <ContextMenu />
-<Toaster position="bottom-right" theme={app.theme === 'light' ? 'light' : 'dark'} />
+<!-- Toastene rykker seg forbi den åpne høyremenyen (TOC) så de ikke dekker
+	knappene nederst i menyen; ellers standard plassering. -->
+<Toaster
+	position="bottom-right"
+	theme={app.theme === 'light' ? 'light' : 'dark'}
+	offset={{ right: app.tocSkjult ? '24px' : 'calc(clamp(200px, 21vw, 340px) + 24px)', bottom: '24px' }}
+/>
