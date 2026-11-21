@@ -401,6 +401,13 @@
 
 	/** include-objektet til createService: ett på/av per alternativ i katalogen */
 	/** veksle ett alternativ-merke på en seksjon (delerTabell-dropdown) */
+	/** åpne dropdownen oppover når det er for lite plass under cellen */
+	function vilBakOver(el) {
+		if (!el) return false;
+		const r = el.getBoundingClientRect();
+		return window.innerHeight - r.bottom < 340;
+	}
+
 	function veksleSecAlt(sec, t, paa) {
 		const naa = secAlternativer(sec);
 		const ny = paa ? (naa.includes(t) ? naa : [...naa, t]) : naa.filter((x) => x !== t);
@@ -958,11 +965,11 @@
 						<div class="m-deler-rad">
 							<span class="m-deler-navn">{sec.title}</span>
 														<div class="m-deler-celle-wrap alt">
-<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ' }; }}>
+<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
 								<span>{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
 							</button>
 {#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
-								<div class="m-deler-meny" role="menu">
+								<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
 									{#each m.alternativer as t (t)}
 										<button type="button" class="m-alt-rad" role="menuitemcheckbox" aria-checked={secAlternativer(sec).includes(t)}
 											onclick={() => veksleSecAlt(sec, t, !secAlternativer(sec).includes(t))}>
@@ -975,11 +982,11 @@
 							{/if}
 							</div>
 							<div class="m-deler-celle-wrap var">
-<button type="button" class="m-deler-celle" onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon' }; }}>
+<button type="button" class="m-deler-celle" onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon', opp: vilBakOver(e.currentTarget) }; }}>
 								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 							</button>
 {#if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
-								<div class="m-deler-meny" role="menu">
+								<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
 									<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!sec.delGruppe}
 										onclick={() => { sec.delGruppe = undefined; markDirtyIModal(); }}>
 										<span class="m-alt-ind">{#if !sec.delGruppe}{@html mdi('check', 14)}{/if}</span>

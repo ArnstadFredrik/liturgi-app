@@ -629,10 +629,10 @@ textarea {
  * solid popover-bakgrunn, border, skygge, kompakte fullbredde-rader med
  * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
  * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
-.m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 8px 0; }
+.m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; }
 .m-deler-rad { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
-.m-deler-head { background: var(--panel2); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
+.m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
@@ -654,6 +654,8 @@ textarea {
 	padding: 5px; display: flex; flex-direction: column; gap: 1px;
 	animation: deler-meny-in 120ms ease-out;
 }
+.m-deler-meny.opp { top: auto; bottom: calc(100% + 6px); animation-name: deler-meny-opp; }
+@keyframes deler-meny-opp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes deler-meny-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 .m-deler-sep { height: 1px; background: var(--border); margin: 4px 6px; }
 /* Menyvalg à la shadcn DropdownMenuCheckbox/RadioItem: indikator-kolonne
