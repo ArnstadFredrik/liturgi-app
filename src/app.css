@@ -655,6 +655,8 @@ textarea {
 .hd-gruppe-antall { font-size: 10.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 1px 8px; }
 .hd-varianter { padding: 4px 10px 8px 22px; display: flex; flex-direction: column; gap: 4px; }
 .hd-variant { font-size: 12px; color: var(--muted); padding: 3px 0; }
+/* koblet/hentet-tilstand: grønn accent med hake */
+.hd-koblet { background: #2e7d32 !important; border-color: #2e7d32 !important; color: #fff !important; cursor: default !important; opacity: 0.92; }
 .hd-hent { align-self: flex-start; font: inherit; font-size: 12.5px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 8px; padding: 5px 12px; cursor: pointer; margin-top: 4px; }
 .hd-tom { padding: 12px; text-align: center; }
 .hd-tre { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }

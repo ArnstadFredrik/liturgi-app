@@ -49,7 +49,9 @@
 	let hdValgt = $state(null); // valgt gruppe { ledd, rader }
 	let hdMalId = $state('');
 	let hdTil = $state(''); // 'sist' eller seksjonstittel (innsettingspunkt)
-	let hdMaler = $state([]); // hoveddeler | innstillinger
+	let hdMaler = $state([]);
+	let hdKoblet = $state(new Set()); // 's:<tittel>' — koblete hoveddeler denne økten
+	let hdHentet = $state(new Set()); // 's:<tittel>' / 'l:<tittel>:<ii>' / 'b:<ledd>' — hentede denne økten // hoveddeler | innstillinger
 	let dragSi = $state(null); // drag-and-drop av hoveddeler
 	let dragOverSi = $state(null);
 	let dragFor = $state(false);
@@ -499,18 +501,22 @@
 
 	function hdHentLedd(gruppe) {
 		m.ok({ type: 'ledd', kilde: 'bibliotek', gruppe, til: hdTil });
+		hdHentet.add('b:' + gruppe.ledd); hdHentet = new Set(hdHentet);
 	}
 
 	function hdHentSeksjon(tittel) {
 		m.ok({ type: 'seksjon', kilde: 'mal', malId: hdMalId, tittel, til: hdTil });
+		hdHentet.add('s:' + tittel); hdHentet = new Set(hdHentet);
 	}
 
-	function hdLenk(tittel) {
+	function hdKoble(tittel) {
 		m.ok({ type: 'lenk', malId: hdMalId, tittel, til: hdTil });
+		hdKoblet.add('s:' + tittel); hdKoblet = new Set(hdKoblet);
 	}
 
 	function hdHentMalLedd(tittel, ii) {
 		m.ok({ type: 'ledd', kilde: 'mal', malId: hdMalId, tittel, leddIdx: ii, til: hdTil });
+		hdHentet.add('l:' + tittel + ':' + ii); hdHentet = new Set(hdHentet);
 	}
 
 	function slettKatalog(hva, navn) {
@@ -594,6 +600,7 @@
 
 	function ok() {
 		if (!m) return;
+		if (m.type === 'hentDeler') { closeModal(); return; } // «Ferdig» — alt hentes via per-rad-knappene
 		const forrige = m;
 		if (m.type === 'prompt') m.ok(name.trim());
 		else if (m.type === 'nyMal') m.ok(name.trim(), nyMalBase === 'tom' ? null : nyMalBase);
@@ -1116,7 +1123,11 @@
 									{#each g2.rader as r (r.id)}
 										<div class="hd-variant"><span>{r.alt_label || 'Variant'}</span></div>
 									{/each}
-									<button type="button" class="hd-hent" onclick={() => hdHentLedd(hdValgt)}>Hent inn ledd</button>
+									{#if hdHentet.has('b:' + hdValgt.ledd)}
+										<button type="button" class="hd-hent hd-koblet" disabled>{@html mdi('check', 14)} Hentet</button>
+									{:else}
+										<button type="button" class="hd-hent" onclick={() => hdHentLedd(hdValgt)}>Hent inn ledd</button>
+									{/if}
 								</div>
 							{/if}
 						{/each}
@@ -1137,15 +1148,27 @@
 								<div class="hd-sec-rad">
 									<span class="hd-sec-navn">{sec.title}</span>
 									<span class="hd-sec-knapper">
+										{#if hdHentet.has('s:' + sec.title)}
+										<button type="button" class="hd-koblet" disabled>{@html mdi('check', 13)} Hentet</button>
+									{:else}
 										<button type="button" onclick={() => hdHentSeksjon(sec.title)}>Hent inn</button>
-										<button type="button" title="Lenk hoveddelen til malen — innholdet fornyes ved åpning" onclick={() => hdLenk(sec.title)}>Lenk</button>
+									{/if}
+									{#if hdKoblet.has('s:' + sec.title)}
+										<button type="button" class="hd-koblet" disabled>{@html mdi('check', 13)} Koblet</button>
+									{:else}
+										<button type="button" title="Koble hoveddelen til malen — innholdet fornyes ved åpning" onclick={() => hdKoble(sec.title)}>Koble sammen</button>
+									{/if}
 									</span>
 								</div>
 								<div class="hd-led-liste">
 									{#each sec.items ?? [] as it, ii (ii)}
 										<div class="hd-led">
 											<span class="hd-led-tekst">{(it.heading ?? '').replace(/^[*=#\s]+/, '').trim() || '[tomt ledd]'}</span>
+											{#if hdHentet.has('l:' + sec.title + ':' + ii)}
+											<button type="button" class="hd-koblet" disabled>{@html mdi('check', 13)} Hentet</button>
+										{:else}
 											<button type="button" title="Hent dette leddet" onclick={() => hdHentMalLedd(sec.title, ii)}>Hent inn</button>
+										{/if}
 										</div>
 									{/each}
 								</div>
@@ -1209,7 +1232,7 @@
 					</button>
 				{:else}
 					<button class="primary" onclick={ok} disabled={m.type === 'bib' && bibValgt === -1 || m.type === 'kirkeaarListe' && kValgt == null}>
-						{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' || m.type === 'nyMal' ? 'Opprett' : 'Hent inn')}
+						{m.okLabel ?? (m.type === 'confirm' ? 'Slett' : m.type === 'lukk' ? 'Lagre' : m.type === 'newService' || m.type === 'nyMal' ? 'Opprett' : m.type === 'hentDeler' ? 'Ferdig' : 'Hent inn')}
 					</button>
 				{/if}
 			</div>
