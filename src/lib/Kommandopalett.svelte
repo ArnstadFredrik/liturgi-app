@@ -44,7 +44,7 @@
 		{ id: 'eks-avstand-luft', navn: 'Eksport: Luftig avstand', kategori: 'Eksport', taster: '', enabled: () => app.visning === 'eksport', kjor: () => kjorMenyId('eks:avstand:luft') },
 		{ id: 'apne-mappe', navn: 'Åpne mappe (vis filen i Finder)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current?.filePath, kjor: () => kjorMenyId('apne-mappe') },
 		{ id: 'veksle-sidebar', navn: 'Vis/skjul sidemenyen', kategori: 'Visning', taster: '⌘\\', enabled: () => true, kjor: () => veksleSidebar() },
-		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘\\', enabled: () => true, kjor: () => veksleToc() },
+		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘@', enabled: () => true, kjor: () => veksleToc() },
 		{ id: 'tema', navn: app.theme === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => toggleTheme() },
 		{ id: 'vim', navn: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => veksleVim() }
 	];
