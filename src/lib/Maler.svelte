@@ -22,7 +22,7 @@
 	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
 	let kildeFilter = $state('alle'); // alle | originaler | brukermaler
 
-	const typeNavn = { gudstjeneste: 'Gudtjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
+	const typeNavn = { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
 		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
@@ -127,7 +127,7 @@
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i maler …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>

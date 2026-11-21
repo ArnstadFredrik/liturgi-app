@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { BUILTIN_TEMPLATES, DEAKTIVERTE_MALER } from '../../src/lib/data.js';
 import { litHtml, litEditHtml, litLinjeHtml } from '../../src/lib/lit.js';
@@ -187,25 +189,32 @@ test('litLinjeHtml: punktliste prefiks + chip', () => {
 });
 
 test('ingen «gudtjeneste» uten s i kodebasen (kernel-skrivefelle)', () => {
-	const { execSync } = createRequire(import.meta.url)('node:child_process');
+	// NB: macOS grep -i behandler «gudtjeneste» og «gudstjeneste» som like
+	// (locale-kollasjon) — derfor leses filene med node og testes med regex,
+	// som skiller dem korrekt. Mønsteret (feilstavingen, UTEN s etter «gud»)
+	// bygges ved kjøretid med String.fromCharCode slik at denne filen selv
+	// aldri kan få feilstavingen innført av skrivefeil.
+	const feil = new RegExp('gud' + String.fromCharCode(116) + 'jeneste', 'i');
 	const root = fileURLToPath(new URL('../../', import.meta.url));
-	// case-insensitiv: treffer «gudtjeneste» OG «Gudtjeneste» (og i ord som
-	// «hovedgudtjeneste»). Legacy-data er migrert — ingen unntak lenger i
-	// src/electron. Selve testen (denne filen) og genererte mapper er unntatt.
-	let ut = '';
-	try {
-		ut = execSync(
-			`grep -rni 'gudtjeneste' ${JSON.stringify(root)}`
-			+ ` --include='*.js' --include='*.cjs' --include='*.svelte' --include='*.css' --include='*.mjs' --include='*.md' --include='*.html'`
-			+ ` | grep -v 'data.test.mjs'`
-			+ ` | grep -v '/.svelte-kit/'`
-			+ ` | grep -v '/build/'`
-			+ ` | grep -v '/app/'`
-			+ ` | grep -v '/node_modules/' || true`,
-			{ encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
-		);
-	} catch { ut = ''; }
-	const treff = ut.split('\n').filter((l) => l.trim());
+	const unntak = ['data.test.mjs', '/.svelte-kit/', '/build/', '/app/', '/node_modules/'];
+	const treff = [];
+	const vis = (sti) => {
+		if (unntak.some((u) => sti.includes(u))) return;
+		if (!/\.(js|cjs|svelte|css|mjs|md|html)$/.test(sti)) return;
+		const linjer = readFileSync(sti, 'utf8').split('\n');
+		linjer.forEach((l, idx) => {
+			if (feil.test(l)) treff.push(sti.replace(root, '') + ':' + (idx + 1) + ': ' + l.trim().slice(0, 80));
+		});
+	};
+	const gaa = (dir) => {
+		for (const navn of readdirSync(dir)) {
+			if (navn === 'node_modules' || navn === '.svelte-kit' || navn === 'build' || navn === 'app' || navn.startsWith('.')) continue;
+			const sti = join(dir, navn);
+			if (statSync(sti).isDirectory()) gaa(sti);
+			else vis(sti);
+		}
+	};
+	gaa(root);
 	assert.deepStrictEqual(treff, [], 'funnet «gudtjeneste» uten s: ' + treff.join(' | '));
 });
 
