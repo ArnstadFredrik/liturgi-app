@@ -2,10 +2,10 @@
 	import { app, markDirty, applyKirkeaar } from '$lib/store.svelte.js';
 	import { saveCurrent, lukkRedigering, erOriginalMal } from '$lib/fileio.svelte.js';
 	import { lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
-	import { valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
+	import { valgModal, kirkeaarListeModal, maalformModal } from '$lib/modal.svelte.js';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { mdi } from '$lib/mdi.js';
-	import { MÅLFORMER, målformLabel, malFormFor } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { toast } from 'svelte-sonner';
 
 	const o = $derived(app.current);
@@ -122,22 +122,18 @@
 			<span class="insp-linje">Original i prosjektet — endringene skrives til <code>src/lib/data.js</code> og seed-filen ved «Lagre til prosjektet».</span>
 			<div class="insp-rad insp-avpaa-rad">
 				<span class="avpaa-tekst">Målform</span>
-				<div class="fb-visning-velger">
-					{#each MÅLFORMER as mf (mf)}
-						<button type="button" class:sel={malFormFor(o) === mf} onclick={() => { if (o) { o.malForm = mf; markDirty(); } }}>{målformLabel(mf)}</button>
-					{/each}
-				</div>
+				<button class="link-btn insp-linje" title="Velg eller legg til målform" onclick={() => maalformModal(o)}>
+					{@html mdi('pencil')} {målformLabel(malFormFor(o))} — endre …
+				</button>
 			</div>
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{:else}
 			<span class="insp-linje">Lokal mal (grunnordning)</span>
 			<div class="insp-rad insp-avpaa-rad">
 				<span class="avpaa-tekst">Målform</span>
-				<div class="fb-visning-velger">
-					{#each MÅLFORMER as mf (mf)}
-						<button type="button" class:sel={malFormFor(o) === mf} onclick={() => { if (o) { o.malForm = mf; markDirty(); } }}>{målformLabel(mf)}</button>
-					{/each}
-				</div>
+				<button class="link-btn insp-linje" title="Velg eller legg til målform" onclick={() => maalformModal(o)}>
+					{@html mdi('pencil')} {målformLabel(malFormFor(o))} — endre …
+				</button>
 			</div>
 			<div class="insp-rad insp-avpaa-rad">
 				<button type="button" class="avpaa" role="checkbox" aria-checked={o?.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { if (o) { o.kanGudstjeneste = o.kanGudstjeneste === false; markDirty(); } }}>

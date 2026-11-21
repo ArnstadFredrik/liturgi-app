@@ -21,6 +21,7 @@ export const app = $state({
 	servicesDir: '', // Electron: stien til tjenestemappen
 	innFane: 'generelt', // Innstillinger: aktiv undermodul (styres fra modul-fane-stripen)
 	malFavoritter: [], // malnavn merket med stjerne i malmodulen
+	maalformer: ['bokmål', 'nynorsk', 'engelsk'], // kjente målformer (utvides fra maalform-modalen)
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	forbAapneSti: null, // Forberedelse: fil som skal åpnes når modulen åpnes fra Kirkeåret
@@ -77,6 +78,22 @@ try {
 		return app.malFavoritter.includes(navn);
 	}
 
+	/** Kjente målformer: lagres i db ('maalformer') og holdes synkronisert
+	 *  med malene (malFormFor) — nye målformer legges til fra maalform-modalen. */
+	export function lagreMaalformer(liste) {
+		app.maalformer = [...new Set(liste.map((m) => m.toLowerCase()))];
+		try { localStorage.setItem('maalformer', JSON.stringify(app.maalformer)); } catch {}
+		window.liturgi?.dbSet?.('maalformer', JSON.stringify(app.maalformer));
+	}
+
+	export function leggTilMaalform(mf) {
+		const k = (mf ?? '').trim().toLowerCase();
+		if (!k) return false;
+		if (!app.maalformer.includes(k)) lagreMaalformer([...app.maalformer, k]);
+		return true;
+	}
+
+
 /** Sett tema på <html> og lagre valget (lokalStorage + database i Electron). */
 export function setTheme(t) {
 	app.theme = t;
@@ -102,6 +119,16 @@ export function initTheme() {
 		const lagret = JSON.parse(localStorage.getItem('malFavoritter') ?? '[]');
 		if (Array.isArray(lagret)) app.malFavoritter = lagret;
 	} catch {}
+
+	// kjente målformer fra db — slås sammen med standardene
+	window.liturgi?.dbGet?.('maalformer')?.then?.((r) => {
+		try {
+			const liste = JSON.parse(r?.value ?? '[]');
+			if (Array.isArray(liste) && liste.length) {
+				app.maalformer = [...new Set(['bokmål', 'nynorsk', 'engelsk', ...liste.map((m) => String(m).toLowerCase())])];
+			}
+		} catch {}
+	});
 
 	// favoritter fra databasen vinner over lokalStorage
 	window.liturgi?.dbGet?.('malFavoritter')?.then?.((r) => {
