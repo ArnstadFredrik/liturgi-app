@@ -1,4 +1,5 @@
 import { app } from './store.svelte.js';
+import { malAlternativer, secAlternativer } from './store.svelte.js';
 
 /**
  * Vis modal. typer:
@@ -71,15 +72,19 @@ export function maalformModal(o) {
 	});
 }
 
-/** Alternativ-modal: tag en hoveddel i en mal med 'dåp' eller 'nattverd'
- *  (separat fra del-gruppe) — «Ny gudstjeneste» tar bare med delen når den
- *  tilhørende av/på-bryteren er på. ok(valgt) med 'dåp'/'nattverd'/null. */
+/** Alternativ-modal: merk en hoveddel i en mal med ÉN ELLER FLERE
+ *  alternativer (checkbox-logikk — en del kan være både «dåp» og
+ *  «nattverd»; i motsetning til del-gruppe som er enten/eller).
+ *  Listen kommer fra malens alternativ-katalog; nye kan legges til og
+ *  eksisterende slettes her. Ferdig skriver sec.alternativer. */
 export function alternativModal(sec) {
+	const mal = app.current;
 	showModal({
 		type: 'alternativ',
-		title: 'Alternativ for «' + (sec.title ?? '') + '»',
-		sec,
-		valgt: sec.alternativ ?? null
+		title: 'Alternativer for «' + (sec.title ?? '') + '»',
+		mal, sec,
+		liste: malAlternativer(mal),
+		valgte: secAlternativer(sec)
 	});
 }
 

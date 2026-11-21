@@ -1,6 +1,6 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { erMalFavoritt } from '$lib/store.svelte.js';
+	import { erMalFavoritt, malAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	delGruppeModal, maalformModal, malType } from '$lib/modal.svelte.js';
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
@@ -21,13 +21,17 @@
 	let date = $state(isNS ? (pres?.date ?? nextSundayISO()) : (mInit?.dato ?? ''));
 	let malForm = $state((pres?.malForm ?? localStorage.getItem('opprettMalForm') ?? 'bokmål').toLowerCase());
 	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType && kanBrukes(t) && malFormFor(t) === malForm)?.id ?? '') : '');
-	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
 	// Ny lokal mal: base = 'tom' | id på malen som utgangspunkt
 	let nyMalBase = $state(mInit?.type === 'nyMal' ? 'tom' : '');
+	let altValgte = $state(mInit?.type === 'alternativ' ? [...(mInit.valgte ?? [])] : []);
+	let altNyttNavn = $state('');
 	const malerBase = $derived(mInit?.type === 'nyMal'
 		? app.templates.filter((t) => kanBrukes(t)).sort((a, b) => (erMalFavoritt(b.name) ? 1 : 0) - (erMalFavoritt(a.name) ? 1 : 0) || (a.name ?? '').localeCompare(b.name ?? '', 'no'))
 		: []);
-	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
+	// alternativer for den valgte malen (katalog fra malAlternativer) —
+	// bryterne i «Ny gudstjeneste» genereres herfra (checkbox-logikk)
+	let altListe = $state([]);
+	let altPaa = $state({}); // alternativ -> på/av (flere kan være på samtidig)
 	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
 	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
@@ -117,8 +121,7 @@
 				name = m.preserve.name;
 				date = m.preserve.date;
 				tplId = m.preserve.tplId;
-				medDåp = m.preserve.dåp;
-				medNattverd = m.preserve.nattverd;
+				altPaa = m.preserve.altPaa ?? {};
 				manuellK = m.preserve.kirkeaar;
 				kirkeaar = m.preserve.kirkeaar;
 			} else {
@@ -133,8 +136,7 @@
 				// malen forhåndsvalges fra riktig type-liste (IKKE app.templates[0], som kan være
 				// en gravferdsmal — originalene lastes først og rekkefølgen er ikke garantert)
 				tplId = (app.templates.find((t) => malType(t) === forhType && kanBrukes(t)))?.id ?? '';
-				medDåp = true;
-				medNattverd = true;
+				altPaa = {};
 				manuellK = null;
 			}
 		} else if (m?.type === 'prompt') {
@@ -235,6 +237,17 @@
 	// init: slå opp kirkeårsdag for startdatoen. Kjøres i en $effect som kun leser
 	// mount-konstanter (m/isNS/pres/forhType) — IKKE date/nyType (da re-fyrer den
 	// ved type-bytte); dato-endringer dekkes av $effect-en under.
+	// alternativ-bryterne følger den valgte malen (katalog fra malAlternativer).
+	// $effect — ikke onchange — fordi select-bind setter tplId ETTER inline onchange
+	// (rekkefølgen ga ellers gammel mal). Effekten skriver altListe KUN ved
+	// innholds-endring (sammenlignet som tekst) — skriving hver gang ga en
+	// uendelig Svelte-loop (effect_update_depth_exceeded).
+	$effect(() => {
+		if (m?.type !== 'newService') return;
+		const mal = app.templates.find((t) => t.id === tplId);
+		const liste = malAlternativer(mal);
+		if (liste.join('\u0001') !== altListe.join('\u0001')) altListe = liste;
+	});
 	$effect(() => {
 		if (m?.type === 'newService' && isNS && !pres?.kirkeaar && forhType === 'gudstjeneste') autoKirkeaar();
 	});
@@ -284,14 +297,14 @@
 		const forrige = {
 			ok: m.ok,
 			type: nyType,
-			name, date, tplId, dåp: medDåp, nattverd: medNattverd,
+			name, date, tplId, altPaa: { ...altPaa },
 			kirkeaar, tekster, teksterStatus
 		};
 		const tilbakeTilNyService = () => {
 			showModal({
 				type: 'newService', ok: forrige.ok,
 				preserve: { type: forrige.type, name: forrige.name, date: forrige.date, tplId: forrige.tplId,
-					dåp: forrige.dåp, nattverd: forrige.nattverd, kirkeaar: manuellK }
+					altPaa: forrige.altPaa, kirkeaar: manuellK }
 			});
 		};
 		kirkeaarListeModal(date, (k) => {
@@ -359,6 +372,35 @@
 		if (!jordpaaGrupper.includes(jordpaa)) jordpaa = jordpaaGrupper[0] ?? null;
 	}
 
+	/** Nytt alternativ i malens katalog (brukes av alternativ-modalen) */
+	function leggTilAlternativ() {
+		const navn = altNyttNavn.trim().toLowerCase();
+		if (!navn || !m || m.type !== 'alternativ') return;
+		if (!m.liste.includes(navn)) m.liste = [...m.liste, navn];
+		if (!m.mal.alternativer) m.mal.alternativer = [];
+		if (!m.mal.alternativer.includes(navn)) m.mal.alternativer = [...m.mal.alternativer, navn];
+		altNyttNavn = '';
+	}
+
+	/** Slett alternativ fra katalogen — fjerner merket fra alle deler i malen */
+	function slettAlternativ(navn) {
+		if (!m || m.type !== 'alternativ') return;
+		m.liste = m.liste.filter((t) => t !== navn);
+		if (m.mal.alternativer) m.mal.alternativer = m.mal.alternativer.filter((t) => t !== navn);
+		for (const sec of m.mal.sections ?? []) {
+			if (Array.isArray(sec.alternativer)) sec.alternativer = sec.alternativer.filter((t) => t !== navn);
+			if (sec.alternativ === navn) delete sec.alternativ;
+		}
+		altValgte = altValgte.filter((t) => t !== navn);
+	}
+
+	/** include-objektet til createService: ett på/av per alternativ i katalogen */
+	function includeObj() {
+		const o = {};
+		for (const t of altListe) o[t] = altPaa[t] !== false;
+		return o;
+	}
+
 	function nullstillKirkeaar() {
 		manuellK = null;
 		autoKirkeaar();
@@ -380,7 +422,7 @@
 					const cur = app.current;
 					if (cur) cur.sections = cur.sections.filter((s) => !s.delGruppe || s.delGruppe === jordpaa);
 				}
-				else m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, tekster);
+				else m.ok(name.trim(), date, tplId, includeObj(), kirkeaar, tekster);
 				if (app.modal === forrige) closeModal();
 				// del-gruppe pr valgt mal (gjelder alle typer): bare deler uten del-gruppe
 				// eller med den valgte gruppen tas med — hvis malen har del-grupper
@@ -406,7 +448,7 @@
 					if (!cur || cur.date !== date || cur.templateName !== app.templates.find((x) => x.id === tplId)?.name) return;
 					if (t) applyKirkeaar(cur, k, t); // eksportert fra store.svelte.js — samme fyll som ved opprettelse
 				});
-				m.ok(name.trim(), date, tplId, { dåp: medDåp, nattverd: medNattverd }, kirkeaar, null);
+				m.ok(name.trim(), date, tplId, includeObj(), kirkeaar, null);
 				if (app.modal === forrige) closeModal();
 				return;
 			}
@@ -631,14 +673,12 @@
 					{/if}
 					<!-- Av/på-knapper (mac-nativ switch-stil): logikken er fortsatt checkbox -->
 					<div class="m-chk">
-						<button type="button" class="avpaa" role="checkbox" aria-checked={medDåp} onclick={() => { medDåp = !medDåp; }}>
-							<span class="avpaa-tekst">Med dåp</span>
-							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-						</button>
-						<button type="button" class="avpaa" role="checkbox" aria-checked={medNattverd} onclick={() => { medNattverd = !medNattverd; }}>
-							<span class="avpaa-tekst">Med nattverd</span>
-							<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-						</button>
+						{#each altListe as at (at)}
+							<button type="button" class="avpaa" role="checkbox" aria-checked={altPaa[at] !== false} onclick={() => { altPaa = { ...altPaa, [at]: !(altPaa[at] !== false) }; }}>
+								<span class="avpaa-tekst">Med {at[0].toUpperCase() + at.slice(1)}</span>
+								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+							</button>
+						{/each}
 					</div>
 					{#if jordpaaGrupper.length}
 						<!-- del-gruppe pr valgt mal (radio-enten/eller) — vises bare når
@@ -883,18 +923,20 @@
 					</label>
 				{/if}
 			{:else if m.type === 'alternativ'}
-				<p class="muted m-velg-hint">Merk delen med et alternativ: «Ny gudstjeneste» tar bare med delen når «Med dåp»/«Med nattverd» er på. Deler uten alternativ tas alltid med.</p>
-				<div class="m-dg-liste" role="radiogroup" aria-label="Alternativ">
-					<button type="button" class="m-dg-rad" class:sel={!m.valgt} role="radio" aria-checked={!m.valgt}
-						onclick={() => { m.valgt = null; }}>
-						<span class="m-dg-navn">Ingen (alltid med)</span>
-					</button>
-					{#each ['dåp', 'nattverd'] as alt (alt)}
-						<button type="button" class="m-dg-rad" class:sel={m.valgt === alt} role="radio" aria-checked={m.valgt === alt}
-							onclick={() => { m.valgt = alt; }}>
-							<span class="m-dg-navn">{alt[0].toUpperCase() + alt.slice(1)}</span>
-						</button>
+				<p class="muted m-velg-hint">Merk delen med ett eller flere alternativer (checkbox-logikk): «Ny gudstjeneste» tar bare med delen når alle merkede alternativer er på. Deler uten alternativer tas alltid med.</p>
+				<div class="m-dg-liste">
+					{#each m.liste as t (t)}
+						<div class="m-dg-rad" class:sel={altValgte.includes(t)}>
+							<label class="m-alt-rad"><input type="checkbox" bind:group={altValgte} value={t} /> {t[0].toUpperCase() + t.slice(1)}</label>
+							<button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler i malen)"
+								onclick={(e) => { e.stopPropagation(); slettAlternativ(t); }}>{@html mdi('delete-outline', 14)}</button>
+						</div>
 					{/each}
+				</div>
+				<div class="m-dg-ny">
+					<input placeholder="Nytt alternativ, f.eks. Pinsehelg" bind:value={altNyttNavn}
+						onkeydown={(e) => { if (e.key === 'Enter') { leggTilAlternativ(); e.preventDefault(); } }} />
+					<button onclick={() => leggTilAlternativ()}>Legg til</button>
 				</div>
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
@@ -940,7 +982,7 @@
 				{#if m.type === 'maalform'}
 					<button class="primary" onclick={() => { m.ok(m.valgt); markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'alternativ'}
-					<button class="primary" onclick={() => { m.sec.alternativ = m.valgt ?? undefined; markDirtyIModal(); closeModal(); }}>Ferdig</button>
+					<button class="primary" onclick={() => { m.sec.alternativer = m.liste.filter((t) => altValgte.includes(t)); if (m.sec.alternativ) delete m.sec.alternativ; markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'delGruppe'}
 					<button class="primary" onclick={() => { applyDelGruppe(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'velgTekster'}
