@@ -1,7 +1,7 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { erMalFavoritt, malAlternativer } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	delGruppeModal, maalformModal, malType } from '$lib/modal.svelte.js';
+	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
@@ -35,7 +35,12 @@
 	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
 	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
-	let maaltNyttNavn = $state(''); // ny målform i maalform-modalen
+	// delerTabell: åpen dropdown-celle + administrer-visning
+	let apenCelle = $state(null);
+	let adminVisning = $state(0);
+	let katNyAlt = $state('');
+	let katNyVar = $state('');
+		let maaltNyttNavn = $state(''); // ny målform i maalform-modalen
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
 
 	/** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
@@ -395,6 +400,52 @@
 	}
 
 	/** include-objektet til createService: ett på/av per alternativ i katalogen */
+	/** veksle ett alternativ-merke på en seksjon (delerTabell-dropdown) */
+	function veksleSecAlt(sec, t, paa) {
+		const naa = secAlternativer(sec);
+		const ny = paa ? (naa.includes(t) ? naa : [...naa, t]) : naa.filter((x) => x !== t);
+		sec.alternativer = ny;
+		if (sec.alternativ) delete sec.alternativ;
+		if (!ny.length) delete sec.alternativer;
+		markDirtyIModal();
+	}
+
+	/** Legg til / slett i katalogene (administrer-visningen) */
+	function leggTilKatalog(hva, navnRaw) {
+		const navn = navnRaw.trim().toLowerCase();
+		if (!navn || !m || m.type !== 'delerTabell') return;
+		if (hva === 'alternativer') {
+			if (!m.alternativer.includes(navn)) m.alternativer = [...m.alternativer, navn];
+			if (!m.mal.alternativer) m.mal.alternativer = [];
+			if (!m.mal.alternativer.includes(navn)) m.mal.alternativer = [...m.mal.alternativer, navn];
+			katNyAlt = '';
+		} else {
+			if (!m.variasjoner.includes(navn)) m.variasjoner = [...m.variasjoner, navn];
+			if (!m.mal.delGrupper) m.mal.delGrupper = [];
+			if (!m.mal.delGrupper.includes(navn)) m.mal.delGrupper = [...m.mal.delGrupper, navn];
+			katNyVar = '';
+		}
+	}
+
+	function slettKatalog(hva, navn) {
+		if (!m || m.type !== 'delerTabell') return;
+		if (hva === 'alternativer') {
+			m.alternativer = m.alternativer.filter((t) => t !== navn);
+			if (m.mal.alternativer) m.mal.alternativer = m.mal.alternativer.filter((t) => t !== navn);
+			for (const sec of m.mal.sections ?? []) {
+				if (Array.isArray(sec.alternativer)) sec.alternativer = sec.alternativer.filter((t) => t !== navn);
+				if (sec.alternativ === navn) delete sec.alternativ;
+			}
+		} else {
+			m.variasjoner = m.variasjoner.filter((v) => v !== navn);
+			if (m.mal.delGrupper) m.mal.delGrupper = m.mal.delGrupper.filter((v) => v !== navn);
+			for (const sec of m.mal.sections ?? []) {
+				if (sec.delGruppe === navn) sec.delGruppe = undefined;
+			}
+		}
+		apenCelle = null;
+	}
+
 	function includeObj() {
 		const o = {};
 		for (const t of altListe) o[t] = altPaa[t] !== false;
@@ -457,7 +508,7 @@
 		} else if (m.type === 'choose') m.ok([...valgte]);
 		else if (m.type === 'chooseOne') m.ok(valgtAlt);
 		else if (m.type === 'fjernFlere') m.ok([...valgteFjern].sort((a, b) => b - a));
-		else if (m.type === 'adminAlts' || m.type === 'velgTekster' || m.type === 'delGruppe') return; // live-redigering — Ferdig lukker
+		else if (m.type === 'adminAlts' || m.type === 'velgTekster' || m.type === 'delerTabell') return; // live-redigering — Ferdig lukker
 		else if (m.type === 'bib') {
 			const gruppe = bibGrupper[bibValgt];
 			m.ok(gruppe, m.mode === 'innhold' ? gruppe?.rader[bibAltValgt] : null);
@@ -543,32 +594,8 @@
 		maaltNyttNavn = '';
 	}
 
-	function leggTilGruppe() {
-		if (!m || m.type !== 'delGruppe') return;
-		const navn = dgNyttNavn.trim();
-		if (!navn) return;
-		if (!m.grupper.includes(navn)) m.grupper.push(navn);
-		m.valgt = navn;
-		dgNyttNavn = '';
-	}
 
-	function slettGruppe(navn) {
-		if (!m || m.type !== 'delGruppe') return;
-		m.grupper = m.grupper.filter((g) => g !== navn);
-		// rydd gruppen fra alle seksjonene i malen
-		for (const sec of m.mal.sections ?? []) {
-			if (sec.delGruppe === navn) sec.delGruppe = null;
-		}
-		if (m.valgt === navn) m.valgt = null;
-		markDirtyIModal();
-	}
 
-	function applyDelGruppe() {
-		if (!m || m.type !== 'delGruppe') return;
-		// lagre gruppelista på malen + sett seksjonens delGruppe
-		m.mal.delGrupper = [...m.grupper];
-		m.seksjon.delGruppe = m.valgt;
-	}
 
 	function applyVelgTekster() {
 		if (!m || m.type !== 'velgTekster') return;
@@ -598,7 +625,7 @@
 
 {#if m}
 	<div id="modal-back">
-		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' ? 'bred' : ''} role="dialog">
+		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' || m.type === 'delerTabell' ? 'bred' : ''} role="dialog">
 			<h3>{m.title}</h3>
 			{#if m.type === 'confirm'}
 				<p>{m.message}</p>
@@ -922,22 +949,59 @@
 						</select>
 					</label>
 				{/if}
-			{:else if m.type === 'alternativ'}
-				<p class="muted m-velg-hint">Merk delen med ett eller flere alternativer (checkbox-logikk): «Ny gudstjeneste» tar bare med delen når alle merkede alternativer er på. Deler uten alternativer tas alltid med.</p>
-				<div class="m-dg-liste">
-					{#each m.liste as t (t)}
-						<div class="m-dg-rad" class:sel={altValgte.includes(t)}>
-							<label class="m-alt-rad"><input type="checkbox" bind:group={altValgte} value={t} /> {t[0].toUpperCase() + t.slice(1)}</label>
-							<button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler i malen)"
-								onclick={(e) => { e.stopPropagation(); slettAlternativ(t); }}>{@html mdi('delete-outline', 14)}</button>
+			{:else if m.type === 'delerTabell'}
+				<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett gudstjeneste».</p>
+				<div class="m-deler-tabell">
+					<div class="m-deler-rad m-deler-head"><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
+					{#each m.mal.sections as sec, si (si)}
+						<div class="m-deler-rad">
+							<span class="m-deler-navn">{sec.title}</span>
+							<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ' }; }}>
+								{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}
+							</button>
+							<button type="button" class="m-deler-celle" onclick={() => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon' }; }}>
+								{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}
+							</button>
+							{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
+								<div class="m-deler-meny">
+									{#each m.alternativer as t (t)}
+										<label class="m-alt-rad"><input type="checkbox" checked={secAlternativer(sec).includes(t)} onchange={(e) => veksleSecAlt(sec, t, e.currentTarget.checked)} /> {t[0].toUpperCase() + t.slice(1)}</label>
+									{/each}
+									{#if !m.alternativer.length}<span class="muted">Ingen alternativer i katalogen.</span>{/if}
+								</div>
+							{:else if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
+								<div class="m-deler-meny">
+									<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={!sec.delGruppe} onchange={() => { sec.delGruppe = undefined; markDirtyIModal(); }} /> Standard</label>
+									{#each m.variasjoner as v (v)}
+										<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={sec.delGruppe === v} onchange={() => { sec.delGruppe = v; markDirtyIModal(); }} /> {v[0].toUpperCase() + v.slice(1)}</label>
+									{/each}
+									{#if !m.variasjoner.length}<span class="muted">Ingen variasjoner i katalogen.</span>{/if}
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>
-				<div class="m-dg-ny">
-					<input placeholder="Nytt alternativ, f.eks. Pinsehelg" bind:value={altNyttNavn}
-						onkeydown={(e) => { if (e.key === 'Enter') { leggTilAlternativ(); e.preventDefault(); } }} />
-					<button onclick={() => leggTilAlternativ()}>Legg til</button>
-				</div>
+				<button class="wide" onclick={() => { adminVisning = adminVisning ? 0 : 1; apenCelle = null; }}>Administrer alternativer og variasjoner …</button>
+				{#if adminVisning}
+					<div class="m-deler-admin">
+						<div>
+							<p class="m-deler-adm-tittel">Alternativer</p>
+							{#each m.alternativer as t (t)}
+								<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)}>{@html mdi('delete-outline', 14)}</button></div>
+							{/each}
+							{#if !m.alternativer.length}<p class="muted">Ingen alternativer ennå.</p>{/if}
+							<div class="m-dg-ny"><input placeholder="Nytt alternativ" bind:value={katNyAlt} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('alternativer', katNyAlt); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('alternativer', katNyAlt)}>Legg til</button></div>
+						</div>
+						<div>
+							<p class="m-deler-adm-tittel">Variasjoner (del-grupper)</p>
+							{#each m.variasjoner as v (v)}
+								<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)}>{@html mdi('delete-outline', 14)}</button></div>
+							{/each}
+							{#if !m.variasjoner.length}<p class="muted">Ingen variasjoner ennå.</p>{/if}
+							<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>
+						</div>
+					</div>
+				{/if}
 			{:else if m.type === 'maalform'}
 				<p class="muted m-velg-hint">Velg målformen malen er skrevet i, eller legg til en ny. Målformen avgjør hvilken mal-liste den vises i.</p>
 				<div class="m-dg-liste">
@@ -953,26 +1017,6 @@
 						onkeydown={(e) => { if (e.key === 'Enter') { leggTilMaalform(); e.preventDefault(); } }} />
 					<button onclick={() => leggTilMaalform()}>Legg til</button>
 				</div>
-			{:else if m.type === 'delGruppe'}
-				<p class="muted m-velg-hint">Velg hvilken del-gruppe avsnittet tilhører. «Ny gravferd» viser bare avsnitt i den valgte gruppen. Grupper uten avsnitt kan slettes.</p>
-				<div class="m-dg-liste">
-					<button type="button" class="m-dg-rad" class:sel={!m.valgt} onclick={() => { m.valgt = null; }}>
-						<span>Ingen (alltid med)</span>
-					</button>
-					{#each m.grupper as g, gi (g)}
-						<div class="m-dg-rad" class:sel={m.valgt === g} role="radio" aria-checked={m.valgt === g}
-							onclick={() => { m.valgt = g; }}>
-							<span class="m-dg-navn">{g}</span>
-							<button type="button" class="m-dg-slett" title="Slett gruppen (ryddes fra alle avsnitt)"
-								onclick={(e) => { e.stopPropagation(); slettGruppe(g); }}>{@html mdi('delete-outline', 14)}</button>
-						</div>
-					{/each}
-				</div>
-				<div class="m-dg-ny">
-					<input placeholder="Ny gruppe, f.eks. Bisettelse i kapell" bind:value={dgNyttNavn}
-						onkeydown={(e) => { if (e.key === 'Enter') { leggTilGruppe(); e.preventDefault(); } }} />
-					<button onclick={() => leggTilGruppe()}>Legg til</button>
-				</div>
 			{/if}
 			<div id="modal-actions">
 				<button onclick={() => { const f = m.onAvbryt; closeModal(); f?.(); }}>{m.cancelLabel ?? 'Avbryt'}</button>
@@ -981,10 +1025,8 @@
 				{/if}
 				{#if m.type === 'maalform'}
 					<button class="primary" onclick={() => { m.ok(m.valgt); markDirtyIModal(); closeModal(); }}>Ferdig</button>
-				{:else if m.type === 'alternativ'}
-					<button class="primary" onclick={() => { m.sec.alternativer = m.liste.filter((t) => altValgte.includes(t)); if (m.sec.alternativ) delete m.sec.alternativ; markDirtyIModal(); closeModal(); }}>Ferdig</button>
-				{:else if m.type === 'delGruppe'}
-					<button class="primary" onclick={() => { applyDelGruppe(); markDirtyIModal(); closeModal(); }}>Ferdig</button>
+				{:else if m.type === 'delerTabell'}
+					<button class="primary" onclick={() => { markDirtyIModal(); closeModal(); }}>Ferdig</button>
 				{:else if m.type === 'velgTekster'}
 					<button onclick={() => { m.valgte = new Set(m.seksjon.items.map((it, i) => i)); }}>Velg alle</button>
 					<button onclick={() => { m.valgte = new Set(); }}>Nullstill</button>

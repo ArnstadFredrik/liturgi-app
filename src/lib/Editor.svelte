@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, delGruppeModal, alternativModal } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, delerTabellModal } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
@@ -51,12 +51,6 @@
 
 	const harDelGrupper = $derived(!!(app.current?.sections ?? []).some((s) => s.delGruppe));
 
-	function velgDelGruppe(sec) {
-		// del-gruppe: markerer seksjonen slik at «Ny gravferd» vet hvilken
-		// variant den er — uavhengig av tittelen. Gruppelista lagres på malen
-		// og kan utvides/slettes i modalen.
-		delGruppeModal(app.current, sec);
-	}
 
 	function addItem(si) {
 		prompt('Nytt ledd', 'Tittel på leddet', (title) => {
@@ -142,13 +136,12 @@
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				{#if app.kind === 'template'}
-					<button class="sec-delgruppe" title="Del-gruppe: bruker «Ny gravferd» til å velge denne delen (uavhengig av tittelen)" onclick={() => velgDelGruppe(sec)}>{@html mdi("tag-outline", 13)} {sec.delGruppe ?? 'Del-gruppe'}</button>
-					<button class="sec-delgruppe" title="Alternativ: delen tas kun med når «Med dåp»/«Med nattverd» er på ved oppretting" onclick={() => alternativModal(sec)}>{@html mdi("checkbox-marked-outline", 13)} {sec.alternativ ? (sec.alternativ[0].toUpperCase() + sec.alternativ.slice(1)) : 'Alternativ'}</button>
+					<button class="sec-delgruppe" title="Deler: alternativer (flervalg) og variasjoner pr hoveddel — styrer valgene i «Opprett gudstjeneste»" onclick={() => delerTabellModal(app.current)}>{@html mdi("tag-outline", 13)} Deler …</button>
 				{:else if harDelGrupper}
 					<span class="sec-delgruppe sec-delgruppe-stat" title="Del-gruppe">{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 				{/if}
-				{#if app.kind === 'service' && sec.alternativ}
-					<span class="sec-delgruppe sec-delgruppe-stat" title="Alternativ">{sec.alternativ[0].toUpperCase() + sec.alternativ.slice(1)}</span>
+				{#if app.kind === 'service' && (sec.alternativer?.length || sec.alternativ)}
+					<span class="sec-delgruppe sec-delgruppe-stat" title="Alternativ">{(sec.alternativer ?? (sec.alternativ ? [sec.alternativ] : [])).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ')}</span>
 				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}

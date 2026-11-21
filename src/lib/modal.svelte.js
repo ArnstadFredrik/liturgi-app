@@ -44,10 +44,7 @@ export function skriftBokstav(it, idx) {
 /** MalType er flyttet til maltyper.js (ren modul — testbar i node). */
 export { malType } from './maltyper.js';
 
-/** Del-gruppe-modal: legg til / slett / velg del-grupper for en seksjon.
- *  Gruppelista lagres på malen (delGrupper); seksjonen merkes med
- *  delGruppe, og «Ny gravferd» viser bare avsnitt i den valgte gruppen. */
-/** Målform-modal: velg målform for malen, eller legg til nye. */
+
 export function maalformModal(o) {
 	const kjent = [...new Set([
 		...app.maalformer,
@@ -72,31 +69,21 @@ export function maalformModal(o) {
 	});
 }
 
-/** Alternativ-modal: merk en hoveddel i en mal med ÉN ELLER FLERE
- *  alternativer (checkbox-logikk — en del kan være både «dåp» og
- *  «nattverd»; i motsetning til del-gruppe som er enten/eller).
- *  Listen kommer fra malens alternativ-katalog; nye kan legges til og
- *  eksisterende slettes her. Ferdig skriver sec.alternativer. */
-export function alternativModal(sec) {
-	const mal = app.current;
+/** Deler-tabell: ALLE hoveddeler i malen i én tabell — én kolonne for
+ *  alternativer (flervalg, checkbox-logikk) og én for variasjon/del-gruppe
+ *  (enten/eller). Katalogene (mal.alternativer / mal.delGrupper) redigeres
+ *  i administrer-visningen; de brukes til å generere valgene i
+ *  «Opprett gudstjeneste». Redigeringen er live — «Ferdig» lukker. */
+export function delerTabellModal(mal) {
 	showModal({
-		type: 'alternativ',
-		title: 'Alternativer for «' + (sec.title ?? '') + '»',
-		mal, sec,
-		liste: malAlternativer(mal),
-		valgte: secAlternativer(sec)
+		type: 'delerTabell',
+		title: 'Deler — ' + (mal.name ?? ''),
+		mal,
+		alternativer: malAlternativer(mal),
+		variasjoner: [...(mal.delGrupper ?? [])]
 	});
 }
 
-export function delGruppeModal(mal, seksjon) {
-	showModal({
-		type: 'delGruppe',
-		title: 'Del-gruppe for «' + (seksjon.title ?? '') + '»',
-		mal, seksjon,
-		grupper: [...(mal.delGrupper ?? [])],
-		valgt: seksjon.delGruppe ?? null
-	});
-}
 
 export function velgTeksterModal(seksjon) {
 	showModal({
