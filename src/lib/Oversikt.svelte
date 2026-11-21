@@ -23,6 +23,13 @@
 	}
 
 	function leddTekst(it) {
+		// leddtittelen (heading) først — f.eks. «* 2 Inngangssalme» → «2 Inngangssalme»
+		const h = (it?.heading ?? '').replace(/^[*=#\s]+/, '').trim();
+		if (h) return h;
+		if (it?.type === 'salme') {
+			const salme = [it?.nr, it?.salmeTittel].filter(Boolean).join(' · ');
+			if (salme) return salme;
+		}
 		const t = (it?.text ?? '').split('\n').map((s) => s.trim()).filter(Boolean)[0];
 		if (t) return t;
 		const alt = (it?.alts ?? []).map((a) => (a?.text ?? '').split('\n').map((s) => s.trim()).filter(Boolean)[0]).filter(Boolean)[0];
