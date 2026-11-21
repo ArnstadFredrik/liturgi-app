@@ -230,18 +230,32 @@ button.wide { width: 100%; }
 }
 #maler-side h2 { color: var(--text); margin-bottom: 4px; }
 #maler-side .mal-filter, #maler-side .maler-ingress, #maler-side h2 { grid-column: 1 / -1; }
-#maler-side .malgrupper {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-	gap: 0 20px;
-	align-items: start;
-}
+
 @media (max-width: 900px) {
 	#maler-side { max-width: 620px; }
 }
 .maler-ingress { color: var(--muted); font-size: 0.9em; margin-top: 0; }
 .malgruppe { margin: 18px 0 0; display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 10px 12px; }
 .malgruppe .sidehead { margin-bottom: 4px; }
+/* Mal-tabell: alle maler i én sortbar tabell */
+.mal-tabell-kort { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); overflow: hidden; margin-top: 14px; }
+.mal-tabell { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mal-tabell th {
+	text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px;
+	color: var(--muted); font-weight: 700; padding: 9px 10px; cursor: pointer; user-select: none;
+	white-space: nowrap; border-bottom: 1px solid var(--border); background: var(--panel2);
+}
+.mal-tabell th:hover { color: var(--text); }
+.mal-tabell th .sort-pil { margin-left: 3px; color: var(--accent); }
+.mal-tabell td { padding: 7px 10px; border-top: 1px solid var(--border); }
+.mal-tabell tbody tr:hover { background: var(--accent-soft); }
+.mal-tabell .t-fav, .mal-tabell th.th-fav { width: 34px; text-align: center; }
+.mal-tabell .t-fav .w-mal-fav { color: var(--muted); }
+.mal-tabell .t-fav .w-mal-fav.av { color: var(--warn); }
+.mal-tabell .t-navn { font-weight: 500; color: var(--text); cursor: pointer; overflow-wrap: anywhere; }
+.mal-tabell .t-navn:hover { text-decoration: underline; }
+.mal-tabell .t-handlinger { white-space: nowrap; text-align: right; }
+.mal-tabell .t-handlinger button { font-size: 12px; padding: 3px 8px; }
 .maler-tom { color: var(--muted); font-size: 0.9em; margin: 4px 0; }
 /* Innstillinger — mac System Settings-stil: seksjonstittel + kort med rader */
 #innstillinger { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }

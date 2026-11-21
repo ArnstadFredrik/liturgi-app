@@ -17,25 +17,51 @@
 	const originaler = $derived(app.templates.filter((t) => erOriginalMal(t) || (!isElectron && t.builtinKey?.startsWith('original-'))));
 	const brukermaler = $derived(app.templates.filter((t) => !originaler.includes(t)));
 
-	/** Søk + filtre (type/kilde) + sortering etter type så navn. */
+	/** Søk + filtre (type/kilde) + sorterbar tabell. */
 	let q = $state('');
 	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
 	let kildeFilter = $state('alle'); // alle | originaler | brukermaler
 
-	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
-	const typeNavn = { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
+	const typeNavn = { gudstjeneste: 'Gudtjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
 		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
 		return true;
 	}
-	const etterFavoritt = (a, b) => (erMalFavoritt(b.name) ? 1 : 0) - (erMalFavoritt(a.name) ? 1 : 0);
-	const visOriginaler = $derived(
-		kildeFilter === 'brukermaler' ? [] : originaler.filter(passer).sort((a, b) => etterFavoritt(a, b) || (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
-	);
-	const visBrukere = $derived(
-		kildeFilter === 'originaler' ? [] : brukermaler.filter(passer).sort((a, b) => etterFavoritt(a, b) || (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
-	);
+
+	/** Tabell: sortbar på kolonne; favoritter først når navn sorteres. */
+	let sortNokkel = $state('navn');
+	let sortRetn = $state(1);
+	const KOLONNER = [
+		['fav', ''], ['navn', 'Navn'], ['malform', 'Målform'], ['type', 'Type'], ['kilde', 'Kilde']
+	];
+	function settSort(nokkel) {
+		if (sortNokkel === nokkel) sortRetn = -sortRetn;
+		else { sortNokkel = nokkel; sortRetn = 1; }
+	}
+	function pil(nokkel) {
+		if (sortNokkel !== nokkel) return '';
+		return sortRetn === 1 ? '↑' : '↓';
+	}
+	function sortVerdi(t, nokkel) {
+		switch (nokkel) {
+			case 'fav': return erMalFavoritt(t.name) ? 1 : 0;
+			case 'navn': return (t.name ?? '').toLowerCase();
+			case 'malform': return malFormFor(t);
+			case 'type': return malType(t);
+			case 'kilde': return erOriginalMal(t) ? 'original' : 'bruker';
+		}
+	}
+	const visMal = $derived.by(() => {
+		const alle = [...originaler, ...brukermaler].filter(passer);
+		return alle.sort((a, b) => {
+			const va = sortVerdi(a, sortNokkel);
+			const vb = sortVerdi(b, sortNokkel);
+			if (va !== vb) return (va < vb ? -1 : 1) * sortRetn;
+			// sekundær: navn
+			return (a.name ?? '').localeCompare(b.name ?? '', 'no');
+		});
+	});
 
 	async function eksporterMal(t) {
 		try {
@@ -101,7 +127,7 @@
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i maler …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
+			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>
@@ -112,43 +138,41 @@
 		</div>
 	</div>
 
-		<div class="malgrupper">
-{#if kildeFilter !== 'brukermaler'}
-	<div class="malgruppe">
-		<div class="sidehead">Originaler</div>
-		{#each visOriginaler as t (t.id)}
-			<div class="w-mal">
-				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
-				<span class="w-mal-type">{målformLabel(malFormFor(t))}</span>
-				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
-				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
-				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
-				<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
-			</div>
-		{:else}
-			<p class="maler-tom">{q || typeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen originalmaler.'}</p>
-		{/each}
-	</div>
-	{/if}
-
-	{#if kildeFilter !== 'originaler'}
-	<div class="malgruppe">
-		<div class="sidehead">Brukermaler</div>
-		{#each visBrukere as t (t.id)}
-			<div class="w-mal">
-				<span class="w-mal-nm" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</span>
-				<span class="w-mal-type">{målformLabel(malFormFor(t))}</span>
-				<span class="w-mal-type">{typeNavn[malType(t)]}</span>
-				<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
-				<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
-				<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
-				<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
-			</div>
-		{:else}
-			<p class="maler-tom">{q || typeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen brukermaler ennå.'}</p>
-		{/each}
-	</div>
-	{/if}
+	<div class="mal-tabell-kort">
+		<table class="mal-tabell">
+			<thead>
+				<tr>
+					{#each KOLONNER as [nokkel, navn] (nokkel)}
+						<th class:th-fav={nokkel === 'fav'} onclick={() => settSort(nokkel)} title="Sorter">
+							{#if nokkel === 'fav'}{@html mdi('star', 13)}{:else}{navn}{/if}{#if sortNokkel === nokkel}<span class="sort-pil">{sortRetn === 1 ? '↑' : '↓'}</span>{/if}
+						</th>
+					{/each}
+					<th class="th-handlinger"></th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each visMal as t (t.id)}
+					<tr>
+						<td class="t-fav">
+							<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
+						</td>
+						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}</td>
+						<td>{målformLabel(malFormFor(t))}</td>
+						<td>{typeNavn[malType(t)]}</td>
+						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
+						<td class="t-handlinger">
+							<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
+							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
+							{#if !erOriginalMal(t)}
+								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
+							{/if}
+						</td>
+					</tr>
+				{:else}
+					<tr><td colspan="6" class="maler-tom">{q || typeFilter !== 'alle' || kildeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen maler ennå.'}</td></tr>
+				{/each}
+			</tbody>
+		</table>
 	</div>
 
 	<div class="w-mal-handlinger">
