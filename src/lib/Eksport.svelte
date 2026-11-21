@@ -1,6 +1,6 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
-	import { saveCurrent } from '$lib/fileio.svelte.js';
+	import { saveCurrent, saveCurrentToFile } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
@@ -368,7 +368,7 @@
 	$effect(() => {
 		innstVersjon; // avhengighet: re-render når sideinnstillingene endres
 		if (aktiv === 'Skjerm') { pdfSider = []; rendrerStatus = ''; return; }
-		if (!o || app.kind !== 'service') { pdfSider = []; rendrerStatus = ''; return; }
+		if (!o || (app.kind !== 'service' && app.kind !== 'template')) { pdfSider = []; rendrerStatus = ''; return; }
 		try {
 			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), visAvsnittstitler: getInnst('visAvsnittstitler', true), avstand: getInnst('avstand', 'normal'), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 			// NB: les RESULTATET, aldri pdfSider-state her — effekten skriver pdfSider,
@@ -1094,8 +1094,8 @@
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
 
-	{#if !o || app.kind !== 'service'}
-		<p class="eksport-ingress">Åpne en gudstjeneste for å eksportere den.</p>
+	{#if !o || (app.kind !== 'service' && app.kind !== 'template')}
+		<p class="eksport-ingress">Åpne en gudstjeneste eller en mal for å eksportere.</p>
 	{:else}
 		<p class="eksport-ingress">Velg profil til høyre, juster leddene som skal med, og eksportér.</p>
 
@@ -1146,6 +1146,7 @@
 					<option value="luft">Luftig</option>
 				</select></div>
 				<button class="eks-lagre eks-verktoy-lagre" title="Lagre gudstjenesten med eksportvalgene" onclick={() => saveCurrent()}>{@html mdi('content-save')} Lagre</button>
+				{#if app.kind === 'template'}<button class="eks-lagre" title="Lagre en kopi av malfilen (.limal)" onclick={() => saveCurrentToFile()}>{@html mdi('download')} Lagre mal-fil (.limal)</button>{/if}
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">

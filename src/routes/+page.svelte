@@ -100,6 +100,10 @@
 				]
 			};
 		}
+		// isolert eksport (fra Eksportér-knappen i mal-listen): kun eksport-siden
+		if (app.current && app.kind === 'template' && app.isolertEksport) {
+			return { tittel: 'Mal — eksport', faner: [] };
+		}
 		// åpen mal: egne undermoduler (Mal/Alternativer/Oversikt/Eksport) —
 		// bibliotek-navigasjonen er ikke gyldig i mal-redigeringen
 		if (app.current && app.kind === 'template' && !andre.includes(app.visning)) {

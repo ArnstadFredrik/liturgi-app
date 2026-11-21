@@ -1,5 +1,5 @@
 <script>
-	import { app, openTemplate, persist, uid } from '$lib/store.svelte.js';
+	import { app, openTemplate, persist, uid, registrerÅpenMal } from '$lib/store.svelte.js';
 	import { confirmBox, nyLokalMalModal } from '$lib/modal.svelte.js';
 	import { loadTemplatesFromDisk, erOriginalMal, deleteTemplateFile, newTemplateOnDisk, importerMalFil } from '$lib/fileio.svelte.js';
 	import { exportWord } from '$lib/export.js';
@@ -120,6 +120,14 @@
 			}
 		});
 	}
+
+	/** Eksportér-knappen: åpner eksportmodulen isolert for malen — ingen
+	 *  andre undermoduler; Lukk i sidepanelet returnerer til mal-listen. */
+	function aapneIsolertEksport(t) {
+		registrerÅpenMal(t, false);
+		app.isolertEksport = true;
+		app.visning = 'eksport';
+	}
 </script>
 
 <div id="maler-side">
@@ -166,7 +174,7 @@
 						<td>{typeNavn[malType(t)]}</td>
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
 						<td class="t-handlinger">
-							<button onclick={() => eksporterMal(t)} title="Eksporter til Word">Eksportér</button>
+							<button onclick={() => aapneIsolertEksport(t)} title="Åpne eksportmodulen for malen">Eksportér</button>
 							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
 							{#if !erOriginalMal(t)}
 								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>

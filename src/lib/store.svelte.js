@@ -23,7 +23,8 @@ export const app = $state({
 	malFavoritter: [], // malnavn merket med stjerne i malmodulen
 	maalformer: ['bokmål', 'nynorsk', 'engelsk'], // kjente målformer (utvides fra maalform-modalen)
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
-	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
+	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger' | 'maldeler' | 'oversikt' | 'eksport' | 'editor'
+	isolertEksport: false, // eksport-siden åpnet isolert fra mal-listen (ingen undermoduler)
 	forbAapneSti: null, // Forberedelse: fil som skal åpnes når modulen åpnes fra Kirkeåret
 	sidebarSkjult: false, // macOS-lignende skjulbar sidemeny
 	tocSkjult: false, // skjulbar høyre sidemeny (TOC / prosjekt-tre)
@@ -450,6 +451,7 @@ export function closeEditor() {
 	const gyldigSide = ['maler', 'bibliotek', 'innstillinger', 'kirkeaar', 'forberedelse', 'malverktoy'];
 	if (gyldigSide.includes(side)) app.visning = side;
 	else { app.visning = app.tilbakeVisning ?? 'hjem'; app.tilbakeVisning = null; }
+	app.isolertEksport = false;
 }
 
 export function deleteService(id) {

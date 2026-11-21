@@ -48,7 +48,7 @@ export function fileNameFor(o) {
 	if (o.date) parts.push(o.date);
 	parts.push((o.name || 'gudstjeneste').replace(/[\\/:*?"<>|]+/g, '').trim() || 'gudstjeneste');
 	if (o.kirkeaar?.name) parts.push(o.kirkeaar.name);
-	return parts.join(' - ').replace(/\s+/g, ' ').trim() + '.liturgi';
+	return parts.join(' - ').replace(/\s+/g, ' ').trim() + (o.kind === 'template' ? '.limal' : '.liturgi');
 }
 
 /** Lagre det åpne objektet til disk (Electron). Gudstjenester skrives til
@@ -169,7 +169,14 @@ async function saveCurrentTemplate() {
 		}
 	}
 	const r = await window.liturgi.writeTemplate(o.filePath, currentJson());
-	if (r.ok) { app.dirty = false; syncDirty(); toast.success('Malen er lagret'); }
+	if (r.ok) {
+		o.__dirty = false;
+		app.dirty = false;
+		syncDirty();
+		const m = malEntryFor(o);
+		if (m) m.dirty = false;
+		toast.success('Malen er lagret');
+	}
 	else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
 }
 
