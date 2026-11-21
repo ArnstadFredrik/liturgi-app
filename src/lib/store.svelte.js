@@ -436,7 +436,11 @@ export function closeEditor() {
 	}
 	app.current = null;
 	app.kind = null;
-	app.visning = 'hjem';
+	// Tilbake-navigasjon: returner til siden brukeren sto på da dokumentet
+	// ble åpnet (f.eks. Maler-siden i biblioteksmodulen) — ikke blindt hjem.
+	const side = app.visning;
+	const gyldigSide = ['maler', 'bibliotek', 'innstillinger', 'kirkeaar', 'forberedelse', 'malverktoy'];
+	app.visning = gyldigSide.includes(side) ? side : 'hjem';
 }
 
 export function deleteService(id) {

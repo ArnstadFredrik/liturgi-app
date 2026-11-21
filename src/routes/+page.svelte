@@ -9,6 +9,7 @@
 	import Bibliotek from '$lib/Bibliotek.svelte';
 	import Eksport from '$lib/Eksport.svelte';
 	import Salmer from '$lib/Salmer.svelte';
+	import Oversikt from '$lib/Oversikt.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 
 	/** ⌥⌘@ veksler dokumentpanelet (høyremenyen). e.code === 'Backslash' er den
@@ -77,9 +78,10 @@
 		if (app.current && app.kind === 'service' && !andre.includes(app.visning)) {
 			return {
 				tittel: 'Gudstjeneste',
-				aktiv: app.visning === 'salmer' ? 'salmer' : app.visning === 'eksport' ? 'eksport' : 'redigering',
+				aktiv: app.visning === 'salmer' ? 'salmer' : app.visning === 'eksport' ? 'eksport' : app.visning === 'oversikt' ? 'oversikt' : 'redigering',
 				faner: [
 					{ id: 'redigering', navn: 'Redigering', velg: () => { app.visning = 'editor'; } },
+					{ id: 'oversikt', navn: 'Oversikt', velg: () => { app.visning = 'oversikt'; } },
 					{ id: 'salmer', navn: 'Salmer', velg: () => { app.visning = 'salmer'; } },
 					{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
 				]
@@ -125,6 +127,8 @@
 		{/if}
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
+		{:else if app.visning === 'oversikt' && app.current}
+			<Oversikt />
 		{:else if app.visning === 'salmer' && app.current}
 			<Salmer />
 		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}

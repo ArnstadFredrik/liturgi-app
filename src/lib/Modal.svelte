@@ -1,7 +1,7 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
+	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
@@ -439,6 +439,20 @@
 	}
 
 	function slettKatalog(hva, navn) {
+		if (!m || m.type !== 'delerTabell') return;
+		const iBruk = (hva === 'alternativer'
+			? (m.mal.sections ?? []).filter((sec) => (Array.isArray(sec.alternativer) && sec.alternativer.includes(navn)) || sec.alternativ === navn)
+			: (m.mal.sections ?? []).filter((sec) => sec.delGruppe === navn));
+		const utfør = () => slettKatalogNå(hva, navn);
+		if (iBruk.length) {
+			const nav = navn[0].toUpperCase() + navn.slice(1);
+			confirmBox('Slettes fra katalogen?',
+				`\u00ab${nav}\u00bb er i bruk på ${iBruk.length} hoveddel${iBruk.length === 1 ? '' : 'er'} \u2014 merkingen fjernes fra alle delene. Vil du slette den fra katalogen?`,
+				utfør);
+		} else utfør();
+	}
+
+	function slettKatalogNå(hva, navn) {
 		if (!m || m.type !== 'delerTabell') return;
 		if (hva === 'alternativer') {
 			m.alternativer = m.alternativer.filter((t) => t !== navn);
