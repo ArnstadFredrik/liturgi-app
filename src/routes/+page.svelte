@@ -10,6 +10,7 @@
 	import Eksport from '$lib/Eksport.svelte';
 	import Salmer from '$lib/Salmer.svelte';
 	import Oversikt from '$lib/Oversikt.svelte';
+	import MalAlternativer from '$lib/MalAlternativer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 
 	/** ⌥⌘@ veksler dokumentpanelet (høyremenyen). e.code === 'Backslash' er den
@@ -99,6 +100,20 @@
 				]
 			};
 		}
+		// åpen mal: egne undermoduler (Mal/Alternativer/Oversikt/Eksport) —
+		// bibliotek-navigasjonen er ikke gyldig i mal-redigeringen
+		if (app.current && app.kind === 'template' && !andre.includes(app.visning)) {
+			return {
+				tittel: 'Mal',
+				aktiv: app.visning === 'maldeler' ? 'alternativer' : app.visning === 'eksport' ? 'eksport' : app.visning === 'oversikt' ? 'oversikt' : 'mal',
+				faner: [
+					{ id: 'mal', navn: 'Mal', velg: () => { app.visning = 'editor'; } },
+					{ id: 'alternativer', navn: 'Alternativer', velg: () => { app.visning = 'maldeler'; } },
+					{ id: 'oversikt', navn: 'Oversikt', velg: () => { app.visning = 'oversikt'; } },
+					{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
+				]
+			};
+		}
 		if (app.visning === 'bibliotek' || app.visning === 'maler') {
 			return {
 				tittel: 'Bibliotek',
@@ -139,6 +154,8 @@
 		{/if}
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
+		{:else if app.visning === 'maldeler' && app.current && app.kind === 'template'}
+			<MalAlternativer />
 		{:else if app.visning === 'oversikt' && app.current}
 			<Oversikt />
 		{:else if app.visning === 'salmer' && app.current}

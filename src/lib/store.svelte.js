@@ -186,7 +186,12 @@ export function newServiceFromTemplate(tpl, include) {
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec, include))
-			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativer: secAlternativer(sec), items: sec.items.map(instantiate) }))
+			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativer: secAlternativer(sec), items: sec.items.map(instantiate) })),
+		// malens egne eksport-standarder følger med til den nye gudstjenesten
+		...(tpl.eksportFormater ? { eksportFormater: { ...tpl.eksportFormater } } : {}),
+		...(tpl.eksportValg ? { eksportValg: JSON.parse(JSON.stringify(tpl.eksportValg)) } : {}),
+		...(tpl.eksportPptx ? { eksportPptx: JSON.parse(JSON.stringify(tpl.eksportPptx)) } : {}),
+		...(tpl.eksportTomSlide != null ? { eksportTomSlide: tpl.eksportTomSlide } : {})
 	};
 }
 
@@ -420,6 +425,9 @@ export function registrerÅpenMal(obj, dev) {
 		e.obj = obj; // frisk objekt-identitet (loadTemplatesFromDisk erstatter dem)
 		e.dev = !!dev;
 	}
+	const sider = ['maler', 'bibliotek', 'innstillinger', 'kirkeaar', 'forberedelse', 'malverktoy'];
+	if (sider.includes(app.visning)) app.tilbakeVisning = app.visning;
+	app.visning = 'editor';
 	app.current = obj;
 	app.kind = 'template';
 }
@@ -440,7 +448,8 @@ export function closeEditor() {
 	// ble åpnet (f.eks. Maler-siden i biblioteksmodulen) — ikke blindt hjem.
 	const side = app.visning;
 	const gyldigSide = ['maler', 'bibliotek', 'innstillinger', 'kirkeaar', 'forberedelse', 'malverktoy'];
-	app.visning = gyldigSide.includes(side) ? side : 'hjem';
+	if (gyldigSide.includes(side)) app.visning = side;
+	else { app.visning = app.tilbakeVisning ?? 'hjem'; app.tilbakeVisning = null; }
 }
 
 export function deleteService(id) {

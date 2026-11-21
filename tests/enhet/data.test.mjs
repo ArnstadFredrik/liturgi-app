@@ -291,3 +291,14 @@ test('målform: manglende felt = bokmål; malerForType filtrerer på målform', 
 	assert.deepStrictEqual(malerForType([nn, { id: 'y', name: 'Annen' }], 'gudstjeneste', 'nynorsk').map((t) => t.id), ['x']);
 	assert.deepStrictEqual(malerForType([nn, { id: 'y', name: 'Annen' }], 'gudstjeneste', 'bokmål').map((t) => t.id), ['y']);
 });
+
+test('newServiceFromTemplate arver malens eksport-standarder (formater/valg/pptx)', () => {
+	const kilde = fileURLToPath(new URL('../../src/lib/store.svelte.js', import.meta.url));
+	const kode = readFileSync(kilde, 'utf8');
+	for (const nokkel of ['eksportFormater', 'eksportValg', 'eksportPptx', 'eksportTomSlide']) {
+		assert.ok(kode.includes(nokkel), 'newServiceFromTemplate mangler arv av ' + nokkel);
+	}
+	// arven må være dypkopi (JSON) for valg/pptx
+	assert.ok(kode.includes('JSON.parse(JSON.stringify(tpl.eksportValg))'), 'eksportValg skal dypkopieres');
+	assert.ok(kode.includes('JSON.parse(JSON.stringify(tpl.eksportPptx))'), 'eksportPptx skal dypkopieres');
+});
