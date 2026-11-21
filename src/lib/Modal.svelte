@@ -40,7 +40,7 @@
 	let adminVisning = $state(0);
 	let katNyAlt = $state('');
 	let katNyVar = $state('');
-	let delerFane = $state('hoveddeler'); // hoveddeler | leggtil
+	let delerFane = $state('hoveddeler'); // hoveddeler | innstillinger
 	let dragSi = $state(null); // drag-and-drop av hoveddeler
 	let dragOverSi = $state(null);
 	let dragFor = $state(false);
@@ -460,6 +460,11 @@
 	/** Drag-and-drop: endre rekkefølge på hoveddelene (håndtaket først i raden) */
 	function startDragRad(e, si) {
 		dragSi = si;
+		const rad = e.currentTarget.closest('.m-deler-rad');
+		if (rad && e.dataTransfer.setDragImage) {
+			const r = rad.getBoundingClientRect();
+			e.dataTransfer.setDragImage(rad, Math.max(20, e.clientX - r.left), r.height / 2);
+		}
 		e.dataTransfer.effectAllowed = 'move';
 		e.dataTransfer.setData('text/plain', 'deler-' + si);
 	}
@@ -995,13 +1000,13 @@
 				{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 				<div class="fb-visning-velger m-deler-faner" role="tablist">
 					<button role="tab" aria-selected={delerFane === 'hoveddeler'} class:sel={delerFane === 'hoveddeler'} onclick={() => { delerFane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
-					<button role="tab" aria-selected={delerFane === 'leggtil'} class:sel={delerFane === 'leggtil'} onclick={() => { delerFane = 'leggtil'; apenCelle = null; }}>Legg til</button>
+					<button role="tab" aria-selected={delerFane === 'innstillinger'} class:sel={delerFane === 'innstillinger'} onclick={() => { delerFane = 'innstillinger'; apenCelle = null; }}>Innstillinger</button>
 				</div>
 				{#if delerFane === 'hoveddeler'}
 				<div class="m-deler-tabell">
 					<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
 					{#each m.mal.sections as sec, si (si)}
-							<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor}
+							<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor} class:deler-dragging={dragSi === si}
 							ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
 							<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
 								ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>

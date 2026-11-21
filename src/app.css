@@ -635,8 +635,23 @@ textarea {
 .m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
 .m-deler-drag { color: var(--muted); cursor: grab; display: flex; align-items: center; justify-content: center; padding: 3px 0; border-radius: 6px; touch-action: none; }
-.m-deler-drag:hover { color: var(--text); background: var(--accent-dim); }
 .m-deler-drag:active { cursor: grabbing; }
+/* (4) markör-linje over/under mottaker-rad under drag */
+.m-deler-rad.drag-target::before,
+.m-deler-rad.drag-target-etter::before {
+	content: '';
+	position: absolute;
+	left: 4px; right: 4px;
+	height: 3px;
+	background: var(--accent);
+	border-radius: 2px;
+	z-index: 5;
+	pointer-events: none;
+}
+.m-deler-rad.drag-target::before { top: -2px; }
+.m-deler-rad.drag-target-etter::before { bottom: -2px; }
+/* (3) hele kilderaden «flyter» under drag */
+.m-deler-rad.deler-dragging { opacity: 0.45; outline: 2px dashed var(--accent); outline-offset: -2px; border-radius: 8px; }
 .m-deler-drag.aktiv { color: var(--accent); }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
@@ -1285,6 +1300,11 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-dirty { font-size: 10px; font-weight: 600; color: #c0392b; border: 1px solid #c0392b; border-radius: 8px; padding: 1px 7px; }
 .fb-visning-velger { display: inline-flex; gap: 4px; background: var(--panel2, var(--border)); border-radius: 9px; padding: 3px; }
 .fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 12px; padding: 5px 14px; cursor: pointer; border-radius: 7px; }
+.m-deler-faner { margin-bottom: 10px; }
+.m-deler-faner button { border: 1px solid var(--border); background: var(--panel); color: var(--muted); padding: 5px 16px; }
+.m-deler-faner button:first-child { border-radius: 8px 0 0 8px; }
+.m-deler-faner button:last-child { border-radius: 0 8px 8px 0; margin-left: -1px; }
+.m-deler-faner button:not(.sel):hover { color: var(--foreground); background: var(--accent-dim); }
 .fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
 .fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
 /* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler
