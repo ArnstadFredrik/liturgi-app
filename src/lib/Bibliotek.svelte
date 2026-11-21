@@ -1,6 +1,7 @@
 <script>
-	import { bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete, eksporterBibliotek } from '$lib/fileio.svelte.js';
+	import { bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete, eksporterBibliotek, importerBibliotek } from '$lib/fileio.svelte.js';
 	import { confirmBox } from '$lib/modal.svelte.js';
+	import { toast } from 'svelte-sonner';
 	import { litHtml } from '$lib/lit.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { mdi } from '$lib/mdi.js';
@@ -118,6 +119,33 @@ function grupperEtterLedd(rader) {
 
 	$effect(() => { if (visEtterType) sok(); });
 
+	let fileInp = $state(null);
+
+	async function importerEget() {
+		fileInp?.click();
+	}
+
+	async function onImportFil(e) {
+		const fil = e.currentTarget.files?.[0];
+		e.currentTarget.value = '';
+		if (!fil) return;
+		try {
+			const data = JSON.parse(await fil.text());
+			const rader = data?.rader;
+			if (data?.bibliotekEksport !== 1 || !Array.isArray(rader)) {
+				toast.error('Filen ser ikke ut som en bibliotekseksport');
+				return;
+			}
+			const r = await importerBibliotek(rader);
+			if (r.ok) {
+				toast.success('Importert ' + r.n + ' rader' + (r.dup ? ' (' + r.dup + ' dubletter hoppet over)' : ''));
+				await lastRader();
+			} else toast.error('Klarte ikke importere');
+		} catch (err) {
+			toast.error('Klarte ikke lese filen: ' + (err?.message ?? err));
+		}
+	}
+
 	async function nyttLedd() {
 		valgt = null;
 		rediger = true;
@@ -180,6 +208,10 @@ function grupperEtterLedd(rader) {
 			<input bind:value={q} oninput={sok} placeholder='Søk, f.eks. «forbønn» eller «sanctus» …' spellcheck="false" />
 			<button class="biblio-type-btn" class:paa={visEtterType} onclick={() => { visEtterType = !visEtterType; }} title="Grupper leddene etter type (Kyrie, Gloria, bønn, prefasjon …)">{@html mdi('tag-outline', 14)} Etter type</button>
 			<button onclick={nyttLedd}>{@html mdi('plus')} Nytt ledd</button>
+			{#if isElectron}
+				<input type="file" accept=".json,application/json" style="display:none" bind:this={fileInp} onchange={onImportFil} />
+			<button onclick={importerEget} title="Importer eget innhold fra en bibliotekseksport (JSON) — dubletter hoppes over">{@html mdi('upload')} Importer eget innhold</button>
+			{/if}
 			{#if isElectron && brukerrader.length}
 				<button onclick={() => eksporterBibliotek(brukerrader)} title="Eksporter alt eget innhold til JSON">{@html mdi('download')} Eksportér eget innhold</button>
 			{/if}

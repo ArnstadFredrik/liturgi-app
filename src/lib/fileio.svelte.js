@@ -661,6 +661,25 @@ export async function eksporterBibliotek(rows) {
 	return r.ok;
 }
 
+/** Importer eget innhold (rader fra eksporterBibliotek-JSON) — dubletter
+ *  (samme mappe/ledd/alternativ/tekst) hoppes over. */
+export async function importerBibliotek(rader) {
+	if (!isElectron || !Array.isArray(rader)) return { ok: false, n: 0, dup: 0 };
+	const eksisterende = await bibUserList();
+	const nokkel = (r) => [r.mappe ?? '', r.ledd ?? '', r.alt_label ?? '', r.tekst ?? ''].join('\u00a6');
+	const sett = new Set(eksisterende.map(nokkel));
+	let n = 0, dup = 0;
+	for (const r of rader) {
+		if (!r || typeof r !== 'object' || !r.ledd) { dup++; continue; }
+		const k = nokkel(r);
+		if (sett.has(k)) { dup++; continue; }
+		await bibUserAdd({ mappe: r.mappe ?? '', ledd: r.ledd, alt_label: r.alt_label ?? '', tekst: r.tekst ?? '', tags: r.tags ?? '' });
+		sett.add(k);
+		n++;
+	}
+	return { ok: true, n, dup };
+}
+
 /** Regenerer SQLite-biblioteket manuelt fra originalmalene (Innstillinger). */
 export async function regenererBibliotek() {
 	if (!isElectron) return false;
