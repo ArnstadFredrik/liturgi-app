@@ -112,7 +112,8 @@
 		</div>
 	</div>
 
-	{#if kildeFilter !== 'brukermaler'}
+		<div class="malgrupper">
+{#if kildeFilter !== 'brukermaler'}
 	<div class="malgruppe">
 		<div class="sidehead">Originaler</div>
 		{#each visOriginaler as t (t.id)}
@@ -148,6 +149,7 @@
 		{/each}
 	</div>
 	{/if}
+	</div>
 
 	<div class="w-mal-handlinger">
 		<button onclick={importerMal}>Importér mal …</button>
