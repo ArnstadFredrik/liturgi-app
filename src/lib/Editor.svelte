@@ -130,9 +130,11 @@
 	<div id="ed-date-line">{nlDate(o.date)}{#if o.kirkeaar}&nbsp;– {o.kirkeaar.name}{/if}</div>
 
 	{#each o.sections as sec, si (si)}
-		<div class="section" id="sec-{si}">
+		<div class="section" id="sec-{si}" class:lenket-sec={!!sec.__lenket}>
 			<div class="sec-head">
-				<span class="sec-title" contenteditable="plaintext-only" spellcheck="false"
+				{#if sec.__lenket}<span class="sec-lenket" title="Koblet til malen — innholdet fornyes ved åpning og kan ikke redigeres her">{@html mdi("link-variant", 11)} lenket</span>{/if}
+				<span class="sec-title" contenteditable={sec.__lenket ? "false" : "plaintext-only"} spellcheck="false"
+					readonly={!!sec.__lenket}
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				{#if app.kind === 'template'}
@@ -143,6 +145,7 @@
 				{#if app.kind === 'service' && (sec.alternativer?.length || sec.alternativ)}
 					<span class="sec-delgruppe sec-delgruppe-stat" title="Alternativ">{(sec.alternativer ?? (sec.alternativ ? [sec.alternativ] : [])).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ')}</span>
 				{/if}
+				{#if !sec.__lenket}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if /skriftlesning/i.test(sec.title) && sec.items.length >= 5}
 					<button class="sec-velg-tekster" title="Velg hvilke tekster som skal være med" onclick={() => velgTeksterModal(sec)}>{@html mdi("format-list-bulleted", 14)} Velg tekster …</button>
@@ -150,6 +153,7 @@
 				<button class="sec-flytt" title="Flytt avsnittet ned" onclick={() => flyttSeksjon(si, 1)} disabled={si === o.sections.length - 1}>{@html mdi("arrow-down", 13)}</button>
 				<button onclick={() => addItem(si)}>+ ledd</button>
 				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>{@html mdi("delete-outline", 14)}</button>
+				{/if}
 			</div>
 			<div class="sec-items">
 				{#each sec.items as it, ii (it.id)}

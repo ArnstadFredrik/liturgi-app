@@ -3,6 +3,7 @@
 // Brukes av både Malverktøy-visningen og dokumentpanelet (DokInsp).
 import { BUILTIN_TEMPLATES } from '$lib/data.js';
 import { app, registrerÅpenMal, malEntryFor, syncDirty } from '$lib/store.svelte.js';
+import { avbrytAutolagre } from '$lib/fileio.svelte.js';
 import { toast } from 'svelte-sonner';
 
 // safeNavn er duplisert her (ikke importert fra fileio) for å unngå
@@ -191,5 +192,14 @@ export async function lagreTilProsjekt() {
 		syncDirty();
 	}, 60);
 	toast.success('data.js oppdatert · ' + seedMelding);
+	// autolagringsutkastet er nå eldre enn prosjektlagringen — rydd det bort
+	avbrytAutolagre();
+	try {
+		for (const id of [o.__devId, o.id]) {
+			if (!id) continue;
+			const fil = 'auto-' + String(id).replace(/[^a-zA-Z0-9_-]/g, '_') + '.json';
+			await window.liturgi?.slettUtkast?.(fil);
+		}
+	} catch { }
 	return true;
 }

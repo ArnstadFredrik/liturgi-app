@@ -12,6 +12,11 @@ const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron
 // per mal, overskrives hver gang). Dokumenter uten filsti (nye gudstjenester)
 // autolagres ikke — første lagring må være «Lagre»/«Lagre som».
 let autoTimer = null;
+/** Avbryt ventende autolagring (kalles etter eksplisitt lagring). */
+export function avbrytAutolagre() {
+	clearTimeout(autoTimer);
+	autoTimer = null;
+}
 function autolagreNaa() {
 	if (!isElectron) return;
 	const o = app.current;
