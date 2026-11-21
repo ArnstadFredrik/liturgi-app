@@ -5,6 +5,7 @@
 	import { valgModal, kirkeaarListeModal } from '$lib/modal.svelte.js';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { mdi } from '$lib/mdi.js';
+	import { MÅLFORMER, målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { toast } from 'svelte-sonner';
 
 	const o = $derived(app.current);
@@ -119,9 +120,25 @@
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{:else if o?.__devMal}
 			<span class="insp-linje">Original i prosjektet — endringene skrives til <code>src/lib/data.js</code> og seed-filen ved «Lagre til prosjektet».</span>
+			<div class="insp-rad insp-avpaa-rad">
+				<span class="avpaa-tekst">Målform</span>
+				<div class="fb-visning-velger">
+					{#each MÅLFORMER as mf (mf)}
+						<button type="button" class:sel={malFormFor(o) === mf} onclick={() => { if (o) { o.malForm = mf; markDirty(); } }}>{målformLabel(mf)}</button>
+					{/each}
+				</div>
+			</div>
 			{#if app.dirty}<span class="dirty insp-linje">• ulagrede endringer</span>{/if}
 		{:else}
 			<span class="insp-linje">Lokal mal (grunnordning)</span>
+			<div class="insp-rad insp-avpaa-rad">
+				<span class="avpaa-tekst">Målform</span>
+				<div class="fb-visning-velger">
+					{#each MÅLFORMER as mf (mf)}
+						<button type="button" class:sel={malFormFor(o) === mf} onclick={() => { if (o) { o.malForm = mf; markDirty(); } }}>{målformLabel(mf)}</button>
+					{/each}
+				</div>
+			</div>
 			<div class="insp-rad insp-avpaa-rad">
 				<button type="button" class="avpaa" role="checkbox" aria-checked={o?.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { if (o) { o.kanGudstjeneste = o.kanGudstjeneste === false; markDirty(); } }}>
 					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>

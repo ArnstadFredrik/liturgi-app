@@ -1,7 +1,8 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
 	import { erMalFavoritt } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal, malType } from '$lib/modal.svelte.js'
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	delGruppeModal, malType } from '$lib/modal.svelte.js';
+	import { MÅLFORMER, målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
@@ -18,10 +19,11 @@
 	const forhType = pres?.type ?? mInit?.forhåndsvalgtType ?? 'gudstjeneste';
 	let name = $state(isNS ? (pres?.name ?? '') : (mInit?.def ?? ''));
 	let date = $state(isNS ? (pres?.date ?? nextSundayISO()) : (mInit?.dato ?? ''));
-	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType && kanBrukes(t))?.id ?? '') : '');
+	let malForm = $state((pres?.malForm ?? localStorage.getItem('opprettMalForm') ?? 'bokmål').toLowerCase());
+	let tplId = $state(isNS ? (pres?.tplId ?? app.templates.find((t) => malType(t) === forhType && kanBrukes(t) && malFormFor(t) === malForm)?.id ?? '') : '');
 	let medDåp = $state(isNS ? (pres?.dåp ?? true) : true);
 	let medNattverd = $state(isNS ? (pres?.nattverd ?? true) : true);
-	let nyType = $state(forhType); // 'gudstjeneste' | 'gravferd'
+	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
 	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
 	let remountTeller = $state(0); // inkrementeres ved type-bytte: {#key} rundt innholdet
@@ -36,7 +38,7 @@
 
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
 	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudstjeneste)
-	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)));
+	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t) && malFormFor(t) === malForm));
 
 	const nyListe = $derived.by(() => {
 		const favoritter = malerForType.filter((t) => erMalFavoritt(t.name));
@@ -51,7 +53,7 @@
 	$effect(() => {
 		if (m?.type === 'newService') {
 			const t = app.templates.find((x) => x.id === tplId);
-			if (!t || malType(t) !== nyType || !kanBrukes(t)) tplId = app.templates.find((x) => malType(x) === nyType && kanBrukes(x))?.id ?? '';
+			if (!t || malType(t) !== nyType || !kanBrukes(t) || malFormFor(t) !== malForm) tplId = app.templates.find((x) => malType(x) === nyType && kanBrukes(x) && malFormFor(x) === malForm)?.id ?? '';
 		}
 	});
 	let valgte = $state([]);
@@ -301,9 +303,18 @@
 
 	/** Type-bytte: nullstill malerForType-listen eksplisitt og oppdater nyType.
 	 *  Svelte 5 $derived.by som leser nyType var stale ved rask GF→GJ-bryting. */
+	/** Målform-bytte: mal-listen viser kun valgt målform; valget huskes. */
+	function velgMalForm(mf) {
+		malForm = mf;
+		try { localStorage.setItem('opprettMalForm', mf); } catch {}
+		window.liturgi?.dbSet?.('opprettMalForm', mf);
+		malerForType = app.templates.filter((t) => malType(t) === nyType && kanBrukes(t) && malFormFor(t) === malForm);
+		tplId = malerForType[0]?.id ?? '';
+	}
+
 	function velgType(type) {
 		nyType = type;
-		malerForType = app.templates.filter((t) => malType(t) === type && kanBrukes(t));
+		malerForType = app.templates.filter((t) => malType(t) === type && kanBrukes(t) && malFormFor(t) === malForm);
 		tplId = malerForType[0]?.id ?? ''; // preselect før øvrige effekter
 		if (type === 'gravferd') oppdaterJordpaaGrupper();
 		if (type === 'gudstjeneste') {
@@ -520,8 +531,19 @@
 					<button type="button" role="radio" aria-checked={nyType === 'gravferd'} class={nyType === 'gravferd' ? 'm-type-btn sel' : 'm-type-btn'} onclick={() => { velgType('gravferd'); remountTeller += 1; }} title="Gravferd">{@html mdi('flower-tulip')}<span>Gravferd</span></button>
 				</div>
 				<label>
+					Målform
+					<div class="fb-visning-velger" role="group" aria-label="Målform">
+						{#each MÅLFORMER as mf (mf)}
+							<button type="button" class:sel={malForm === mf} onclick={() => velgMalForm(mf)}>{målformLabel(mf)}</button>
+						{/each}
+					</div>
+				</label>
+				<label>
 					Mal
 					<select bind:value={tplId} onchange={() => oppdaterJordpaaGrupper()}>
+						{#if malerForType.length === 0}
+							<option value="">Ingen maler på {målformLabel(malForm).toLowerCase()} ennå</option>
+						{/if}
 						{#if nyListe.favoritter.length}
 							<optgroup label="Favoritter">
 								{#each nyListe.favoritter as t (t.id)}

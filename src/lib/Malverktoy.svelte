@@ -6,6 +6,7 @@
 	// og IPC-handleren i main.cjs nekter i pakket app.
 	import { BUILTIN_TEMPLATES } from '$lib/data.js';
 	import { malType } from '$lib/modal.svelte.js';
+	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 
 	/** Søk + type-filter + sortering etter type så navn (samme som malmodulen). */
 	let q = $state('');
@@ -74,6 +75,7 @@
 			<li>
 				<div class="mal-info">
 					<span class="navn">{bt.name}</span>
+						<span class="w-mal-type">{målformLabel(malFormFor(bt))}</span>
 					{#if bt.description}<span class="beskr">{bt.description}</span>{/if}
 				</div>
 				<button onclick={() => åpneOriginal(bt)}>

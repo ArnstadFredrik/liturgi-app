@@ -1,8 +1,23 @@
-/** Liturgityper for malene — ren modul (ingen Svelte-avhengigheter) slik at
+/** Liturgityper og målformer — ren modul (ingen Svelte-avhengigheter) slik at
  *  node-testene kan verifisere opprett-modulens klassifisering direkte.
  *  Brukes av Modal (Ny gudstjeneste), Maler og Malverktoy. */
 
 export const TYPER = ['gudstjeneste', 'vigsel', 'gravferd'];
+
+/** Målformer/språk malene kan ha. 'bokmål' er standard og den eneste
+ *  målformen som følger med appen foreløpig; utvides etter hvert som
+ *  flere ordninger legges inn. */
+export const MÅLFORMER = ['bokmål', 'nynorsk', 'engelsk'];
+
+export function målformLabel(mf) {
+	const k = (mf ?? 'bokmål').toLowerCase();
+	return k[0].toUpperCase() + k.slice(1);
+}
+
+/** Malens målform — mangler feltet (gamle maler) er det bokmål. */
+export function malFormFor(t) {
+	return (t?.malForm ?? 'bokmål').toLowerCase();
+}
 
 /** Hvilken liturgitype har malen? (egendefinert felt eller navn) */
 export function malType(t) {
@@ -14,10 +29,11 @@ export function kanBrukes(t) {
 	return t.kanGudstjeneste !== false;
 }
 
-/** Malene av én type, i rekkefølgen opprett-modulen viser dem (type-rekkefølge
- *  gudstjeneste → vigsel → gravferd, deretter navn). */
-export function malerForType(maler, type) {
+/** Malene av én type OG én målform, i rekkefølgen opprett-modulen viser dem
+ *  (navn, norsk sortering). */
+export function malerForType(maler, type, malForm = 'bokmål') {
+	const mf = malForm.toLowerCase();
 	return maler
-		.filter((t) => malType(t) === type && kanBrukes(t))
+		.filter((t) => malType(t) === type && kanBrukes(t) && malFormFor(t) === mf)
 		.sort((a, b) => a.name.localeCompare(b.name, 'no'));
 }

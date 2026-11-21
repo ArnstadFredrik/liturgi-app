@@ -299,6 +299,7 @@ function parseLiturgi(raw) {
 		delete data.__dirty; // gamle filer kan ha flagget bakt inn — åpnes alltid rent
 		// normaliser gammel skrivemåte: liturgiType 'gudtjeneste' (uten s) → 'gudstjeneste'
 		if (data.liturgiType === 'gudtjeneste') data.liturgiType = 'gudstjeneste';
+		data.malForm = data.malForm ?? 'bokmål'; // gamle filer: bokmål er standard
 		return data;
 	} catch {
 		return null;
@@ -719,9 +720,9 @@ export async function saveAsTemplateOnDisk(name) {
 }
 
 /** Opprett en ny, tom lokal mal direkte som fil på disk (kun Electron). */
-export async function newTemplateOnDisk(name) {
+export async function newTemplateOnDisk(name, malForm = 'bokmål') {
 	const t = {
-		id: uid(), kind: 'template', name: name || 'Ny grunnordning',
+		id: uid(), kind: 'template', name: name || 'Ny grunnordning', malForm,
 		sections: [{ title: 'I. Samling', items: [] }]
 	};
 	try {
