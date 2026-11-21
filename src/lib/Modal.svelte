@@ -1,6 +1,8 @@
 <script>
 	import { app, applyKirkeaar } from '$lib/store.svelte.js';
-	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal, malType } from '$lib/modal.svelte.js';
+	import { erMalFavoritt } from '$lib/store.svelte.js';
+	import { closeModal, showModal, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav, delGruppeModal, malType } from '$lib/modal.svelte.js'
+	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
@@ -35,6 +37,12 @@
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
 	// feilet ved type-bytt: mal-listen ble stående tom ved retur til gudstjeneste)
 	let malerForType = $state(app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)));
+
+	const nyListe = $derived.by(() => {
+		const favoritter = malerForType.filter((t) => erMalFavoritt(t.name));
+		const rest = malerForType.filter((t) => !erMalFavoritt(t.name));
+		return { favoritter, originaler: rest.filter((t) => erOriginalMal(t)), brukere: rest.filter((t) => !erOriginalMal(t)) };
+	});
 	console.log('[modal-mount] maler=' + app.templates.length + ' nyType=' + nyType + ' filtrert=' + malerForType.length + ' typer=' + app.templates.map((t) => malType(t)).join(','));
 
 	// sørg for at valgt mal passer typen når type byttes. NB: malerForType kan være
@@ -514,9 +522,25 @@
 				<label>
 					Mal
 					<select bind:value={tplId} onchange={() => oppdaterJordpaaGrupper()}>
-						{#each malerForType as t (t.id)}
-							<option value={t.id}>{t.name}</option>
-						{/each}
+						{#if nyListe.favoritter.length}
+							<optgroup label="Favoritter">
+								{#each nyListe.favoritter as t (t.id)}
+									<option value={t.id}>{t.name}</option>
+								{/each}
+							</optgroup>
+						{/if}
+						<optgroup label="Originaler">
+							{#each nyListe.originaler as t (t.id)}
+								<option value={t.id}>{t.name}</option>
+							{/each}
+						</optgroup>
+						{#if nyListe.brukere.length}
+							<optgroup label="Brukermaler">
+								{#each nyListe.brukere as t (t.id)}
+									<option value={t.id}>{t.name}</option>
+								{/each}
+							</optgroup>
+						{/if}
 					</select>
 				</label>
 				<label>

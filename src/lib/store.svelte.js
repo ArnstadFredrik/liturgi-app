@@ -20,6 +20,7 @@ export const app = $state({
 	recentServices: [], // Electron: siste gudstjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
 	innFane: 'generelt', // Innstillinger: aktiv undermodul (styres fra modul-fane-stripen)
+	malFavoritter: [], // malnavn merket med stjerne i malmodulen
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
 	visning: 'hjem', // 'hjem' | 'maler' | 'bibliotek' | 'innstillinger'
 	forbAapneSti: null, // Forberedelse: fil som skal åpnes når modulen åpnes fra Kirkeåret
@@ -62,6 +63,20 @@ try {
 	app.tocSkjult = localStorage.getItem(TOC_KEY) === 'skjult';
 } catch {}
 
+	/** Favoritt-maler: lagres i db (Electron) / lokalStorage, nøkkel = malnavn. */
+	export function veksleMalFavoritt(navn) {
+		const liste = app.malFavoritter.includes(navn)
+			? app.malFavoritter.filter((n) => n !== navn)
+			: [...app.malFavoritter, navn];
+		app.malFavoritter = liste;
+		try { localStorage.setItem('malFavoritter', JSON.stringify(liste)); } catch {}
+		window.liturgi?.dbSet?.('malFavoritter', JSON.stringify(liste));
+	}
+
+	export function erMalFavoritt(navn) {
+		return app.malFavoritter.includes(navn);
+	}
+
 /** Sett tema på <html> og lagre valget (lokalStorage + database i Electron). */
 export function setTheme(t) {
 	app.theme = t;
@@ -83,6 +98,19 @@ export function initTheme() {
 		document.documentElement.classList.add('electron');
 	}
 	// brukerens lagrede tema i databasen vinner over lokalStorage/gjett
+	try {
+		const lagret = JSON.parse(localStorage.getItem('malFavoritter') ?? '[]');
+		if (Array.isArray(lagret)) app.malFavoritter = lagret;
+	} catch {}
+
+	// favoritter fra databasen vinner over lokalStorage
+	window.liturgi?.dbGet?.('malFavoritter')?.then?.((r) => {
+		try {
+			const liste = JSON.parse(r?.value ?? '[]');
+			if (Array.isArray(liste)) app.malFavoritter = liste;
+		} catch {}
+	});
+
 	window.liturgi?.dbGet?.('tema')?.then?.((r) => {
 		if (r?.ok && (r.value === 'dark' || r.value === 'light') && r.value !== app.theme) setTheme(r.value);
 	});
