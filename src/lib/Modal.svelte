@@ -951,6 +951,7 @@
 				{/if}
 			{:else if m.type === 'delerTabell'}
 				<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett gudstjeneste».</p>
+				{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 				<div class="m-deler-tabell">
 					<div class="m-deler-rad m-deler-head"><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
 					{#each m.mal.sections as sec, si (si)}
@@ -963,20 +964,32 @@
 								<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 							</button>
 							{#if apenCelle?.si === si && apenCelle?.kol === 'alternativ'}
-								<div class="m-deler-meny">
+								<div class="m-deler-meny" role="menu">
 									{#each m.alternativer as t (t)}
-										<label class="m-alt-rad"><input type="checkbox" checked={secAlternativer(sec).includes(t)} onchange={(e) => veksleSecAlt(sec, t, e.currentTarget.checked)} /> {t[0].toUpperCase() + t.slice(1)}</label>
+										<button type="button" class="m-alt-rad" role="menuitemcheckbox" aria-checked={secAlternativer(sec).includes(t)}
+											onclick={() => veksleSecAlt(sec, t, !secAlternativer(sec).includes(t))}>
+											<span class="m-alt-ind">{#if secAlternativer(sec).includes(t)}{@html mdi('check', 14)}{/if}</span>
+											<span class="m-alt-tekst">{t[0].toUpperCase() + t.slice(1)}</span>
+										</button>
 									{/each}
-									{#if !m.alternativer.length}<span class="muted">Ingen alternativer i katalogen.</span>{/if}
+									{#if !m.alternativer.length}<span class="muted m-alt-tom">Ingen alternativer i katalogen.</span>{/if}
 								</div>
 							{:else if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
-								<div class="m-deler-meny">
-									<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={!sec.delGruppe} onchange={() => { sec.delGruppe = undefined; markDirtyIModal(); }} /> Standard</label>
+								<div class="m-deler-meny" role="menu">
+									<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!sec.delGruppe}
+										onclick={() => { sec.delGruppe = undefined; markDirtyIModal(); }}>
+										<span class="m-alt-ind">{#if !sec.delGruppe}{@html mdi('check', 14)}{/if}</span>
+										<span class="m-alt-tekst">Standard</span>
+									</button>
 									<div class="m-deler-sep"></div>
 									{#each m.variasjoner as v (v)}
-										<label class="m-alt-rad"><input type="radio" name={'var-' + si} checked={sec.delGruppe === v} onchange={() => { sec.delGruppe = v; markDirtyIModal(); }} /> {v[0].toUpperCase() + v.slice(1)}</label>
+										<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={sec.delGruppe === v}
+											onclick={() => { sec.delGruppe = v; markDirtyIModal(); }}>
+											<span class="m-alt-ind">{#if sec.delGruppe === v}{@html mdi('check', 14)}{/if}</span>
+											<span class="m-alt-tekst">{v[0].toUpperCase() + v.slice(1)}</span>
+										</button>
 									{/each}
-									{#if !m.variasjoner.length}<span class="muted">Ingen variasjoner i katalogen.</span>{/if}
+									{#if !m.variasjoner.length}<span class="muted m-alt-tom">Ingen variasjoner i katalogen.</span>{/if}
 								</div>
 							{/if}
 						</div>
