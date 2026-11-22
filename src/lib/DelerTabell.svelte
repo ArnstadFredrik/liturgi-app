@@ -179,6 +179,8 @@
 			{/each}
 		</div>
 	{:else if fane === 'innstillinger'}
+		<div class="minst-gruppe">
+			<p class="minst-tittel">Kataloger</p>
 		<div class="m-deler-admin">
 			<div>
 				<p class="m-deler-adm-tittel">Alternativer</p>
@@ -197,10 +199,12 @@
 				<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>
 			</div>
 		</div>
-	{/if}
+		</div>
 
-	{#if visMalFelt && fane === 'innstillinger'}
-		<div class="m-deler-admin">
+		{#if visMalFelt}
+		<div class="minst-gruppe">
+			<p class="minst-tittel">Malinnstillinger</p>
+			<div class="m-deler-admin mal-felt">
 			<div>
 				<p class="m-deler-adm-tittel">Målform</p>
 				<button type="button" class="hd-maal-btn" title="Velg eller legg til målform" onclick={() => maalformModal(mal)}>
@@ -221,8 +225,10 @@
 				</button>
 			</div>
 		</div>
-	{/if}
+		</div>
+		{/if}
 
+	{/if}
 	{#if visMalFelt && fane === 'informasjon'}
 		<div class="hd-info">
 			<div class="hd-info-rad"><span class="hd-info-nokkel">Navn</span><span class="hd-info-verdi">{mal.name}</span></div>

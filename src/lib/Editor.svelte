@@ -1,7 +1,7 @@
 <script>
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav, delerTabellModal } from '$lib/modal.svelte.js';
+	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav,  } from '$lib/modal.svelte.js';
 	import { nlDate } from '$lib/export.js';
 	import { saveCurrent } from '$lib/fileio.svelte.js';
 	import Item from './Item.svelte';
@@ -138,7 +138,6 @@
 					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
 				>{sec.title}</span>
 				{#if app.kind === 'template'}
-					<button class="sec-delgruppe" title="Deler: alternativer (flervalg) og variasjoner pr hoveddel — styrer valgene i «Opprett gudstjeneste»" onclick={() => delerTabellModal(app.current)}>{@html mdi("tag-outline", 13)} Deler …</button>
 				{:else if harDelGrupper}
 					<span class="sec-delgruppe sec-delgruppe-stat" title="Del-gruppe">{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
 				{/if}
