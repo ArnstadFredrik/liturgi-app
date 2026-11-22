@@ -58,6 +58,9 @@ h1, h2, h3, #sidebar h1, .sec-title, .item-title, .item-eyebrow, .sidehead,
 button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }
 #app { display: flex; height: 100vh; }
 #main { flex: 1; overflow-y: auto; }
+#app:has(#malverktoy) #main { overflow: hidden; display: flex; flex-direction: column; }
+#malverktoy .mal-tabell-kort { flex: 1; min-height: 0; overflow: auto; margin-top: 0; }
+#malverktoy .mal-filter { flex-shrink: 0; }
 
 /* ---------- Sidebar ---------- */
 #sidebar {

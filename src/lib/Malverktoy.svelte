@@ -97,6 +97,8 @@
 							{/if}
 							{#if harSeed(t)}
 								<button onclick={() => åpneOriginal(BUILTIN_TEMPLATES.find((bt) => bt.id === t.id))} title="Rediger seed-malen i data.js (lagres til prosjektet)">{@html mdi('pencil', 13)} Rediger seed</button>
+							{:else}
+								<button onclick={() => åpneOriginal(t)} title="Rediger malen i dev-editoren og lagre til prosjektet som ny seed i data.js">{@html mdi('pencil', 13)} Rediger seed</button>
 							{/if}
 							<button onclick={() => openTemplate(t.id)} title="Åpne i den vanlige editoren">Åpne</button>
 						</td>
@@ -110,7 +112,7 @@
 </div>
 
 <style>
-	#malverktoy { max-width: 720px; margin: 0 auto; padding: 24px; }
+	#malverktoy { max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; min-height: 0; flex: 1; }
 	h1 { display: flex; align-items: center; gap: 10px; }
 	.dev-merke {
 		font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px;

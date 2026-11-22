@@ -159,9 +159,15 @@ export async function lagreTilProsjekt() {
 	const o = app.current;
 	if (!o?.__devMal) { toast.error('Ingen dev-mal er åpen'); return false; }
 	const orig = BUILTIN_TEMPLATES.find((bt) => bt.id === o.__devId || bt.id === o.id || bt.name === o.name);
-	if (!orig) { toast.error('Fant ikke originalmalen i data.js'); return false; }
-	// Dåp-seksjonen (lenket) settes tilbake før sammenligningen/skrivingen
-	const mal = malForDataJs(orig, o);
+	// NY SEED: wip-mal som ikke finnes i data.js fra før — 'Lagre til
+	// prosjektet' legger den inn som nytt entry (wip-flagget beholdes, så
+	// malen forblir uverifisert i prod til den bekreftes og flagget fjernes).
+	const mal = orig ? malForDataJs(orig, o) : (() => {
+		const kopi = JSON.parse(JSON.stringify(o));
+		for (const k of HELPER_FELTER) delete kopi[k];
+		delete kopi.builtinKey;
+		return kopi;
+	})();
 	// seed-filen skrives fra den redigerte kopien (beholder normaliserte
 	// tomme felter, slik som dagens seed-format: text/instr som «""»)
 	const seed = JSON.parse(JSON.stringify(o));
@@ -204,7 +210,7 @@ export async function lagreTilProsjekt() {
 		if (e2) e2.dirty = false;
 		syncDirty();
 	}, 60);
-	toast.success('data.js oppdatert · ' + seedMelding);
+	toast.success((r?.nySeed ? 'Ny seed lagt til i data.js · start appen på nytt for å se den i seed-listen · ' : 'data.js oppdatert · ') + seedMelding);
 	// autolagringsutkastet er nå eldre enn prosjektlagringen — rydd det bort
 	avbrytAutolagre();
 	try {

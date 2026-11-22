@@ -610,14 +610,41 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
 	const linjer = src.split('\n');
 	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${mal.id}"`));
-	if (idLinje < 0) return { ok: false, error: `Fant ikke id "${mal.id}" i data.js` };
-	// data.js er tab-innrykket: toppnivå-entries åpner med en linje som kun er
-	// «\t{» og lukker med «\t},»/«\t}». (Den gamle /^},?$/-regexen passet aldri —
-	// hver dev-lagring feilet med «Ugyldige entry-grenser i data.js».)
+	// NY SEED: id-en finnes ikke i data.js fra f\u00f8r (wip-mal som skal
+	// fremmes til original) \u2014 legg den inn som nytt entry i
+	// BUILTIN_TEMPLATES, f\u00f8r arrayets avsluttende \u00ab];\u00bb.
+	if (idLinje < 0) {
+		// bruk den SISTE ']'-linjen — nesting-indre ']'-linjer (items/alts) ellersTreffer først
+		const trims = linjer.map((l) => l.trim());
+		const sisteHake = Math.max(trims.lastIndexOf(']'), trims.lastIndexOf('];'));
+		const arrSlutt = sisteHake;
+		if (arrSlutt < 1) return { ok: false, error: 'Fant ikke BUILTIN_TEMPLATES-arrayens slutt i data.js' };
+		// forrige siste entry mangler typisk komma — legg det på før innsettingen
+		for (let pi = arrSlutt - 1; pi > 0; pi--) {
+			const tr = linjer[pi].trim();
+			if (!tr) continue;
+			if (tr.endsWith('}') && !tr.endsWith(',')) linjer[pi] += ',';
+			break;
+		}
+		const ny = JSON.stringify(mal, null, '	').split('\n').map((l) => '	' + l);
+		ny[ny.length - 1] += ',';
+		linjer.splice(arrSlutt, 0, ...ny);
+		fs.writeFileSync(fil, linjer.join('\n'));
+		try {
+			await import(url.pathToFileURL(fil).href + '?v=' + Date.now());
+			return { ok: true, nySeed: true };
+		} catch (err) {
+			fs.writeFileSync(fil, src);
+			return { ok: false, error: 'data.js var ugyldig etter skriving (gjenopprettet): ' + err.message };
+		}
+	}
+	// data.js er tab-innrykket: toppniv\u00e5-entries \u00e5pner med en linje som kun er
+	// \u00ab\	{\u00bb og lukker med \u00ab\	},\u00bb/\\u00ab\	}\u00bb. (Den gamle /^},?$/-regexen passet aldri \u2014
+	// hver dev-lagring feilet med \u00abUgyldige entry-grenser i data.js\u00bb.)
 	let start = idLinje;
-	while (start > 0 && !/^\t\{$/.test(linjer[start])) start--;
+	while (start > 0 && !/^	\{$/.test(linjer[start])) start--;
 	let slutt = idLinje;
-	while (slutt < linjer.length && !/^\t},?$/.test(linjer[slutt])) slutt++;
+	while (slutt < linjer.length && !/^	},?$/.test(linjer[slutt])) slutt++;
 	if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
 	const komma = linjer[slutt].trim().endsWith(',');
 	const ny = JSON.stringify(mal, null, '	').split('\n');
