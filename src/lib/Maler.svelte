@@ -88,30 +88,6 @@
 		}
 	}
 
-	/** Bekreft en WIP-mal (dev): registreres i db-n\u00f8kkelen \u00abwipBekreftede\u00bb —
-	 *  malen mister WIP-merket og tas med i Opprett-modalen. Merket i seedene
-	 *  fjernes ved neste prod-release (jf. bekreftelseslisten). */
-	async function bekreftWipMal(t) {
-		confirmBox('Bekreft WIP-mal', `Bekrefte «${t.name}» som ferdig kontrollert og ta den med i Opprett?`, async () => {
-			t.wip = false;
-			let liste = [];
-			try {
-				const r = await window.liturgi?.dbGet?.('wipBekreftede');
-				if (r) liste = JSON.parse(r);
-			} catch {}
-			if (!liste.includes(t.id)) liste.push(t.id);
-			await window.liturgi?.dbSet?.('wipBekreftede', JSON.stringify(liste));
-			if (t.filePath) {
-				const data = { ...t };
-				delete data.filePath;
-				delete data.kind;
-				delete data.builtinKey;
-				await window.liturgi.writeTemplate(t.filePath, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
-			}
-			toast.success('WIP-mal bekreftet — «' + t.name + '» er nå med i Opprett');
-		});
-	}
-
 	function importerMal() {
 		if (isElectron) {
 			window.liturgi.openFile().then((r) => {
@@ -209,9 +185,6 @@
 						<td class="t-handlinger">
 							<button onclick={() => aapneIsolertEksport(t)} title="Åpne eksportmodulen for malen">Eksportér</button>
 							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
-							{#if t.wip === true && app.devModus}
-								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft malen (fjern WIP) — kun i dev-modus">Bekreft</button>
-							{/if}
 							{#if !erOriginalMal(t)}
 								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
 							{/if}

@@ -6,20 +6,29 @@
 	// og IPC-handleren i main.cjs nekter i pakket app.
 	import { BUILTIN_TEMPLATES } from '$lib/data.js';
 	import { malType } from '$lib/modal.svelte.js';
-	import { målformLabel, malFormFor } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor, erWip } from '$lib/maltyper.js';
+	import { app, openTemplate } from '$lib/store.svelte.js';
+	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal } from '$lib/malverktoy.svelte.js';
+	import { erOriginalMal } from '$lib/fileio.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 
-	/** Søk + type-filter + sortering etter type så navn (samme som malmodulen). */
+	/** S\u00f8k + type-filter + sortering etter type s\u00e5 navn (samme som malmodulen).
+	 *  Tabellen viser ALLE maler fra disk (originaler + wip + brukermaler). */
 	let q = $state('');
 	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
 	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
 	const visMal = $derived(
-		BUILTIN_TEMPLATES
-			.filter((bt) => (!q || bt.name.toLowerCase().includes(q.toLowerCase())) && (typeFilter === 'alle' || malType(bt) === typeFilter))
+		(app.templates ?? [])
+			.filter((t) => (!q || t.name.toLowerCase().includes(q.toLowerCase())) && (typeFilter === 'alle' || malType(t) === typeFilter))
 			.sort((a, b) => (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
 	);
-	import { app } from '$lib/store.svelte.js';
-	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast } from '$lib/malverktoy.svelte.js';
-	import { mdi } from '$lib/mdi.js';
+	/** Har malen en seed i data.js (kan redigeres med \u00abLagre til prosjektet\u00bb)? */
+	function harSeed(t) {
+		return BUILTIN_TEMPLATES.some((bt) => bt.id === t.id);
+	}
+	function typeNavn(t) {
+		return { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' }[malType(t)] ?? malType(t);
+	}
 
 	/** Redigeres nå en dev-kopi av en originalmal? */
 	const devDok = $derived(app.current?.__devMal ? app.current : null);
@@ -62,7 +71,7 @@
 	{/if}
 
 	<div class="mal-filter">
-		<input class="mal-sok" placeholder="Søk i originalmaler …" bind:value={q} />
+		<input class="mal-sok" placeholder="Søk i malene …" bind:value={q} />
 		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
 			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
 				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
@@ -70,22 +79,34 @@
 		</div>
 	</div>
 
-	<ul class="mal-liste">
-		{#each visMal as bt (bt.id)}
-			<li>
-				<div class="mal-info">
-					<span class="navn">{bt.name}</span>
-						<span class="w-mal-type">{målformLabel(malFormFor(bt))}</span>
-					{#if bt.description}<span class="beskr">{bt.description}</span>{/if}
-				</div>
-				<button onclick={() => åpneOriginal(bt)}>
-					{@html mdi('pencil')} Åpne i redigering
-				</button>
-			</li>
-		{:else}
-			<li class="muted">Ingen treff.</li>
-		{/each}
-	</ul>
+	<div class="mal-tabell-kort">
+		<table class="mal-tabell">
+			<thead>
+				<tr><th>Navn</th><th>Målform</th><th>Type</th><th>Kilde</th><th class="th-handlinger"></th></tr>
+			</thead>
+			<tbody>
+				{#each visMal as t (t.id)}
+					<tr>
+						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og se gjennom">{t.name}{#if erWip(t)} <span class="wip-merke" title="WIP — uverifisert mal, ikke med i Opprett før den er bekreftet">WIP</span>{/if}</td>
+						<td>{målformLabel(malFormFor(t))}</td>
+						<td>{typeNavn(t)}</td>
+						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
+						<td class="t-handlinger">
+							{#if erWip(t)}
+								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft malen (fjern WIP)">{@html mdi('check', 13)} Bekreft</button>
+							{/if}
+							{#if harSeed(t)}
+								<button onclick={() => åpneOriginal(BUILTIN_TEMPLATES.find((bt) => bt.id === t.id))} title="Rediger seed-malen i data.js (lagres til prosjektet)">{@html mdi('pencil', 13)} Rediger seed</button>
+							{/if}
+							<button onclick={() => openTemplate(t.id)} title="Åpne i den vanlige editoren">Åpne</button>
+						</td>
+					</tr>
+				{:else}
+					<tr><td colspan="5" class="maler-tom">Ingen treff.</td></tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
 
 <style>

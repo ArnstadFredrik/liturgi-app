@@ -130,6 +130,30 @@ export async function slettUtkast(fil) {
 	return r?.ok ?? false;
 }
 
+/** Bekreft en WIP-mal (kun dev-modulen): registreres i db-n\u00f8kkelen
+ *  \u00abwipBekreftede\u00bb og wip-flagget fjernes fra filen. Malen mister
+ *  WIP-merket og tas med i Opprett. Flagget i seedene fjernes ved
+ *  neste prod-release (jf. bekreftelseslisten). */
+export async function bekreftWipMal(t) {
+	const { showModal } = await import('$lib/modal.svelte.js');
+	showModal({ type: 'confirm', title: 'Bekreft WIP-mal', message: `Bekrefte \u00ab${t.name}\u00bb som ferdig kontrollert og ta den med i Opprett?`, okLabel: 'Bekreft', ok: async () => {
+		t.wip = false;
+		let liste = [];
+		try {
+			const r = await window.liturgi?.dbGet?.('wipBekreftede');
+			if (r) liste = JSON.parse(r);
+		} catch {}
+		if (!liste.includes(t.id)) liste.push(t.id);
+		await window.liturgi?.dbSet?.('wipBekreftede', JSON.stringify(liste));
+		if (t.filePath) {
+			const data = JSON.parse(JSON.stringify(t));
+			for (const k of ['filePath', 'kind', 'builtinKey', '__devMal', '__devId', '__devKey']) delete data[k];
+			await window.liturgi.writeTemplate(t.filePath, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
+		}
+		toast.success('WIP-mal bekreftet \u2014 \u00ab' + t.name + '\u00bb er n\u00e5 med i Opprett');
+		} });
+}
+
 /** Lagre åpen dev-mal tilbake til src/lib/data.js + seed-filen på disk. */
 export async function lagreTilProsjekt() {
 	const o = app.current;
