@@ -177,18 +177,28 @@ function byggStruktur(avsnitt, advarsler) {
     item.text += (item.text ? '\n' : '') + linje;
   };
 
-  for (const p of avsnitt) {
+  for (let pi = 0; pi < avsnitt.length; pi++) {
+    const p = avsnitt[pi];
     const t = p.tekst;
     if (!t) {
-      // bevare tomme linjer i salmer (vers/refreng-formatering)
-      if (item?.type === 'salme' && item.text && !item.text.endsWith('\n')) item.text += '\n';
+      // bevare tomme linjer mellom avsnitt (vers/refreng og øvrige avsnitt)
+      if (item && item.text && !item.text.endsWith('\n')) item.text += '\n';
       forrigeTekst = '';
       continue;
     }
     const stil = p.stil || '';
     const forste = p.runs[0] ?? { bold: false, italic: false };
     const erRubrikkStil = stil === 'rubrikk' || stil === 'rubrikk1' || (forste.italic && !forste.bold);
-    const rubrikk = erRubrikkStil || erRubrikkTekst(t) || /^\(/.test(t);
+    // UNNTAK fra @NOTAT: linjer som viser til et forslag («Det kan sies …»,
+    // «Her kan liturgen si …», «til dømes …») og etterfølges av et avsnitt
+    // med rolleformatering er vanlig tekst — rollen hører til forslaget.
+    let nesteRolle = false;
+    for (let ni = pi + 1; ni < avsnitt.length; ni++) {
+      if (!avsnitt[ni].tekst) continue;
+      nesteRolle = !!finnRolle(avsnitt[ni].tekst) || rolleRe.test(avsnitt[ni].tekst);
+      break;
+    }
+    const rubrikk = erRubrikkStil || /^\(/.test(t) || (erRubrikkTekst(t) && !nesteRolle);
 
     // 1) toppmetadata før første hoveddel («Sted: …», «Dåp: Ja», «Gudstjeneste - …»)
     const erStilHoveddel = stil === 'heading1' || stil === 'heading 1' || stil === 'overskrift1' || stil === 'tittel1' || stil === 'tittel 1';

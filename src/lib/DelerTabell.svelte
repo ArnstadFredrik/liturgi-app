@@ -270,47 +270,45 @@
 					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 				</button>
 			</div>
+			{#if erVigsel}
+			<div class="m-minst-bred">
+				<p class="m-deler-adm-tittel">Skriftlesningenes kilde</p>
+				<select class="m-bibel-velg" onchange={(e) => { mal.skriftlesningKilde = e.currentTarget.value || null; markDirty(); }} title="Hoveddelen brudeparet velger skriftlesninger fra («Velg tekster …»)">
+					<option value="">— automatisk (tittel inneholder «skriftlesning») —</option>
+					{#each mal?.sections ?? [] as sec (sec.title)}
+						<option value={sec.title} selected={mal.skriftlesningKilde === sec.title}>{sec.title}</option>
+					{/each}
+				</select>
+			</div>
+			{/if}
 		</div>
 		</div>
+
+		{#if visMalFelt}
+		<div class="minst-gruppe">
+			<p class="minst-tittel">Oversettelser</p>
+			<p class="muted m-velg-hint">Andre maler som er samme liturgi på andre målformer. Ved opprettelse vises da gruppens målformer sammen, og valgt målform bruker riktig mal.</p>
+			{#if andreMaler.length === 0}
+				<p class="muted m-velg-hint">Ingen andre maler å koble til ennå.</p>
+			{:else}
+				<div class="m-overs-liste">
+					{#each andreMaler as t (t.id)}
+						<label class="m-overs-rad">
+							<input type="checkbox" checked={(mal?.oversettelser ?? []).includes(t.id)}
+								onchange={(e) => veksleOversettelse(t.id, e.currentTarget.checked)} />
+							<span class="m-overs-navn">{t.name}</span>
+							<span class="m-overs-form">{målformLabel(malFormFor(t))}</span>
+						</label>
+					{/each}
+				</div>
+			{/if}
+		</div>
+		{/if}
 		{/if}
 
 	{/if}
 	{#if visMalFelt && fane === 'bibeltekster'}
 		<div class="m-bibeltekster">
-			<div class="m-bibel-oversettelse">
-				<div class="m-bibel-kilde-tekst">
-					<strong>Oversettelser av denne malen</strong>
-					<span>Velg andre maler som er samme liturgi på andre målformer. Ved opprettelse av gudstjeneste vises da gruppens målformer sammen, og valgt målform bruker riktig mal.</span>
-				</div>
-			</div>
-			{#if andreMaler.length === 0}
-				<p class="muted m-velg-hint">Ingen andre maler å koble til ennå.</p>
-			{:else}
-				<div class="m-bibel-overs-grid">
-					{#each andreMaler as t (t.id)}
-						<label class="m-bibel-overs-rad">
-							<input type="checkbox" checked={(mal?.oversettelser ?? []).includes(t.id)}
-								onchange={(e) => veksleOversettelse(t.id, e.currentTarget.checked)} />
-							<span class="m-bibel-overs-navn">{t.name}</span>
-							<span class="m-bibel-overs-form">{målformLabel(malFormFor(t))}</span>
-						</label>
-					{/each}
-				</div>
-			{/if}
-			{#if erVigsel}
-				<div class="m-bibel-kilde">
-					<div class="m-bibel-kilde-tekst">
-						<strong>Skriftlesningenes kilde</strong>
-						<span>Hvilken hoveddel som er katalogen brudeparet velger skriftlesninger fra («Velg tekster …»). Velg hoveddelen som inneholder tekst-listen.</span>
-					</div>
-					<select class="m-bibel-velg" onchange={(e) => { mal.skriftlesningKilde = e.currentTarget.value || null; markDirty(); }}>
-						<option value="">— automatisk (tittel inneholder «skriftlesning») —</option>
-						{#each mal?.sections ?? [] as sec (sec.title)}
-							<option value={sec.title} selected={mal.skriftlesningKilde === sec.title}>{sec.title}</option>
-						{/each}
-					</select>
-				</div>
-			{/if}
 			<p class="muted m-velg-hint">Koble lesningene til ledd som skal hente bibeltekst dynamisk fra kirkeåret ved opprettelse av gudstjeneste. Innledning og avslutning i leddet røres ikke — teksten havner i hoveddelen. Ledd uten kobling fylles som før (via leddtittel).</p>
 			<div class="m-bibel-tabell">
 				<div class="m-bibel-head"><span>Lesning</span><span>Ledd som henter teksten</span></div>

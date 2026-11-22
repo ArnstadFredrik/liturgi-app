@@ -99,3 +99,26 @@ test('pdf: salmevers uten N13-markør blir ikke titler; Amen/Omkved er tekst', (
 	assert.match(tekst, /Amen/);
 	assert.match(tekst, /Omkved/);
 });
+
+test('pdf: @NOTAT-unntak og tomme linjer mellom avsnitt', () => {
+	const avsnitt = [
+		L('I. SAMLING'),
+		L('Klokkeringing'),
+		L('Her kan liturgen si noe kortfattet om den aktuelle dåpshandlingen.'),
+		L('L  Kjære menighet.'),
+		L('Nåde være med dere og fred fra Gud.'),
+		L(''),
+		L('Før gudstjenesten samles menigheten.'),
+		L('Trofaste Gud,')
+	];
+	const seksjoner = byggStruktur(avsnitt, []);
+	const ledd = seksjoner[0].items[0];
+	const tekst = (ledd.instr ?? '') + '¤' + (ledd.text ?? '');
+	// «Her kan liturgen si …» etterfulgt av rollelinje = vanlig tekst, ikke @NOTAT
+	assert.doesNotMatch(tekst, /@NOTAT Her kan liturgen/);
+	assert.match(tekst, /Her kan liturgen si noe kortfattet[\s\S]*\{\{r\}\}L \|/);
+	// instruksjon uten etterfølgende rollelinje = @NOTAT
+	assert.match(ledd.instr ?? '', /@NOTAT Før gudstjenesten samles menigheten/);
+	// tom linje mellom avsnitt bevares (paragraph-skille)
+	assert.match(ledd.text ?? '', /Gud\.\n\nTrofaste Gud,/);
+});
