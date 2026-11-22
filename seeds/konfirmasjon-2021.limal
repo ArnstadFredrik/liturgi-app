@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "konfirmasjon-2021",
+		"kategori": "Dåp og konfirmasjon",
+		"oversettelser": [
+			"konfirmasjonstidens-gudstjenester-2021-nynorsk"
+		],
 		"bibeltekster": [
 			{
 				"lesning": "L1",

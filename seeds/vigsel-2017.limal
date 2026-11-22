@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "vigsel-2017",
+		"kategori": "Vigsel",
+		"oversettelser": [
+			"vigsel-2017-nynorsk"
+		],
 		"skriftlesningKilde": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
 		"name": "Vigsel (2017)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",

@@ -36,6 +36,34 @@ export function erWip(t) {
 	return t?.wip === true;
 }
 
+/** Kategorier (bannere fra ressursbanken.kirken.no/liturgi) i ressursbankens
+ *  rekkefølge — brukes til gruppering/sortering i mal-listene. */
+export const KATEGORIER = [
+	'Hovedgudstjeneste',
+	'Gudstjenester i kirkeåret',
+	'Andre gudstjenester',
+	'Nattverd',
+	'Dåp og konfirmasjon',
+	'Vigsel',
+	'Gravferd'
+];
+
+/** Malens kategori — mangler feltet gjettes det fra liturgitypen. */
+export function kategoriFor(t) {
+	if (t?.kategori) return t.kategori;
+	const type = malType(t);
+	if (type === 'vigsel') return 'Vigsel';
+	if (type === 'gravferd') return 'Gravferd';
+	return 'Hovedgudstjeneste';
+}
+
+/** Sorteringsnøkkel: kategori i ressursbankens rekkefølge. */
+export function kategoriSort(t) {
+	const k = kategoriFor(t);
+	const i = KATEGORIER.indexOf(k);
+	return i === -1 ? KATEGORIER.length : i;
+}
+
 /** Malene av én type OG én målform, i rekkefølgen opprett-modulen viser dem
  *  (navn, norsk sortering). */
 export function malerForType(maler, type, malForm = 'bokmål') {

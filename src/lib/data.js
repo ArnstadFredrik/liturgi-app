@@ -3,6 +3,7 @@ import { WIP_TEMPLATES as WIP_MALER } from './wip-maler.js';
 export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
+		kategori: "Hovedgudstjeneste",
 		oversettelser: ["ordning-for-hovedgudstjeneste-2020-nynorsk"],
 		"alternativer": ["dåp", "nattverd"],
 		bibeltekster: [{ "lesning": "L1", "leddId": "o9" }, { "lesning": "L2", "leddId": "o11" }, { "lesning": "E", "leddId": "o12" }],
@@ -889,6 +890,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "dop-i-hovedgudstjenesten-2017",
+		kategori: "Dåp og konfirmasjon",
 		oversettelser: ["dåp-i-hovedgudstjenesten-2017-nynorsk"],
 		"name": "Dåp i hovedgudstjenesten (2017)",
 		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
@@ -1155,6 +1157,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "gravferd-2003",
+		kategori: "Gravferd",
 		"liturgiType": "gravferd",
 		"name": "Ordning for gravferd (2003)",
 		"description": "Ordning for gravferd fra kirke eller krematorium — vedtatt av Kirkemøtet 2002, med alle alternativer og skriftlesningstekstgrupper.",
@@ -1871,6 +1874,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "forb-borgerlig-ekteskap-2017",
+		kategori: "Vigsel",
 		oversettelser: ["forbønn-for-borgerlig-inngått-ekteskap-2017-nynorsk"],
 		"name": "Forbønn for borgerlig inngått ekteskap (2017)",
 		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
@@ -2348,6 +2352,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2017",
+		kategori: "Vigsel",
 		oversettelser: ["vigsel-2017-nynorsk"],
 	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
 		"name": "Vigsel (2017)",
@@ -2878,6 +2883,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2003",
+		kategori: "Vigsel",
 		oversettelser: ["vigsel-2003-nynorsk"],
 	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
 		"name": "Vigsel (2003)",
@@ -3365,6 +3371,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 	"id": "konfirmasjon-2021",
+		kategori: "Dåp og konfirmasjon",
 		oversettelser: ["konfirmasjonstidens-gudstjenester-2021-nynorsk"],
 	bibeltekster: [{ "lesning": "L1", "leddId": "konf21-12" }, { "lesning": "L2", "leddId": "konf21-14" }, { "lesning": "E", "leddId": "konf21-15" }],
 	"name": "Konfirmasjonstidens gudstjenester (2021)",

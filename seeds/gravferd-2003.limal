@@ -3,6 +3,7 @@
 	"kind": "template",
 	"data": {
 		"id": "gravferd-2003",
+		"kategori": "Gravferd",
 		"liturgiType": "gravferd",
 		"name": "Ordning for gravferd (2003)",
 		"description": "Ordning for gravferd fra kirke eller krematorium — vedtatt av Kirkemøtet 2002, med alle alternativer og skriftlesningstekstgrupper.",

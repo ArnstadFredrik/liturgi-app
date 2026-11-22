@@ -5,7 +5,7 @@
 	import { exportWord } from '$lib/export.js';
 	import { malType } from '$lib/modal.svelte.js';
 	import { veksleMalFavoritt, erMalFavoritt } from '$lib/store.svelte.js';
-	import { målformLabel, malFormFor } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor, kategoriFor, kategoriSort, KATEGORIER } from '$lib/maltyper.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 	import KonverterModal from '$lib/KonverterModal.svelte';
@@ -25,19 +25,22 @@
 	let q = $state('');
 	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
 	let kildeFilter = $state('alle'); // alle | originaler | brukermaler
+	let kategoriFilter = $state('alle'); // alle | KATEGORIER
 
 	const typeNavn = { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
 		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
+		if (kategoriFilter !== 'alle' && kategoriFor(t) !== kategoriFilter) return false;
 		return true;
 	}
 
-	/** Tabell: sortbar på kolonne; favoritter først når navn sorteres. */
-	let sortNokkel = $state('navn');
+	/** Tabell: sortbar på kolonne; favoritter først når navn sorteres.
+	 *  Standard sortering: kategori i ressursbankens banner-rekkefølge. */
+	let sortNokkel = $state('kategori');
 	let sortRetn = $state(1);
 	const KOLONNER = [
-		['fav', ''], ['navn', 'Navn'], ['malform', 'Målform'], ['type', 'Type'], ['kilde', 'Kilde']
+		['fav', ''], ['navn', 'Navn'], ['kategori', 'Kategori'], ['malform', 'Målform'], ['type', 'Type'], ['kilde', 'Kilde']
 	];
 	function settSort(nokkel) {
 		if (sortNokkel === nokkel) sortRetn = -sortRetn;
@@ -51,6 +54,7 @@
 		switch (nokkel) {
 			case 'fav': return erMalFavoritt(t.name) ? 1 : 0;
 			case 'navn': return (t.name ?? '').toLowerCase();
+			case 'kategori': return kategoriSort(t);
 			case 'malform': return malFormFor(t);
 			case 'type': return malType(t);
 			case 'kilde': return erOriginalMal(t) ? 'original' : 'bruker';
@@ -158,6 +162,12 @@
 				<button class:sel={kildeFilter === verdi} onclick={() => kildeFilter = verdi}>{navn}</button>
 			{/each}
 		</div>
+		<div class="mal-chips" role="group" aria-label="Filtrer etter kategori">
+			<button class:sel={kategoriFilter === 'alle'} onclick={() => kategoriFilter = 'alle'}>Alle</button>
+			{#each KATEGORIER as kat}
+				<button class:sel={kategoriFilter === kat} onclick={() => kategoriFilter = kat}>{kat}</button>
+			{/each}
+		</div>
 	</div>
 
 	<div class="mal-tabell-kort">
@@ -179,6 +189,7 @@
 							<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 						</td>
 						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}{#if t.wip === true} <span class="wip-merke" title="WIP — uverifisert mal, ikke med i Opprett før den er bekreftet">WIP</span>{/if}</td>
+						<td>{kategoriFor(t)}</td>
 						<td>{målformLabel(malFormFor(t))}</td>
 						<td>{typeNavn[malType(t)]}</td>
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
@@ -191,7 +202,7 @@
 						</td>
 					</tr>
 				{:else}
-					<tr><td colspan="6" class="maler-tom">{q || typeFilter !== 'alle' || kildeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen maler ennå.'}</td></tr>
+					<tr><td colspan="7" class="maler-tom">{q || typeFilter !== 'alle' || kildeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen maler ennå.'}</td></tr>
 				{/each}
 			</tbody>
 		</table>

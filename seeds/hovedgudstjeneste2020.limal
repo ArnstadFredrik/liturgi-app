@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "hovedgudstjeneste2020",
+		"kategori": "Hovedgudstjeneste",
+		"oversettelser": [
+			"ordning-for-hovedgudstjeneste-2020-nynorsk"
+		],
 		"alternativer": [
 			"dåp",
 			"nattverd"

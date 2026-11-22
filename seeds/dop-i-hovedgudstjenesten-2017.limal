@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "dop-i-hovedgudstjenesten-2017",
+		"kategori": "Dåp og konfirmasjon",
+		"oversettelser": [
+			"dåp-i-hovedgudstjenesten-2017-nynorsk"
+		],
 		"name": "Dåp i hovedgudstjenesten (2017)",
 		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
 		"kanGudstjeneste": false,

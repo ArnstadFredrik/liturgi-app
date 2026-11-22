@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "forb-borgerlig-ekteskap-2017",
+		"kategori": "Vigsel",
+		"oversettelser": [
+			"forbønn-for-borgerlig-inngått-ekteskap-2017-nynorsk"
+		],
 		"name": "Forbønn for borgerlig inngått ekteskap (2017)",
 		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
 		"sections": [

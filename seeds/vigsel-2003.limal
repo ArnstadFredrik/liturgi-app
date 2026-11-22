@@ -3,6 +3,10 @@
 	"kind": "template",
 	"data": {
 		"id": "vigsel-2003",
+		"kategori": "Vigsel",
+		"oversettelser": [
+			"vigsel-2003-nynorsk"
+		],
 		"skriftlesningKilde": "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
 		"name": "Vigsel (2003)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2002, i bruk fra mars 2003. Inkluderer skriftlesninger.",
