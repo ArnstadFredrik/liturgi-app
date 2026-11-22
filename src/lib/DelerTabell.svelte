@@ -20,7 +20,7 @@
 	const alternativer = $derived(mal?.alternativer ?? []);
 	const variasjoner = $derived(mal?.delGrupper ?? []);
 
-	const TYPER = [['gudtjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
+	const TYPER = [['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
 
 	function endreType(e) {
 		mal.liturgiType = e.currentTarget.value;
@@ -209,8 +209,8 @@
 			</div>
 			<div>
 				<p class="m-deler-adm-tittel">Bruk</p>
-				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudtjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
-					<span class="avpaa-tekst">Kan brukes til gudtjenester</span>
+				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
+					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>
 					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 				</button>
 			</div>
@@ -230,7 +230,7 @@
 			{#if mal.filePath}<div class="hd-info-rad"><span class="hd-info-nokkel">Filsti</span><span class="hd-info-verdi"><code>{mal.filePath}</code></span></div>{/if}
 			{#if mal.description}<div class="hd-info-rad"><span class="hd-info-nokkel">Beskrivelse</span><span class="hd-info-verdi">{mal.description}</span></div>{/if}
 			<div class="hd-info-rad"><span class="hd-info-nokkel">Omfang</span><span class="hd-info-verdi">{mal.sections?.length ?? 0} hoveddeler, {(mal.sections ?? []).reduce((n, s2) => n + (s2.items?.length ?? 0), 0)} ledd</span></div>
-			<div class="hd-info-rad"><span class="hd-info-nokkel">Bruk</span><span class="hd-info-verdi">{kanBrukes(mal) ? 'Kan brukes til gudtjenester' : 'Ikke i gudtjeneste-valg'}</span></div>
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Bruk</span><span class="hd-info-verdi">{kanBrukes(mal) ? 'Kan brukes til gudstjenester' : 'Ikke i gudstjeneste-valg'}</span></div>
 		</div>
 	{/if}
 </div>
