@@ -3,6 +3,7 @@ import { WIP_TEMPLATES as WIP_MALER } from './wip-maler.js';
 export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
+		oversettelser: ["ordning-for-hovedgudstjeneste-2020-nynorsk"],
 		"alternativer": ["dåp", "nattverd"],
 		bibeltekster: [{ "lesning": "L1", "leddId": "o9" }, { "lesning": "L2", "leddId": "o11" }, { "lesning": "E", "leddId": "o12" }],
 		"name": "Ordning for hovedgudstjeneste (2020)",
@@ -888,6 +889,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "dop-i-hovedgudstjenesten-2017",
+		oversettelser: ["dåp-i-hovedgudstjenesten-2017-nynorsk"],
 		"name": "Dåp i hovedgudstjenesten (2017)",
 		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
 		"kanGudstjeneste": false,
@@ -1869,6 +1871,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "forb-borgerlig-ekteskap-2017",
+		oversettelser: ["forbønn-for-borgerlig-inngått-ekteskap-2017-nynorsk"],
 		"name": "Forbønn for borgerlig inngått ekteskap (2017)",
 		"description": "Ordning for forbønn for borgerlig inngått ekteskap — vedtatt av Kirkemøtet 2017 (KM 06/17).",
 		"sections": [
@@ -2345,6 +2348,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2017",
+		oversettelser: ["vigsel-2017-nynorsk"],
 	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
 		"name": "Vigsel (2017)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",
@@ -2874,6 +2878,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2003",
+		oversettelser: ["vigsel-2003-nynorsk"],
 	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
 		"name": "Vigsel (2003)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2002, i bruk fra mars 2003. Inkluderer skriftlesninger.",
@@ -3360,6 +3365,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 	"id": "konfirmasjon-2021",
+		oversettelser: ["konfirmasjonstidens-gudstjenester-2021-nynorsk"],
 	bibeltekster: [{ "lesning": "L1", "leddId": "konf21-12" }, { "lesning": "L2", "leddId": "konf21-14" }, { "lesning": "E", "leddId": "konf21-15" }],
 	"name": "Konfirmasjonstidens gudstjenester (2021)",
 	"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudstjeneste.",

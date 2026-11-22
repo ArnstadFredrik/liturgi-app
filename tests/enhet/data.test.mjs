@@ -316,23 +316,18 @@ test('newServiceFromTemplate arver malens eksport-standarder (formater/valg/pptx
 	assert.ok(kode.includes('JSON.parse(JSON.stringify(tpl.eksportPptx))'), 'eksportPptx skal dypkopieres');
 });
 
-test('wip-maler: ekskluderes fra Opprett (malerForType), men ligger i seeds', async () => {
+test('wip-maler: ekskluderes fra Opprett (malerForType)', async () => {
 	const { WIP_TEMPLATES } = await import('../../src/lib/data.js');
 	const { malerForType, erWip } = await import('../../src/lib/maltyper.js');
-	assert.ok(WIP_TEMPLATES.length >= 7, 'minst 7 wip-maler (hovedgudtjenesten i 7 spr\u00e5k)');
-	for (const w of WIP_TEMPLATES) {
-		assert.equal(erWip(w), true, w.id + ' har wip-flagget');
-		assert.equal(w.erOriginal, true, w.id + ' er original');
-	}
-	const gudListe = malerForType([...WIP_TEMPLATES], 'gudstjeneste', 'nynorsk');
-	assert.equal(gudListe.length, 0, 'wip-maler kommer IKKE i Opprett');
+	// mekanismen: wip-maler (bundlet eller p\u00e5 disk) skal aldri dukke opp i Opprett
+	const wipMal = { id: 'wip-test', name: 'WIP-test (nynorsk)', liturgiType: 'gudtjeneste', malForm: 'nynorsk', kanGudtjeneste: true, wip: true };
+	const vanlig = { id: 'vanlig-test', name: 'Vanlig (nynorsk)', liturgiType: 'gudtjeneste', malForm: 'nynorsk', kanGudtjeneste: true };
+	const liste = malerForType([wipMal, vanlig], 'gudtjeneste', 'nynorsk');
+	assert.deepEqual(liste.map((t) => t.id), ['vanlig-test'], 'wip-mal er ekskludert');
+	assert.equal(erWip(wipMal), true);
 	// bekreftelse (wip fjernet i minnet) g\u00f8r malen tilgjengelig
-	const bekreftet = WIP_TEMPLATES.map((w) => ({ ...w, wip: false }));
-	assert.equal(malerForType(bekreftet, 'gudstjeneste', 'nynorsk').length, 1);
-	// seeds p\u00e5 disk inneholder wip-malene med wip:true
-	const { readFileSync, existsSync } = await import('node:fs');
-	const seedSti = 'seeds/' + WIP_TEMPLATES[0].id + '.limal';
-	assert.ok(existsSync(seedSti), 'seed-fil for ' + WIP_TEMPLATES[0].id);
-	const seed = JSON.parse(readFileSync(seedSti, 'utf8'));
-	assert.equal(seed.data.wip, true, 'seed har wip:true');
+	const bekreftet = { ...wipMal, wip: false };
+	assert.equal(malerForType([bekreftet], 'gudtjeneste', 'nynorsk').length, 1);
+	// bundlet wip-sett kan v\u00e6re tomt (wip-maler kan leve som disk-filer)
+	assert.ok(Array.isArray(WIP_TEMPLATES));
 });
