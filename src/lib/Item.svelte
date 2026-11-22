@@ -16,6 +16,19 @@
 
 	let { it, si, ii, bokstav = null } = $props();
 
+	/** Tittel-spannet: innholdet styres av en action, IKKE av Svelte-{uttrykk}.
+	 *  Da kan brukeren skrive i contenteditable uten at re-renderinger nullstiller
+	 *  teksten/caret, og tomme titler får stabil placeholder + klikkbart felt. */
+	function titler(node, params) {
+		node.textContent = params?.tekst ?? '';
+		return {
+			update(p) {
+				const v = p?.tekst ?? '';
+				if (document.activeElement !== node && (node.textContent ?? '') !== v) node.textContent = v;
+			}
+		};
+	}
+
 	const TYPE_LABEL = { tekst: 'Tekst', instruks: 'Instruks', salme: 'Salme', lesning: 'Lesning', bønn: 'Bønn' };
 
 	// dynamisk bibeltekst-kobling (Bibeltekster-fanen i mal-innstillingene)
@@ -341,10 +354,18 @@
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
 		</span>
-		<span class="item-title" class:tom={!it.heading} contenteditable={!it.__lenket} spellcheck="false"
+		<span class="item-title" class:tom={!it.heading}
+			contenteditable={it.__lenket ? 'false' : 'plaintext-only'} spellcheck="false"
 			data-ph="Legg til tittel"
-			onblur={(e) => { if (e.target.textContent !== it.heading) { it.heading = e.target.textContent; markDirty(); } }}
-		>{it.heading}</span>
+			use:titler={{ tekst: it.heading }}
+			onclick={(e) => { if (!it.__lenket) e.currentTarget.focus(); }}
+			onblur={(e) => {
+				const span = e.currentTarget;
+				const v = (span.textContent ?? '').replace(/[\u00a0\u200b]/g, ' ').trim();
+				span.textContent = v;
+				if (v !== it.heading) { it.heading = v; markDirty(); }
+			}}
+		></span>
 		{#if bibelkobling}
 			<span class="dyn-badge" title="Dette leddet henter innhold dynamisk fra kirkeårets bibeltekster (koblet i malens Bibeltekster-innstillinger).">{@html mdi('database-outline', 13)} {bibelkobling.tittel}</span>
 		{/if}
