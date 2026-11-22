@@ -10,6 +10,7 @@
 	import { toast } from 'svelte-sonner';
 	import KonverterModal from '$lib/KonverterModal.svelte';
 	import FilterDropdown from '$lib/FilterDropdown.svelte';
+	import { bekreftWipMal } from '$lib/malverktoy.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -38,10 +39,16 @@
 	}
 
 	const typeNavn = { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
+	/** Terminologi: originalmaler bruker «WIP», brukermaler «Utkast».
+	 *  WIP-originaler skjules fra biblioteket (kun i Malverktøy) til de bekreftes. */
+	function merkeTekst(t) {
+		return erOriginalMal(t) ? 'WIP' : 'Utkast';
+	}
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
 		if (typeSel.length && !typeSel.includes(malType(t))) return false;
 		if (kildeSel.length && !kildeSel.includes(erOriginalMal(t) ? 'originaler' : 'brukermaler')) return false;
+		if (t.wip === true && erOriginalMal(t)) return false; // WIP-originaler kun i dev
 		if (katSel.length && !katSel.includes(kategoriFor(t))) return false;
 		return true;
 	}
@@ -189,7 +196,7 @@
 						<td class="t-fav">
 							<button class="w-mal-fav" class:av={erMalFavoritt(t.name)} title={erMalFavoritt(t.name) ? 'Fjern favoritt' : 'Merk som favoritt'} onclick={() => veksleMalFavoritt(t.name)}>{@html mdi(erMalFavoritt(t.name) ? 'star' : 'star-outline', 15)}</button>
 						</td>
-						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}{#if t.wip === true} <span class="wip-merke" title="WIP — uverifisert mal, ikke med i Opprett før den er bekreftet">WIP</span>{/if}</td>
+						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og rediger">{t.name}{#if t.wip === true} <span class="wip-merke" title="Utkast — ikke med i Opprett før det bekreftes">Utkast</span>{/if}</td>
 						<td>{kategoriFor(t)}</td>
 						<td>{målformLabel(malFormFor(t))}</td>
 						<td>{typeNavn[malType(t)]}</td>
@@ -197,6 +204,9 @@
 						<td class="t-handlinger">
 							<button onclick={() => aapneIsolertEksport(t)} title="Åpne eksportmodulen for malen">Eksportér</button>
 							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
+							{#if t.wip === true}
+								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft utkastet (fjern utkast-merket)">{@html mdi('check', 13)} Bekreft</button>
+							{/if}
 							{#if !erOriginalMal(t)}
 								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
 							{/if}

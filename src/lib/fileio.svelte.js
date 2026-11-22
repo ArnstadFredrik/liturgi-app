@@ -210,7 +210,7 @@ async function saveCurrentTemplate() {
 		toast.info('Innebygde maler lagres med «Lagre som mal»');
 		return;
 	}
-	if (erOriginalMal(o)) {
+	if (erOriginalMal(o) && o.wip !== true) {
 		const rd = await window.liturgi.readTemplate(o.filePath);
 		const originalData = rd.ok ? parseLiturgi(rd.json) : null;
 		if (!originalData || !malLikBortsettFraValg(originalData, o)) {
@@ -543,24 +543,12 @@ export async function loadTemplatesFromDisk() {
 		// som en original) og skal begge vises i listen.
 		const list2 = await window.liturgi.listTemplates();
 		if (!list2.ok) return;
-		// bekreftede WIP-maler: wip-flagget fjernes i minnet — KUN i dev-modus
-		// (db-nøkkelen «wipBekreftede» settes av Bekreft-knappen i mal-tabellen,
-		// som bare finnes i dev). Pakket (prod) app ærer ikke listen — der blir
-		// malen med f\u00f8rst n\u00e5r wip-flagget er fjernet fra seedene i en release.
-		let wipBekreftede = [];
-		if (app.devModus) {
-			try {
-				const r = await window.liturgi?.dbGet?.('wipBekreftede');
-				if (r) wipBekreftede = JSON.parse(r);
-			} catch {}
-		}
 		const idPerNyeste = new Map(); // id -> { meta, data, mtime }
 		for (const meta of [...list2.originaler, ...list2.brukermaler]) {
 			const rd = await window.liturgi.readTemplate(meta.path);
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
 			if (!data) continue;
-			if (data.wip && wipBekreftede.includes(data.id)) delete data.wip;
 			const entry = { meta, data, mtime: meta.mtime ?? 0 };
 			const gammel = idPerNyeste.get(data.id);
 			if (!gammel || entry.mtime >= gammel.mtime) idPerNyeste.set(data.id, entry);

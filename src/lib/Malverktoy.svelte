@@ -100,7 +100,7 @@
 			<tbody>
 				{#each visMal as t (t.id)}
 					<tr>
-						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og se gjennom">{t.name}{#if erWip(t)} <span class="wip-merke" title="WIP — uverifisert mal, ikke med i Opprett før den er bekreftet">WIP</span>{/if}</td>
+						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og se gjennom">{t.name}{#if erWip(t)} <span class="wip-merke" title="Uverifisert mal — ikke med i Opprett før den bekreftes">{erOriginalMal(t) ? 'WIP' : 'Utkast'}</span>{/if}</td>
 						<td>{kategoriFor(t)}</td>
 						<td>{målformLabel(malFormFor(t))}</td>
 						<td>{typeNavn(t)}</td>

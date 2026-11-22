@@ -279,6 +279,14 @@
 				</select>
 			</div>
 			<div>
+				<p class="m-deler-adm-tittel">Utkast</p>
+				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.wip === true} title="Merk malen som utkast (wip) — skjules fra Opprett og (originaler) biblioteket til den bekreftes. Lagres med malen."
+					onclick={() => { mal.wip = mal.wip !== true; markDirty(); }}>
+					<span class="avpaa-tekst">Merk som utkast</span>
+					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+				</button>
+			</div>
+			<div>
 				<p class="m-deler-adm-tittel">Bruk</p>
 				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
 					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>
