@@ -465,11 +465,29 @@ export async function loadTemplatesFromDisk() {
 			// originaler: hovedgudstjenesten, gravferdsordningen og maler flagget erOriginal
 			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
 			const sub = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
-			const data = JSON.parse(JSON.stringify(bt));
-			for (const sec of data.sections) for (const it of sec.items) autoMarkMigrate(it);
-			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(bt.name).toLowerCase().replace(/\s+/g, '-');
-			const json = JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	');
-			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${safeNavn(bt.name)}.limal`, json);
+			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${safeNavn(bt.name)}.limal`, originalSeedJson(bt));
+		}
+
+		// 2b) INTEGRITETSSJEKK: originalmaler i maler/originaler skal være
+		// identiske med seed-malene (kilden: src/lib/data.js). Avvik —
+		// uventet redigering, skade, halvferdige skrivinger — regenereres
+		// fra seed. Innholds-sammenligning (strekere enn en hash: oppdager
+		// alle avvik, ikke bare kollisjoner).
+		const list1b = await window.liturgi.listTemplates();
+		if (list1b.ok) {
+			for (const bt of BUILTIN_TEMPLATES) {
+				const erOriginal = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name);
+				if (!erOriginal) continue;
+				const meta = list1b.originaler.find((m) => m.name === bt.name);
+				if (!meta) continue;
+				const rd = await window.liturgi.readTemplate(meta.path);
+				if (!rd.ok) continue;
+				const forventet = originalSeedJson(bt);
+				if (rd.json !== forventet) {
+					await window.liturgi.writeTemplate(meta.path, forventet);
+					console.warn('[liturgi] Originalmal regenerert fra seed:', bt.name);
+				}
+			}
 		}
 
 		// 3) les alle maler fra disk (originaler først, så brukermaler).
@@ -712,6 +730,17 @@ export async function regenererBibliotek() {
 		toast.error('Klarte ikke regenerere biblioteket: ' + (err?.message ?? err));
 		return false;
 	}
+}
+
+/** Seed-JSON for en originalmal, eksakt slik den skrives til
+ *  maler/originaler/<navn>.limal ved seeding. Kilden er src/lib/data.js
+ *  (BUILTIN_TEMPLATES) — brukes både ved seeding og integritetssjekken
+ *  (2b i loadTemplatesFromDisk) som regenererer avvikende filer. */
+export function originalSeedJson(bt) {
+	const data = JSON.parse(JSON.stringify(bt));
+	for (const sec of data.sections) for (const it of sec.items) autoMarkMigrate(it);
+	if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(bt.name).toLowerCase().replace(/\s+/g, '-');
+	return JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '\t');
 }
 
 export function safeNavn(n) {
