@@ -53,13 +53,28 @@
 	// vigsel: vis «Skriftlesningenes kilde»-innstillingen
 	const erVigsel = $derived((mal?.liturgiType ?? '') === 'vigsel' || /vigsel/i.test(mal?.name ?? ''));
 
-	// oversettelser: andre maler (ikke denne) som kan kobles i samme gruppe
-	const andreMaler = $derived((app.templates ?? []).filter((t) => t.id !== mal?.id));
-	function veksleOversettelse(id, paa) {
+	// oversettelser: koblingen ligger p\u00e5 mal.oversettelser; gruppen l\u00f8ses i begge retninger
+	const tilkoblede = $derived(
+		(mal?.oversettelser ?? [])
+			.map((id) => (app.templates ?? []).find((t) => t.id === id))
+			.filter(Boolean)
+	);
+	const koblebare = $derived(
+		(app.templates ?? []).filter(
+			(t) => t.id !== mal?.id && !(mal?.oversettelser ?? []).includes(t.id) && malType(t) === malType(mal)
+		)
+	);
+	let kobleApen = $state(false);
+	function kobleOversettelse(id) {
+		if (!mal) return;
+		mal.oversettelser = [...(mal.oversettelser ?? []), id];
+		kobleApen = false;
+		markDirty();
+	}
+	function fjernOversettelse(id) {
 		if (!mal) return;
 		const liste = new Set(mal.oversettelser ?? []);
-		if (paa) liste.add(id);
-		else liste.delete(id);
+		liste.delete(id);
 		if (liste.size) mal.oversettelser = [...liste];
 		else delete mal.oversettelser;
 		markDirty();
@@ -288,20 +303,46 @@
 		<div class="minst-gruppe">
 			<p class="minst-tittel">Oversettelser</p>
 			<p class="muted m-velg-hint">Andre maler som er samme liturgi på andre målformer. Ved opprettelse vises da gruppens målformer sammen, og valgt målform bruker riktig mal.</p>
-			{#if andreMaler.length === 0}
-				<p class="muted m-velg-hint">Ingen andre maler å koble til ennå.</p>
+			{#if tilkoblede.length === 0}
+				<p class="muted m-velg-hint">Ingen oversettelser koblet ennå.</p>
 			{:else}
-				<div class="m-overs-liste">
-					{#each andreMaler as t (t.id)}
-						<label class="m-overs-rad">
-							<input type="checkbox" checked={(mal?.oversettelser ?? []).includes(t.id)}
-								onchange={(e) => veksleOversettelse(t.id, e.currentTarget.checked)} />
-							<span class="m-overs-navn">{t.name}</span>
-							<span class="m-overs-form">{målformLabel(malFormFor(t))}</span>
-						</label>
-					{/each}
-				</div>
+				<table class="m-overs-tabell">
+					<thead>
+						<tr><th>Mal</th><th>Målform</th><th></th></tr>
+					</thead>
+					<tbody>
+						{#each tilkoblede as t (t.id)}
+							<tr>
+								<td>{t.name}</td>
+								<td><span class="m-overs-form">{målformLabel(malFormFor(t))}</span></td>
+								<td class="m-overs-fjern">
+									<button type="button" class="ikon-knapp" title="Fjern koblingen"
+										onclick={() => fjernOversettelse(t.id)}>{@html mdi('close', 14)}</button>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			{/if}
+			<div class="m-overs-koble">
+				{#if kobleApen}
+					<div class="m-overs-meny" role="menu">
+						{#if koblebare.length === 0}
+							<p class="muted m-overs-meny-tom">Ingen andre maler av denne typen å koble til.</p>
+						{:else}
+							{#each koblebare as t (t.id)}
+								<button type="button" class="m-overs-meny-rad" role="menuitem" onclick={() => kobleOversettelse(t.id)}>
+									<span class="m-overs-meny-navn">{t.name}</span>
+									<span class="m-overs-form">{målformLabel(malFormFor(t))}</span>
+								</button>
+							{/each}
+						{/if}
+					</div>
+				{/if}
+				<button type="button" class="m-overs-knapp" onclick={() => (kobleApen = !kobleApen)}>
+					{@html mdi('plus', 14)} Koble oversettelse {@html mdi('chevron-down', 13)}
+				</button>
+			</div>
 		</div>
 		{/if}
 		{/if}

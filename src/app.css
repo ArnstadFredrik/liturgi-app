@@ -606,20 +606,80 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 .m-bibel-kilde .m-bibel-velg { min-width: 280px; }
 .m-bibel-velg:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 /* Innstillinger-fanen: oversettelser av malen (samme liturgi, andre målformer) */
-.m-overs-liste {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-}
-.m-overs-rad {
-	display: flex; align-items: center; gap: 10px;
-	padding: 6px 10px;
-	border-radius: 6px;
+.m-overs-tabell {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
 	font-size: 13px;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	overflow: hidden;
+}
+.m-overs-tabell th:nth-child(2), .m-overs-tabell td:nth-child(2) { width: 110px; }
+.m-overs-tabell th:nth-child(3), .m-overs-tabell td:nth-child(3) { width: 34px; }
+.m-overs-tabell th {
+	text-align: left;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--muted);
+	font-weight: 500;
+	padding: 4px 10px 6px;
+	border-bottom: 1px solid var(--border);
+}
+.m-overs-tabell td {
+	padding: 7px 10px;
+	border-bottom: 1px solid var(--border);
+}
+.m-overs-tabell tbody tr:last-child td { border-bottom: none; }
+.m-overs-tabell tbody tr:hover td { background: var(--sidebar-hover); }
+.m-overs-fjern { width: 30px; text-align: right; }
+.m-overs-fjern button {
+	border: none; background: none; cursor: pointer;
+	color: var(--muted); padding: 2px; border-radius: 5px;
+	line-height: 0;
+}
+.m-overs-fjern button:hover { color: #c0392b; background: var(--sidebar-hover); }
+.m-overs-koble { position: relative; margin-top: 10px; }
+.m-overs-knapp {
+	display: inline-flex; align-items: center; gap: 5px;
+	border: 1px solid var(--border);
+	background: var(--panel2);
+	color: var(--text);
+	font-size: 12.5px;
+	padding: 5px 11px;
+	border-radius: 7px;
 	cursor: pointer;
 }
-.m-overs-rad:hover { background: var(--sidebar-hover); }
-.m-overs-navn { flex: 1; }
+.m-overs-knapp:hover { background: var(--sidebar-hover); }
+.m-overs-meny {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	min-width: 280px;
+	max-height: 240px;
+	overflow-y: auto;
+	background: var(--panel2);
+	border: 1px solid var(--border);
+	border-radius: 9px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+	padding: 4px;
+	z-index: 30;
+}
+.m-overs-meny-rad {
+	display: flex; align-items: center; gap: 10px;
+	width: 100%;
+	border: none; background: none;
+	text-align: left;
+	font-size: 13px;
+	color: var(--text);
+	padding: 7px 9px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+.m-overs-meny-rad:hover { background: var(--sidebar-hover); }
+.m-overs-meny-navn { flex: 1; }
+.m-overs-meny-tom { font-size: 12px; padding: 8px 9px; }
 .m-overs-form {
 	color: var(--muted);
 	font-size: 11px;
