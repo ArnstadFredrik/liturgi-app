@@ -374,11 +374,18 @@ function grupperEllerLedd(seksjoner) {
     const ut = [];
     for (const it of items) {
       const h = (it.heading ?? '').trim();
+      // Bokmål: «Eller» / «Eller B» / «Enten …». Nynorsk: «anten …» / «eller …».
+      // Alt som starter med enten/anten/eller (eller er nøyaktig «Eller B»)
+      // er en variant av forrige egnete ledd.
       const m = /^Eller(?:\s+([A-Z0-9]+))?\.?$/i.exec(h);
+      const mV = /^(?:enten|anten|eller)\s+\S/i.exec(h);
       let slukt = false;
-      if (m && ut.length) {
+      if ((m || mV) && ut.length) {
         const base = ut[ut.length - 1];
         const egnet = base.type !== 'salme' && ((base.text ?? '').trim() || (base.alts ?? []).length);
+        // tom tittelledd (kun heading, ingen tekst): variantene som følger
+        // hører til denne — de blir alts[] uten at tittelen blir en variant
+        const tomTittel = !egnet && base.type !== 'salme' && !(base.text ?? '').trim() && !(base.alts ?? []).length && (base.heading ?? '').trim();
         if (egnet) {
           if (!(base.alts ?? []).length) {
             base.alts = [{ label: 'A', text: base.text ?? '' }];
@@ -386,6 +393,12 @@ function grupperEllerLedd(seksjoner) {
           }
           const label = String.fromCharCode(65 + base.alts.length); // sekvensiell A/B/C…
           base.alts.push({ label, text: it.text ?? '' });
+          slukt = true;
+        } else if (tomTittel && (it.text ?? '').trim()) {
+          if (!(base.alts ?? []).length) base.alts = [];
+          const label = String.fromCharCode(65 + base.alts.length);
+          base.alts.push({ label, text: it.text ?? '' });
+          base.selAlt = 0;
           slukt = true;
         }
       }

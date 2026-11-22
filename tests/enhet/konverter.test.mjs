@@ -110,6 +110,25 @@ test('konvertering: \u00abEller\u00bb-ledd grupperes inn i forrige ledd som alts
 		L('Eller'),
 		L('Dette skal IKKE gruppes (forrige er salme).')
 	];
+	// nynorsk-mønsteret: anten/eller-par med ord i headingen
+	const nnAvsnitt = [
+		L('Anten kyrie 1 a'),
+		L('A | Kyrie eleison. Gud Fader, miskunna deg.'),
+		L('eller kyrie 1 b'),
+		L('A | Kriste eleison. Kristus, miskunna deg.')
+	];
+	const nnSeksjoner = byggStruktur(nnAvsnitt, []);
+	grupperEllerLedd(nnSeksjoner);
+	const kyrie = nnSeksjoner[0].items[0];
+	assert.deepEqual((kyrie.alts ?? []).map((a) => a.label), ['A', 'B'], 'anten/eller-par grupperes');
+	assert.match(kyrie.alts[0].text, /Kyrie eleison/);
+	assert.match(kyrie.alts[1].text, /Kriste eleison/);
+	// tom tittelledd: variantene som følger blir alts[] på tittel-leddet
+	const ttAvsnitt = [L('1 Inngang'), L('enten a'), L('L | Frå kyrkja døra.'), L('eller b'), L('L | I kyrkja.')];
+	const ttSeksjoner = byggStruktur(ttAvsnitt, []);
+	grupperEllerLedd(ttSeksjoner);
+	const tt = ttSeksjoner[0].items[0];
+	assert.ok((tt.alts ?? []).length >= 2, 'varianter samlet på tittel-leddet');
 	const seksjoner = byggStruktur(avsnitt, []);
 	grupperEllerLedd(seksjoner);
 	const b\u00f8nn = seksjoner[0].items[0];
