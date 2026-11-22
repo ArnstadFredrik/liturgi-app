@@ -194,8 +194,28 @@ export function newServiceFromTemplate(tpl, include) {
 		...(tpl.eksportPptx ? { eksportPptx: JSON.parse(JSON.stringify(tpl.eksportPptx)) } : {}),
 		...(tpl.eksportTomSlide != null ? { eksportTomSlide: tpl.eksportTomSlide } : {}),
 		// dynamisk bibeltekst-kobling fra malen (lesning → ledd-id)
-		...(tpl.bibeltekster?.length ? { bibeltekster: JSON.parse(JSON.stringify(tpl.bibeltekster)) } : {})
+		...(tpl.bibeltekster?.length ? { bibeltekster: JSON.parse(JSON.stringify(tpl.bibeltekster)) } : {}),
+		// vigsel: malens valgte kilde til skriftlesningene
+		...(tpl.skriftlesningKilde ? { skriftlesningKilde: tpl.skriftlesningKilde } : {})
 	};
+}
+
+/** Sekshjelpere for vigselens skriftlesning-kilde. Malen kan si eksplisitt
+ *  hvilken hoveddel som er kilde til skriftlesningene (skriftlesningKilde =
+ *  seksjonstittel); ellers gjelder den gamle heuristikken (tittelen inneholder
+ *  «skriftlesning»). */
+export function erSkriftlesningKilde(dok, secTitle) {
+	if (dok?.skriftlesningKilde) return secTitle === dok.skriftlesningKilde;
+	return /skriftlesning/i.test(secTitle ?? '');
+}
+
+export function finnSkriftlesningSeksjon(dok) {
+	if (!dok?.sections) return null;
+	if (dok.skriftlesningKilde) {
+		const eksplisitt = dok.sections.find((s) => s.title === dok.skriftlesningKilde);
+		if (eksplisitt) return eksplisitt;
+	}
+	return dok.sections.find((s) => /skriftlesning/i.test(s.title) && s.items.length >= 5) ?? null;
 }
 
 /** seksjonens alternativ-merker — array; gammel enkelt-streng (sec.alternativ)

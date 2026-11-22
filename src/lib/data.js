@@ -2343,6 +2343,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2017",
+	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017",
 		"name": "Vigsel (2017)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2017. Inkluderer skriftlesninger for vigsels- og forbønnsliturgien.",
 		"sections": [
@@ -2871,6 +2872,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 		"id": "vigsel-2003",
+	skriftlesningKilde: "Skriftlesninger ved Vigsels- og forbønnsliturgi 2003",
 		"name": "Vigsel (2003)",
 		"description": "Ordning for vigsel med alminnelige bestemmelser — vedtatt av Kirkemøtet 2002, i bruk fra mars 2003. Inkluderer skriftlesninger.",
 		"sections": [

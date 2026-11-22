@@ -50,6 +50,9 @@
 		markDirty();
 	}
 
+	// vigsel: vis «Skriftlesningenes kilde»-innstillingen
+	const erVigsel = $derived((mal?.liturgiType ?? '') === 'vigsel' || /vigsel/i.test(mal?.name ?? ''));
+
 	const TYPER = [['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
 
 	function endreType(e) {
@@ -262,6 +265,20 @@
 	{/if}
 	{#if visMalFelt && fane === 'bibeltekster'}
 		<div class="m-bibeltekster">
+			{#if erVigsel}
+				<div class="m-bibel-kilde">
+					<div class="m-bibel-kilde-tekst">
+						<strong>Skriftlesningenes kilde</strong>
+						<span>Hvilken hoveddel som er katalogen brudeparet velger skriftlesninger fra («Velg tekster …»). Velg hoveddelen som inneholder tekst-listen.</span>
+					</div>
+					<select class="m-bibel-velg" onchange={(e) => { mal.skriftlesningKilde = e.currentTarget.value || null; markDirty(); }}>
+						<option value="">— automatisk (tittel inneholder «skriftlesning») —</option>
+						{#each mal?.sections ?? [] as sec (sec.title)}
+							<option value={sec.title} selected={mal.skriftlesningKilde === sec.title}>{sec.title}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
 			<p class="muted m-velg-hint">Koble lesningene til ledd som skal hente bibeltekst dynamisk fra kirkeåret ved opprettelse av gudstjeneste. Innledning og avslutning i leddet røres ikke — teksten havner i hoveddelen. Ledd uten kobling fylles som før (via leddtittel).</p>
 			<div class="m-bibel-tabell">
 				<div class="m-bibel-head"><span>Lesning</span><span>Ledd som henter teksten</span></div>

@@ -1,5 +1,5 @@
 <script>
-	import { app, applyKirkeaar } from '$lib/store.svelte.js';
+	import { app, applyKirkeaar, finnSkriftlesningSeksjon } from '$lib/store.svelte.js';
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import DelerTabell from '$lib/DelerTabell.svelte';
@@ -623,7 +623,7 @@
 					app.current.sections = app.current.sections.filter((s) => !s.delGruppe || s.delGruppe === jordpaa);
 				}
 				if (nyType === 'vigsel' && app.current) {
-					const sk = app.current.sections.find((x) => /skriftlesning/i.test(x.title) && x.items.length >= 5);
+					const sk = finnSkriftlesningSeksjon(app.current);
 					if (sk) velgTeksterModal(sk); // spør om 2–4 tekster med en gang
 				}
 			};

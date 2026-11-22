@@ -589,6 +589,21 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 	cursor: pointer;
 }
 .m-bibel-velg:hover { border-color: var(--accent); }
+.m-bibel-kilde {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 10px 12px;
+	margin-bottom: 10px;
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 8px 14px;
+	align-items: center;
+}
+.m-bibel-kilde-tekst { display: flex; flex-direction: column; gap: 2px; }
+.m-bibel-kilde-tekst strong { font-size: 13px; }
+.m-bibel-kilde-tekst span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.m-bibel-kilde .m-bibel-velg { min-width: 280px; }
 .m-bibel-velg:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .dyn-badge {
 	display: inline-flex; align-items: center; gap: 4px;
