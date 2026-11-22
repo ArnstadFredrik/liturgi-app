@@ -42,6 +42,7 @@ function salmeFraLinje(t) {
 /** Hoveddel i versaler: «I.SAMLING», «I. SAMLING», «II. ORDET», «DÅP». */
 const erVersalHoveddel = (t) => {
   const s = trim(t);
+  if (/^(enten|anten|eller)(\s+[A-Za-z0-9]+)?[.:]?$/.test(s)) return false; // variantmarkør, ikke hoveddel
   if (s.length < 2 || s.length > 40) return false;
   if (s !== s.toUpperCase()) return false;
   return /^[IVXLC]+\.\s*[A-ZÆØÅ]/.test(s) || /^[IVXLC]{2,}\s+[A-ZÆØÅ]/.test(s) || /^[A-ZÆØÅ]+$/.test(s);
@@ -51,7 +52,7 @@ const normaliserVersalHoveddel = (t) =>
 
 /** Rolle uten/med skille: «L | …», «L  …», «ML/L: …», «Prest:», «Prest   …»,
  *  «Klokker / dåpsfølge  …». «Alle synger» er ikke en rolle. */
-const ROLLEORD = new Set(['Alle', 'Prest', 'Liturg', 'Klokker', 'Medliturg', 'Menighet', 'Organist', 'Kirketjener', 'Dåpsfølge', 'Kor', 'Korett']);
+const ROLLEORD = new Set(['Alle', 'Prest', 'Liturg', 'Klokker', 'Medliturg', 'Menighet', 'Organist', 'Kirketjener', 'Dåpsfølge', 'Kor', 'Korett', 'Brudgommen', 'Bruden']);
 function finnRolle(t) {
   const m = t.match(/^([A-ZÆØÅ][A-Za-zæøå]*(?:\s*\/\s*[A-Za-zæøå]+)*)(\s*[|:]|\s+)\s*(.*)$/);
   if (!m) return null;
@@ -242,7 +243,7 @@ function byggStruktur(avsnitt, advarsler) {
     }
 
     // 5) hoveddel: overskrifts-stiler (docx) eller versal-linjer (pdf)
-    if (erStilHoveddel || erVersalHoveddel(t)) {
+    if ((erStilHoveddel || erVersalHoveddel(t)) && !/^(enten|anten|eller)(\s+[A-Za-z0-9]+)?[.:]?$/i.test(t)) {
       // nummererte overskrifter («1 | Mottakelse …») = leddtittler; tittel
       // uten nummer = ny hoveddel
       if (/^\*?\s?\d+/.test(t) && sec && !erVersalHoveddel(t)) {
@@ -255,6 +256,13 @@ function byggStruktur(avsnitt, advarsler) {
 
     // 6) leddtittel med nummer («2. Hilsen») eller heading-stiler
     if (stil === 'heading2' || stil === 'heading 2' || stil === 'heading3' || stil === 'heading 3' || stil === 'overskrift2' || stil === 'overskrift3' || erLeddTittel(t)) {
+      // heading-stilte svarlinjer («Brudgommen: Ja.») er rollelinjer, ikke titler
+      const svar = t.match(/^([A-ZÆØÅ][a-zæøå]+)\s*:\s*(.{2,})$/);
+      if (svar && ROLLEORD.has(svar[1]) && item) {
+        item.text += (item.text ? '\n' : '') + '{{r}}' + svar[1] + ' |{{/r}} ' + svar[2];
+        forrigeTekst = t;
+        continue;
+      }
       nyttLedd(t.replace(/\s*\|\s*/g, ' ').replace(/^\*?\s?/, ''));
       forrigeTekst = ''; continue;
     }
