@@ -634,6 +634,14 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 .m-overs-tabell tbody tr:last-child td { border-bottom: none; }
 .m-overs-tabell tbody tr:hover td { background: var(--sidebar-hover); }
 .m-overs-fjern { width: 30px; text-align: right; }
+/* åpnare malen er fast i gruppen — låst rad */
+.m-overs-last td {
+	background: var(--sidebar-hover);
+	color: var(--muted);
+	font-style: italic;
+}
+.m-overs-last-tekst { font-size: 11px; opacity: 0.75; }
+.m-overs-laas { color: var(--muted); opacity: 0.7; line-height: 0; display: inline-flex; }
 .m-overs-fjern button {
 	border: none; background: none; cursor: pointer;
 	color: var(--muted); padding: 2px; border-radius: 5px;

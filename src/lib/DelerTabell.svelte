@@ -303,14 +303,16 @@
 		<div class="minst-gruppe">
 			<p class="minst-tittel">Oversettelser</p>
 			<p class="muted m-velg-hint">Andre maler som er samme liturgi på andre målformer. Ved opprettelse vises da gruppens målformer sammen, og valgt målform bruker riktig mal.</p>
-			{#if tilkoblede.length === 0}
-				<p class="muted m-velg-hint">Ingen oversettelser koblet ennå.</p>
-			{:else}
-				<table class="m-overs-tabell">
-					<thead>
-						<tr><th>Mal</th><th>Målform</th><th></th></tr>
-					</thead>
+			<table class="m-overs-tabell">
+				<thead>
+					<tr><th>Mal</th><th>Målform</th><th></th></tr>
+				</thead>
 					<tbody>
+						<tr class="m-overs-last">
+							<td>{mal.name} <span class="m-overs-last-tekst">(denne malen)</span></td>
+							<td><span class="m-overs-form">{målformLabel(malFormFor(mal))}</span></td>
+							<td class="m-overs-fjern"><span class="m-overs-laas" title="Denne malen er med i gruppen og kan ikke fjernes">{@html mdi('lock', 13)}</span></td>
+						</tr>
 						{#each tilkoblede as t (t.id)}
 							<tr>
 								<td>{t.name}</td>
@@ -321,9 +323,8 @@
 								</td>
 							</tr>
 						{/each}
-					</tbody>
-				</table>
-			{/if}
+				</tbody>
+			</table>
 			<div class="m-overs-koble">
 				{#if kobleApen}
 					<div class="m-overs-meny" role="menu">
