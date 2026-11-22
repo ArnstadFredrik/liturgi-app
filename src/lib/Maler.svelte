@@ -209,8 +209,8 @@
 						<td class="t-handlinger">
 							<button onclick={() => aapneIsolertEksport(t)} title="Åpne eksportmodulen for malen">Eksportér</button>
 							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
-							{#if t.wip === true}
-								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft malen (fjern WIP)">Bekreft</button>
+							{#if t.wip === true && app.devModus}
+								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft malen (fjern WIP) — kun i dev-modus">Bekreft</button>
 							{/if}
 							{#if !erOriginalMal(t)}
 								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
