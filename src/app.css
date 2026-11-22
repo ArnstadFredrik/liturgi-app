@@ -737,7 +737,7 @@ textarea {
 .m-deler-celle::after { content: '▾'; font-size: 9px; color: var(--muted); flex: none; }
 .m-deler-celle.merket { border-style: solid; color: var(--text); }
 .m-deler-celle.merket::after { color: var(--accent); }
-.m-deler-celle:hover { border-color: var(--accent); background: var(--accent-dim); }
+.m-deler-celle:hover { border-color: var(--accent); }
 .m-deler-celle-wrap { position: relative; min-width: 0; }
 .m-deler-meny {
 	position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; left: auto;
@@ -774,7 +774,15 @@ textarea {
 .hd-info-nokkel { width: 120px; flex: none; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
 .hd-info-verdi { overflow-wrap: anywhere; }
 .hd-info-verdi code { font-size: 11.5px; }
-.hd-info select { max-width: 220px; }
+/* mal-felt (Innstillinger) og Informasjon: shadcn-aktige kort */
+.m-deler-admin .avpaa { width: 100%; justify-content: flex-start; padding: 6px 10px; border-radius: 8px; }
+.m-deler-admin .avpaa:hover { background: var(--accent-dim); }
+.hd-maal-btn { font: inherit; font-size: 13px; background: var(--panel2); border: 1px solid var(--border); color: var(--accent); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.hd-maal-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.hd-info select { max-width: 220px; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; }
+.hd-info-rad { border-radius: 8px; padding: 5px 8px; margin: 0 -8px; }
+.hd-info-rad:hover { background: var(--accent-dim); }
+.hd-info-verdi select { width: 100%; }
 .m-deler-admin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 14px; margin-top: 10px; }
 .m-deler-adm-tittel { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 .m-deler-adm-rad { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 13px; }

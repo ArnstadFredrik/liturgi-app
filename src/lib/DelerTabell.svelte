@@ -208,6 +208,12 @@
 				</button>
 			</div>
 			<div>
+				<p class="m-deler-adm-tittel">Type</p>
+				<select value={malType(mal)} onchange={endreType} title="Endre typen malen tilhører">
+					{#each TYPER as [verdi, navn] (verdi)}<option value={verdi}>{navn}</option>{/each}
+				</select>
+			</div>
+			<div>
 				<p class="m-deler-adm-tittel">Bruk</p>
 				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
 					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>
@@ -220,11 +226,6 @@
 	{#if visMalFelt && fane === 'informasjon'}
 		<div class="hd-info">
 			<div class="hd-info-rad"><span class="hd-info-nokkel">Navn</span><span class="hd-info-verdi">{mal.name}</span></div>
-			<div class="hd-info-rad"><span class="hd-info-nokkel">Type</span>
-				<span class="hd-info-verdi"><select value={malType(mal)} onchange={endreType} title="Endre typen malen tilhører">
-					{#each TYPER as [verdi, navn] (verdi)}<option value={verdi}>{navn}</option>{/each}
-				</select></span>
-			</div>
 			<div class="hd-info-rad"><span class="hd-info-nokkel">Målform</span><span class="hd-info-verdi">{målformLabel(malFormFor(mal))}</span></div>
 			<div class="hd-info-rad"><span class="hd-info-nokkel">Kilde</span><span class="hd-info-verdi">{mal.__devMal ? 'Original i prosjektet (dev)' : mal.filePath ? 'Lokal mal-fil' : 'Innebygd'}</span></div>
 			{#if mal.filePath}<div class="hd-info-rad"><span class="hd-info-nokkel">Filsti</span><span class="hd-info-verdi"><code>{mal.filePath}</code></span></div>{/if}
