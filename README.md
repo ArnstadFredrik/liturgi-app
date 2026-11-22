@@ -56,6 +56,14 @@ I praksis: du åpner en originalmal fra Malverktøy-lister, redigerer den med he
 
 Andre dev-konsekvenser: åpne maler dukker opp under «Åpne maler» i sidefeltet, og maler åpnet fra Malverktøy er merket med **dev**. Publiserte utgaver inneholder ingen av delene.
 
+## Malimport og konvertering
+
+Nye liturgier kan bli maler på tre måter:
+
+1. **«Importér mal …»** (Maler-siden) — importer en eksisterende `.limal`/`.liturgi`-fil.
+2. **«Konverter Word/PDF …»** (Maler-siden) — konverterer en liturgi i Word- (`docx`) eller PDF-format til en `.limal`-mal og lagrer den som brukermal. Konverteringen kjører offline i hovedprosessen (`electron/konverter.cjs`): hoveddeler og leddtittler gjenkjennes fra overskrifts-stiler/nummerering, rolleprefiks (`L |`, `ML/L |`) blir rolle-markering, bibelreferanser blir `BIBELREF |`, rubrikker blir `@NOTAT` og salmelinjer blir salmeledd. Resultatet er heuristisk — sjekk variant-gruppering («Eller»-tekster) og roller i redigeringsvisningen etterpå.
+3. **LLM-skill**: [ArnstadFredrik/liturgi-limal-skill](https://github.com/ArnstadFredrik/liturgi-limal-skill) beskriver arbeidsflyten for LLM-styrt konvertering av docx/pdf til `.limal`. **Formatspesifikasjonen** (alle felter, tekstkonvensjoner og konverteringsreglene) ligger i dette repoet: [`docs/limal-format.md`](docs/limal-format.md) — det er kilden til sannheten for formatet, og skillen henter alltid siste utgave derfra.
+
 ## Funksjoner
 
 - **Maler**: «Ordning for hovedgudstjeneste (bokmål, 2020)» og «Gudstjenestemal Bakke og Gylland 2025» er innebygd. Lag nye lokale maler («+ Ny lokal mal») eller lagre en gudstjeneste som grunnordning med «Lagre som mal».

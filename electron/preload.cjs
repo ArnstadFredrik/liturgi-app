@@ -37,6 +37,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	lagrePdf: (base64, filnavn, sti) => ipcRenderer.invoke('eksport:lagre-pdf', { base64, filnavn, sti }),
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),
+	konverterMal: () => ipcRenderer.invoke('mal:konverter'),
 	readTemplate: (p) => ipcRenderer.invoke('tpl:read', { path: p }),
 	writeTemplate: (p, json) => ipcRenderer.invoke('tpl:write', { path: p, json }),
 	deleteTemplateFile: (p) => ipcRenderer.invoke('tpl:delete', { path: p }),

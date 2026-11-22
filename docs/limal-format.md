@@ -21,11 +21,11 @@ gudstjenester: `.liturgi` med `kind: "service"`.
 | Felt | Type | Betydning |
 |---|---|---|
 | `id` | streng | stabil id (f.eks. `dop-i-hovedgudstjenesten-2017`) |
-| `name` | streng | visningsnavn, uten målform (f.eks. «Dåp i hovedgudtjenesten (2017)») |
+| `name` | streng | visningsnavn, uten målform (f.eks. «Dåp i hovedgudstjenesten (2017)») |
 | `description` | streng | valgfri beskrivelse |
 | `malForm` | streng | målform/språk: `bokmål` (standard), `nynorsk`, … |
 | `liturgiType` | streng | `gudstjeneste` (standard), `vigsel`, `gravferd` — avgjør kategori og «Opprett»-liste |
-| `kanGudtjeneste` | bool | `false` = malen tilbys ikke ved opprett av gudtjeneste |
+| `kanGudstjeneste` | bool | `false` = malen tilbys ikke ved opprett av gudstjeneste |
 | `alternativer` | string[] | katalog av alternativ-merker (f.eks. `["dåp", "nattverd"]`) som styrer valgene i «Opprett»-dialogen |
 | `delGrupper` | string[] | katalog av variasjoner/del-grupper (f.eks. `["gravferd", "bisettelse"]`) — enten/eller |
 | `sections` | array | hoveddelene (se under) |

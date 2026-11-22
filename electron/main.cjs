@@ -7,6 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const url = require('url');
+const { konverterLiturgi } = require('./konverter.cjs');
 
 // ---------- fil-dialoger: lagre/åpne liturgi-filer (.liturgi, json-innhold) ----------
 ipcMain.on('app:dirty', (e, v) => {
@@ -137,6 +138,40 @@ ipcMain.handle('tpl:read', async (_e, { path: p }) => {
 	try { return { ok: true, json: fs.readFileSync(p, 'utf8'), filePath: p }; }
 	catch (err) { return { ok: false, error: String(err?.message ?? err) }; }
 });
+
+// Konverter en Word/PDF-liturgi til .limal-mal og lagre som brukermal.
+// Heuristisk førsteutkast (rolle-markering, bibelreferanser, notater) —
+// malen kan finpusses i redigeringsvisningen etterpå.
+ipcMain.handle('mal:konverter', async () => {
+	try {
+		const win = BrowserWindow.getFocusedWindow();
+		const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+			title: 'Konverter liturgi til mal',
+			defaultPath: app.getPath('documents'),
+			filters: [
+				{ name: 'Word eller PDF', extensions: ['docx', 'pdf'] }
+			],
+			properties: ['openFile']
+		});
+		if (canceled || !filePaths?.length) return { ok: false, canceled: true };
+		const fil = filePaths[0];
+		const { mal, advarsler } = konverterLiturgi(fil);
+		// unikt filnavn i brukermaler
+		const safe = (mal.name || 'mal').replace(/[\\/:*?"<>|]+/g, '').trim() || 'mal';
+		const dir = templatesDir('brukermaler');
+		const taken = new Set(fs.readdirSync(dir).map((f) => f.toLowerCase()));
+		let navnFil = `${safe}.limal`, n = 2;
+		while (taken.has(navnFil.toLowerCase())) { navnFil = `${safe} (${n}).limal`; n++; }
+		const sti = path.join(dir, navnFil);
+		const json = JSON.stringify({ liturgiFormat: 1, kind: 'template', data: mal }, null, '	');
+		fs.writeFileSync(sti, json, 'utf8');
+		const antLedd = mal.sections.reduce((sum, s) => sum + s.items.length, 0);
+		return { ok: true, path: sti, name: mal.name, seksjoner: mal.sections.length, ledd: antLedd, advarsler };
+	} catch (err) {
+		return { ok: false, error: String(err?.message ?? err) };
+	}
+});
+
 
 ipcMain.handle('tpl:write', async (_e, { path: p, json }) => {
 	try {

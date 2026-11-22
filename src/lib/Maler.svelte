@@ -7,6 +7,7 @@
 	import { veksleMalFavoritt, erMalFavoritt } from '$lib/store.svelte.js';
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { mdi } from '$lib/mdi.js';
+	import { toast } from 'svelte-sonner';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -103,6 +104,19 @@
 		}
 	}
 
+	/** Konverter en Word/PDF-liturgi til .limal og lagre som brukermal. */
+	async function konverterMal() {
+		if (!isElectron) return;
+		const r = await window.liturgi.konverterMal();
+		if (!r.ok) {
+			if (!r.canceled) toast.error('Klarte ikke konvertere: ' + (r.error ?? 'ukjent feil'));
+			return;
+		}
+		await loadTemplatesFromDisk();
+		const advarsel = r.advarsler?.length ? ' — sjekk variant-gruppering og roller i redigeringsvisningen' : '';
+		toast.success(`Konvertert: ${r.name} (${r.seksjoner} hoveddeler, ${r.ledd} ledd)${advarsel}`);
+	}
+
 	function nyLokalMal() {
 		nyLokalMalModal(async (name, baseId) => {
 			if (!name) return;
@@ -190,6 +204,7 @@
 
 	<div class="w-mal-handlinger">
 		<button onclick={importerMal}>Importér mal …</button>
+		<button onclick={konverterMal} title="Konverter en Word- eller PDF-liturgi til mal (heuristisk)">Konverter Word/PDF …</button>
 		<button onclick={nyLokalMal}>+ Ny lokal mal</button>
 	</div>
 </div>
