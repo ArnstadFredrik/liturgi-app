@@ -422,8 +422,11 @@ function grupperEllerLedd(seksjoner) {
       if ((m || mV) && ut.length) {
         const base = ut[ut.length - 1];
         // nummererte leddheadinger («4 Samlingsbønn», «9 Første lesning») er
-        // malens skjelett — de skal aldri slukes som varianter
-        const egnet = base.type !== 'salme' && !/^\d+[\s.]/.test((base.heading ?? '').trim()) && ((base.text ?? '').trim() || (base.alts ?? []).length);
+        // malens skjelett — de skal aldri slukes som varianter. UNNTAK: rene
+        // «Enten A»/«Eller B»-par (mV) hører til nummererte ledd i gravferds-
+        // og vigselordningene — bare den bare «Eller»-formen holdes unna.
+        const nummerert = /^\d+[\s.]/.test((base.heading ?? '').trim());
+        const egnet = base.type !== 'salme' && (mV || !nummerert) && ((base.text ?? '').trim() || (base.alts ?? []).length);
         // tom tittelledd (kun heading, ingen tekst): variantene som følger
         // hører til denne — de blir alts[] uten at tittelen blir en variant
         const tomTittel = !egnet && base.type !== 'salme' && !(base.text ?? '').trim() && !(base.alts ?? []).length && (base.heading ?? '').trim();
