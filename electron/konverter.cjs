@@ -477,6 +477,11 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
     visRoles: true,
     visSalmeinfo: true
   };
+  // tittelside: en første seksjon uten tittel og med ≤1 ledd er dokumentets
+  // egen tittelside — den hører ikke med i malen
+  while (seksjoner.length && (seksjoner[0].items ?? []).length <= 1 && !(seksjoner[0].title ?? '').trim()) {
+    seksjoner.shift();
+  }
   grupperEllerLedd(seksjoner);
   for (const sec of seksjoner) for (const it of sec.items ?? []) trekkUtIntroAvslutning(it);
   return { mal, advarsler };
