@@ -364,6 +364,37 @@ function pakkRefrenger(salmeTekst) {
 }
 
 /** Konverter docx/pdf → mal-objekt. Kaster med lesbar feil ved problemer. */
+// ---------- grupper 'Eller'-ledd til alts[] ----------
+// Heuristiske konverteringer lar variant-ledd stå som egne ledd med
+// heading «Eller» / «Eller B». Grupper dem inn i forrige ledd som
+// alts[] (label = suffikset, ellers A/B/C…), slik originalmalene gjør det.
+function grupperEllerLedd(seksjoner) {
+  for (const sec of seksjoner) {
+    const items = sec.items ?? [];
+    const ut = [];
+    for (const it of items) {
+      const h = (it.heading ?? '').trim();
+      const m = /^Eller(?:\s+([A-Z0-9]+))?\.?$/i.exec(h);
+      let slukt = false;
+      if (m && ut.length) {
+        const base = ut[ut.length - 1];
+        const egnet = base.type !== 'salme' && ((base.text ?? '').trim() || (base.alts ?? []).length);
+        if (egnet) {
+          if (!(base.alts ?? []).length) {
+            base.alts = [{ label: 'A', text: base.text ?? '' }];
+            base.selAlt = 0;
+          }
+          const label = String.fromCharCode(65 + base.alts.length); // sekvensiell A/B/C…
+          base.alts.push({ label, text: it.text ?? '' });
+          slukt = true;
+        }
+      }
+      if (!slukt) ut.push(it);
+    }
+    sec.items = ut;
+  }
+}
+
 function konverterLiturgi(fil, { navn, type, maalform } = {}) {
   const ext = path.extname(fil).toLowerCase();
   const advarsler = [];
@@ -394,7 +425,8 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
     visRoles: true,
     visSalmeinfo: true
   };
+  grupperEllerLedd(seksjoner);
   return { mal, advarsler };
 }
 
-module.exports = { konverterLiturgi, byggStruktur };
+module.exports = { konverterLiturgi, byggStruktur, grupperEllerLedd };

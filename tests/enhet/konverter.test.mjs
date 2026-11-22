@@ -92,3 +92,31 @@ test('konvertering: eneste Sønn-malens navn og type settes riktig for docx', ()
 	assert.ok(mal.sections[0].items.some((i) => (i.text ?? '').includes('{{r}}L |')));
 	fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test('konvertering: \u00abEller\u00bb-ledd grupperes inn i forrige ledd som alts[]', () => {
+	const { byggStruktur, grupperEllerLedd } = require('../../electron/konverter.cjs');
+	const L = (t) => ({ stil: '', runs: [{ tekst: t, bold: false, italic: false }], tekst: t.trim() });
+	const avsnitt = [
+		L('I. SAMLING'),
+		L('B\u00f8nn'),
+		L('L | Alternativ A.'),
+		L('Eller'),
+		L('L | Alternativ B.'),
+		L('Eller C'),
+		L('L | Alternativ C.'),
+		L('Salme'),
+		L('N13 591 En salme'),
+		L('1 Et vers'),
+		L('Eller'),
+		L('Dette skal IKKE gruppes (forrige er salme).')
+	];
+	const seksjoner = byggStruktur(avsnitt, []);
+	grupperEllerLedd(seksjoner);
+	const b\u00f8nn = seksjoner[0].items[0];
+	assert.equal(b\u00f8nn.heading, 'B\u00f8nn');
+	assert.deepEqual(b\u00f8nn.alts.map((a) => a.label), ['A', 'B', 'C']);
+	assert.match(b\u00f8nn.alts[1].text, /Alternativ B/);
+	// 'Eller' etter salme blir st\u00e5ende som eget ledd
+	const siste = seksjoner[0].items[seksjoner[0].items.length - 1];
+	assert.match(siste.text ?? '', /IKKE gruppes/);
+});
