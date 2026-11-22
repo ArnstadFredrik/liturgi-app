@@ -112,7 +112,7 @@
 				aktiv: app.visning === 'maldeler' ? 'alternativer' : app.visning === 'eksport' ? 'eksport' : app.visning === 'oversikt' ? 'oversikt' : 'mal',
 				faner: [
 					{ id: 'mal', navn: 'Mal', velg: () => { app.visning = 'editor'; } },
-					{ id: 'alternativer', navn: 'Alternativer', velg: () => { app.visning = 'maldeler'; } },
+					{ id: 'alternativer', navn: 'Innstillinger', velg: () => { app.visning = 'maldeler'; } },
 					{ id: 'oversikt', navn: 'Oversikt', velg: () => { app.visning = 'oversikt'; } },
 					{ id: 'eksport', navn: 'Eksport', velg: () => { app.visning = 'eksport'; } }
 				]

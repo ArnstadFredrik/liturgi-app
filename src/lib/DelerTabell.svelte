@@ -4,9 +4,10 @@
 	 *  «Deler …»-modalen. Samme komponent = samme uttrykk begge steder. */
 	import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
 
-	let { mal } = $props();
+	let { mal, visMalFelt = false } = $props();
 	import { mdi } from '$lib/mdi.js';
-	import { confirmBox } from '$lib/modal.svelte.js';
+	import { malType, malFormFor, målformLabel, kanBrukes } from '$lib/maltyper.js';
+	import { confirmBox, maalformModal } from '$lib/modal.svelte.js';
 
 	let fane = $state('hoveddeler');
 	let apenCelle = $state(null);
@@ -18,6 +19,13 @@
 
 	const alternativer = $derived(mal?.alternativer ?? []);
 	const variasjoner = $derived(mal?.delGrupper ?? []);
+
+	const TYPER = [['gudtjeneste', 'Gudtjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
+
+	function endreType(e) {
+		mal.liturgiType = e.currentTarget.value;
+		markDirty();
+	}
 
 	function vilBakOver(el) {
 		const r = el.getBoundingClientRect();
@@ -115,6 +123,7 @@
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
 		<button role="tab" aria-selected={fane === 'hoveddeler'} class:sel={fane === 'hoveddeler'} onclick={() => { fane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
 		<button role="tab" aria-selected={fane === 'innstillinger'} class:sel={fane === 'innstillinger'} onclick={() => { fane = 'innstillinger'; apenCelle = null; }}>Innstillinger</button>
+		{#if visMalFelt}<button role="tab" aria-selected={fane === 'informasjon'} class:sel={fane === 'informasjon'} onclick={() => { fane = 'informasjon'; apenCelle = null; }}>Informasjon</button>{/if}
 	</div>
 
 	{#if fane === 'hoveddeler'}
@@ -169,7 +178,7 @@
 				</div>
 			{/each}
 		</div>
-	{:else}
+	{:else if fane === 'innstillinger'}
 		<div class="m-deler-admin">
 			<div>
 				<p class="m-deler-adm-tittel">Alternativer</p>
@@ -187,6 +196,41 @@
 				{#if !variasjoner.length}<p class="muted">Ingen variasjoner ennå.</p>{/if}
 				<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>
 			</div>
+		</div>
+	{/if}
+
+	{#if visMalFelt && fane === 'innstillinger'}
+		<div class="m-deler-admin">
+			<div>
+				<p class="m-deler-adm-tittel">Målform</p>
+				<button type="button" class="hd-maal-btn" title="Velg eller legg til målform" onclick={() => maalformModal(mal)}>
+					{@html mdi('pencil', 13)} {målformLabel(malFormFor(mal))} — endre …
+				</button>
+			</div>
+			<div>
+				<p class="m-deler-adm-tittel">Bruk</p>
+				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudtjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
+					<span class="avpaa-tekst">Kan brukes til gudtjenester</span>
+					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+				</button>
+			</div>
+		</div>
+	{/if}
+
+	{#if visMalFelt && fane === 'informasjon'}
+		<div class="hd-info">
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Navn</span><span class="hd-info-verdi">{mal.name}</span></div>
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Type</span>
+				<span class="hd-info-verdi"><select value={malType(mal)} onchange={endreType} title="Endre typen malen tilhører">
+					{#each TYPER as [verdi, navn] (verdi)}<option value={verdi}>{navn}</option>{/each}
+				</select></span>
+			</div>
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Målform</span><span class="hd-info-verdi">{målformLabel(malFormFor(mal))}</span></div>
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Kilde</span><span class="hd-info-verdi">{mal.__devMal ? 'Original i prosjektet (dev)' : mal.filePath ? 'Lokal mal-fil' : 'Innebygd'}</span></div>
+			{#if mal.filePath}<div class="hd-info-rad"><span class="hd-info-nokkel">Filsti</span><span class="hd-info-verdi"><code>{mal.filePath}</code></span></div>{/if}
+			{#if mal.description}<div class="hd-info-rad"><span class="hd-info-nokkel">Beskrivelse</span><span class="hd-info-verdi">{mal.description}</span></div>{/if}
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Omfang</span><span class="hd-info-verdi">{mal.sections?.length ?? 0} hoveddeler, {(mal.sections ?? []).reduce((n, s2) => n + (s2.items?.length ?? 0), 0)} ledd</span></div>
+			<div class="hd-info-rad"><span class="hd-info-nokkel">Bruk</span><span class="hd-info-verdi">{kanBrukes(mal) ? 'Kan brukes til gudtjenester' : 'Ikke i gudtjeneste-valg'}</span></div>
 		</div>
 	{/if}
 </div>

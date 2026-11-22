@@ -6,5 +6,5 @@
 </script>
 
 <div id="maldeler-side">
-	<DelerTabell mal={app.current} />
+	<DelerTabell mal={app.current} visMalFelt />
 </div>
