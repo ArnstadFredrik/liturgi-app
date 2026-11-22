@@ -94,7 +94,7 @@ test('konvertering: eneste Sønn-malens navn og type settes riktig for docx', ()
 });
 
 test('konvertering: \u00abEller\u00bb-ledd grupperes inn i forrige ledd som alts[]', () => {
-	const { byggStruktur, grupperEllerLedd } = require('../../electron/konverter.cjs');
+	const { byggStruktur, grupperEllerLedd, trekkUtIntroAvslutning } = require('../../electron/konverter.cjs');
 	const L = (t) => ({ stil: '', runs: [{ tekst: t, bold: false, italic: false }], tekst: t.trim() });
 	const avsnitt = [
 		L('I. SAMLING'),
@@ -129,6 +129,26 @@ test('konvertering: \u00abEller\u00bb-ledd grupperes inn i forrige ledd som alts
 	grupperEllerLedd(ttSeksjoner);
 	const tt = ttSeksjoner[0].items[0];
 	assert.ok((tt.alts ?? []).length >= 2, 'varianter samlet på tittel-leddet');
+	// felles innledning/avslutning løftes ut som introAlts/avslutningAlts
+	const iaAvsnitt = [
+		L('Bønn'),
+		L('L | La oss be.'),
+		L('L | Gode Gud, hjelp oss.'),
+		L('L | Amen.'),
+		L('Eller'),
+		L('L | La oss be.'),
+		L('L | Gode Gud, lær oss.'),
+		L('L | Amen.')
+	];
+	const iaSeksjoner = byggStruktur(iaAvsnitt, []);
+	grupperEllerLedd(iaSeksjoner);
+	const ia = iaSeksjoner[0].items[0];
+	trekkUtIntroAvslutning(ia);
+	assert.equal(ia.introAlts?.[0]?.text, 'L | La oss be.'.replace('L |', '{{r}}L |{{/r}}'));
+	assert.equal(ia.avslutningAlts?.[0]?.text, '{{r}}L |{{/r}} Amen.');
+	assert.match(ia.alts[0].text, /hjelp oss/);
+	assert.match(ia.alts[1].text, /lær oss/);
+	assert.equal(ia.text, '');
 	const seksjoner = byggStruktur(avsnitt, []);
 	grupperEllerLedd(seksjoner);
 	const b\u00f8nn = seksjoner[0].items[0];

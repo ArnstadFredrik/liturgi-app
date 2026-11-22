@@ -368,6 +368,45 @@ function pakkRefrenger(salmeTekst) {
 // Heuristiske konverteringer lar variant-ledd stå som egne ledd med
 // heading «Eller» / «Eller B». Grupper dem inn i forrige ledd som
 // alts[] (label = suffikset, ellers A/B/C…), slik originalmalene gjør det.
+// ---------- felles innledning/avslutning på alternativgrupper ----------
+// Når alle alternativene deler første- og/eller siste-linjer («La oss be.» /
+// «Amen.»), løftes de ut som introAlts/avslutningAlts — samme struktur som
+// originalmalene (label «Innledning»/«Avslutning», selIntro/selAvsl).
+function fellesLinjer(tekster, fraStart) {
+  if (tekster.length < 2) return 0;
+  const delte = tekster.map((t) => (t ?? '').split('\n'));
+  const kortest = Math.min(...delte.map((d) => d.length));
+  let ant = 0;
+  for (let i = 0; i < kortest; i++) {
+    const verdier = delte.map((d) => (fraStart ? d[i] : d[d.length - 1 - i]).trim());
+    if (new Set(verdier).size !== 1) break;
+    ant++;
+  }
+  return ant;
+}
+
+function trekkUtIntroAvslutning(item) {
+  const alts = item.alts ?? [];
+  if (alts.length < 2) return;
+  if ((item.introAlts ?? []).length || (item.avslutningAlts ?? []).length) return;
+  const tekster = alts.map((a) => a.text ?? '');
+  const minLen = Math.min(...tekster.map((t) => t.split('\n').length));
+  const p = fellesLinjer(tekster, true);
+  let s = fellesLinjer(tekster, false);
+  if (p + s > minLen) s = Math.max(0, minLen - p);
+  if (p + s >= minLen) return; // alt innhold er felles — ingen reelle varianter
+  const delte = tekster.map((t) => (t ?? '').split('\n'));
+  const midt = delte.map((d, idx) => d.slice(p, d.length - s).join('\n').trim());
+  if (midt.some((m) => !m)) return; // minst ett alternativ ville blitt tomt
+  if (p > 0) item.introAlts = [{ label: 'Innledning', text: delte[0].slice(0, p).join('\n') }];
+  if (s > 0) item.avslutningAlts = [{ label: 'Avslutning', text: delte[0].slice(delte[0].length - s).join('\n') }];
+  for (let idx = 0; idx < alts.length; idx++) alts[idx].text = midt[idx];
+  item.text = '';
+  item.selAlt = item.selAlt ?? 0;
+  item.selIntro = 0;
+  item.selAvsl = 0;
+}
+
 function grupperEllerLedd(seksjoner) {
   for (const sec of seksjoner) {
     const items = sec.items ?? [];
@@ -439,7 +478,8 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
     visSalmeinfo: true
   };
   grupperEllerLedd(seksjoner);
+  for (const sec of seksjoner) for (const it of sec.items ?? []) trekkUtIntroAvslutning(it);
   return { mal, advarsler };
 }
 
-module.exports = { konverterLiturgi, byggStruktur, grupperEllerLedd };
+module.exports = { konverterLiturgi, byggStruktur, grupperEllerLedd, trekkUtIntroAvslutning };
