@@ -70,9 +70,9 @@ function medLenketBackup(mal) {
  *  true hvis noen lenker mistet sin kilde. NB: gammelt format
  *  __lenket: true (bool) er ikke en objekt-lenke — det konverteres av
  *  LENKE-SYNK etter innlesing og skal ikke røres her. */
-function behandlLenketBackup(mal) {
+function behandlLenketBackup(mal, kjenteIder = null) {
 	let mistet = false;
-	const kjente = new Set(app.templates.map((t) => t.id));
+	const kjente = kjenteIder ?? new Set(app.templates.map((t) => t.id));
 	for (const sec of mal.sections ?? []) {
 		if (!sec.__lenket || sec.__lenket === true) continue;
 		const finnes = kjente.has(sec.__lenket?.malId);
@@ -552,16 +552,20 @@ export async function loadTemplatesFromDisk() {
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
 			if (!data) continue;
-			// lenket innhold: backup hvis lenket mal ikke finnes lenger
-			const mistet = behandlLenketBackup(data);
-			if (mistet) {
-				await window.liturgi.writeTemplate(meta.path, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
-				toast.info('Malen «' + (data.name ?? 'uten navn') + '» inneholdt lenket innhold som er kopiert inn (lenket mal finnes ikke).');
-			}
 			data.filePath = meta.path;
 			data.kind = 'template';
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(data.name).toLowerCase().replace(/\s+/g, '-');
 			disk.push(data);
+		}
+		// lenket innhold: backup hvis lenket mal ikke finnes. MÅ kjøre ETTER at
+		// alle maler er lest — ellers ser kontrollen en tom mal-liste og meldør
+		// feilaktig at gyldige lenker er tapt (sml. Konfirmasjon → HG-nattverden).
+		const diskIder = new Set(disk.map((d) => d.id));
+		for (const data of disk) {
+			if (!behandlLenketBackup(data, diskIder)) continue;
+			const meta = metaPerNavn.get(data.name);
+			if (meta) await window.liturgi.writeTemplate(meta.path, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
+			toast.info('Malen «' + (data.name ?? 'uten navn') + '» inneholdt lenket innhold som er kopiert inn (lenket mal finnes ikke).');
 		}
 		app.templates = disk;
 
