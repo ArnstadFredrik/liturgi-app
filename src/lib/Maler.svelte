@@ -5,10 +5,11 @@
 	import { exportWord } from '$lib/export.js';
 	import { malType } from '$lib/modal.svelte.js';
 	import { veksleMalFavoritt, erMalFavoritt } from '$lib/store.svelte.js';
-	import { målformLabel, malFormFor, kategoriFor, kategoriSort, KATEGORIER } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor, kategoriFor, kategoriSort, KATEGORIER, TYPER } from '$lib/maltyper.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 	import KonverterModal from '$lib/KonverterModal.svelte';
+	import FilterDropdown from '$lib/FilterDropdown.svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -23,15 +24,25 @@
 
 	/** Søk + filtre (type/kilde) + sorterbar tabell. */
 	let q = $state('');
-	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
-	let kildeFilter = $state('alle'); // alle | originaler | brukermaler
-	let kategoriFilter = $state('alle'); // alle | KATEGORIER
+	let typeSel = $state([]); // multiselect: gudstjeneste | vigsel | gravferd
+	let kildeSel = $state([]); // multiselect: originaler | brukermaler
+	let katSel = $state([]); // multiselect: KATEGORIER
+	function nullstillFiltre() {
+		q = '';
+		typeSel = [];
+		kildeSel = [];
+		katSel = [];
+	}
+	function noenFiltre() {
+		return !!(q || typeSel.length || kildeSel.length || katSel.length);
+	}
 
 	const typeNavn = { gudstjeneste: 'Gudstjeneste', vigsel: 'Vigsel', gravferd: 'Gravferd' };
 	function passer(t) {
 		if (q && !t.name.toLowerCase().includes(q.toLowerCase())) return false;
-		if (typeFilter !== 'alle' && malType(t) !== typeFilter) return false;
-		if (kategoriFilter !== 'alle' && kategoriFor(t) !== kategoriFilter) return false;
+		if (typeSel.length && !typeSel.includes(malType(t))) return false;
+		if (kildeSel.length && !kildeSel.includes(erOriginalMal(t) ? 'originaler' : 'brukermaler')) return false;
+		if (katSel.length && !katSel.includes(kategoriFor(t))) return false;
 		return true;
 	}
 
@@ -152,21 +163,11 @@
 
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i maler …" bind:value={q} />
-		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
-				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
-			{/each}
-		</div>
-		<div class="mal-chips" role="group" aria-label="Filtrer etter kilde">
-			{#each [['alle', 'Alle'], ['originaler', 'Originaler'], ['brukermaler', 'Brukermaler']] as [verdi, navn]}
-				<button class:sel={kildeFilter === verdi} onclick={() => kildeFilter = verdi}>{navn}</button>
-			{/each}
-		</div>
-		<div class="mal-chips" role="group" aria-label="Filtrer etter kategori">
-			<button class:sel={kategoriFilter === 'alle'} onclick={() => kategoriFilter = 'alle'}>Alle</button>
-			{#each KATEGORIER as kat}
-				<button class:sel={kategoriFilter === kat} onclick={() => kategoriFilter = kat}>{kat}</button>
-			{/each}
+		<div class="mal-filter-rekke">
+			<FilterDropdown label="Type" options={TYPER.map((t) => ({ verdi: t, navn: t[0].toUpperCase() + t.slice(1) }))} bind:selected={typeSel} />
+			<FilterDropdown label="Kilde" options={[{ verdi: 'originaler', navn: 'Originaler' }, { verdi: 'brukermaler', navn: 'Brukermaler' }]} bind:selected={kildeSel} />
+			<FilterDropdown label="Kategori" options={KATEGORIER.map((k) => ({ verdi: k, navn: k }))} bind:selected={katSel} />
+			<button class="filter-nullstill" onclick={nullstillFiltre} disabled={!noenFiltre()} title="Nullstill alle filtre">{@html mdi('filter-variant-remove', 14)} Nullstill</button>
 		</div>
 	</div>
 

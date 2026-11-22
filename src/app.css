@@ -59,7 +59,72 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 #app { display: flex; height: 100vh; }
 #main { flex: 1; overflow-y: auto; }
 #app:has(#malverktoy) #main { overflow: hidden; display: flex; flex-direction: column; }
-#malverktoy .mal-tabell-kort { flex: 1; min-height: 0; overflow: auto; margin-top: 0; }
+#malverktoy /* FilterDropdown (multiselect-filter i mal-listene) */
+.mal-filter-rekke {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+.filter-dd { position: relative; }
+.filter-dd-knapp {
+	display: inline-flex; align-items: center; gap: 5px;
+	border: 1px solid var(--border);
+	background: var(--panel2);
+	color: var(--text);
+	font-size: 12.5px;
+	padding: 5px 11px;
+	border-radius: 7px;
+	cursor: pointer;
+}
+.filter-dd-knapp:hover { background: var(--sidebar-hover); }
+.filter-dd-knapp.aktiv { border-color: var(--accent); color: var(--accent); }
+.filter-dd-pil { opacity: 0.6; }
+.filter-dd-meny {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	min-width: 220px;
+	max-height: 280px;
+	overflow-y: auto;
+	background: var(--panel2);
+	border: 1px solid var(--border);
+	border-radius: 9px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+	padding: 4px;
+	z-index: 40;
+}
+.filter-dd-rad {
+	display: flex; align-items: center; gap: 8px;
+	font-size: 13px;
+	padding: 6px 9px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+.filter-dd-rad:hover { background: var(--sidebar-hover); }
+.filter-dd-tom {
+	width: 100%;
+	border: none; background: none;
+	font-size: 12px;
+	color: var(--muted);
+	text-align: left;
+	padding: 5px 9px;
+	cursor: pointer;
+}
+.filter-dd-tom:hover { color: var(--text); }
+.filter-nullstill {
+	display: inline-flex; align-items: center; gap: 5px;
+	border: 1px solid var(--border);
+	background: var(--panel2);
+	color: var(--muted);
+	font-size: 12.5px;
+	padding: 5px 11px;
+	border-radius: 7px;
+	cursor: pointer;
+}
+.filter-nullstill:hover:not(:disabled) { color: var(--text); background: var(--sidebar-hover); }
+.filter-nullstill:disabled { opacity: 0.45; cursor: default; }
+.mal-tabell-kort { flex: 1; min-height: 0; overflow: auto; margin-top: 0; }
 #malverktoy .mal-filter { flex-shrink: 0; }
 
 /* ---------- Sidebar ---------- */

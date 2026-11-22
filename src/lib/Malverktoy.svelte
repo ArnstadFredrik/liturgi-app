@@ -6,21 +6,33 @@
 	// og IPC-handleren i main.cjs nekter i pakket app.
 	import { BUILTIN_TEMPLATES } from '$lib/data.js';
 	import { malType } from '$lib/modal.svelte.js';
-	import { målformLabel, malFormFor, erWip } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor, erWip, kategoriFor, kategoriSort, KATEGORIER, TYPER } from '$lib/maltyper.js';
 	import { app, openTemplate } from '$lib/store.svelte.js';
 	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal } from '$lib/malverktoy.svelte.js';
+	import FilterDropdown from '$lib/FilterDropdown.svelte';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	/** S\u00f8k + type-filter + sortering etter type s\u00e5 navn (samme som malmodulen).
 	 *  Tabellen viser ALLE maler fra disk (originaler + wip + brukermaler). */
 	let q = $state('');
-	let typeFilter = $state('alle'); // alle | gudstjeneste | vigsel | gravferd
+	let typeSel = $state([]);
+	let kildeSel = $state([]);
+	let katSel = $state([]);
+	function nullstillFiltre() {
+		q = '';
+		typeSel = [];
+		kildeSel = [];
+		katSel = [];
+	}
+	function noenFiltre() {
+		return !!(q || typeSel.length || kildeSel.length || katSel.length);
+	} // alle | gudstjeneste | vigsel | gravferd
 	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
 	const visMal = $derived(
 		(app.templates ?? [])
-			.filter((t) => (!q || t.name.toLowerCase().includes(q.toLowerCase())) && (typeFilter === 'alle' || malType(t) === typeFilter))
-			.sort((a, b) => (typeRekkefolge[malType(a)] - typeRekkefolge[malType(b)]) || a.name.localeCompare(b.name, 'no'))
+			.filter((t) => (!q || t.name.toLowerCase().includes(q.toLowerCase())) && (typeSel.length === 0 || typeSel.includes(malType(t))) && (kildeSel.length === 0 || kildeSel.includes(erOriginalMal(t) ? 'originaler' : 'brukermaler')) && (katSel.length === 0 || katSel.includes(kategoriFor(t))))
+			.sort((a, b) => (kategoriSort(a) - kategoriSort(b)) || a.name.localeCompare(b.name, 'no'))
 	);
 	/** Har malen en seed i data.js (kan redigeres med \u00abLagre til prosjektet\u00bb)? */
 	function harSeed(t) {
@@ -72,22 +84,24 @@
 
 	<div class="mal-filter">
 		<input class="mal-sok" placeholder="Søk i malene …" bind:value={q} />
-		<div class="mal-chips" role="group" aria-label="Filtrer etter type">
-			{#each [['alle', 'Alle'], ['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']] as [verdi, navn]}
-				<button class:sel={typeFilter === verdi} onclick={() => typeFilter = verdi}>{navn}</button>
-			{/each}
+		<div class="mal-filter-rekke">
+			<FilterDropdown label="Type" options={TYPER.map((t) => ({ verdi: t, navn: t[0].toUpperCase() + t.slice(1) }))} bind:selected={typeSel} />
+			<FilterDropdown label="Kilde" options={[{ verdi: 'originaler', navn: 'Originaler' }, { verdi: 'brukermaler', navn: 'Brukermaler' }]} bind:selected={kildeSel} />
+			<FilterDropdown label="Kategori" options={KATEGORIER.map((k) => ({ verdi: k, navn: k }))} bind:selected={katSel} />
+			<button class="filter-nullstill" onclick={nullstillFiltre} disabled={!noenFiltre()} title="Nullstill alle filtre">{@html mdi('filter-variant-remove', 14)} Nullstill</button>
 		</div>
 	</div>
 
 	<div class="mal-tabell-kort">
 		<table class="mal-tabell">
 			<thead>
-				<tr><th>Navn</th><th>Målform</th><th>Type</th><th>Kilde</th><th class="th-handlinger"></th></tr>
+				<tr><th>Navn</th><th>Kategori</th><th>Målform</th><th>Type</th><th>Kilde</th><th class="th-handlinger"></th></tr>
 			</thead>
 			<tbody>
 				{#each visMal as t (t.id)}
 					<tr>
 						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og se gjennom">{t.name}{#if erWip(t)} <span class="wip-merke" title="WIP — uverifisert mal, ikke med i Opprett før den er bekreftet">WIP</span>{/if}</td>
+						<td>{kategoriFor(t)}</td>
 						<td>{målformLabel(malFormFor(t))}</td>
 						<td>{typeNavn(t)}</td>
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
@@ -104,7 +118,7 @@
 						</td>
 					</tr>
 				{:else}
-					<tr><td colspan="5" class="maler-tom">Ingen treff.</td></tr>
+					<tr><td colspan="6" class="maler-tom">Ingen treff.</td></tr>
 				{/each}
 			</tbody>
 		</table>
