@@ -1,5 +1,5 @@
 import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn, synkLenkedeSeksjoner } from './store.svelte.js';
-import { BUILTIN_TEMPLATES } from './data.js';
+import { BUILTIN_TEMPLATES, WIP_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
 
@@ -501,11 +501,11 @@ export async function loadTemplatesFromDisk() {
 			pendingLocalTemplates.length = 0;
 		}
 
-		// 2) seed originalmalene hvis de mangler
+		// 2) seed originalmalene hvis de mangler (BUILTIN + WIP-maler)
 		const list = await window.liturgi.listTemplates();
 		if (!list.ok) return;
 		const eksisterende = new Set([...list.originaler, ...list.brukermaler].map((x) => x.name));
-		for (const bt of BUILTIN_TEMPLATES) {
+		for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
 			if (eksisterende.has(bt.name)) continue;
 			// originaler: hovedgudstjenesten, gravferdsordningen og maler flagget erOriginal
 			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
@@ -517,10 +517,11 @@ export async function loadTemplatesFromDisk() {
 		// identiske med seed-malene (kilden: src/lib/data.js). Avvik —
 		// uventet redigering, skade, halvferdige skrivinger — regenereres
 		// fra seed. Innholds-sammenligning (strekere enn en hash: oppdager
-		// alle avvik, ikke bare kollisjoner).
+		// alle avvik, ikke bare kollisjoner). WIP-maler (wip-flagget) følger
+		// samme mekanisme; bekreftede WIP-maler overstyres i minnet i steg 3.
 		const list1b = await window.liturgi.listTemplates();
 		if (list1b.ok) {
-			for (const bt of BUILTIN_TEMPLATES) {
+			for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
 				const erOriginal = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name);
 				if (!erOriginal) continue;
 				const meta = list1b.originaler.find((m) => m.name === bt.name);
@@ -542,12 +543,20 @@ export async function loadTemplatesFromDisk() {
 		// som en original) og skal begge vises i listen.
 		const list2 = await window.liturgi.listTemplates();
 		if (!list2.ok) return;
+		// bekreftede WIP-maler: wip-flagget fjernes i minnet (db-nøkkelen
+		// \u00abwipBekreftede\u00bb overlever seed-regenerering av filene)
+		let wipBekreftede = [];
+		try {
+			const r = await window.liturgi?.dbGet?.('wipBekreftede');
+			if (r) wipBekreftede = JSON.parse(r);
+		} catch {}
 		const idPerNyeste = new Map(); // id -> { meta, data, mtime }
 		for (const meta of [...list2.originaler, ...list2.brukermaler]) {
 			const rd = await window.liturgi.readTemplate(meta.path);
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
 			if (!data) continue;
+			if (data.wip && wipBekreftede.includes(data.id)) delete data.wip;
 			const entry = { meta, data, mtime: meta.mtime ?? 0 };
 			const gammel = idPerNyeste.get(data.id);
 			if (!gammel || entry.mtime >= gammel.mtime) idPerNyeste.set(data.id, entry);

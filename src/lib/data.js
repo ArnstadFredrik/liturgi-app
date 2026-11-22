@@ -1,3 +1,5 @@
+import { WIP_TEMPLATES as WIP_MALER } from './wip-maler.js';
+
 export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
@@ -5112,3 +5114,5 @@ export const DEAKTIVERTE_MALER = [
 		"malForm": "bokmål"
 	}
 ]
+
+export { WIP_MALER as WIP_TEMPLATES };

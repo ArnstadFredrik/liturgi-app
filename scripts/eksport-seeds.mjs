@@ -7,13 +7,13 @@
 import { mkdirSync, writeFileSync, readdirSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BUILTIN_TEMPLATES, DEAKTIVERTE_MALER } from '../src/lib/data.js';
+import { BUILTIN_TEMPLATES, WIP_TEMPLATES, DEAKTIVERTE_MALER } from '../src/lib/data.js';
 
 const roten = join(dirname(fileURLToPath(import.meta.url)), '..');
 const maal = join(roten, 'seeds');
 mkdirSync(maal, { recursive: true });
 
-const alle = [...BUILTIN_TEMPLATES, ...(DEAKTIVERTE_MALER ?? [])];
+const alle = [...BUILTIN_TEMPLATES, ...(WIP_TEMPLATES ?? []), ...(DEAKTIVERTE_MALER ?? [])];
 for (const mal of alle) {
 	writeFileSync(
 		join(maal, `${mal.id}.limal`),

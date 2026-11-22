@@ -29,12 +29,19 @@ export function kanBrukes(t) {
 	return t.kanGudstjeneste !== false;
 }
 
+/** Er malen en WIP-mal (konvertert/importert, ikke verifisert ennå)?
+ *  WIP-maler vises i mal-tabellen med WIP-merke, men tas ikke med i
+ *  Opprett-modalen før de er bekreftet (db-nøkkelen «wipBekreftede»). */
+export function erWip(t) {
+	return t?.wip === true;
+}
+
 /** Malene av én type OG én målform, i rekkefølgen opprett-modulen viser dem
  *  (navn, norsk sortering). */
 export function malerForType(maler, type, malForm = 'bokmål') {
 	const mf = malForm.toLowerCase();
 	return maler
-		.filter((t) => malType(t) === type && kanBrukes(t) && malFormFor(t) === mf)
+		.filter((t) => malType(t) === type && kanBrukes(t) && !erWip(t) && malFormFor(t) === mf)
 		.sort((a, b) => a.name.localeCompare(b.name, 'no'));
 }
 

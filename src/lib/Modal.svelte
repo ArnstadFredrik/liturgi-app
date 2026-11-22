@@ -63,7 +63,7 @@
 	 *  bestemme: «Dåp i hovedgudstjenesten» er bare en del av gudstjenesten.)
 	 *  Standard er ja — malen må eksplisitt si kanGudstjeneste: false. */
 	function kanBrukes(t) {
-		return t.kanGudstjeneste !== false;
+		return t.kanGudstjeneste !== false && t.wip !== true;
 	}
 
 	// $derived.by: Svelte 5 robust reaktivitet (stale $state + $effect-kombinasjonen
@@ -78,7 +78,9 @@
 		const valgt = app.templates.find((t) => t.id === tplId);
 		const gruppe = valgt ? oversettelsesGruppe(valgt, app.templates) : [];
 		if (gruppe.length > 1) {
-			const iGruppe = [...new Set(gruppe.map((t) => malFormFor(t)))];
+			// wip-maler skal ikke dukke opp som målform-valg i Opprett
+			const brukbare = gruppe.filter((t) => t.wip !== true);
+			const iGruppe = [...new Set(brukbare.map((t) => malFormFor(t)))];
 			return MÅLFORMER.filter((m) => iGruppe.includes(m)).concat(iGruppe.filter((m) => !MÅLFORMER.includes(m)));
 		}
 		return [...new Set(

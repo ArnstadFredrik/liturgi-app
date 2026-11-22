@@ -315,3 +315,24 @@ test('newServiceFromTemplate arver malens eksport-standarder (formater/valg/pptx
 	assert.ok(kode.includes('JSON.parse(JSON.stringify(tpl.eksportValg))'), 'eksportValg skal dypkopieres');
 	assert.ok(kode.includes('JSON.parse(JSON.stringify(tpl.eksportPptx))'), 'eksportPptx skal dypkopieres');
 });
+
+test('wip-maler: ekskluderes fra Opprett (malerForType), men ligger i seeds', async () => {
+	const { WIP_TEMPLATES } = await import('../../src/lib/data.js');
+	const { malerForType, erWip } = await import('../../src/lib/maltyper.js');
+	assert.ok(WIP_TEMPLATES.length >= 7, 'minst 7 wip-maler (hovedgudtjenesten i 7 spr\u00e5k)');
+	for (const w of WIP_TEMPLATES) {
+		assert.equal(erWip(w), true, w.id + ' har wip-flagget');
+		assert.equal(w.erOriginal, true, w.id + ' er original');
+	}
+	const gudListe = malerForType([...WIP_TEMPLATES], 'gudstjeneste', 'nynorsk');
+	assert.equal(gudListe.length, 0, 'wip-maler kommer IKKE i Opprett');
+	// bekreftelse (wip fjernet i minnet) g\u00f8r malen tilgjengelig
+	const bekreftet = WIP_TEMPLATES.map((w) => ({ ...w, wip: false }));
+	assert.equal(malerForType(bekreftet, 'gudstjeneste', 'nynorsk').length, 1);
+	// seeds p\u00e5 disk inneholder wip-malene med wip:true
+	const { readFileSync, existsSync } = await import('node:fs');
+	const seedSti = 'seeds/' + WIP_TEMPLATES[0].id + '.limal';
+	assert.ok(existsSync(seedSti), 'seed-fil for ' + WIP_TEMPLATES[0].id);
+	const seed = JSON.parse(readFileSync(seedSti, 'utf8'));
+	assert.equal(seed.data.wip, true, 'seed har wip:true');
+});
