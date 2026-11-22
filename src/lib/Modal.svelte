@@ -853,7 +853,7 @@
 						<!-- del-gruppe pr valgt mal (radio-enten/eller) — vises bare når
 						     malen faktisk har del-grupper -->
 						<div class="m-chk m-chk-jord">
-							<span class="m-jordpaa-label">Del-gruppe:</span>
+							<span class="m-jordpaa-label">Variant:</span>
 							{#each jordpaaGrupper as g, gi (g)}
 								<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === g} onclick={() => { jordpaa = g; }}>
 									<span class="avpaa-tekst">{g[0].toUpperCase() + g.slice(1)}</span>
@@ -868,7 +868,7 @@
 						     (bind:group, kun én av to kan være på) -->
 						{#if jordpaaGrupper.length}
 						<div class="m-chk m-chk-jord">
-							<span class="m-jordpaa-label">Del-gruppe:</span>
+							<span class="m-jordpaa-label">Variant:</span>
 							{#each jordpaaGrupper as g, gi (g)}
 								<button type="button" class="avpaa" role="radio" aria-checked={jordpaa === g} onclick={() => { jordpaa = g; }}>
 									<span class="avpaa-tekst">{g[0].toUpperCase() + g.slice(1)}</span>
