@@ -68,15 +68,18 @@ function finnRolle(t) {
   // «Klokker  …») eller enkeltmellomrom + stor forbokstav («Prest Ære være …»);
   // enbokstavsroller («L …», «A …») aksepteres med ett mellomrom
   if (!erBokstaver && !/[|:]/.test(skille) && m[2].length < 2 && !/^[A-ZÆØÅ]/.test(rest)) return null;
+  // «Å leve sammen …» — enbokstavsrolle med ett mellomrom og små forbokstav er setningsstart
+  if (erBokstaver && ord.length === 1 && !/[|:]/.test(skille) && m[2].length < 2 && !/^[A-ZÆØÅ]/.test(rest)) return null;
   return { rolle: ord, rest };
 }
 
 /** Bibelreferanse klebet på slutten av en tekstlinje («… liv.Joh3,16»). */
 function refPaaSlutt(t) {
-  const m = t.match(/([\s.»])([1-3]?\s?[A-ZÆØÅ][a-zæøå]+\.?\s*\d+(?:\s?[,;–-]\s?\d+)*[a-z]?)$/);
+  const m = t.match(/([\s.»]|([a-zæøå]))([1-3]?\s?[A-ZÆØÅ][a-zæøå]+\.?\s*\d+(?:\s?[,;–-]\s?\d+)*[a-z]?)$/);
   if (!m) return null;
-  const ref = trim(m[2]).replace(/^([1-3]?)\s*([A-ZÆØÅ][a-zæøå]+)\.?\s*(\d)/, (a, kap, bok, siffer) => (kap ? kap + ' ' : '') + bok + ' ' + siffer);
-  return { foran: trim(t.slice(0, m.index + 1)), ref };
+  const ref = trim(m[3]).replace(/^([1-3]?)\s*([A-ZÆØÅ][a-zæøå]+)\.?\s*(\d)/, (a, kap, bok, siffer) => (kap ? kap + ' ' : '') + bok + ' ' + siffer);
+  const grense = m[2] ? trim(t.slice(0, m.index + 1)) + ' ' : trim(t.slice(0, m.index + 1));
+  return { foran: grense, ref };
 }
 
 /** Leddtittel i ren tekst: kort linje uten avsluttende tegn. Siffer-start
@@ -120,7 +123,7 @@ function lesDocx(fil) {
       if (!tekst) continue;
       const bold = /<w:b\/>|<w:b /.test(r) && !/<w:b w:val="0"/.test(r);
       const italic = /<w:i\/>|<w:i /.test(r) && !/<w:i w:val="0"/.test(r);
-      runs.push({ tekst: dekodXml(tekst), bold, italic });
+      runs.push({ tekst: dekodXml(tekst).replace(/\uF058/g, '\u271d'), bold, italic });
     }
     if (!runs.length && !/<w:pStyle/.test(p)) continue;
     avsnitt.push({ stil, runs, tekst: trim(runs.map((r) => r.tekst).join('')) });
@@ -265,13 +268,23 @@ function byggStruktur(avsnitt, advarsler) {
       forrigeTekst = ''; continue;
     }
 
+    // 7b) Enten/Enten A/enten 1/eller/ELLER B-standalone-linjer → leddheading
+    //     (må komme før rubrikk-regelen — italics-rubrikker ellers havner som
+    //     @NOTAT i instr og grupperEllerLedd får aldri gruppet)
+    if (/^(enten|anten|eller)(\s+[A-Za-z0-9]+)?[.:]?$/i.test(t)) {
+      const tittel = t.replace(/[.:]$/, '');
+      nyttLedd(tittel[0].toUpperCase() + tittel.slice(1));
+      forrigeVarTittel = true;
+      continue;
+    }
+
     // 8) rubrikker → instr
     if (rubrikk) {
       const linje = '@NOTAT ' + t;
       if (item) {
         item.instr = item.instr ? item.instr + '\n' + linje : linje;
       } else {
-        nyttLedd('Rubrikk', 'instruks');
+        nyttLedd('', 'instruks');
         item.instr = linje;
       }
       forrigeTekst = ''; continue;
@@ -326,6 +339,18 @@ function byggStruktur(avsnitt, advarsler) {
     } else {
       leggTilTekst(t);
       forrigeTekst = t;
+    }
+  }
+
+  // rydd: ref-headinger uten egen tekst («Sal 118,1.24» som docx-heading
+  // etter en lesning) slås inn i forrige ledd som BIBELREF-linje
+  for (const sekn of seksjoner) {
+    for (let i = sekn.items.length - 1; i > 0; i--) {
+      const it = sekn.items[i];
+      if (!(it.text ?? '').trim() && !(it.alts ?? []).length && erBibelref(it.heading ?? '') && (sekn.items[i - 1].text ?? '').trim()) {
+        sekn.items[i - 1].text += '\nBIBELREF | ' + trim(it.heading.replace(/^BIBELREF\s*\|\s*/i, ''));
+        sekn.items.splice(i, 1);
+      }
     }
   }
 

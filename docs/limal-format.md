@@ -27,6 +27,7 @@ gudstjenester: `.liturgi` med `kind: "service"`.
 | `liturgiType` | streng | `gudstjeneste` (standard), `vigsel`, `gravferd` — avgjør kategori og «Opprett»-liste |
 | `kanGudstjeneste` | bool | `false` = malen tilbys ikke ved opprett av gudstjeneste |
 | `alternativer` | string[] | katalog av alternativ-merker (f.eks. `["dåp", "nattverd"]`) som styrer valgene i «Opprett»-dialogen |
+| `skriftlesningKilde` | string | **seksjonstittel i samme mal** som er kilden til skriftlesningene (f.eks. "Skriftlesninger ved Vigsels- og forbønnsliturgi 2017") — brudeparet velger tekster fra denne seksjonen |
 | `delGrupper` | string[] | katalog av variasjoner/del-grupper (f.eks. `["gravferd", "bisettelse"]`) — enten/eller |
 | `sections` | array | hoveddelene (se under) |
 | `visInstr` / `visRoles` / `visSalmeinfo` | bool | visningsvalg (standard `true`) |
@@ -41,6 +42,7 @@ gudstjenester: `.liturgi` med `kind: "service"`.
   "items": [ … ledd … ],
   "alternativer": ["dåp"],          // valgfritt: flervalg-merker (alternativer-katalogen)
   "delGruppe": "gravferd",          // valgfritt: variasjon (kun én pr mal)
+  "bokstav": "A",                   // valgfritt: katalog-ledd i skriftlesningskatalog (A, B, C …)
   "__lenket": { "malId": "…", "tittel": "…" }  // lenket hoveddel: innholdet
                                                 // fornyes fra malen ved åpning
                                                 // og kan ikke redigeres
