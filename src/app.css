@@ -59,7 +59,7 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 #app { display: flex; height: 100vh; }
 #main { flex: 1; overflow-y: auto; }
 #app:has(#malverktoy) #main { overflow: hidden; display: flex; flex-direction: column; }
-#malverktoy /* FilterDropdown (multiselect-filter i mal-listene) */
+/* FilterDropdown (multiselect-filter i mal-listene) */
 .mal-filter-rekke {
 	display: flex;
 	flex-wrap: wrap;
@@ -275,8 +275,8 @@ button.wide { width: 100%; }
 .w-mal:hover { background: var(--panel2); }
 .w-mal-nm { flex: 1; color: var(--text); overflow-wrap: anywhere; cursor: pointer; }
 .w-mal-nm:hover { text-decoration: underline; }
-.mal-filter { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.mal-sok { width: 100%; box-sizing: border-box; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
+.mal-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.mal-sok { flex: 1; min-width: 220px; box-sizing: border-box; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; }
 .mal-sok:focus { outline: none; border-color: var(--accent); }
 .mal-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .mal-chips button { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
