@@ -447,6 +447,52 @@ function grupperEllerLedd(seksjoner) {
   }
 }
 
+// ---------- grupper leddserier (X a, X b, … X g) til alts[] ----------
+// Kildedokumenter nummererer noen ganger varianter med slutt-bokstav i
+// headingen («Nattverdsbøn a» … «Nattverdsbøn g»). Tre eller flere
+// sammenhengende ledd med samme prefiks og ulik slutt-bokstav blir ett ledd
+// med alts[] (label = serienummeret). Teksten i hver variant = leddets tekst
+// + eventuelle etterfølgende under-ledd (f.eks. «Allmenn serie …»).
+function grupperSerier(seksjoner) {
+  for (const sec of seksjoner) {
+    const items = sec.items ?? [];
+    const ut = [];
+    let i = 0;
+    while (i < items.length) {
+      const m = /^(.*\S)\s+([a-z])$/i.exec((items[i].heading ?? '').trim());
+      if (!m) { ut.push(items[i]); i++; continue; }
+      const prefiks = m[1].toLowerCase();
+      const serier = [{ label: m[2].toUpperCase(), ledd: items[i], sub: [] }];
+      let j = i + 1;
+      while (j < items.length) {
+        const hj = (items[j].heading ?? '').trim();
+        const mj = new RegExp('^' + prefiks.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s+([a-z])$', 'i').exec(hj);
+        if (mj) { serier.push({ label: mj[1].toUpperCase(), ledd: items[j], sub: [] }); j++; continue; }
+        // under-ledd (tom heading eller «Allmenn serie …») tilhører siste serie
+        if (serier.length && (!hj || /^Allmenn serie/i.test(hj))) { serier[serier.length - 1].sub.push(items[j]); j++; continue; }
+        break;
+      }
+      if (serier.length < 3) { ut.push(items[i]); i++; continue; }
+      // følgende under-ledd (tom-tittel) fordeles til siste serie før neste prefiks
+      // holder: en tom tittelledd rett før serien (f.eks. «*21 Takkseiing …»)
+      const forrige = ut[ut.length - 1];
+      const brukForrige = forrige && !(forrige.text ?? '').trim() && !(forrige.alts ?? []).length && (forrige.heading ?? '').trim() && forrige.type !== 'salme';
+      const holder = brukForrige
+        ? forrige
+        : { type: serier[0].ledd.type ?? 'tekst', heading: prefiks[0].toUpperCase() + prefiks.slice(1), text: '', alts: [], selAlt: 0 };
+      for (const ser of serier) {
+        let tekst = ser.ledd.text ?? '';
+        for (const s of ser.sub) tekst += (tekst ? '\n\n' : '') + (s.text ?? '');
+        holder.alts.push({ label: ser.label, text: tekst });
+      }
+      holder.selAlt = 0;
+      if (!brukForrige) ut.push(holder);
+      i = j;
+    }
+    sec.items = ut;
+  }
+}
+
 function konverterLiturgi(fil, { navn, type, maalform } = {}) {
   const ext = path.extname(fil).toLowerCase();
   const advarsler = [];
@@ -479,10 +525,11 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
   };
   // tittelside: en første seksjon uten tittel og med ≤1 ledd er dokumentets
   // egen tittelside — den hører ikke med i malen
-  while (seksjoner.length && (seksjoner[0].items ?? []).length <= 1 && !(seksjoner[0].title ?? '').trim()) {
+  while (seksjoner.length && (seksjoner[0].items ?? []).length <= 1 && (!(seksjoner[0].title ?? '').trim() || seksjoner[0].title === 'Uten tittel')) {
     seksjoner.shift();
   }
   grupperEllerLedd(seksjoner);
+  grupperSerier(seksjoner);
   for (const sec of seksjoner) for (const it of sec.items ?? []) trekkUtIntroAvslutning(it);
   return { mal, advarsler };
 }
