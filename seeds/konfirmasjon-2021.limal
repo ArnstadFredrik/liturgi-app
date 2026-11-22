@@ -1,0 +1,758 @@
+{
+	"liturgiFormat": 1,
+	"kind": "template",
+	"data": {
+		"id": "konfirmasjon-2021",
+		"bibeltekster": [
+			{
+				"lesning": "L1",
+				"leddId": "konf21-12"
+			},
+			{
+				"lesning": "L2",
+				"leddId": "konf21-14"
+			},
+			{
+				"lesning": "E",
+				"leddId": "konf21-15"
+			}
+		],
+		"name": "Konfirmasjonstidens gudstjenester (2021)",
+		"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudstjeneste.",
+		"sections": [
+			{
+				"title": "Innledning",
+				"items": [
+					{
+						"id": "konf21-1",
+						"type": "instruks",
+						"heading": "Bestemmelser",
+						"instr": "Ordning for konfirmasjonstidens gudstjenester\nVedtatt av Kirkemøtet 2021\n\nGudstjeneste med presentasjon av menighetens konfirmanter\nVed starten av konfirmasjonstiden presenteres menighetens konfirmanter i en gudstjeneste.\nPresentasjonen av konfirmantene kan skje i gudstjenestens samlingsdel eller i forbindelse med forbønnsdelen. Til presentasjonen kan man knytte lystenning eller andre enkle symbolhandlinger.\nForbønn kan hentes fra Formulerte forbønner i Ordning for hovedgudstjeneste alternativ 4 eller formuleres lokalt.\n\nKONFIRMASJONSGUDSTJENESTE\nKonfirmasjonstiden avsluttes med konfirmasjonsgudstjenesten. Gudstjenesten kan feires med nattverd.\nKonfirmasjon feires som hovedregel i menighetens hovedgudstjeneste på søn- eller helligdag. Konfirmasjonsgudstjenesten kan også legges til en lørdag.\nGudstjenesten følger den lokale grunnordning for hovedgudstjeneste.\nVed prosesjon kan det ringes med alle klokkene.\nPrest kan bære messehagel. Liturgisk farge er hvit.\nDer det er påskelys er dette tent.\nEt stjernetegn (*) er satt til ledd der menigheten som hovedregel står.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-2",
+						"type": "tekst",
+						"heading": "Bønn for konfirmantene",
+						"instr": "Følgende bønn kan brukes som Bønn for konfirmantene, på forbønnens plass.",
+						"text": "{{r}}L/ML |{{/r}} La oss vende oss til Gud i bønn.\nKjære Gud, du kjenner og elsker oss alle.\nTakk for livet du har gitt oss.\nVi takker deg for konfirmantene.\nVi ber for hver og én av dem,\nfor familie, venner og faddere.\nVelsign konfirmasjonstiden\nog la oss alle vokse i tro, håp og kjærlighet.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Gode Gud, du har skapt oss og jorden vi bor på.\nLær oss å ta vare på ditt skaperverk,\nskape fred der hatet rår, gi sultne mat\nog verne mennesker på flukt.\nVi ber for vårt land og for stedet vi bor (eller byen/bygda).\nStyrk våre fellesskap og gi alle et sted å høre til.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Takk for kirken,\nder du møter oss med dine gaver\nog gir oss fremtid og håp.\nLa kirken være stedet hvor troen og livet finner styrke og kraft.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Evt.: Vi ber for… (aktuelle bønneemner i lokalt- nasjonalt eller globalt perspektiv)\n{{r}}L/ML |{{/r}} Gud vi ber:\n{{r}}M |{{/r}} Menighetssvar\n(Her følger Fadervår. Dersom det feires nattverd, bes Fadervår under nattverdsdelen.)\n(Gudstjenesten fortsetter i tråd med lokal grunnordning.)",
+						"alts": [],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "I. Samling",
+				"items": [
+					{
+						"id": "konf21-3",
+						"type": "tekst",
+						"heading": "1 Forberedelse",
+						"instr": "Klokkeringing\nHer eller etter ledd 3 Hilsen kan det være:\nKort informasjon om dagens gudstjeneste ved medliturg eller liturg.\nInformasjonen avsluttes med:\nKort stillhet\nTre klokkeslag",
+						"text": "{{r}}ML/L |{{/r}} La oss være stille for Gud.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-4",
+						"type": "tekst",
+						"heading": "2 Inngangssalme",
+						"optional": true,
+						"instr": "Menigheten står under prosesjon, Inngangssalme og Hilsen.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-5",
+						"type": "tekst",
+						"heading": "3 Hilsen",
+						"optional": true,
+						"instr": "Før de to første alternativene til inngangsord kan liturgen si: Kjære menighet.\nOm kort informasjon om dagens gudstjeneste ikke er gitt under ledd 1, kan den gis her.",
+						"alts": [
+							{
+								"label": "Hovedvariant",
+								"text": "{{r}}L |{{/r}} Nåde være med dere og fred\nfra Gud, vår Far, og Herren Jesus Kristus."
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} Vår Herre Jesu Kristi nåde, Guds kjærlighet\nog Den hellige ånds samfunn være med dere alle."
+							},
+							{
+								"label": "Eller 2",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn."
+							},
+							{
+								"label": "Eller 3",
+								"text": "{{r}}L |{{/r}} I Faderens og Sønnens og Den hellige ånds navn:\nVår skaper, frigjører og livgiver."
+							}
+						],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-6",
+						"type": "tekst",
+						"heading": "4 Samlingsbønn",
+						"instr": "Se samlingsbønner i Ordning for hovedgudstjeneste eller samlingsbønner med eget ledd for konfirmasjon (pkt 9, Samlingsbønner med kirkeårsvariable ledd). Samlingsbønn kan også utformes lokalt (pkt 10, Modell for lokalt utformet samlingsbønn). En kan også bruke følgende (fra 2002-liturgien):",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Herre, vår Gud, takk for konfirmasjonstiden.\nTakk for at du elsker oss og kjenner alt i våre liv.\nGjør oss åpne for det du vil gi oss.\nVelsign denne dagen. Amen."
+							},
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} La oss be."
+							}
+						],
+						"selIntro": 0,
+						"alts": [],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-7",
+						"type": "tekst",
+						"heading": "5 Syndsbekjennelse",
+						"instr": "Følger her, eller før ledd 15 Påminnelse om dåpen.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-8",
+						"type": "tekst",
+						"heading": "6 Bønnerop Kyrie",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-9",
+						"type": "tekst",
+						"heading": "7 Lovsang Gloria",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-10",
+						"type": "tekst",
+						"heading": "8 Dagens bønn",
+						"instr": "Dagens bønn kan utelates.\nIstedenfor Dagens bønn for den aktuelle søndag kan man bruke følgende bønn:",
+						"text": "{{r}}L |{{/r}} Evige Gud, vi takker og lovpriser deg.\nDet er i deg vi lever, rører oss og er til.\nVær vår styrke og hjelp gjennom livet,\nved din Sønn Jesus Kristus, vår Herre,\nsom med deg og Den hellige ånd lever og råder,\nén sann Gud fra evighet til evighet.",
+						"alts": [],
+						"selAlt": 0
+					}
+				]
+			},
+			{
+				"title": "II. Ordet",
+				"items": [
+					{
+						"id": "konf21-11",
+						"type": "instruks",
+						"heading": "Om lesningene",
+						"instr": "Det leses én eller to lesetekster i tillegg til prekenteksten.\nDet benyttes i hovedsak tekster fra tekstutvalget for konfirmasjonsgudstjeneste.\nKirkeårets tekster kan også velges, og det kan velges andre høvelige tekster som har vært sentrale i konfirmasjonstiden.\n\nTekster til konfirmasjonsgudstjeneste:\nGT: \tSalme 71, 1-6\nEpistel. 1. Joh 4, 7-12\nEvangelium: Lukas 2,41-52\nGT: \tSalme 23\nEpistel: Gal. 5, 13-14\nEvangelium: Luk 24, 13-16. 28-35\nGT: \tSalme 8\nEpistel: 1. Kor. 13, 7-13\nEvangelium: Joh 11, 17-29\nGT:\t Jer. 29, 11-14a\nEpistel: Ef. 3, 14-21\nEvangelium: Matt. 6, 25-31. 33\nGT: \tSalme 25, 4-5\nEpistel: 1. Kor. 12, 12 - 22\nEvangelium: Joh. 14, 1-7\nGT: \tSalme 139, 1-6\nEpistel: Ef. 2, 8-10\nEvangelium: Luk 15, 1 – 10, eller Luk 15,11-24",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-12",
+						"type": "tekst",
+						"heading": "9 Første lesning",
+						"instr": "Fra Det gamle testamentet",
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}ML |{{/r}} Det står skrevet i/hos …\n(Lesningen avsluttes med:)\n{{r}}ML |{{/r}} Slik lyder Herrens ord."
+							},
+							{
+								"label": "Innledning",
+								"text": "{{r}}L/ML |{{/r}} La oss høre Herrens ord."
+							}
+						],
+						"selIntro": 0,
+						"alts": [],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-13",
+						"type": "tekst",
+						"heading": "10 Bibelsk salme / Salme",
+						"instr": "Det kan synges en bibelsk salme eller en annen salme, være korsang eller kort stillhet mellom lesningene.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-14",
+						"type": "tekst",
+						"heading": "11 Andre lesning",
+						"instr": "Fra Det nye testamentet utenom evangeliene",
+						"text": "{{r}}ML |{{/r}} Det står skrevet i …\n(Lesningen avsluttes med:)\n{{r}}ML |{{/r}} Slik lyder Herrens ord.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-15",
+						"type": "tekst",
+						"heading": "12 Evangelium",
+						"optional": true,
+						"instr": "Halleluja\nEvangelielesningen innledes med hallelujaomkved eller et salmevers med hallelujaomkved.\nMenigheten står under halleluja, lesning og respons.\nDet kan være evangelieprosesjon. Den som bærer boken kan ledsages av lysbærere.\nSe hallelujaomkved i N13: 977.1 – 7.  Også Lovprisning/Benedicamus i ledd 25 kan benyttes som hallelujaomkved. Omtale av halleluja og tractus i finnes i Gudstjenesteboken under ledd 12 Evangelium.\n\nRespons\nHallelujaomkved gjentas, eller det synges en kort salme eller et annet svarledd ved menighet eller kor.",
+						"text": "{{r}}L/ML |{{/r}} Det står skrevet i evangeliet etter …\n(Lesningen avsluttes med:)\n{{r}}L/ML |{{/r}} Slik lyder det hellige evangelium.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-16",
+						"type": "tekst",
+						"heading": "13 Preken",
+						"instr": "Predikanten preker over evangelieteksten eller annen høvelig prekentekst.\nPrekenen kan avsluttes med en av disse lovprisningene:\nEtter prekenen kan det gis tid til stillhet, en kort salme eller meditativ musikk.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd,\nsom var og er og blir én sann Gud fra evighet og til evighet."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}L |{{/r}} Ære være Faderen og Sønnen og Den hellige ånd: Vår skaper, frigjører og livgiver."
+							}
+						],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-17",
+						"type": "tekst",
+						"heading": "14 Salme",
+						"instr": "Syndsbekjennelse følger her, eller som ledd 5.\nDersom det ikke er dåp, følger 15 Påminnelse om dåpen.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-18",
+						"type": "tekst",
+						"heading": "15 Påminnelse om dåpen",
+						"instr": "Påminnelse om dåpen utføres som hovedregel ved døpefonten.\nLiturgen eller en medliturg heller vann i døpefonten.\nAndre symbolhandlinger i tråd med lokale tradisjoner kan benyttes.",
+						"alts": [
+							{
+								"label": "Hovedvariant",
+								"text": "(vendt mot menigheten)\n{{r}}L |{{/r}} Kjære menighet:\nI dåpen frelste Gud oss ut av mørkets makt og gav oss rett til å være lysets barn.\nVi ble kalt til å følge Kristus og leve i fellesskap med ham.\nLa oss derfor bekjenne forsakelsen og troen som lød ved vår dåp.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi forenet med den korsfestede og oppstandne Jesus Kristus.\nLa oss sammen bekjenne forsakelsen og troen som lød ved vår dåp.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller 2",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi født på ny av vann og ånd.\nVi ble døpt til et liv i tro og tillit til Jesus Kristus.\nLa oss sammen bekjenne forsakelsen og troen som lyder ved dåpen.\n(Menigheten reiser seg.)"
+							},
+							{
+								"label": "Eller 3",
+								"text": "{{r}}L |{{/r}} I dåpen ble vi tegnet med det hellige korsets tegn og født på ny av vann og ånd.\nVi ble forenet med den korsfestede og oppstandne Jesus Kristus og tatt inn i kirkens fellesskap.\nLa oss sammen bekjenne forsakelsen og troen som lyder ved dåpen.\n(Menigheten reiser seg.)"
+							}
+						],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-19",
+						"type": "tekst",
+						"heading": "16 Forsakelsen og troen",
+						"text": "{{r}}A |{{/r}} Jeg forsaker djevelen….\n(Den apostoliske trosbekjennelse)\n(Menigheten setter seg.)",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-20",
+						"type": "tekst",
+						"heading": "17 Salme",
+						"instr": "I stedet for salmen kan det være vokal-eller instrumentalmusikk.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-21",
+						"type": "tekst",
+						"heading": "18 Forbønn for kirken og verden",
+						"instr": "Her kan det nevnes aktuelle forbønner for konfirmantenes familier og relasjoner, forbønner som angår årets konfirmanter spesielt samt hendelser som berører lokalsamfunnet.\nMenighetssvaret følger lokal grunnordning.",
+						"alts": [
+							{
+								"label": "A Forbønn for konfirmantene",
+								"text": "{{r}}L |{{/r}} Kjære menighet\nLa oss takke og be for våre konfirmanter.\n(Alternativ til lokalt utformede bønner:)\n{{r}}L/ML |{{/r}} Kjære Gud, takk for konfirmantene.\nDu har i dåpen lovet å være med oss alle dager.\nVi ber for familier, slekt og venner\nog for alle som står konfirmantene nær.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Trofaste Gud, du møter oss i ditt Ord, i bønnen og nattverden.\nStyrk oss alle i tro, håp og kjærlighet,\nog gi oss å nå det evige mål i ditt rike.\nGud, vi ber:\n{{r}}M |{{/r}} Menighetssvar\n{{r}}L/ML |{{/r}} Evt.: Vi ber for… (aktuelle bønneemner i lokalt, nasjonalt eller globalt perspektiv)\n{{r}}L/ML |{{/r}} Gud vi ber\n{{r}}M |{{/r}} Menighetssvar\n(Her følger Fadervår. Dersom det feires nattverd, bes Fadervår under Del III, Nattverd.)"
+							},
+							{
+								"label": "B Bønnesalme",
+								"text": "(Bønnesalme.)"
+							}
+						],
+						"selAlt": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-22",
+						"type": "tekst",
+						"heading": "18 C Forbønn med velsignelse av den enkelte konfirmant",
+						"instr": "(Liturg/medliturg, vendt mot menigheten:)\nKonfirmantene går fram slik det er avtalt på forhånd og kneler på alterringen.\nAlternativt kan én og én konfirmant gå fram til døpefonten og bli tegnet i hånden med et korstegn av en medliturg. Det kan også tennes et lys for konfirmanten. Så går konfirmanten fram til forbønn ved alteret. Når én konfirmant går fra alterringen går den neste fram.\nLiturgen/medliturgen ber for hver enkelt med håndspåleggelse.\nBønnene avsluttes med «Velsign og bevar henne/ham, i Jesu Kristi navn».\nUnder disse ordene tegnes det et korstegn over konfirmanten.\nEtter forbønnen eller ved del IV Sendelse, kan den enkelte motta et kors, en rose eller en annen symbolsk gave i henhold til lokal tradisjon.\nEtter at alle konfirmantene er bedt for sier liturgen:",
+						"alts": [
+							{
+								"label": "1",
+								"text": "{{r}}L/ML |{{/r}} Livets Gud, vi ber for NN. Hjelp henne/ham til å leve i tillit og tro på din kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "2",
+								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, vi ber for NN. Hold henne/ham fast i en sann tro ved din hellige Ånd. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "3",
+								"text": "{{r}}L/ML |{{/r}} Gode Gud, vi ber for NN. Vær hennes/hans støtte og tilflukt gjennom livet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "4",
+								"text": "{{r}}L/ML |{{/r}} Kjærlighetens Gud, vi ber for NN. Styrk henne/ham til et liv i tro, håp og kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "5",
+								"text": "{{r}}L/ML |{{/r}} Gud, vår skaper, vi ber for NN. Gi henne/ham styrke og kraft ved din hellige Ånd og vis henne/ham dine veier. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "6",
+								"text": "{{r}}L/ML |{{/r}} Evige Gud, vi ber for NN. La henne/ham vandre i ditt lys og leve omsluttet av din kjærlighet. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "7",
+								"text": "{{r}}L/ML |{{/r}} Barmhjertige Gud, vi ber for NN. Styrk henne/ham ved Den hellige ånd og vær med henne/ham i alle livets dager. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "8",
+								"text": "{{r}}L/ML |{{/r}} Håpets Gud, vi ber for NN. Vis henne/ham det håpet hun/han har i deg. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "9",
+								"text": "{{r}}L/ML |{{/r}} Livets Gud, vi ber for NN. La henne/ham leve i ditt lys og nå det evige mål hos deg. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							},
+							{
+								"label": "10",
+								"text": "{{r}}L/ML |{{/r}} Nådige Gud, vi ber for NN. Vær hennes/hans styrke og hjelp, nå og alle dager. Velsign og bevar henne/ham () i Jesu Kristi navn."
+							},
+							{
+								"label": "11",
+								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, vi ber for NN. Vær nær henne/ham med din nåde og kraft. Velsign og bevar henne/ham, () i Jesu Kristi navn."
+							}
+						],
+						"selAlt": 0,
+						"avslutningAlts": [
+							{
+								"label": "Etter alle konfirmantene",
+								"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde! Fred være med dere."
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} Gud er kjærlighet, og den som blir i kjærligheten, blir i Gud og Gud i ham. Må han som begynte den gode gjerning i dere, fullføre den, helt til Jesu Kristi dag. Fred være med dere."
+							}
+						],
+						"selAvsl": 0,
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L/ML |{{/r}} Kjære konfirmanter.\nTil den kristne tro er dere døpt. I den kristne tro er dere opplært. Kom nå fram til Herrens alter, så vi kan be for og velsigne hver enkelt av dere i Jesu Kristi navn."
+							}
+						],
+						"selIntro": 0,
+						"text": ""
+					},
+					{
+						"id": "konf21-23",
+						"type": "tekst",
+						"heading": "19 Hilsen fra menigheten, kunngjøringer og takkoffer",
+						"instr": "Her kan følge egnet instrumental- eller vokalmusikk og eventuelt en kort hilsen fra menigheten.\nHilsenen kan gis av kateket, menighetspedagog eller andre som har hatt spesielt ansvar for konfirmantene. (Se alminnelige bestemmelser pkt 7)\nHilsen kan utformes lokalt eller velges fra følgende alternativer:\nMenighetens takkoffer kan samles inn under forberedelse av nattverdmåltidet eller under postludiet.\nInnsamlingen kan skje i kirkebenkene eller ved at man går rundt alteret.",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}L |{{/r}} Kjære menighet:\nSammen har vi bedt for konfirmantene. La oss sammen hjelpe dem så de kan leve i den kristne forsakelse og tro, og modnes til tjeneste for Gud og vår neste. La oss oppmuntre hverandre til å bruke Guds ord og Herrens nattverd og gå den vei som fører til livet.\nDere konfirmanter vil fortsatt være omsluttet av menighetens forbønn. Gud er trofast og hans kjærlighet uten grenser. Også i tider med likegyldighet, nederlag og tvil vil Gud være dere nær og kalle dere til samfunn med seg. Hold dere nær til ham. Da vil han, som begynte en god gjerning i dere, fullføre den – helt til Jesu Kristi dag."
+							},
+							{
+								"label": "B",
+								"text": "Kristus har kalt oss til å leve i troen på hans oppstandelse og være hans vitner i verden.\nBli i hans kjærlighet og i fellesskapet med alle som tror på ham.\nLa oss alltid be for hverandre, og sammen med Kristus gå\nfremtiden i møte."
+							},
+							{
+								"label": "C",
+								"text": "Gud kaller oss til et liv i tro, håp og kjærlighet.\nLa oss sammen søke Gud i bønn, tilbedelse og tjeneste.\nMå Gud styrke oss med sin nåde til det evige liv."
+							}
+						],
+						"selAlt": 0,
+						"text": ""
+					}
+				]
+			},
+			{
+				"title": "III. Nattverd",
+				"alternativer": [
+					"nattverd"
+				],
+				"items": [
+					{
+						"id": "n20",
+						"type": "salme",
+						"heading": "20 Forberedelse av måltidet – Nattverdsalme",
+						"instr": "Bordet dekkes. Brød legges på disken og vin helles i begeret. Takkofferet kan samles inn her. Ofringen avsluttes med: L | Velsignet er du, Gud. Din er jorden og alt som fyller den. … Ta imot oss og våre gaver i Jesu navn. Amen.",
+						"text": ""
+					},
+					{
+						"id": "nattverd-prefasjonsdialog",
+						"type": "tekst",
+						"heading": "Prefasjonsdialog",
+						"optional": false,
+						"text": "{{r}}L |{{/r}} synger eller sier: Herren være med dere.\n{{r}}M | reiser seg og synger: {{/r}}Og med deg være Herren.\n{{r}}L |{{/r}} Løft deres hjerter.\n{{r}}M |{{/r}} Vi løfter våre hjerter til Herren.\n{{r}}L |{{/r}} La oss takke Herren vår Gud.\n{{r}}M |{{/r}} Det er verdig og rett.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-prefasjon",
+						"type": "tekst",
+						"heading": "* 21 Prefasjon",
+						"optional": true,
+						"text": "",
+						"alts": [
+							{
+								"label": "Advent",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden for å oppfylle de løfter du gav ditt folk gjennom profetene. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Jul og Maria budskapsdag",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som for vår skyld ble menneske for at vi skulle bli dine barn, frelst ut av mørket og inn i ditt underfulle lys. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Åpenbaringstiden",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som åpenbarte din herlighet for verden, så den som følger ham ikke skal vandre i mørket, men ha lys og evig liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Faste",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som elsket oss og gav seg selv for oss, så han ble lydig til døden, ja døden på korset. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Påske",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre. Han er det rette påskelam, som har båret våre synder, og ved sin oppstandelse har han seiret over døden. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Kristi himmelfartsdag og søndag før pinse",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som fór opp til himmelen og nå sitter ved din høyre hånd. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Pinse",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som troner ved din høyre hånd og har sendt Den hellige ånd over sine vitner, så ditt folk kan juble av glede og forkynne dine store gjerninger på mange tungemål. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Treenighetstiden 1",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Allehelgensdag, martyrdager",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som var frelser og forbilde for alle dine hellige som har fullført løpet og bevart troen. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
+								"text": "I sannhet verdig og rett er det at vi alltid og alle steder takker deg, allmektige Gud, evige Far, ved Jesus Kristus, vår Herre, han som du sendte til frelse for verden, for at vi ved hans død skulle få tilgivelse for syndene og ved hans oppstandelse vinne det evige liv. Ved ham lovsynger englene din herlighet, og din menighet i himmelen og på jorden priser ditt navn med samstemmig jubel. Med dem vil også vi forene våre røster og tilbedende synge:"
+							},
+							{
+								"label": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
+								"text": "Vi takker deg, Gud, ved din elskede Sønn Jesus Kristus. Han er det evige Ord, og ved dette Ord skapte du alt. Da tiden var inne, sendte du ham til verden som frelser og befrier. For dette priser vi deg, sammen med alle dine hellige i himmelen og på jorden:"
+							},
+							{
+								"label": "Nattverdbønn c (paulinske tekster)",
+								"text": "Å, dyp av rikdom og visdom og kunnskap hos deg, Gud! Himlene forteller om din herlighet, og jorden vitner om dine henders verk. Sammen med de troende gjennom alle tider vil vi prise ditt hellige navn:"
+							},
+							{
+								"label": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
+								"text": "Vi priser deg, evige Gud, du som har skapt verden og alt som er i den. Det er i deg vi lever, beveger oss og er til. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
+							},
+							{
+								"label": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
+								"text": "Vi takker deg, gode Gud, du som holder himmel og jord i dine hender. Du har skapt oss i ditt bilde og gitt oss livet i gave. Sammen med englene og din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
+							},
+							{
+								"label": "Nattverdbønn f (kort – ved særskilte anledninger)",
+								"text": "Gode Gud, du har skapt oss og kalt oss ved navn. Du åpner din hånd og metter alt som lever med det gode. Sammen med din menighet i himmelen og på jorden lovsynger vi ditt hellige navn:"
+							},
+							{
+								"label": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
+								"text": "Evige, allmektige Gud, du holder himmel og jord i dine hender, du nevner oss alle ved navn, så vi skal tilhøre deg og være ditt folk på jorden. Sammen med de troende gjennom alle tider og med de himmelske hærskarer vil vi prise ditt hellige navn:"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-sanctus",
+						"type": "tekst",
+						"heading": "Sanctus",
+						"optional": false,
+						"text": "",
+						"alts": [
+							{
+								"label": "Allmenn serie 1, 2, fest- og fasteserien",
+								"text": "{{r}}A |{{/r}} synger: Hellig, hellig, hellig, er Herren Sebaot. All jorden er full\nav din herlighet. Hosianna i det høyeste. Velsignet være han som kommer i Herrens navn. Hosianna i det høyeste."
+							},
+							{
+								"label": "Allmenn serie 3",
+								"text": "ML og A synger\n{{r}}ML |{{/r}} Hellig, hellig, hellig er Herren vår Gud.\n{{r}}A |{{/r}} Omkved: Hellig, hellig, hellig er Herren vår Gud.\n{{r}}ML |{{/r}} Du er Herre over himmel og jord.\n{{r}}A |{{/r}} Omkved\n{{r}}ML |{{/r}} Du er herlig og mektig og stor.\n{{r}}A |{{/r}} Omkved\n{{r}}ML |{{/r}} Du har sendt oss Jesus Kristus, din Sønn.\n{{r}}A |{{/r}} Omkved\n{{r}}ML |{{/r}} Velsignet han som kommer i Herrens navn.\n{{r}}A |{{/r}} Omkved"
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-epiklese",
+						"type": "tekst",
+						"heading": "Epiklese",
+						"optional": true,
+						"text": "",
+						"alts": [
+							{
+								"label": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
+								"text": "Vi priser deg, hellige Gud, himmelens og jordens Skaper, du som har elsket verden og gitt din Sønn, Jesus Kristus, for at han skulle frelse oss fra synd og død og vinne deg et hellig folk.\n{{r}}L |{{/r}} Vi ber deg: Send din Ånd over disse gaver, så vi kan ta imot Jesus Kristus i brødet og vinen."
+							},
+							{
+								"label": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
+								"text": "Vi priser deg Gud for Jesus Kristus, din tjener. Han kom fra himmelen, og ved Den hellige ånd og jomfru Maria ble han menneske av kjøtt og blod. Han oppfylte din vilje da han strakte ut sine hender på korsets tre. Slik tilintetgjorde han døden, brøt ondskapens lenker og åpenbarte oppstandelsen fra de døde. Derfor minnes vi hans død og oppstandelse når vi bærer brødet og vinen fram for deg.\n{{r}}L |{{/r}} Vi ber deg: Send din hellige Ånd over disse gaver, så de for oss blir livets brød og frelsens beger."
+							},
+							{
+								"label": "Nattverdbønn c (paulinske tekster)",
+								"text": "Hellig og barmhjertig er du, Gud, som ikke vendte deg bort da mennesket syndet, men gav løfte til Abraham om velsignelse for alle folkeslag. Mektig og trofast er du, som befridde ditt folk fra trelldom, og fornyet løftene gjennom profetene.\nDa tiden var inne, sendte du din Sønn, født av Maria, for å kjøpe oss fri og gi oss retten til å være dine barn.\nVed hans død på korset forsonte du alt med deg selv og skapte fred, og ved hans oppstandelse ble døden overvunnet.\n{{r}}L |{{/r}} Vi ber deg: Send din Ånd over disse dine gaver. Foren oss i troen på din nåde, så vi kan ta imot Jesu legeme og blod til forsoning og fred, og forkynne hans død til han kommer."
+							},
+							{
+								"label": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
+								"text": "Vi takker deg, all godhets kilde. Du sendte din Sønn. Han ble korsfestet og stod opp fra de døde. Han åpnet skriftene og åpenbarte seg for sine venner da han brøt brødet og gav dem.\n{{r}}L |{{/r}} Nå ber vi deg: La din hellige Ånd komme over brødet og vinen, så våre øyne åpnes, og vi kjenner ham igjen som vår korsfestede og oppstandne Frelser."
+							},
+							{
+								"label": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
+								"text": "Hellige Gud, vi takker deg for Jesus Kristus, verdens frelser. Han døde og stod opp igjen for å gi oss evig liv. Vi takker deg for dåpens gave, der vi blir født på ny, og for nattverden, der du samler oss som din store familie.\n{{r}}L |{{/r}} Vi ber deg: Send din hellige Ånd over brødet og vinen. Gjør oss til ett med hverandre og med Jesus Kristus."
+							},
+							{
+								"label": "Nattverdbønn f (kort – ved særskilte anledninger)",
+								"text": "Vi takker deg for Jesus Kristus, vår frelser. Han er det levende brød som kommer ned fra himmelen og gir verden liv.\n{{r}}L |{{/r}} Vi ber deg: Send din Ånd over oss og disse gaver, så vi kan ta imot Jesus Kristus i brødet og vinen."
+							},
+							{
+								"label": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
+								"text": "Hellige Gud, uten ende er din miskunn, og evig er ditt herredømme. Du har fylt ditt skaperverk med lys og liv; himmelen og jorden er fulle av din herlighet. Gjennom Abraham lovte du å velsigne alle folkeslag. Du berget Israel, ditt utvalgte folk. Gjennom profetene fornyet du ditt løfte. Og da tiden var kommet, sendte du din Sønn, han som i ord og gjerning forkynte ditt rike og var lydig mot din vilje helt til døden.\n{{r}}L |{{/r}} Vi ber deg: Send din Ånd over disse gaver, så vi kan ta imot Jesus Kristus i brødet og vinen."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-verba",
+						"type": "tekst",
+						"heading": "Innstiftelsesordene VERBA",
+						"optional": true,
+						"text": "",
+						"alts": [
+							{
+								"label": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn c (paulinske tekster)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn f (kort – ved særskilte anledninger)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg."
+							},
+							{
+								"label": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
+								"text": "Vår Herre Jesus Kristus, i den natt da han ble forrådt, tok han et brød, takket, brøt det, gav disiplene og sa: Ta imot og spis! Dette er min kropp som gis for dere. Gjør dette til minne om meg. Likeså tok han begeret etter måltidet, takket, ga dem og sa: Drikk alle av det! Dette beger er den nye pakt i mitt blod, som utøses for dere så syndene blir tilgitt. Gjør dette så ofte som dere drikker det, til minne om meg.\n{{r}}L/ML |{{/r}} Derfor, så ofte som vi spiser dette brødet og drikker av begeret, forkynner vi Herrens død, inntil han kommer."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-troens-mysterium",
+						"type": "tekst",
+						"heading": "Troens mysterium",
+						"optional": false,
+						"text": "{{r}}L |{{/r}} Stort er troens mysterium.\n{{r}}A |{{/r}} Kristus døde. Kristus stod opp. Kristus skal komme igjen. Ham være ære for kjærligheten som er sterkere enn døden.",
+						"instr": "Synges eller fremsies.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "nattverd-avslutning",
+						"type": "tekst",
+						"heading": "Avslutning",
+						"optional": true,
+						"text": "",
+						"alts": [
+							{
+								"label": "Nattverdbønn a (omarbeidet fra høymessen 1977)",
+								"text": "Nådige Gud, vi feirer dette måltidet med glede og takk for din Sønns fullbrakte offer, i troen på hans seierrike oppstandelse og himmelfart og i forventning om hans gjenkomst i herlighet. Vi ber deg: Fyll oss med din Ånd og kjærlighet, så vi kan gjenkjenne Kristus i den som sulter og tørster. Lær oss å elske hverandre som han har elsket oss, og la oss en gang samles hos deg i ditt fullendte rike."
+							},
+							{
+								"label": "Nattverdbønn b (etter Hippolyt, 200-tallet)",
+								"text": "La alle som får del i brødet og vinen, forenes til ett. Fyll oss med din hellige Ånd og grunnfest oss i sannheten, så vi kan prise deg i din hellige kirke nå og i all evighet."
+							},
+							{
+								"label": "Nattverdbønn c (paulinske tekster)",
+								"text": "Evige Gud, forny oss ved din Ånd. Sammen med alt som er skapt, venter vi med lengsel på å bli frigjort fra forgjengelighet og få del i den frihet som dine barn skal eie i herligheten. Fra deg og ved deg og til deg er alle ting. Deg være ære i all evighet!"
+							},
+							{
+								"label": "Nattverdbønn d (Emmausfortellingen, Luk 24)",
+								"text": "Hellige Gud, fyll oss med din Ånd. Gi oss brennende hjerter, så vi i undring og glede tar vare på ditt ord og viser barmhjertighet mot den som lider. Bli hos oss, også når vi tviler og sørger. Gå med oss, inntil savn og smerte har veket for evig jubel og lovsang."
+							},
+							{
+								"label": "Nattverdbønn e (bearbeidet etter familiemessen 2003)",
+								"text": "Gud, fyll oss med din Ånd. Ta oss alle i favn, slik en kjærlig mor samler barna sine om seg. La de små bli opphøyet og de sultne bli mettet med gode gaver.\nLiturgen og/eller ett eller flere barn synger eller sier: Sammen med alle dine barn ber vi den bønn som din Sønn har lært oss:"
+							},
+							{
+								"label": "Nattverdbønn f (kort – ved særskilte anledninger)",
+								"text": "Sammen med alle dine barn ber vi den bønn som din Sønn har lært oss:"
+							},
+							{
+								"label": "Nattverdbønn g (Gudstjenesteboken 1992, Johannesordningen)",
+								"text": "Derfor, barmhjertige Far, vil vi med dette brødet og dette begeret komme i hu at Herren gav sitt liv for oss. Og i troen på hans oppstandelse venter vi på at han kommer igjen i makt og herlighet og vil holde sitt store gjestebud sammen med sitt folk.\n{{r}}A |{{/r}} Amen, ja, kom, Herre Jesus.\n{{r}}L |{{/r}} Vi ber deg, allmektige Gud, gi oss din hellige Ånd. La oss kjenne kraften av Kristi oppstandelse, så vi som tar imot hans legeme og blod, kan leve til pris og ære for din herlighet og få del i den arven som de hellige får i lyset.\n{{r}}A |{{/r}} Amen, ja, kom, du Hellige Ånd.\n{{r}}L/ML |{{/r}} Foren vår bønn med bønnene fra dine tjenere alle steder og gjennom alle tider, og med forbønnen fra vår store øversteprest, som alltid ber for oss, inntil han kommer med seier, som Herren over alle ting. Ved ham og i ham og i samfunn med Den hellige ånd skal du ha all herlighet og ære, allmektige Far, evige Gud, nå og til evig tid."
+							}
+						],
+						"selAlt": 0
+					},
+					{
+						"id": "n21b",
+						"type": "tekst",
+						"heading": "Fadervår",
+						"instr": "Fremsies eller synges (N13: 984.1 og 3, 985.1 og 3). Kan erstattes av Fadervår etter 1977- eller 1920-liturgiene.",
+						"text": "{{r}}A |{{/r}} Vår Far i himmelen! La navnet ditt helliges. La riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen. Gi oss i dag vårt daglige brød,\nog tilgi oss vår skyld, slik også vi tilgir våre skyldnere. Og la oss ikke komme i fristelse, men frels oss fra det onde.\nFor riket er ditt og makten og æren i evighet. Amen.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "n22a",
+						"type": "tekst",
+						"heading": "* 22 Fredshilsen PAX",
+						"instr": "Menigheten står helt til de første går fram til nattverd. Her kan en føye til: L/ML | La oss hilse hverandre med et tegn på fred. Menigheten hilser hverandre med håndtrykk.",
+						"text": "{{r}}L |{{/r}} Guds fred være med dere.\n{{r}}M |{{/r}} Guds fred være med deg.",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "n22b",
+						"type": "tekst",
+						"heading": "Du Guds Lam AGNUS DEI",
+						"alts": [
+							{
+								"label": "Allmenn serie 1, 2, fest- og fasteserien",
+								"text": "{{r}}A |{{/r}} Du Guds Lam, som bærer verdens synder, miskunne deg over oss.\nDu Guds Lam, som bærer verdens synder, miskunne deg over oss.\nDu Guds Lam, som bærer verdens synder, gi oss din fred."
+							},
+							{
+								"label": "Allmenn serie 3",
+								"text": "{{r}}ML |{{/r}} Amen, kom, Herre Jesus. A | Omkved: Amen, kom, Herre Jesus.\n{{r}}ML |{{/r}} Du er Lammet som bærer vår synd. A | Omkved\n{{r}}ML |{{/r}} Du er Lammet som gir oss din fred. A | Omkved\n{{r}}ML |{{/r}} Du er brødet som gir oss ditt liv. A | Omkved"
+							}
+						],
+						"text": "",
+						"selAlt": 0
+					},
+					{
+						"id": "n22c",
+						"type": "tekst",
+						"heading": "Invitasjon og utdeling",
+						"instr": "{{r}}L |{{/r}} Kom, for alt er gjort ferdig. (Kan alternativt gis før Du Guds Lam synges.) Utdelingsordet: Kristi kropp, gitt for deg. Kristi blod, gitt for deg. (Alternativt: Dette er Jesu legeme. Dette er Jesu blod.)\nEtter utdelingen:\n{{r}}L |{{/r}} Den korsfestede og oppstandne Jesus Kristus har nå gitt oss sin kropp og sitt blod som han gav til soning for alle våre synder.\nA (eller L) | Han styrke oss og holde oss oppe i en sann tro til det evige liv.\n{{r}}L |{{/r}} Fred være med dere.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "n23",
+						"type": "tekst",
+						"heading": "23 Måltidets avslutning – Takkebønn",
+						"instr": "Innledes med L/ML | La oss takke og be. Alteret ryddes.",
+						"alts": [
+							{
+								"label": "Takkebønn 1 (kan synges)",
+								"text": "{{r}}L/ML |{{/r}} Vi takker deg, himmelske Far, for dine velsignede gaver.\nVi ber deg at du ved disse gavene vil bevare oss i troen på deg, forene oss i din kjærlighet og stadfeste i oss håpet om det evige liv, for Jesu Kristi skyld.\n{{r}}M |{{/r}} Amen."
+							},
+							{
+								"label": "Takkebønn 2",
+								"text": "{{r}}L/ML |{{/r}} Vi takker deg, visdommens Gud, for ditt måltids dype hemmelighet: Brødet vi har brutt, er ett. Din Sønn har gitt sitt liv for én verden og én menneskehet. Vi ber:\nA/L/ML | Hjelp oss å høre det ropet du har hørt, å se den nøden du har sett, og å elske vår neste som oss selv."
+							},
+							{
+								"label": "Takkebønn 3",
+								"text": "{{r}}L/ML |{{/r}} Vi takker deg, nådige Gud, du som gjennom brødet og vinen har gitt oss del i Jesu Kristi seierrike død og oppstandelse. Vi ber:\nA/L/ML | Styrk oss ved din Ånd til vitnesbyrd og tjeneste i verden."
+							},
+							{
+								"label": "Takkebønn 4",
+								"text": "{{r}}L/ML |{{/r}} Trofaste Gud, du som i dåpen har gitt oss barnekår og gjort oss til arvinger i ditt rike. Vi takker deg for dette måltidet, hvor du har gitt oss syndenes forlatelse og fornyet i oss troen på dine løfter. Vi ber:\nA/L/ML | Styrk oss ved din Ånd til vitnesbyrd og tjeneste i verden."
+							}
+						],
+						"text": "",
+						"selAlt": 0
+					}
+				],
+				"__lenket": {
+					"malId": "hovedgudstjeneste2020",
+					"tittel": "III. Nattverd"
+				}
+			},
+			{
+				"title": "IV. Sendelse",
+				"items": [
+					{
+						"id": "konf21-25",
+						"type": "tekst",
+						"heading": "24 Sluttsalme",
+						"instr": "Her kan følge en symbolhandling dersom denne ikke ble lagt til forbønnshandlingen, ledd 18 C.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-26",
+						"type": "tekst",
+						"heading": "25 Velsignelse",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-27",
+						"type": "tekst",
+						"heading": "26 Utsendelse",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					},
+					{
+						"id": "konf21-28",
+						"type": "instruks",
+						"heading": "27 Postludium/Utgangsprosesjon",
+						"instr": "Konfirmantene forlater kirken i utgangsprosesjon, fulgt av medliturg(er) og liturg. Der det er korsbærer går denne først i prosesjonen.",
+						"text": "",
+						"alts": [],
+						"selAlt": 0
+					}
+				]
+			}
+		],
+		"erOriginal": true,
+		"malForm": "bokmål",
+		"visInstr": true,
+		"visRoles": true,
+		"visSalmeinfo": true,
+		"alternativer": [
+			"nattverd"
+		]
+	}
+}

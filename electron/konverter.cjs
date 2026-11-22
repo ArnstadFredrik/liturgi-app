@@ -89,8 +89,21 @@ const erTittelLinje = (t) => t.length >= 2 && t.length <= 60
   && !/[.,:;!?»]$/.test(t);
 
 // ---------- docx-parsing (unzip + XML) ----------
+// docx = zip: prøv systemets unzip, fall tilbake til python3 (zipfile)
+function hentDocxXml(fil) {
+  try {
+    return execFileSync('unzip', ['-p', fil, 'word/document.xml'], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  } catch {}
+  try {
+    return execFileSync('python3', ['-c',
+      "import sys, zipfile; z = zipfile.ZipFile(sys.argv[1]); sys.stdout.buffer.write(z.read('word/document.xml'))",
+      fil], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  } catch {}
+  throw new Error('Klarte ikke lese docx: verken \u00abunzip\u00bb eller \u00abpython3\u00bb er tilgjengelig p\u00e5 systemet. Installer unzip (brew install unzip) og prøv igjen.');
+}
+
 function lesDocx(fil) {
-  const xml = execFileSync('unzip', ['-p', fil, 'word/document.xml'], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  const xml = hentDocxXml(fil);
   const avsnitt = [];
   const pRe = /<w:p\b[^>]*>[\s\S]*?<\/w:p>/g;
   let m;
