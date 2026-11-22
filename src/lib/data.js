@@ -191,6 +191,7 @@ export const BUILTIN_TEMPLATES = [
 			{
 				"title": "Dåp",
 				"items": [],
+				"alternativer": ["dåp"],
 				"__lenket": true
 			},
 			{
@@ -497,6 +498,7 @@ export const BUILTIN_TEMPLATES = [
 			},
 			{
 				"title": "III. Nattverd",
+				"alternativer": ["nattverd"],
 				"items": [
 					{
 						"id": "n20",
