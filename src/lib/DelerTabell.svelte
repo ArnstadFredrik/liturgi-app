@@ -26,12 +26,17 @@
 		{ key: 'L2', tittel: 'Andre lesning' },
 		{ key: 'E', tittel: 'Evangelium' }
 	];
-	const alleLedd = $derived(
-		(mal?.sections ?? []).flatMap((sec) =>
-			(sec.items ?? [])
+	// gruppert per hoveddel til <optgroup>; titelløse ledd nummereres
+	const bibelGrupper = $derived(
+		(mal?.sections ?? []).map((sec, si) => ({
+			tittel: sec.title,
+			ledd: (sec.items ?? [])
 				.filter((it) => it.type !== 'instruks')
-				.map((it) => ({ id: it.id, visning: (it.heading || '(uten tittel)') + ' — ' + sec.title }))
-		)
+				.map((it, n) => ({
+					id: it.id,
+					visning: it.heading || `Ledd ${n + 1} (uten tittel)`
+				}))
+		})).filter((g) => g.ledd.length)
 	);
 	function koblingFor(lesningKey) {
 		return (mal?.bibeltekster ?? []).find((b) => b.lesning === lesningKey);
@@ -258,25 +263,29 @@
 	{#if visMalFelt && fane === 'bibeltekster'}
 		<div class="m-bibeltekster">
 			<p class="muted m-velg-hint">Koble lesningene til ledd som skal hente bibeltekst dynamisk fra kirkeåret ved opprettelse av gudstjeneste. Innledning og avslutning i leddet røres ikke — teksten havner i hoveddelen. Ledd uten kobling fylles som før (via leddtittel).</p>
-			<div class="m-deler-tabell">
-				<div class="m-deler-rad m-deler-head"><span>Lesning</span><span>Ledd som henter teksten</span></div>
+			<div class="m-bibel-tabell">
+				<div class="m-bibel-head"><span>Lesning</span><span>Ledd som henter teksten</span></div>
 				{#each BIBEL_LESNINGER as lesning (lesning.key)}
-					<div class="m-deler-rad m-bibel-rad">
+					<div class="m-bibel-rad">
 						<span class="m-bibel-navn">{lesning.tittel}</span>
 						<span>
 							<select class="m-bibel-velg"
 								onchange={(e) => velgLedd(lesning.key, e.currentTarget.value)}
 								title="Velg leddet som skal fylles med dagens lesning">
 								<option value="">— ingen kobling —</option>
-								{#each alleLedd as ledd (ledd.id)}
-									<option value={ledd.id} selected={koblingFor(lesning.key)?.leddId === ledd.id}>{ledd.visning}</option>
+								{#each bibelGrupper as gruppe (gruppe.tittel)}
+									<optgroup label={gruppe.tittel}>
+										{#each gruppe.ledd as ledd (ledd.id)}
+											<option value={ledd.id} selected={koblingFor(lesning.key)?.leddId === ledd.id}>{ledd.visning}</option>
+										{/each}
+									</optgroup>
 								{/each}
 							</select>
 						</span>
 					</div>
 				{/each}
 			</div>
-			{#if alleLedd.length === 0}
+			{#if bibelGrupper.length === 0}
 				<p class="muted m-velg-hint">Malen har ingen ledd å koble til.</p>
 			{/if}
 		</div>

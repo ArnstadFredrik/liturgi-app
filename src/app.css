@@ -546,9 +546,50 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 }
 /* dynamisk bibeltekst-kobling (Bibeltekster-fanen) */
 .m-bibeltekster { max-width: 674px; margin: 0 auto; }
-.m-bibel-rad { align-items: center; }
+.m-bibel-tabell {
+	display: grid;
+	grid-template-columns: minmax(160px, 1fr) 2fr;
+	gap: 1px;
+	background: var(--border);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	overflow: hidden;
+}
+.m-bibel-head {
+	display: contents;
+}
+.m-bibel-head span {
+	background: var(--panel);
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 8px 12px;
+}
+.m-bibel-rad {
+	display: contents;
+}
+.m-bibel-rad > span {
+	background: var(--panel2);
+	padding: 8px 12px;
+	display: flex;
+	align-items: center;
+}
 .m-bibel-navn { font-weight: 600; }
-.m-bibel-velg { min-width: 260px; }
+.m-bibel-velg {
+	width: 100%;
+	max-width: 420px;
+	background: var(--panel);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 13px;
+	cursor: pointer;
+}
+.m-bibel-velg:hover { border-color: var(--accent); }
+.m-bibel-velg:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .dyn-badge {
 	display: inline-flex; align-items: center; gap: 4px;
 	font-size: 11px; font-weight: 600;
