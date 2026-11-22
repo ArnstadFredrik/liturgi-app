@@ -42,7 +42,6 @@ gudstjenester: `.liturgi` med `kind: "service"`.
   "items": [ … ledd … ],
   "alternativer": ["dåp"],          // valgfritt: flervalg-merker (alternativer-katalogen)
   "delGruppe": "gravferd",          // valgfritt: variasjon (kun én pr mal)
-  "bokstav": "A",                   // valgfritt: katalog-ledd i skriftlesningskatalog (A, B, C …)
   "__lenket": { "malId": "…", "tittel": "…" }  // lenket hoveddel: innholdet
                                                 // fornyes fra malen ved åpning
                                                 // og kan ikke redigeres
@@ -59,6 +58,7 @@ Hoveddeler nummereres ofte med romertall i tittelen (`I. Samling`,
   "id": "unik-id",
   "type": "tekst",                    // "tekst" | "salme" | "instruks"
   "heading": "* 3 Hilsen",            // leddtittel; `* ` = valgfritt-ledd-markering
+  "bokstav": "A",                     // valgfritt: katalog-ledd i skriftlesningskatalog (A, B, C …)
   "instr": "",                        // instruksjoner/rubrikker (vises kursiv rød)
   "text": "…",                        // innholdet — se tekstkonvensjoner
   "alts": [ { "label": "Mark 10,13-16", "text": "…" } ],   // varianter (enten/eller)

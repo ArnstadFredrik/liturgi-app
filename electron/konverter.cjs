@@ -19,7 +19,7 @@ const dekodXml = (s) => s.replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (m) => DEKOD[
 // ---------- klassifiseringshjelpere (docx og pdf) ----------
 
 const erRubrikkTekst = (t) => /^(ved |her |her, |eller$|evt\.|ev\.|jfr\.|jf\.|før[,.\s]|etter |under |mens |om\b|\()/i.test(t) && t.length < 160;
-const erBibelref = (t) => /^(BIBELREF\s*\|\s*)?(\d?\s?)?[A-ZÆØÅ][a-zæøå]+\.?\s\d+(\s?[,;–-]\s?\d+)*([a-z])?(\s*[.,])?$/.test(trim(t));
+const erBibelref = (t) => /^(enten|anten|eller)\b/i.test(trim(t)) ? false : /^(BIBELREF\s*\|\s*)?(\d?\s?)?[A-ZÆØÅ][a-zæøå]+\.?\s\d+(\s?[,;–-]\s?\d+)*([a-z])?(\s*[.,])?$/.test(trim(t));
 const rolleRe = /^([A-Z]{1,4}(?:\/[A-Z]{1,4})*)\s*\|\s?/;
 const erLeddTittel = (t) => /^\*?\s?\d+\.\s+\S/.test(t) && t.length < 80;
 
