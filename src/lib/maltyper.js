@@ -37,3 +37,17 @@ export function malerForType(maler, type, malForm = 'bokmål') {
 		.filter((t) => malType(t) === type && kanBrukes(t) && malFormFor(t) === mf)
 		.sort((a, b) => a.name.localeCompare(b.name, 'no'));
 }
+
+/** Oversettelses-gruppen til en mal: malen selv + maler som er koblet til den
+ *  (i begge retninger — koblingen lagres på den ene siden). Manglende maler
+ *  (slettede/ikke importerte) hoppes over. */
+export function oversettelsesGruppe(mal, maler) {
+	if (!mal) return [];
+	const ider = new Set([mal.id]);
+	for (const t of maler) {
+		const koblinger = t.oversettelser ?? [];
+		if (koblinger.includes(mal.id)) ider.add(t.id);
+	}
+	for (const id of mal.oversettelser ?? []) ider.add(id);
+	return maler.filter((t) => ider.has(t.id));
+}

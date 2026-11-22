@@ -3,7 +3,7 @@
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import DelerTabell from '$lib/DelerTabell.svelte';
-	import { målformLabel, malFormFor } from '$lib/maltyper.js';
+	import { målformLabel, malFormFor, oversettelsesGruppe, MÅLFORMER } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
 	import { litHtml } from '$lib/lit.js';
@@ -72,9 +72,19 @@
 
 	// Målformene som FAKTISK finnes blant brukbare maler av valgt type —
 	// selector-listen genereres ut fra dette (tomme målformer vises ikke).
-	const tilgjengeligeMålformer = $derived([...new Set(
-		app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)).map((t) => malFormFor(t))
-	)]);
+	const tilgjengeligeMålformer = $derived.by(() => {
+		// hvis valgt mal har en oversettelses-gruppe: vis gruppens målformer
+		// (i MÅLFORMER-rekkefølge) — det er disse som er samme liturgi
+		const valgt = app.templates.find((t) => t.id === tplId);
+		const gruppe = valgt ? oversettelsesGruppe(valgt, app.templates) : [];
+		if (gruppe.length > 1) {
+			const iGruppe = [...new Set(gruppe.map((t) => malFormFor(t)))];
+			return MÅLFORMER.filter((m) => iGruppe.includes(m)).concat(iGruppe.filter((m) => !MÅLFORMER.includes(m)));
+		}
+		return [...new Set(
+			app.templates.filter((t) => malType(t) === nyType && kanBrukes(t)).map((t) => malFormFor(t))
+		)];
+	});
 
 	/** Visningsnavn i mal-listen: målformen er fjernet (den er eget valg),
 	 *  årstallet beholdes: «Vigsel (bokmål, 2003)» → «Vigsel (2003)». */
@@ -362,11 +372,15 @@
 	 *  Svelte 5 $derived.by som leser nyType var stale ved rask GF→GJ-bryting. */
 	/** Målform-bytte: mal-listen viser kun valgt målform; valget huskes. */
 	function velgMalForm(mf) {
+		const forrigeMal = app.templates.find((t) => t.id === tplId);
+		const gruppe = forrigeMal ? oversettelsesGruppe(forrigeMal, app.templates) : [];
 		malForm = mf;
 		try { localStorage.setItem('opprettMalForm', mf); } catch {}
 		window.liturgi?.dbSet?.('opprettMalForm', mf);
 		malerForType = app.templates.filter((t) => malType(t) === nyType && kanBrukes(t) && malFormFor(t) === malForm);
-		tplId = malerForType[0]?.id ?? '';
+		// oversettelses-gruppe: bytt til gruppens mal med valgt målform
+		const gruppeMedlem = gruppe.find((t) => malFormFor(t) === mf);
+		tplId = (gruppeMedlem ?? malerForType[0])?.id ?? '';
 	}
 
 	function velgType(type) {

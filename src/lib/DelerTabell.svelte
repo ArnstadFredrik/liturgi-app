@@ -53,6 +53,18 @@
 	// vigsel: vis «Skriftlesningenes kilde»-innstillingen
 	const erVigsel = $derived((mal?.liturgiType ?? '') === 'vigsel' || /vigsel/i.test(mal?.name ?? ''));
 
+	// oversettelser: andre maler (ikke denne) som kan kobles i samme gruppe
+	const andreMaler = $derived((app.templates ?? []).filter((t) => t.id !== mal?.id));
+	function veksleOversettelse(id, paa) {
+		if (!mal) return;
+		const liste = new Set(mal.oversettelser ?? []);
+		if (paa) liste.add(id);
+		else liste.delete(id);
+		if (liste.size) mal.oversettelser = [...liste];
+		else delete mal.oversettelser;
+		markDirty();
+	}
+
 	const TYPER = [['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
 
 	function endreType(e) {
@@ -265,6 +277,26 @@
 	{/if}
 	{#if visMalFelt && fane === 'bibeltekster'}
 		<div class="m-bibeltekster">
+			<div class="m-bibel-oversettelse">
+				<div class="m-bibel-kilde-tekst">
+					<strong>Oversettelser av denne malen</strong>
+					<span>Velg andre maler som er samme liturgi på andre målformer. Ved opprettelse av gudstjeneste vises da gruppens målformer sammen, og valgt målform bruker riktig mal.</span>
+				</div>
+			</div>
+			{#if andreMaler.length === 0}
+				<p class="muted m-velg-hint">Ingen andre maler å koble til ennå.</p>
+			{:else}
+				<div class="m-bibel-overs-grid">
+					{#each andreMaler as t (t.id)}
+						<label class="m-bibel-overs-rad">
+							<input type="checkbox" checked={(mal?.oversettelser ?? []).includes(t.id)}
+								onchange={(e) => veksleOversettelse(t.id, e.currentTarget.checked)} />
+							<span class="m-bibel-overs-navn">{t.name}</span>
+							<span class="m-bibel-overs-form">{målformLabel(malFormFor(t))}</span>
+						</label>
+					{/each}
+				</div>
+			{/if}
 			{#if erVigsel}
 				<div class="m-bibel-kilde">
 					<div class="m-bibel-kilde-tekst">
