@@ -8,8 +8,11 @@
 	import { målformLabel, malFormFor } from '$lib/maltyper.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
+	import KonverterModal from '$lib/KonverterModal.svelte';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
+
+	let konverterApen = $state(false);
 
 	$effect(() => {
 		if (isElectron) loadTemplatesFromDisk();
@@ -104,17 +107,9 @@
 		}
 	}
 
-	/** Konverter en Word/PDF-liturgi til .limal og lagre som brukermal. */
-	async function konverterMal() {
-		if (!isElectron) return;
-		const r = await window.liturgi.konverterMal();
-		if (!r.ok) {
-			if (!r.canceled) toast.error('Klarte ikke konvertere: ' + (r.error ?? 'ukjent feil'));
-			return;
-		}
-		await loadTemplatesFromDisk();
-		const advarsel = r.advarsler?.length ? ' — sjekk variant-gruppering og roller i redigeringsvisningen' : '';
-		toast.success(`Konvertert: ${r.name} (${r.seksjoner} hoveddeler, ${r.ledd} ledd)${advarsel}`);
+	/** Konverter Word/PDF → mal: åpner konverter-modalen (drag-and-drop + info). */
+	function konverterMal() {
+		konverterApen = true;
 	}
 
 	function nyLokalMal() {
@@ -208,3 +203,7 @@
 		<button onclick={nyLokalMal}>+ Ny lokal mal</button>
 	</div>
 </div>
+
+{#if konverterApen}
+	<KonverterModal onLukk={() => (konverterApen = false)} />
+{/if}

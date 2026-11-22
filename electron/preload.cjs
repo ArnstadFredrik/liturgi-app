@@ -1,5 +1,5 @@
 // Exponer fil-dialoger til rendereren (contextIsolation) via window.liturgi
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('liturgi', {
 	saveFile: (payload) => ipcRenderer.invoke('liturgi:save-file', payload),
@@ -38,6 +38,12 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// lokale maler som filer i ~/.config/Liturgi/maler
 	listTemplates: () => ipcRenderer.invoke('tpl:list'),
 	konverterMal: () => ipcRenderer.invoke('mal:konverter'),
+	/** Konverter en spesifikk filsti (drag-and-drop / filvelger i modalen). */
+	konverterMalSti: (sti) => ipcRenderer.invoke('mal:konverter-fil', { sti }),
+	/** Filsti til en File fra drag-and-drop (Electron 32+ krever webUtils). */
+	stiFraFil: (fil) => {
+		try { return webUtils.getPathForFile(fil); } catch { return null; }
+	},
 	readTemplate: (p) => ipcRenderer.invoke('tpl:read', { path: p }),
 	writeTemplate: (p, json) => ipcRenderer.invoke('tpl:write', { path: p, json }),
 	deleteTemplateFile: (p) => ipcRenderer.invoke('tpl:delete', { path: p }),

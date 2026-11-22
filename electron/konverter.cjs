@@ -49,9 +49,19 @@ function lesDocx(fil) {
   return avsnitt;
 }
 
-// ---------- pdf-parsing (pdftotext) ----------
+// ---------- pdf-parsing ----------
+// Førstevalg: pdftotext (poppler). Fallback: macOS PDFKit via JXA (osascript) —
+// følger med operativsystemet, ingen ekstra installasjon.
+const PDFKIT_JXA = 'ObjC.import("PDFKit"); function run(argv){ const doc = $.PDFDocument.alloc.initWithURL($.NSURL.fileURLWithPath(argv[0])); if (doc.isNil()) return ""; const n = doc.pageCount; let ut = []; for (let i=0;i<n;i++){ const s = doc.pageAtIndex(i).string; ut.push(s ? ObjC.unwrap(s) : ""); } return ut.join("\\n"); }';
+
 function lesPdf(fil) {
-  const txt = execFileSync('pdftotext', ['-layout', fil, '-'], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  let txt = null;
+  try {
+    txt = execFileSync('pdftotext', ['-layout', fil, '-'], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  } catch (err) {
+    if (err?.code !== 'ENOENT') throw err;
+    txt = execFileSync('osascript', ['-l', 'JavaScript', '-e', PDFKIT_JXA, fil], { maxBuffer: 64 * 1024 * 1024 }).toString('utf8');
+  }
   return txt.split('\n')
     .map((l) => ({ stil: '', runs: [{ tekst: l, bold: false, italic: false }], tekst: trim(l) }))
     .filter((p) => p.tekst.length > 0);
