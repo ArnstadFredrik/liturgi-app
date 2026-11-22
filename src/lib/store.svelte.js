@@ -192,7 +192,9 @@ export function newServiceFromTemplate(tpl, include) {
 		...(tpl.eksportFormater ? { eksportFormater: { ...tpl.eksportFormater } } : {}),
 		...(tpl.eksportValg ? { eksportValg: JSON.parse(JSON.stringify(tpl.eksportValg)) } : {}),
 		...(tpl.eksportPptx ? { eksportPptx: JSON.parse(JSON.stringify(tpl.eksportPptx)) } : {}),
-		...(tpl.eksportTomSlide != null ? { eksportTomSlide: tpl.eksportTomSlide } : {})
+		...(tpl.eksportTomSlide != null ? { eksportTomSlide: tpl.eksportTomSlide } : {}),
+		// dynamisk bibeltekst-kobling fra malen (lesning → ledd-id)
+		...(tpl.bibeltekster?.length ? { bibeltekster: JSON.parse(JSON.stringify(tpl.bibeltekster)) } : {})
 	};
 }
 
@@ -552,6 +554,17 @@ export function applyKirkeaar(svc, k, tekster) {
 		for (const it of sec.items) {
 			const h = (it.heading || '').toLowerCase();
 			const erIngress = h.includes('ingress');
+			// dynamisk kobling fra malen (Bibeltekster-fanen) styrer først
+			const kobling = (svc.bibeltekster ?? []).find((b) => b.leddId === it.id);
+			if (kobling) {
+				const nokkel = kobling.lesning;
+				const ref = nokkel === 'E' ? k.E : nokkel === 'L2' ? k.L2 : k.L1;
+				if (ref) {
+					fyllLesning(it, ref, tekster?.[nokkel], nokkel === 'E');
+					if (nokkel === 'L1') it.instr = (it.instr ? it.instr + ' ' : '') + 'Tekstrekke ' + k.series;
+					continue;
+				}
+			}
 			if (h.includes('dagens bønn') && !erIngress && k.prayer) {
 				const bønn = '{{r}}L |{{/r}} La oss alle be.\n' + formaterBønn(k.prayer);
 				if (it.text?.includes('[Dagens bønn]')) {

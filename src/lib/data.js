@@ -2,6 +2,7 @@ export const BUILTIN_TEMPLATES = [
 	{
 		"id": "hovedgudstjeneste2020",
 		"alternativer": ["dåp", "nattverd"],
+		bibeltekster: [{ "lesning": "L1", "leddId": "o9" }, { "lesning": "L2", "leddId": "o11" }, { "lesning": "E", "leddId": "o12" }],
 		"name": "Ordning for hovedgudstjeneste (2020)",
 		"description": "Hovedmalen til Den norske kirke – Ordning for hovedgudstjenesten i bokmål, med alle alternativer.",
 		"sections": [
@@ -3355,6 +3356,7 @@ export const BUILTIN_TEMPLATES = [
 	},
 	{
 	"id": "konfirmasjon-2021",
+	bibeltekster: [{ "lesning": "L1", "leddId": "konf21-12" }, { "lesning": "L2", "leddId": "konf21-14" }, { "lesning": "E", "leddId": "konf21-15" }],
 	"name": "Konfirmasjonstidens gudstjenester (2021)",
 	"description": "Ordning for konfirmasjonstidens gudstjenester — vedtatt av Kirkemøtet 2021. Med bønn for konfirmantene og presentasjonsgudstjeneste.",
 	"sections": [

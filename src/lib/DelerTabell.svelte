@@ -20,6 +20,31 @@
 	const alternativer = $derived(mal?.alternativer ?? []);
 	const variasjoner = $derived(mal?.delGrupper ?? []);
 
+	// dynamisk bibeltekst-kobling: lesning → ledd
+	const BIBEL_LESNINGER = [
+		{ key: 'L1', tittel: 'Første lesning' },
+		{ key: 'L2', tittel: 'Andre lesning' },
+		{ key: 'E', tittel: 'Evangelium' }
+	];
+	const alleLedd = $derived(
+		(mal?.sections ?? []).flatMap((sec) =>
+			(sec.items ?? [])
+				.filter((it) => it.type !== 'instruks')
+				.map((it) => ({ id: it.id, visning: (it.heading || '(uten tittel)') + ' — ' + sec.title }))
+		)
+	);
+	function koblingFor(lesningKey) {
+		return (mal?.bibeltekster ?? []).find((b) => b.lesning === lesningKey);
+	}
+	function velgLedd(lesningKey, leddId) {
+		if (!mal) return;
+		const liste = (mal.bibeltekster ?? []).filter((b) => b.lesning !== lesningKey);
+		if (leddId) liste.push({ lesning: lesningKey, leddId });
+		if (liste.length) mal.bibeltekster = liste;
+		else delete mal.bibeltekster;
+		markDirty();
+	}
+
 	const TYPER = [['gudstjeneste', 'Gudstjeneste'], ['vigsel', 'Vigsel'], ['gravferd', 'Gravferd']];
 
 	function endreType(e) {
@@ -123,6 +148,7 @@
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
 		<button role="tab" aria-selected={fane === 'hoveddeler'} class:sel={fane === 'hoveddeler'} onclick={() => { fane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
 		<button role="tab" aria-selected={fane === 'innstillinger'} class:sel={fane === 'innstillinger'} onclick={() => { fane = 'innstillinger'; apenCelle = null; }}>Innstillinger</button>
+		{#if visMalFelt}<button role="tab" aria-selected={fane === 'bibeltekster'} class:sel={fane === 'bibeltekster'} onclick={() => { fane = 'bibeltekster'; apenCelle = null; }}>Bibeltekster</button>{/if}
 		{#if visMalFelt}<button role="tab" aria-selected={fane === 'informasjon'} class:sel={fane === 'informasjon'} onclick={() => { fane = 'informasjon'; apenCelle = null; }}>Informasjon</button>{/if}
 	</div>
 
@@ -228,6 +254,32 @@
 		</div>
 		{/if}
 
+	{/if}
+	{#if visMalFelt && fane === 'bibeltekster'}
+		<div class="m-bibeltekster">
+			<p class="muted m-velg-hint">Koble lesningene til ledd som skal hente bibeltekst dynamisk fra kirkeåret ved opprettelse av gudstjeneste. Innledning og avslutning i leddet røres ikke — teksten havner i hoveddelen. Ledd uten kobling fylles som før (via leddtittel).</p>
+			<div class="m-deler-tabell">
+				<div class="m-deler-rad m-deler-head"><span>Lesning</span><span>Ledd som henter teksten</span></div>
+				{#each BIBEL_LESNINGER as lesning (lesning.key)}
+					<div class="m-deler-rad m-bibel-rad">
+						<span class="m-bibel-navn">{lesning.tittel}</span>
+						<span>
+							<select class="m-bibel-velg"
+								onchange={(e) => velgLedd(lesning.key, e.currentTarget.value)}
+								title="Velg leddet som skal fylles med dagens lesning">
+								<option value="">— ingen kobling —</option>
+								{#each alleLedd as ledd (ledd.id)}
+									<option value={ledd.id} selected={koblingFor(lesning.key)?.leddId === ledd.id}>{ledd.visning}</option>
+								{/each}
+							</select>
+						</span>
+					</div>
+				{/each}
+			</div>
+			{#if alleLedd.length === 0}
+				<p class="muted m-velg-hint">Malen har ingen ledd å koble til.</p>
+			{/if}
+		</div>
 	{/if}
 	{#if visMalFelt && fane === 'informasjon'}
 		<div class="hd-info">

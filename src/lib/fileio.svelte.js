@@ -41,10 +41,55 @@ setAutoLagreFn(autolagreNaa);
 export function currentJson() {
 	const o = app.current;
 	if (!o) return null;
+	// lenket innhold i maler: behold __lenket-merket, men kopier innholdet
+	// inn som backup (__lenketBackup) slik at en eksportert .limal fungerer
+	// også uten den lenkede malen
+	if ((o.kind ?? app.kind) === 'template') medLenketBackup(o);
 	// __dirty/filePath er runtime-felter — skal aldri inn i filen (gjør at
 	// gjenåpnede filer ellers markeres som endret uten endringer)
 	return JSON.stringify({ liturgiFormat: 1, kind: o.kind ?? app.kind, data: o },
 		(k, v) => (k === '__dirty' || k === 'filePath' || k === '__åpenMalId' ? undefined : v), '	');
+}
+
+/** Lenket backup: for hver lenket hoveddel kopieres innholdet inn i
+ *  seksjonen som __lenketBackup. __lenket beholdes — ved åpning kobles
+ *  lenken til den lenkede malen hvis den finnes, ellers brukes backupen. */
+function medLenketBackup(mal) {
+	for (const sec of mal.sections ?? []) {
+		if (!sec.__lenket) { delete sec.__lenketBackup; continue; }
+		sec.__lenketBackup = {
+			tittel: sec.title,
+			items: JSON.parse(JSON.stringify(sec.items ?? []))
+		};
+	}
+}
+
+/** Behandle lenket innhold ved import/åpning av en mal-fil: hvis den
+ *  lenkede malen finnes, kobles seksjonen som før. Hvis IKKE: backupen
+ *  kopieres inn, __lenket fjernes, og brukeren får beskjed. Returnerer
+ *  true hvis noen lenker mistet sin kilde. NB: gammelt format
+ *  __lenket: true (bool) er ikke en objekt-lenke — det konverteres av
+ *  LENKE-SYNK etter innlesing og skal ikke røres her. */
+function behandlLenketBackup(mal) {
+	let mistet = false;
+	const kjente = new Set(app.templates.map((t) => t.id));
+	for (const sec of mal.sections ?? []) {
+		if (!sec.__lenket || sec.__lenket === true) continue;
+		const finnes = kjente.has(sec.__lenket?.malId);
+		if (finnes) {
+			delete sec.__lenketBackup;
+			continue;
+		}
+		const backup = sec.__lenketBackup;
+		if (backup?.items?.length) {
+			sec.items = JSON.parse(JSON.stringify(backup.items));
+			sec.title = backup.tittel || sec.title;
+		}
+		delete sec.__lenket;
+		delete sec.__lenketBackup;
+		mistet = true;
+	}
+	return mistet;
 }
 
 /** Filnavn: "dato - navn - kirkeårsdag". */
@@ -507,6 +552,12 @@ export async function loadTemplatesFromDisk() {
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
 			if (!data) continue;
+			// lenket innhold: backup hvis lenket mal ikke finnes lenger
+			const mistet = behandlLenketBackup(data);
+			if (mistet) {
+				await window.liturgi.writeTemplate(meta.path, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
+				toast.info('Malen «' + (data.name ?? 'uten navn') + '» inneholdt lenket innhold som er kopiert inn (lenket mal finnes ikke).');
+			}
 			data.filePath = meta.path;
 			data.kind = 'template';
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(data.name).toLowerCase().replace(/\s+/g, '-');
@@ -841,6 +892,10 @@ export function importerMalFil(json, filePath) {
 			data.id = uid();
 			delete data.builtinKey;
 			data.filePath = null;
+			// lenket innhold: backup hvis lenket mal ikke finnes i installasjonen
+			if (behandlLenketBackup(data)) {
+				toast.info('Malen inneholdt lenket innhold som ikke kunne kobles — innholdet er kopiert inn som vanlig tekst.');
+			}
 			const safe = safeNavn(navn);
 			const taken = new Set([...list.originaler, ...list.brukermaler].map((x) => x.path));
 			let p = `${list.dirs.brukermaler}/${safe}.limal`;

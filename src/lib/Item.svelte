@@ -16,8 +16,16 @@
 
 	let { it, si, ii, bokstav = null } = $props();
 
-
 	const TYPE_LABEL = { tekst: 'Tekst', instruks: 'Instruks', salme: 'Salme', lesning: 'Lesning', bønn: 'Bønn' };
+
+	// dynamisk bibeltekst-kobling (Bibeltekster-fanen i mal-innstillingene)
+	const BIBEL_TITTEL = { L1: 'Første lesning', L2: 'Andre lesning', E: 'Evangelium' };
+	const bibelkobling = $derived(
+		(() => {
+			const kobling = (app.current?.bibeltekster ?? []).find((b) => b.leddId === it.id);
+			return kobling ? { lesning: kobling.lesning, tittel: BIBEL_TITTEL[kobling.lesning] ?? kobling.lesning } : null;
+		})()
+	);
 
 	const o = $derived(app.current);
 	const items = $derived(o.sections[si].items);
@@ -333,9 +341,13 @@
 		<span class="item-eyebrow">
 			{TYPE_LABEL[it.type] ?? 'Tekst'}{#if it.alts && it.alts.length}&nbsp;· {it.alts.length} alternativer{/if}
 		</span>
-		<span class="item-title" contenteditable={!it.__lenket} spellcheck="false"
+		<span class="item-title" class:tom={!it.heading} contenteditable={!it.__lenket} spellcheck="false"
+			data-ph="Legg til tittel"
 			onblur={(e) => { if (e.target.textContent !== it.heading) { it.heading = e.target.textContent; markDirty(); } }}
 		>{it.heading}</span>
+		{#if bibelkobling}
+			<span class="dyn-badge" title="Dette leddet henter innhold dynamisk fra kirkeårets bibeltekster (koblet i malens Bibeltekster-innstillinger).">{@html mdi('database-outline', 13)} {bibelkobling.tittel}</span>
+		{/if}
 		{#if it.__lenket}
 			<span class="lenket-info" title="Dette leddet hentes automatisk fra malen «Dåp i hovedgudstjenesten» — innholdet redigeres i den malen, ikke her. Åpne «Dåp i hovedgudstjenesten» i Maler-listen for å redigere dåpsdelen.">{@html mdi('information-outline', 14)}</span>
 		{/if}

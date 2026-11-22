@@ -218,6 +218,19 @@ test('ingen «gudtjeneste» uten s i kodebasen (kernel-skrivefelle)', () => {
 	assert.deepStrictEqual(treff, [], 'funnet «gudtjeneste» uten s: ' + treff.join(' | '));
 });
 
+test('dynamisk bibeltekst: originalmalenes koblinger peker på gyldige ledd', () => {
+	const gyldige = { L1: 'Første lesning', L2: 'Andre lesning', E: 'Evangelium' };
+	const maler = BUILTIN_TEMPLATES.filter((t) => t.bibeltekster);
+	assert.ok(maler.length >= 2, 'HG og Konfirmasjon skal ha bibeltekster-koblinger');
+	for (const t of maler) {
+		const leddIder = new Set(t.sections.flatMap((sec) => sec.items.map((it) => it.id)));
+		for (const k of t.bibeltekster) {
+			assert.ok(gyldige[k.lesning], `${t.name}: ukjent lesning ${k.lesning}`);
+			assert.ok(leddIder.has(k.leddId), `${t.name}: kobling ${k.lesning} peker på manglende ledd ${k.leddId}`);
+		}
+	}
+});
+
 test('prompt() må alltid importeres fra modal.svelte.js (window.prompt krasjer i Electron)', () => {
 	// window.prompt er ikke støttet i Electron — «Nytt hovedavsnitt» krasjet
 	// stille fordi Item.svelte manglet prompt-import (22. nov).

@@ -80,11 +80,13 @@ function refPaaSlutt(t) {
 }
 
 /** Leddtittel i ren tekst: kort linje uten avsluttende tegn. Siffer-start
- *  (salmevers «1 Måne og sol …») og refs er aldri titler. */
+ *  (salmevers «1 Måne og sol …») og refs er aldri titler. Hele
+ *  parenteser («(x2)») er rubrikk — men «Hallelujaomkved (977.4 …)» er tittel. */
 const erTittelLinje = (t) => t.length >= 2 && t.length <= 60
   && !/^\d/.test(t)
+  && !/^\(.*\)$/.test(t)
   && !/^(BIBELREF|[a-zæøå]{2,}\.?\s?\d+(?:[,–-]\d+)*)$/i.test(t)
-  && !/[.,:;!?»)]$/.test(t);
+  && !/[.,:;!?»]$/.test(t);
 
 // ---------- docx-parsing (unzip + XML) ----------
 function lesDocx(fil) {
@@ -177,7 +179,12 @@ function byggStruktur(avsnitt, advarsler) {
 
   for (const p of avsnitt) {
     const t = p.tekst;
-    if (!t) { forrigeTekst = ''; continue; }
+    if (!t) {
+      // bevare tomme linjer i salmer (vers/refreng-formatering)
+      if (item?.type === 'salme' && item.text && !item.text.endsWith('\n')) item.text += '\n';
+      forrigeTekst = '';
+      continue;
+    }
     const stil = p.stil || '';
     const forste = p.runs[0] ?? { bold: false, italic: false };
     const erRubrikkStil = stil === 'rubrikk' || stil === 'rubrikk1' || (forste.italic && !forste.bold);
@@ -190,8 +197,10 @@ function byggStruktur(avsnitt, advarsler) {
     // 2) sidetall («1/ 16») — hopp over
     if (erSidetall(t)) { forrigeTekst = ''; continue; }
 
-    // 3) opphavsrett («T 1973 …», «M ©…», «© Norsk Musikforlag…») → @COPYRIGHT
-    if (erCopyright(t)) {
+    // 3) opphavsrett («T 1973 …», «M ©…», «© Norsk Musikforlag…») → @COPYRIGHT.
+    //    I salmer er T/M/O ALLTID kreditering (T = tekstforfatter, M = melodiforfatter,
+    //    O = oversetter) — aldri roller.
+    if (erCopyright(t) || (item?.type === 'salme' && /^[TMO]\s/.test(t))) {
       if (item) item.text += (item.text ? '\n' : '') + '@COPYRIGHT | ' + t;
       forrigeTekst = ''; continue;
     }
@@ -245,11 +254,12 @@ function byggStruktur(avsnitt, advarsler) {
       forrigeTekst = ''; continue;
     }
 
-    // 9) rolle («L | …», «Prest:», «Klokker / dåpsfølge  …»)
+    // 9) rolle («L | …», «Prest:», «Klokker / dåpsfølge  …»). Rollelinjer
+    //    hører til leddet de står i — i malene er leddgrensene titler, ikke
+    //    rolleskifter (sml. seed-malene der ett ledd kan ha L- + ML/L-linjer).
     const rolle = finnRolle(t);
     if (rolle) {
-      // etter en «naken» tittel: rollen hører til samme ledd
-      if (!item || item.text || item.instr || item.type !== 'tekst') nyttLedd('');
+      if (!item || item.type !== 'tekst') nyttLedd('');
       item.text += (item.text ? '\n' : '') + '{{r}}' + rolle.rolle + ' |{{/r}} ' + rolle.rest;
       forrigeTekst = t; // rollens tekstlinjer fortsetter — neste linje er ikke tittel
       continue;
@@ -258,14 +268,27 @@ function byggStruktur(avsnitt, advarsler) {
     // 10) leddtittel i ren tekst: kort linje uten avsluttende tegn, etter
     //     blank/punkt-slutt/annen tittel. «Omkved»/«Refreng» og vers i
     //     salmer er tekst. Ref klebt på tittelen («Evangelium: Matt 6,24-34»)
-    //     flyttes ut som BIBELREF.
+    //     flyttes ut som BIBELREF; leser-angivelse («Første lesning
+    //     v/klokker: Neh 9,19-21») ryddes — v/del + ref blir BIBELREF.
     const grense = !forrigeTekst || /[.!?»]$/.test(forrigeTekst) || /^Amen\.?$/.test(forrigeTekst) || forrigeVarTittel;
     const erOmkved = /^(omkved|refreng|amen)\.?$/i.test(t);
     if (!erOmkved && item?.type !== 'salme' && !rolleRe.test(t) && grense && erTittelLinje(t)) {
-      const tRef = refPaaSlutt(t);
-      const tittel = tRef?.foran ? tRef.foran.replace(/[:\s]+$/, '') : t.replace(/\s*\|\s*/g, ' ');
+      let tittel = t.replace(/\s*\|\s*/g, ' ');
+      let tittelRef = null;
+      // «… v/klokker: Neh 9,19-21» — leser-angivelse + ref etter tittelen
+      const lesning = tittel.match(/^(.*?)\s+v\/[A-Za-zæøå]+\s*:?\s+([1-3]?\s?[A-ZÆØÅ][a-zæøå]+\.?\s+\d+(?:\s?[,;–-]\s?\d+)*[a-z]?)\s*$/);
+      if (lesning) {
+        tittel = trim(lesning[1]);
+        tittelRef = trim(lesning[2]).replace(/^([1-3]?)\s*([A-ZÆØÅ][a-zæøå]+)\.?\s+(\d)/, (a, kap, bok, siffer) => (kap ? kap + ' ' : '') + bok + ' ' + siffer);
+      } else {
+        const tRef = refPaaSlutt(tittel);
+        if (tRef?.foran) {
+          tittel = tRef.foran.replace(/[:\s]+$/, '');
+          tittelRef = tRef.ref;
+        }
+      }
       nyttLedd(tittel);
-      if (tRef?.foran && tRef.ref) item.text = 'BIBELREF | ' + tRef.ref;
+      if (tittelRef) item.text = 'BIBELREF | ' + tittelRef;
       forrigeVarTittel = true;
       continue;
     }
@@ -289,6 +312,34 @@ function byggStruktur(avsnitt, advarsler) {
   return ut;
 }
 
+/** Refreng-formatering: «Omkved»/«Refreng»-linjen + teksten til neste vers
+ *  pakkes i {{refreng}}…{{/refreng}} (kursiv i visningen — samme struktur
+ *  som malene bruker). Vers gjenkjennes på ledende siffer. */
+function pakkRefrenger(salmeTekst) {
+  const linjer = salmeTekst.split('\n');
+  const ut = [];
+  let i = 0;
+  while (i < linjer.length) {
+    const l = linjer[i];
+    if (/^(omkved|refreng)\b:?$/i.test(l.trim())) {
+      const blokk = [l];
+      i++;
+      while (i < linjer.length && !/^\d/.test(linjer[i].trim()) && !/^(omkved|refreng)\b:?$/i.test(linjer[i].trim())) {
+        blokk.push(linjer[i]);
+        i++;
+      }
+      while (blokk.length && !blokk[blokk.length - 1].trim()) blokk.pop();
+      ut.push('{{refreng}}');
+      ut.push(...blokk);
+      ut.push('{{/refreng}}');
+    } else {
+      ut.push(l);
+      i++;
+    }
+  }
+  return ut.join('\n');
+}
+
 /** Konverter docx/pdf → mal-objekt. Kaster med lesbar feil ved problemer. */
 function konverterLiturgi(fil, { navn, type, maalform } = {}) {
   const ext = path.extname(fil).toLowerCase();
@@ -302,6 +353,12 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
     throw new Error('Ustøttet filtype (bruk .docx eller .pdf): ' + ext);
   }
   const seksjoner = byggStruktur(avsnitt, advarsler);
+  // refreng-formatering i salmer: «Omkved»/«Refreng»-blokker pakkes
+  for (const sec of seksjoner) {
+    for (const it of sec.items) {
+      if (it.type === 'salme' && it.text) it.text = pakkRefrenger(it.text);
+    }
+  }
   const navn2 = navn ?? path.basename(fil, path.extname(fil));
   const mal = {
     id: navn2.toLowerCase().replace(/[^a-z0-9æøå]+/g, '-').replace(/^-|-$/g, '') || uid('mal'),

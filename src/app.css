@@ -535,6 +535,30 @@ input[type='date'] { background: var(--panel2); color: var(--text); border: 1px 
 .item-head { display: flex; align-items: center; gap: 8px; }
 .item-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
 .item-title { font-weight: 700; font-size: 15.5px; cursor: text; }
+/* tomt tittelfelt: klikkbart placeholder («Legg til tittel») */
+.item-title.tom:empty::before {
+	content: attr(data-ph);
+	color: var(--muted);
+	opacity: 0.55;
+	font-weight: 400;
+	font-style: italic;
+	pointer-events: none;
+}
+/* dynamisk bibeltekst-kobling (Bibeltekster-fanen) */
+.m-bibeltekster { max-width: 674px; margin: 0 auto; }
+.m-bibel-rad { align-items: center; }
+.m-bibel-navn { font-weight: 600; }
+.m-bibel-velg { min-width: 260px; }
+.dyn-badge {
+	display: inline-flex; align-items: center; gap: 4px;
+	font-size: 11px; font-weight: 600;
+	color: var(--accent);
+	background: var(--accent-dim);
+	border-radius: 99px;
+	padding: 2px 8px;
+	white-space: nowrap;
+	cursor: help;
+}
 .item-tools { margin-left: auto; display: flex; gap: 2px; }
 .item-tools button { border: none; background: none; color: var(--muted); cursor: pointer; padding: 2px 5px; font-size: 13px; border-radius: 4px; }
 .item-tools button:hover { color: var(--text); background: var(--panel2); }
