@@ -536,22 +536,24 @@ export async function loadTemplatesFromDisk() {
 		}
 
 		// 3) les alle maler fra disk (originaler først, så brukermaler).
-		// Dedupe på META-nivå: to filer med samme navn (f.eks. .liturgi + .limal
-		// etter en seed-skriving) gir duplikat-id i app.templates → duplikat-nøkkel
-		// i Maler-listens keyed each → Svelte-krasj. Behold NYESTE fil per navn.
+		// Dedupe på ID-nivå: ekte duplikater (.liturgi + .limal etter en
+		// seed-skriving) har samme id → behold nyeste. Like navn med ULIKT
+		// innhold er to ulike maler (f.eks. nynorsk-kopi som heter det samme
+		// som en original) og skal begge vises i listen.
 		const list2 = await window.liturgi.listTemplates();
 		if (!list2.ok) return;
-		const metaPerNavn = new Map();
+		const idPerNyeste = new Map(); // id -> { meta, data, mtime }
 		for (const meta of [...list2.originaler, ...list2.brukermaler]) {
-			const gammel = metaPerNavn.get(meta.name);
-			if (!gammel || (meta.mtime ?? 0) >= (gammel.mtime ?? 0)) metaPerNavn.set(meta.name, meta);
-		}
-		const disk = [];
-		for (const meta of metaPerNavn.values()) {
 			const rd = await window.liturgi.readTemplate(meta.path);
 			if (!rd.ok) continue;
 			const data = parseLiturgi(rd.json);
 			if (!data) continue;
+			const entry = { meta, data, mtime: meta.mtime ?? 0 };
+			const gammel = idPerNyeste.get(data.id);
+			if (!gammel || entry.mtime >= gammel.mtime) idPerNyeste.set(data.id, entry);
+		}
+		const disk = [];
+		for (const { meta, data } of idPerNyeste.values()) {
 			data.filePath = meta.path;
 			data.kind = 'template';
 			if (!data.builtinKey) data.builtinKey = 'original-' + safeNavn(data.name).toLowerCase().replace(/\s+/g, '-');
@@ -563,7 +565,7 @@ export async function loadTemplatesFromDisk() {
 		const diskIder = new Set(disk.map((d) => d.id));
 		for (const data of disk) {
 			if (!behandlLenketBackup(data, diskIder)) continue;
-			const meta = metaPerNavn.get(data.name);
+			const meta = idPerNyeste.get(data.id)?.meta;
 			if (meta) await window.liturgi.writeTemplate(meta.path, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '	'));
 			toast.info('Malen «' + (data.name ?? 'uten navn') + '» inneholdt lenket innhold som er kopiert inn (lenket mal finnes ikke).');
 		}
