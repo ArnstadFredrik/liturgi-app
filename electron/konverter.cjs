@@ -421,7 +421,9 @@ function grupperEllerLedd(seksjoner) {
       let slukt = false;
       if ((m || mV) && ut.length) {
         const base = ut[ut.length - 1];
-        const egnet = base.type !== 'salme' && ((base.text ?? '').trim() || (base.alts ?? []).length);
+        // nummererte leddheadinger («4 Samlingsbønn», «9 Første lesning») er
+        // malens skjelett — de skal aldri slukes som varianter
+        const egnet = base.type !== 'salme' && !/^\d+[\s.]/.test((base.heading ?? '').trim()) && ((base.text ?? '').trim() || (base.alts ?? []).length);
         // tom tittelledd (kun heading, ingen tekst): variantene som følger
         // hører til denne — de blir alts[] uten at tittelen blir en variant
         const tomTittel = !egnet && base.type !== 'salme' && !(base.text ?? '').trim() && !(base.alts ?? []).length && (base.heading ?? '').trim();
@@ -476,7 +478,7 @@ function grupperSerier(seksjoner) {
       // følgende under-ledd (tom-tittel) fordeles til siste serie før neste prefiks
       // holder: en tom tittelledd rett før serien (f.eks. «*21 Takkseiing …»)
       const forrige = ut[ut.length - 1];
-      const brukForrige = forrige && !(forrige.text ?? '').trim() && !(forrige.alts ?? []).length && (forrige.heading ?? '').trim() && forrige.type !== 'salme';
+      const brukForrige = forrige && !(forrige.text ?? '').trim() && !(forrige.alts ?? []).length && (forrige.heading ?? '').trim() && forrige.type !== 'salme' && !/^\d+[\s.]/.test((forrige.heading ?? '').trim());
       const holder = brukForrige
         ? forrige
         : { type: serier[0].ledd.type ?? 'tekst', heading: prefiks[0].toUpperCase() + prefiks.slice(1), text: '', alts: [], selAlt: 0 };
