@@ -17,8 +17,8 @@ export function prompt(title, label, ok, def = '') {
 	showModal({ type: 'prompt', title, label, def, ok });
 }
 
-export function confirmBox(title, message, ok) {
-	showModal({ type: 'confirm', title, message, ok });
+export function confirmBox(title, message, ok, okLabel) {
+	showModal({ type: 'confirm', title, message, ok, okLabel });
 }
 
 /** Ny lokal mal: tomt utgangspunkt eller kopi av en eksisterende mal.

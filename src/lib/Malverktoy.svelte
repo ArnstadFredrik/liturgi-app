@@ -75,9 +75,12 @@
 <div id="malverktoy">
 	<h1>Malverktøy <span class="dev-merke">DEV</span></h1>
 	<p class="beskrivelse">
-		Rediger originalmalene som følger programmet. Endringene lagres tilbake i
-		<code>src/lib/data.js</code> og i seed-filene under
+		Rediger originalmalene som følger programmet. Alle endringer lagres
+		tilbake i <code>src/lib/data.js</code> og i seed-filene under
 		<code>~/.config/Liturgi/maler/</code>, slik at de blir med i byggprosessen.
+		«Lagre til prosjektet» lagrer endringene dine (wip-status beholdes —
+		malen forblir uverifisert). «Bekreft» fjerner wip-status OG lagrer
+		til prosjektet — malen blir da offisiell og kommer med i Opprett.
 		Denne modulen finnes ikke i pakkede utgaver.
 	</p>
 

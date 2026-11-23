@@ -135,15 +135,22 @@ export async function slettUtkast(fil) {
  *  wip-statusen bor i malen selv. */
 export async function bekreftWipMal(t) {
 	const { confirmBox } = await import('$lib/modal.svelte.js');
-	confirmBox('Bekreft utkast', `Bekrefte «${t.name}» som ferdig kontrollert?`, async () => {
+	confirmBox('Bekreft wip-mal', `Bekrefte «${t.name}» som ferdig kontrollert? Wip-statusen fjernes og malen lagres tilbake til prosjektet.`, async () => {
 		t.wip = false;
 		if (t.filePath) {
 			const data = JSON.parse(JSON.stringify(t));
 			for (const k of ['filePath', 'kind', 'builtinKey', '__devMal', '__devId', '__devKey']) delete data[k];
 			await window.liturgi.writeTemplate(t.filePath, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '\t'));
+			// originalmaler har seed i src/lib/data.js — wip-fjerningen må inn i
+			// seeden også, ellers regenererer oppstartssjekken filen med wip tilbake
+			const r = await window.liturgi.lagreDataJs(data).catch(() => null);
+			if (r && r.ok === false) {
+				toast.error((r.error ?? 'Klarte ikke lagre seeden') + (r.utkast ? ' — utkast lagret i ~/.config/Liturgi/malutkast' : ''));
+				return;
+			}
 		}
-		toast.success('Utkastet er bekreftet — «' + t.name + '» er nå med i Opprett');
-	});
+		toast.success('«' + t.name + '» er bekreftet og lagret til prosjektet — nå med i Opprett');
+	}, 'Bekreft');
 }
 
 /** Lagre åpen dev-mal tilbake til src/lib/data.js + seed-filen på disk. */

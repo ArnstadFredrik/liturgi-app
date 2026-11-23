@@ -273,7 +273,7 @@ test('opprett-modulen: gudtjeneste-listen viser originalmalene (ikke dåp-i-HG)'
 			assert.strictEqual(t.kanGudstjeneste, false, 'dåp-i-HG mangler kanGudstjeneste=false');
 			continue;
 		}
-		if (malType(t) === 'gudstjeneste' && kanBrukes) assert.ok(ider.includes(t.id), 'gudstjeneste-listen mangler ' + t.id);
+		if (malType(t) === 'gudstjeneste' && t.wip !== true) assert.ok(ider.includes(t.id), 'gudstjeneste-listen mangler ' + t.id);
 	}
 	// deaktiverte (Bakke og Gyland) kommer ikke fra frøet
 	assert.ok(!liste.some((t) => t.id === 'bakke-gyland-2025'), 'deaktivert mal i listen');

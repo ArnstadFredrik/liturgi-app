@@ -190,7 +190,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "{{r}}L |{{/r}} La oss alle be.\n[Dagens bønn]\n{{r}}M |{{/r}} Amen.",
 						"alts": [],
 						"selAlt": 0
-					}
+					},
 				]
 			},
 			{
@@ -4111,7 +4111,386 @@ export const BUILTIN_TEMPLATES = [
 	"alternativer": [
 		"nattverd"
 	]
-}
+},
+	{
+		"id": "dåp-i-hovedgudstjenesten-2017-nynorsk",
+		"kategori": "Dåp og konfirmasjon",
+		"oversettelser": [
+			"dop-i-hovedgudstjenesten-2017"
+		],
+		"name": "Dåp i hovedgudstjenesten (2017)",
+		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
+		"kanGudstjeneste": false,
+		"sections": [
+			{
+				"title": "Dåp i hovedgudstjenesten",
+				"items": [
+					{
+						"id": "dap-nn-dåp",
+						"type": "tekst",
+						"heading": "DÅP",
+						"instr": "Dåp i hovedgudstjenesten skjer normalt her (ettersatt foran Dagens bønn i ordningen). Ordningen er vedteke av Kyrkjemøtet 2017.",
+						"text": "",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": null,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-1-mottaking-til-dåp",
+						"type": "tekst",
+						"heading": "1 Mottaking til dåp",
+						"instr": "",
+						"text": "",
+						"alts": [
+							{
+								"label": "Ved dåp av born",
+								"text": "{{r}}L |{{/r}} Med takk og glede kjem vi i dag med dette barnet/desse borna til Gud i den heilage dåpen. I dåpen tek Gud imot oss og sameinar oss med den krossfeste og oppstadne Jesus Kristus."
+							},
+							{
+								"label": "Ved dåp av større born, unge eller vaksne",
+								"text": "{{r}}L |{{/r}} Med takk og glede kjem vi i dag med NN/dere til Gud i den heilage dåpen. I dåpen tak Gud imot oss og sameinar oss med den korsfestede og oppstandne Jesus Kristus."
+							}
+						],
+						"introAlts": [
+							{
+								"label": "Mottaking",
+								"text": "{{r}}L |{{/r}} I namnet åt Faderen og Sonen og Den heilage ande."
+							},
+							{
+								"label": "Eller",
+								"text": "{{r}}L |{{/r}} I namnet åt Faderen og Sonen og Den heilage ande: Vår skapar, frigjerar og livgjevar."
+							}
+						],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-bibelord",
+						"type": "tekst",
+						"heading": "Bibelord",
+						"instr": "Ved dåp av større born, unge eller vaksne kan eventuelt ein av desse tekstane koma i staden for Markus-teksten.",
+						"text": "",
+						"alts": [
+							{
+								"label": "Mark 10,13–16",
+								"text": "{{r}}L |{{/r}} Høyr kor venleg Jesus tek imot borna og opnar Gudsrike for dei:\n@NOTAT Ein i dåpsfølgjet, ein annan medliturg eller liturgen les teksten:\n{{r}}ML/L |{{/r}} Dei bar små born til Jesus for at han skulle røra ved dei, men læresveinane viste dei bort. Då Jesus såg det, vart han sint og sa til dei: «Lat småborna koma til meg og hindra dei ikkje! For Guds rike høyrer slike til. Sanneleg, eg seier dykk: Den som ikkje tek imot Guds rike slik som eit lite barn, skal ikkje koma inn i det.» Så tok han dei inn til seg, la hendene på dei og velsigna dei.\nBIBELREF | Mark 10,13–16"
+							},
+							{
+								"label": "Tit 3,4–7",
+								"text": "{{r}}L |{{/r}} Høyr kva apostelen Paulus seier om dåpen:\nBIBELREF | Tit 3,4–7"
+							},
+							{
+								"label": "Joh 3,1–5",
+								"text": "{{r}}L |{{/r}} Jesus seier at vi blir fødde på nytt i dåpen:\n{{r}}ML/L |{{/r}} Det var ein mann som heitte Nikodemus. Han var farisear og sat i Rådet til jødane. Han kom til Jesus om natta og sa: «Rabbi, vi veit at du er ein lærar som er komen frå Gud, for ingen kan gjera dei teikna du gjer, utan at Gud er med han.» Jesus svara og sa til han: «Sanneleg, sanneleg, eg seier deg: Den som ikkje blir fødd på nytt, kan ikkje sjå Guds rike.» Nikodemus seier til han: «Korleis kan ein som er gammal, bli fødd? Ein kan vel ikkje koma inn i morslivet igjen og bli fødd andre gongen?» Jesus svara: «Sanneleg, sanneleg, eg seier deg: Den som ikkje blir fødd av vatn og Ande, kan ikkje koma inn i Guds rike.»\nBIBELREF | Joh 3,1–5"
+							},
+							{
+								"label": "Rom 6,3–8",
+								"text": "{{r}}L |{{/r}} Høyr kva apostelen Paulus seier om dåpen:\n{{r}}ML/L |{{/r}} Veit de ikkje at alle vi som vart døypte til Kristus Jesus, vart døypte til døden hans? Vi vart gravlagde med han då vi vart døypte med denne dåpen til døden. Og slik Kristus vart oppreist frå dei døde ved sin Fars herlegdom, skal vi òg vandra i eit nytt liv. Har vi vakse saman med Kristus i ein død som er lik hans, skal vi òg vera eitt med han i ei oppstode som er lik hans. Vi veit at vårt gamle menneske vart krossfest med han, for at den kroppen som er underlagd synda, skulle gjerast til inkjes og vi ikkje lenger skulle vera slavar under synda. For synda har ikkje lenger nokon rett over den som er død. Men er vi døde med Kristus, trur vi at vi òg skal leva med han.\nBIBELREF | Rom 6,3–8"
+							}
+						],
+						"introAlts": [
+							{
+								"label": "Skriftord",
+								"text": "@NOTAT Her kan ein lesa følgjande skriftord:\n{{r}}L |{{/r}} For så elska Gud verda at han gav Son sin, den einborne, så kvar den som trur på han, ikkje skal gå tapt, men ha evig liv.\nBIBELREF | Joh 3,16"
+							}
+						],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-takkebønn",
+						"type": "tekst",
+						"heading": "Takkebønn",
+						"instr": "Her, eller før den avsluttande lovprisninga (1 Pet 1,3), kan liturgen kort seie noko om den aktuelle dåpshandlinga.",
+						"text": "{{r}}L |{{/r}} Lat oss takka og be:\n{{r}}L/ML |{{/r}} Evige Gud, du som gjev liv til alt som lever, og har skapt oss i ditt bilete: Vi takkar deg for NN/NN (fornamn) som i dag skal bli døypt/døypte. Ho/Han/Dei er dyrebar(e) i dine auge. Ver hos henne/han/dei med din kjærleik og gje henne/han/dei ein heim i di kyrkje.\nAmen.",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-2-dåpssalme",
+						"type": "tekst",
+						"heading": "2 Dåpssalme",
+						"instr": "Ein dåpssalme kjem anten her, før 1 Mottaking til dåp, før 4 Fadderansvaret eller som avslutning av dåpshandlinga.",
+						"text": "",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-3-dåpsbefalinga",
+						"type": "tekst",
+						"heading": "3 Dåpsbefalinga",
+						"instr": "Ein i dåpsfølgjet, ein annan medliturg eller liturgen les teksten:",
+						"text": "{{r}}L |{{/r}} Lat oss høyra Jesu ord og bod om den heilage dåpen:\n{{r}}ML/L |{{/r}} Eg har fått all makt i himmelen og på jorda. Gå difor og gjer alle folkeslag til læresveinar: Døyp dei til namnet åt Faderen og Sonen og Den heilage ande og lær dei å halda alt det som eg har bode dykk. Og sjå, eg er med dykk alle dagar så lenge verda står.\nBIBELREF | Matt 28, 18–20",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-4-fadderansvaret",
+						"type": "tekst",
+						"heading": "4 Fadderansvaret",
+						"instr": "",
+						"text": "",
+						"alts": [
+							{
+								"label": "Ved dåp av born",
+								"text": "{{r}}L |{{/r}} Vil foreldre og fadrar reisa seg.\nDe skal vera vitne om at dette barnet/desse borna er døypt/døypte med den kristne dåpen. Saman med kyrkjelyden vår og heile kyrkja får de del i eit heilagt ansvar: å visa omsorg for henne/han/dei, be for henne/han/dei, læra henne sjølv/han sjølv/dei sjølve å be og hjelpa henne/han/dei til å bruka Guds ord og delta i den heilage nattverden, så ho/han/dei kan leva og veksa i den kristne trua."
+							},
+							{
+								"label": "Ved dåp av større born, unge eller vaksne",
+								"text": "{{r}}L |{{/r}} Vil (foreldre og) fadrar reisa seg.\nDe skal vera vitne om at NN/desse er døypt/døypte med den kristne dåpen. Saman med kyrkjelyden vår og heile kyrkja får de del i eit heilagt ansvar: å visa omsorg for henne/han/dei, be for henne/han/dei og hjelpa henne/han/dei til å bruka Guds ord og delta i den heilage nattverden, så ho/han/dei kan leva og veksa i den kristne trua."
+							}
+						],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-5-forsakinga-og-trua",
+						"type": "tekst",
+						"heading": "5 Forsakinga og trua",
+						"instr": "Den apostoliske trusvedkjenninga.",
+						"text": "{{r}}A |{{/r}} Eg forsakar djevelen og alle hans gjerningar og alt hans vesen. Eg trur på Gud Fader, den allmektige, som skapte himmel og jord.\nEg trur på Jesus Kristus, Guds einborne Son, vår Herre, som vart avla ved Den heilage ande, fødd av Maria møy, pint under Pontius Pilatus, vart krossfest, døydde og vart gravlagd, fór ned til dødsriket, stod opp frå dei døde tredje dagen, fór opp til himmelen, sit ved høgre handa åt Gud, den allmektige Fader, skal koma att derifrå og døma levande og døde.\nEg trur på Den heilage ande, ei heilag, allmenn kyrkje, eit samfunn av dei heilage, forlating for syndene, oppstoda av lekamen og evig liv.\nAmen.",
+						"alts": [],
+						"introAlts": [
+							{
+								"label": "Ved dåp av born",
+								"text": "{{r}}L |{{/r}} Lat oss saman vedkjennast forsakinga og trua, som vi blir døypte til.\n@NOTAT Alle reiser seg."
+							},
+							{
+								"label": "Ved dåp av større born, unge eller vaksne",
+								"text": "{{r}}L |{{/r}} Vil du saman med denne kyrkjelyden vedkjennast forsakinga og trua som vi blir døypte til?\n{{r}}Dåpskandidaten |{{/r}} Ja.\n@NOTAT Dåpskandidaten kan om nødvendig her og ved dåpshandlinga gje stadfestande svar på andre måtar enn med verbalt språk. Dei som sjølve kan svara på spørsmålet, blir først spurde. Når alle har svara, seier liturgen:\n{{r}}L |{{/r}} Lat oss saman vedkjennast forsakinga og trua.\n@NOTAT Alle reiser seg."
+							}
+						],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-6-dåpshandlingen",
+						"type": "tekst",
+						"heading": "6 Dåpshandlingen",
+						"instr": "",
+						"text": "",
+						"alts": [
+							{
+								"label": "Ved dåp av born",
+								"text": "{{r}}L |{{/r}} Kva heiter barnet?\n@NOTAT Den som ber barnet, seier fornamnet på barnet.\n{{r}}L |{{/r}} Vil de at NN skal døypast til namnet åt Faderen og Sonen og Den heilage ande og oppsedast til eit liv i den kristne forsakinga og trua?\n@NOTAT Den som ber barnet, foreldra/dei føresatte og fadrane, svarar:\nJa."
+							},
+							{
+								"label": "Ved dåp av større born, unge eller vaksne",
+								"text": "{{r}}L |{{/r}} Kva heiter du?\n(Den som skal døypast, svarer sjølv ved å seia fornamnet sitt. Om nødvendig\nkan ein annan seia namnet..)\n{{r}}L |{{/r}} NN, vil du bli døypt til namnet åt Faderen og Sonen og Den heilage ande og leva i den kristne forsakinga og trua?\n(Den som skal døypast, svarar:)\nJa."
+							}
+						],
+						"introAlts": [
+							{
+								"label": "Bønn ved døypefonten",
+								"text": "@NOTAT Ein heller vatnet i døypefonten.\n{{r}}L |{{/r}} Miskunnsame Gud, vi takkar deg for at dåpsvatnet ved ditt ord er ei nådekjelde, der du tilgjev oss vår synd, frelser oss frå dødens makt og gjev oss lovnad om det evige livet. Send din Ande, så ho/han/dei som blir døypt/døypte, blir reist/reiste opp til det nye livet med Jesus Kristus, vår Herre.\n@NOTAT Mellom kvar dåp kan ein syngja eit vers frå ein høveleg salme. Dåpsfølgjet går fram til døypefonten."
+							}
+						],
+						"avslutningAlts": [
+							{
+								"label": "Korsets tegn, dåpen og velsigninga",
+								"text": "@NOTAT Liturgen vender seg mot andletet til barnets/dåpskandidaten og bed bøna med open handflate.\n{{r}}L |{{/r}} Gud vare din utgang og din inngang frå no og til evig tid. Eg teiknar deg med det heilage krossmerket ✠ til vitnemål om at du skal høyra den krossfeste og oppstadne Jesus Kristus til og tru på han.\n{{r}}L |{{/r}} NN, etter vår Herre Jesu Kristi ord og bod døyper eg deg til namnet åt Faderen og Sonen og Den heilage ande.\n@NOTAT Medan dette blir sagt, auser liturgen med handa rikeleg med vatn over hovudet til den som blir døypt, tre gonger.\n@NOTAT Liturgen legg, gjerne saman med fadrane, handa på hovudet til den døypte og seier:\n{{r}}L |{{/r}} Den allmektige Gud har no gjeve deg sin heilage Ande, fødd deg på nytt og teke deg inn i sin truande kyrkjelyd. Gud styrkje deg med sin nåde til det evige livet. Fred vere med deg."
+							}
+						],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-presentasjon-av-den-døpte",
+						"type": "tekst",
+						"heading": "Presentasjon av den døpte",
+						"instr": "",
+						"text": "@NOTAT Ein vender barnet mot kyrkjelyden og kan lyfta det opp. Større born, unge eller vaksne vender seg mot kyrkjelyden. Ein seier følgjande ord:\n{{r}}L |{{/r}} Dette er NN, Guds barn, døypt inn i vår kyrkjelyd og Kristi verdsvide kyrkje.",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-dåpslyset",
+						"type": "tekst",
+						"heading": "Dåpslyset",
+						"instr": "",
+						"text": "@NOTAT Etter kvar dåp og presentasjon kan ein tenna eit lys. Lystenning kan koma her eller under forbøna i gudstenesta. Liturgen kan seia:\n{{r}}L |{{/r}} Eit lys er tent for NN.\n@NOTAT Lysa set ein i ein lyshaldar. Når alle dåpslysa er tende, seier liturgen:\n{{r}}L |{{/r}} Jesus seier: «Eg er lyset i verda. Den som følgjer meg, skal ikkje vandra i mørkret, men ha livsens lys.»\nBIBELREF | Joh 8,12",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-7-bøn-og-lovprising",
+						"type": "tekst",
+						"heading": "7 Bøn og lovprising",
+						"instr": "Ein les bøna her eller under forbøna.",
+						"text": "",
+						"alts": [
+							{
+								"label": "A",
+								"text": "{{r}}ML/L |{{/r}} Trufaste Gud, vi takkar deg for dåpen, der du tek imot oss og kallar oss med namn. Vi bed for NN/borna/dei som er døypt/døypte i dag. Ver med henne/han/dei gjennom livet og vara henne/han/dei i dåpens nåde. Styrk foreldra og fadrane i oppgåva dei har fått.\nGud, høyr vår bøn."
+							},
+							{
+								"label": "B",
+								"text": "{{r}}ML/L |{{/r}} Trufaste Gud, Vi takkar deg for dåpen, der du tek oss inn i di kyrkje. Vi bed for NN/borna/dei som er døypt/døypte i dag. Hald di vernande hand over henne/han/dei, og gje kjærleik og visdom til alle som har ansvar for henne/han/dei.\nGud, høyr vår bøn."
+							},
+							{
+								"label": "C",
+								"text": "{{r}}ML/L |{{/r}} Trufaste Gud, vi takkar deg for dåpen, og for lovnaden om at Jesus er med oss alle våre dagar. Vi bed for NN/dei som er døypt/døypte i dag. Vara henne/han/dei i trua på deg, så ho/han/dei kan vandra i lyset og nå det evige målet i ditt rike.\nGud, høyr vår bøn."
+							}
+						],
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Lat oss takka og be."
+							}
+						],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-fadervår-dåpsliturgien",
+						"type": "tekst",
+						"heading": "Fadervår (dåpsliturgien)",
+						"instr": "Fadervår blir sagt fram. Dersom det er nattverd i gudstenesta, kan Fadervår utelatast her. Det er også høve til å bruka Fadervår etter 1977-liturgien.",
+						"text": "{{r}}A |{{/r}} Vår Far i himmelen.\nLat namnet ditt helgast.\nLat riket ditt koma.\nLat viljen din råda på jorda slik som i himmelen.\nGjev oss i dag vårt daglege brød,\nog tilgjev oss vår skuld,\nslik vi òg tilgjev våre skuldnarar.\nOg lat oss ikkje koma i freisting,\nmen frels oss frå det vonde.\nFor riket er ditt og makta og æra i all æve.\nAmen.",
+						"alts": [],
+						"introAlts": [
+							{
+								"label": "Innledning",
+								"text": "{{r}}L |{{/r}} Lat oss saman be den bøna Jesus har lært oss:"
+							}
+						],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-lovprisning",
+						"type": "tekst",
+						"heading": "Lovprisning",
+						"instr": "",
+						"text": "{{r}}L |{{/r}} Velsigna er Gud, vår Herre Jesu Kristi Far, han som i si store miskunn har fødd oss på nytt til ei levande von ved Jesu Kristi oppstode frå dei døde!\nBIBELREF | 1 Pet 1,3",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					},
+					{
+						"id": "dap-nn-evt-song",
+						"type": "tekst",
+						"heading": "Evt. song",
+						"instr": "Dåpsliturgien blir eventuelt avslutta med song, jf. rubrikk til punkt 2.",
+						"text": "",
+						"alts": [],
+						"introAlts": [],
+						"avslutningAlts": [],
+						"selAlt": 0,
+						"selIntro": 0,
+						"selAvsl": 0,
+						"enabled": true,
+						"optional": true,
+						"salmeNr": "",
+						"salmeTittel": ""
+					}
+				]
+			}
+		],
+		"visInstr": true,
+		"visRoles": true,
+		"visSalmeinfo": true,
+		"malForm": "nynorsk",
+		"wip": true,
+		"erOriginal": true,
+		"filnavn": "Dåp i hovedgudstjenesten (2017) (nynorsk)"
+	},
 ]
 
 /** DEAKTIVERTE MALER - ikke publisert med appen, men ligger her hvis den
@@ -5126,389 +5505,6 @@ export const DEAKTIVERTE_MALER = [
 		],
 		"malForm": "bokmål"
 	},
-	{
-		kategori: "Dåp og konfirmasjon",
-		filnavn: "Dåp i hovedgudstjenesten (2017) (nynorsk)",
-		erOriginal: true,
-
-		"id": "dåp-i-hovedgudstjenesten-2017-nynorsk",
-		"kategori": "Dåp og konfirmasjon",
-		"oversettelser": [
-		"dop-i-hovedgudstjenesten-2017"
-		],
-		"name": "Dåp i hovedgudstjenesten (2017)",
-		"description": "Grunnordningen for dåp i hovedgudstjenesten i bokmål, vedtatt av Kirkemøtet 2017.",
-		"kanGudstjeneste": false,
-		"sections": [
-		{
-			"title": "Dåp i hovedgudstjenesten",
-			"items": [
-				{
-					"id": "dap-nn-dåp",
-					"type": "tekst",
-					"heading": "DÅP",
-					"instr": "Dåp i hovedgudstjenesten skjer normalt her (ettersatt foran Dagens bønn i ordningen). Ordningen er vedteke av Kyrkjemøtet 2017.",
-					"text": "",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": null,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-1-mottaking-til-dåp",
-					"type": "tekst",
-					"heading": "1 Mottaking til dåp",
-					"instr": "",
-					"text": "",
-					"alts": [
-						{
-							"label": "Ved dåp av born",
-							"text": "{{r}}L |{{/r}} Med takk og glede kjem vi i dag med dette barnet/desse borna til Gud i den heilage dåpen. I dåpen tek Gud imot oss og sameinar oss med den krossfeste og oppstadne Jesus Kristus."
-						},
-						{
-							"label": "Ved dåp av større born, unge eller vaksne",
-							"text": "{{r}}L |{{/r}} Med takk og glede kjem vi i dag med NN/dere til Gud i den heilage dåpen. I dåpen tak Gud imot oss og sameinar oss med den korsfestede og oppstandne Jesus Kristus."
-						}
-					],
-					"introAlts": [
-						{
-							"label": "Mottaking",
-							"text": "{{r}}L |{{/r}} I namnet åt Faderen og Sonen og Den heilage ande."
-						},
-						{
-							"label": "Eller",
-							"text": "{{r}}L |{{/r}} I namnet åt Faderen og Sonen og Den heilage ande: Vår skapar, frigjerar og livgjevar."
-						}
-					],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-bibelord",
-					"type": "tekst",
-					"heading": "Bibelord",
-					"instr": "Ved dåp av større born, unge eller vaksne kan eventuelt ein av desse tekstane koma i staden for Markus-teksten.",
-					"text": "",
-					"alts": [
-						{
-							"label": "Mark 10,13–16",
-							"text": "{{r}}L |{{/r}} Høyr kor venleg Jesus tek imot borna og opnar Gudsrike for dei:\n@NOTAT Ein i dåpsfølgjet, ein annan medliturg eller liturgen les teksten:\n{{r}}ML/L |{{/r}} Dei bar små born til Jesus for at han skulle røra ved dei, men læresveinane viste dei bort. Då Jesus såg det, vart han sint og sa til dei: «Lat småborna koma til meg og hindra dei ikkje! For Guds rike høyrer slike til. Sanneleg, eg seier dykk: Den som ikkje tek imot Guds rike slik som eit lite barn, skal ikkje koma inn i det.» Så tok han dei inn til seg, la hendene på dei og velsigna dei.\nBIBELREF | Mark 10,13–16"
-						},
-						{
-							"label": "Tit 3,4–7",
-							"text": "{{r}}L |{{/r}} Høyr kva apostelen Paulus seier om dåpen:\nBIBELREF | Tit 3,4–7"
-						},
-						{
-							"label": "Joh 3,1–5",
-							"text": "{{r}}L |{{/r}} Jesus seier at vi blir fødde på nytt i dåpen:\n{{r}}ML/L |{{/r}} Det var ein mann som heitte Nikodemus. Han var farisear og sat i Rådet til jødane. Han kom til Jesus om natta og sa: «Rabbi, vi veit at du er ein lærar som er komen frå Gud, for ingen kan gjera dei teikna du gjer, utan at Gud er med han.» Jesus svara og sa til han: «Sanneleg, sanneleg, eg seier deg: Den som ikkje blir fødd på nytt, kan ikkje sjå Guds rike.» Nikodemus seier til han: «Korleis kan ein som er gammal, bli fødd? Ein kan vel ikkje koma inn i morslivet igjen og bli fødd andre gongen?» Jesus svara: «Sanneleg, sanneleg, eg seier deg: Den som ikkje blir fødd av vatn og Ande, kan ikkje koma inn i Guds rike.»\nBIBELREF | Joh 3,1–5"
-						},
-						{
-							"label": "Rom 6,3–8",
-							"text": "{{r}}L |{{/r}} Høyr kva apostelen Paulus seier om dåpen:\n{{r}}ML/L |{{/r}} Veit de ikkje at alle vi som vart døypte til Kristus Jesus, vart døypte til døden hans? Vi vart gravlagde med han då vi vart døypte med denne dåpen til døden. Og slik Kristus vart oppreist frå dei døde ved sin Fars herlegdom, skal vi òg vandra i eit nytt liv. Har vi vakse saman med Kristus i ein død som er lik hans, skal vi òg vera eitt med han i ei oppstode som er lik hans. Vi veit at vårt gamle menneske vart krossfest med han, for at den kroppen som er underlagd synda, skulle gjerast til inkjes og vi ikkje lenger skulle vera slavar under synda. For synda har ikkje lenger nokon rett over den som er død. Men er vi døde med Kristus, trur vi at vi òg skal leva med han.\nBIBELREF | Rom 6,3–8"
-						}
-					],
-					"introAlts": [
-						{
-							"label": "Skriftord",
-							"text": "@NOTAT Her kan ein lesa følgjande skriftord:\n{{r}}L |{{/r}} For så elska Gud verda at han gav Son sin, den einborne, så kvar den som trur på han, ikkje skal gå tapt, men ha evig liv.\nBIBELREF | Joh 3,16"
-						}
-					],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-takkebønn",
-					"type": "tekst",
-					"heading": "Takkebønn",
-					"instr": "Her, eller før den avsluttande lovprisninga (1 Pet 1,3), kan liturgen kort seie noko om den aktuelle dåpshandlinga.",
-					"text": "{{r}}L |{{/r}} Lat oss takka og be:\n{{r}}L/ML |{{/r}} Evige Gud, du som gjev liv til alt som lever, og har skapt oss i ditt bilete: Vi takkar deg for NN/NN (fornamn) som i dag skal bli døypt/døypte. Ho/Han/Dei er dyrebar(e) i dine auge. Ver hos henne/han/dei med din kjærleik og gje henne/han/dei ein heim i di kyrkje.\nAmen.",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-2-dåpssalme",
-					"type": "tekst",
-					"heading": "2 Dåpssalme",
-					"instr": "Ein dåpssalme kjem anten her, før 1 Mottaking til dåp, før 4 Fadderansvaret eller som avslutning av dåpshandlinga.",
-					"text": "",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-3-dåpsbefalinga",
-					"type": "tekst",
-					"heading": "3 Dåpsbefalinga",
-					"instr": "Ein i dåpsfølgjet, ein annan medliturg eller liturgen les teksten:",
-					"text": "{{r}}L |{{/r}} Lat oss høyra Jesu ord og bod om den heilage dåpen:\n{{r}}ML/L |{{/r}} Eg har fått all makt i himmelen og på jorda. Gå difor og gjer alle folkeslag til læresveinar: Døyp dei til namnet åt Faderen og Sonen og Den heilage ande og lær dei å halda alt det som eg har bode dykk. Og sjå, eg er med dykk alle dagar så lenge verda står.\nBIBELREF | Matt 28, 18–20",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-4-fadderansvaret",
-					"type": "tekst",
-					"heading": "4 Fadderansvaret",
-					"instr": "",
-					"text": "",
-					"alts": [
-						{
-							"label": "Ved dåp av born",
-							"text": "{{r}}L |{{/r}} Vil foreldre og fadrar reisa seg.\nDe skal vera vitne om at dette barnet/desse borna er døypt/døypte med den kristne dåpen. Saman med kyrkjelyden vår og heile kyrkja får de del i eit heilagt ansvar: å visa omsorg for henne/han/dei, be for henne/han/dei, læra henne sjølv/han sjølv/dei sjølve å be og hjelpa henne/han/dei til å bruka Guds ord og delta i den heilage nattverden, så ho/han/dei kan leva og veksa i den kristne trua."
-						},
-						{
-							"label": "Ved dåp av større born, unge eller vaksne",
-							"text": "{{r}}L |{{/r}} Vil (foreldre og) fadrar reisa seg.\nDe skal vera vitne om at NN/desse er døypt/døypte med den kristne dåpen. Saman med kyrkjelyden vår og heile kyrkja får de del i eit heilagt ansvar: å visa omsorg for henne/han/dei, be for henne/han/dei og hjelpa henne/han/dei til å bruka Guds ord og delta i den heilage nattverden, så ho/han/dei kan leva og veksa i den kristne trua."
-						}
-					],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-5-forsakinga-og-trua",
-					"type": "tekst",
-					"heading": "5 Forsakinga og trua",
-					"instr": "Den apostoliske trusvedkjenninga.",
-					"text": "{{r}}A |{{/r}} Eg forsakar djevelen og alle hans gjerningar og alt hans vesen. Eg trur på Gud Fader, den allmektige, som skapte himmel og jord.\nEg trur på Jesus Kristus, Guds einborne Son, vår Herre, som vart avla ved Den heilage ande, fødd av Maria møy, pint under Pontius Pilatus, vart krossfest, døydde og vart gravlagd, fór ned til dødsriket, stod opp frå dei døde tredje dagen, fór opp til himmelen, sit ved høgre handa åt Gud, den allmektige Fader, skal koma att derifrå og døma levande og døde.\nEg trur på Den heilage ande, ei heilag, allmenn kyrkje, eit samfunn av dei heilage, forlating for syndene, oppstoda av lekamen og evig liv.\nAmen.",
-					"alts": [],
-					"introAlts": [
-						{
-							"label": "Ved dåp av born",
-							"text": "{{r}}L |{{/r}} Lat oss saman vedkjennast forsakinga og trua, som vi blir døypte til.\n@NOTAT Alle reiser seg."
-						},
-						{
-							"label": "Ved dåp av større born, unge eller vaksne",
-							"text": "{{r}}L |{{/r}} Vil du saman med denne kyrkjelyden vedkjennast forsakinga og trua som vi blir døypte til?\n{{r}}Dåpskandidaten |{{/r}} Ja.\n@NOTAT Dåpskandidaten kan om nødvendig her og ved dåpshandlinga gje stadfestande svar på andre måtar enn med verbalt språk. Dei som sjølve kan svara på spørsmålet, blir først spurde. Når alle har svara, seier liturgen:\n{{r}}L |{{/r}} Lat oss saman vedkjennast forsakinga og trua.\n@NOTAT Alle reiser seg."
-						}
-					],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-6-dåpshandlingen",
-					"type": "tekst",
-					"heading": "6 Dåpshandlingen",
-					"instr": "",
-					"text": "",
-					"alts": [
-						{
-							"label": "Ved dåp av born",
-							"text": "{{r}}L |{{/r}} Kva heiter barnet?\n@NOTAT Den som ber barnet, seier fornamnet på barnet.\n{{r}}L |{{/r}} Vil de at NN skal døypast til namnet åt Faderen og Sonen og Den heilage ande og oppsedast til eit liv i den kristne forsakinga og trua?\n@NOTAT Den som ber barnet, foreldra/dei føresatte og fadrane, svarar:\nJa."
-						},
-						{
-							"label": "Ved dåp av større born, unge eller vaksne",
-							"text": "{{r}}L |{{/r}} Kva heiter du?\n(Den som skal døypast, svarer sjølv ved å seia fornamnet sitt. Om nødvendig\nkan ein annan seia namnet..)\n{{r}}L |{{/r}} NN, vil du bli døypt til namnet åt Faderen og Sonen og Den heilage ande og leva i den kristne forsakinga og trua?\n(Den som skal døypast, svarar:)\nJa."
-						}
-					],
-					"introAlts": [
-						{
-							"label": "Bønn ved døypefonten",
-							"text": "@NOTAT Ein heller vatnet i døypefonten.\n{{r}}L |{{/r}} Miskunnsame Gud, vi takkar deg for at dåpsvatnet ved ditt ord er ei nådekjelde, der du tilgjev oss vår synd, frelser oss frå dødens makt og gjev oss lovnad om det evige livet. Send din Ande, så ho/han/dei som blir døypt/døypte, blir reist/reiste opp til det nye livet med Jesus Kristus, vår Herre.\n@NOTAT Mellom kvar dåp kan ein syngja eit vers frå ein høveleg salme. Dåpsfølgjet går fram til døypefonten."
-						}
-					],
-					"avslutningAlts": [
-						{
-							"label": "Korsets tegn, dåpen og velsigninga",
-							"text": "@NOTAT Liturgen vender seg mot andletet til barnets/dåpskandidaten og bed bøna med open handflate.\n{{r}}L |{{/r}} Gud vare din utgang og din inngang frå no og til evig tid. Eg teiknar deg med det heilage krossmerket ✠ til vitnemål om at du skal høyra den krossfeste og oppstadne Jesus Kristus til og tru på han.\n{{r}}L |{{/r}} NN, etter vår Herre Jesu Kristi ord og bod døyper eg deg til namnet åt Faderen og Sonen og Den heilage ande.\n@NOTAT Medan dette blir sagt, auser liturgen med handa rikeleg med vatn over hovudet til den som blir døypt, tre gonger.\n@NOTAT Liturgen legg, gjerne saman med fadrane, handa på hovudet til den døypte og seier:\n{{r}}L |{{/r}} Den allmektige Gud har no gjeve deg sin heilage Ande, fødd deg på nytt og teke deg inn i sin truande kyrkjelyd. Gud styrkje deg med sin nåde til det evige livet. Fred vere med deg."
-						}
-					],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-presentasjon-av-den-døpte",
-					"type": "tekst",
-					"heading": "Presentasjon av den døpte",
-					"instr": "",
-					"text": "@NOTAT Ein vender barnet mot kyrkjelyden og kan lyfta det opp. Større born, unge eller vaksne vender seg mot kyrkjelyden. Ein seier følgjande ord:\n{{r}}L |{{/r}} Dette er NN, Guds barn, døypt inn i vår kyrkjelyd og Kristi verdsvide kyrkje.",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-dåpslyset",
-					"type": "tekst",
-					"heading": "Dåpslyset",
-					"instr": "",
-					"text": "@NOTAT Etter kvar dåp og presentasjon kan ein tenna eit lys. Lystenning kan koma her eller under forbøna i gudstenesta. Liturgen kan seia:\n{{r}}L |{{/r}} Eit lys er tent for NN.\n@NOTAT Lysa set ein i ein lyshaldar. Når alle dåpslysa er tende, seier liturgen:\n{{r}}L |{{/r}} Jesus seier: «Eg er lyset i verda. Den som følgjer meg, skal ikkje vandra i mørkret, men ha livsens lys.»\nBIBELREF | Joh 8,12",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-7-bøn-og-lovprising",
-					"type": "tekst",
-					"heading": "7 Bøn og lovprising",
-					"instr": "Ein les bøna her eller under forbøna.",
-					"text": "",
-					"alts": [
-						{
-							"label": "A",
-							"text": "{{r}}ML/L |{{/r}} Trufaste Gud, vi takkar deg for dåpen, der du tek imot oss og kallar oss med namn. Vi bed for NN/borna/dei som er døypt/døypte i dag. Ver med henne/han/dei gjennom livet og vara henne/han/dei i dåpens nåde. Styrk foreldra og fadrane i oppgåva dei har fått.\nGud, høyr vår bøn."
-						},
-						{
-							"label": "B",
-							"text": "{{r}}ML/L |{{/r}} Trufaste Gud, Vi takkar deg for dåpen, der du tek oss inn i di kyrkje. Vi bed for NN/borna/dei som er døypt/døypte i dag. Hald di vernande hand over henne/han/dei, og gje kjærleik og visdom til alle som har ansvar for henne/han/dei.\nGud, høyr vår bøn."
-						},
-						{
-							"label": "C",
-							"text": "{{r}}ML/L |{{/r}} Trufaste Gud, vi takkar deg for dåpen, og for lovnaden om at Jesus er med oss alle våre dagar. Vi bed for NN/dei som er døypt/døypte i dag. Vara henne/han/dei i trua på deg, så ho/han/dei kan vandra i lyset og nå det evige målet i ditt rike.\nGud, høyr vår bøn."
-						}
-					],
-					"introAlts": [
-						{
-							"label": "Innledning",
-							"text": "{{r}}L |{{/r}} Lat oss takka og be."
-						}
-					],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-fadervår-dåpsliturgien",
-					"type": "tekst",
-					"heading": "Fadervår (dåpsliturgien)",
-					"instr": "Fadervår blir sagt fram. Dersom det er nattverd i gudstenesta, kan Fadervår utelatast her. Det er også høve til å bruka Fadervår etter 1977-liturgien.",
-					"text": "{{r}}A |{{/r}} Vår Far i himmelen.\nLat namnet ditt helgast.\nLat riket ditt koma.\nLat viljen din råda på jorda slik som i himmelen.\nGjev oss i dag vårt daglege brød,\nog tilgjev oss vår skuld,\nslik vi òg tilgjev våre skuldnarar.\nOg lat oss ikkje koma i freisting,\nmen frels oss frå det vonde.\nFor riket er ditt og makta og æra i all æve.\nAmen.",
-					"alts": [],
-					"introAlts": [
-						{
-							"label": "Innledning",
-							"text": "{{r}}L |{{/r}} Lat oss saman be den bøna Jesus har lært oss:"
-						}
-					],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-lovprisning",
-					"type": "tekst",
-					"heading": "Lovprisning",
-					"instr": "",
-					"text": "{{r}}L |{{/r}} Velsigna er Gud, vår Herre Jesu Kristi Far, han som i si store miskunn har fødd oss på nytt til ei levande von ved Jesu Kristi oppstode frå dei døde!\nBIBELREF | 1 Pet 1,3",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				},
-				{
-					"id": "dap-nn-evt-song",
-					"type": "tekst",
-					"heading": "Evt. song",
-					"instr": "Dåpsliturgien blir eventuelt avslutta med song, jf. rubrikk til punkt 2.",
-					"text": "",
-					"alts": [],
-					"introAlts": [],
-					"avslutningAlts": [],
-					"selAlt": 0,
-					"selIntro": 0,
-					"selAvsl": 0,
-					"enabled": true,
-					"optional": true,
-					"salmeNr": "",
-					"salmeTittel": ""
-				}
-			]
-		}
-		],
-		"visInstr": true,
-		"visRoles": true,
-		"visSalmeinfo": true,
-		"malForm": "nynorsk",
-		"builtinKey": "original-dåp-i-hovedgudstjenesten-(2017)",
-		"wip": true,
-		"erOriginal": true
-},
 ]
 
 export { WIP_MALER as WIP_TEMPLATES };
