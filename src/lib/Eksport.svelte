@@ -1,7 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent, saveCurrentToFile } from '$lib/fileio.svelte.js';
-	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt } from '$lib/export.js';
+	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt, stripNotat } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
@@ -674,7 +674,7 @@
 				const innholdAv = it.__visInnhold === false;
 				if (it.type !== 'salme' && !innholdAv) {
 					if (visInstrValg && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, '')); // samme som eksporten
-					const t = leddTekst(it);
+					const t = visInstrValg ? leddTekst(it) : stripNotat(leddTekst(it));
 					if (t) lines.push(t);
 				}
 				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());

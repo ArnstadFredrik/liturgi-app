@@ -9,6 +9,15 @@ const ROLE_COLOR = 'C0392B';
 const FOTNOTE_RE = /^FOTNOTE \| ?(.*)$/;  // generell liten tekstnotis (kun formatering)
 const BIBELREF_RE = /^BIBELREF \| ?(.*)$/;  // bibelreferanse (brukes i bibelref-oppslag)
 const NOTAT_RE = /^@(?:NOTAT|n) ?\|? ?(.+)$/;  // hele avsnitt som notat: rød kursiv, mindre
+
+/** fjerner hele-linje @NOTAT/@n-linjer — @NOTAT regnes som instruksjon overalt:
+ *  når «vis instruksjoner» er av skjules de i alle tekstfelter (ikke bare
+ *  leddets instr-felt), så alternative-spesifikke instruksjoner (som ligger
+ *  som @NOTAT først i alternativet) følger samme bryter. */
+export function stripNotat(t) {
+	if (!t || !/@(?:NOTAT|n)\b/.test(t)) return t;
+	return t.split('\n').filter((l) => !NOTAT_RE.test(l.trim())).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
 const COPYRIGHT_RE = /^@(?:COPYRIGHT|copyright|c)\b ?\|? ?(.*)$/;  // salmeinfo: T/M/O-hode og ©-linjer — liten (som fotnote)
 const REFRENG_START_RE = /^\{\{refreng\}\} ?(.*)$/;  // blokkstart: alt til {{/refreng}} i kursiv
 const REFRENG_SLUTT_RE = /^\{\{\/refreng\}\} ?(.*)$/;
@@ -216,6 +225,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			forrige = out[out.length - 1];
 			if (it.__visInnhold === false) continue;
 			if (showInstr && it.instr) out.push({ text: it.instr, muted: true });
+			const visTekst = (t) => (showInstr ? t : stripNotat(t));
 			if (it.type === 'salme') {
 				const st = salmeTekst(it);
 				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true });
@@ -223,18 +233,18 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			} else if (it.alts && it.alts.length) {
 				if (it.selAlt == null) continue; // tomt ledd — ingenting i eksporten
 				else {
-					if (it.introAlts?.length) out.push({ text: it.introAlts[it.selIntro ?? 0]?.text ?? '' });
+					if (it.introAlts?.length) out.push({ text: visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '') });
 					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudstjenesteredigeringen —
 					// kun innledning + valgt alternativ + avslutning følger med i eksporten
 					const a = it.alts[it.selAlt];
 					if (a.label) out.push({ text: a.label, muted: true });
 					// plassholder-tekst ([Skriv tekst her] osv.) = tomt ledd — ikke med i eksporten
 					const plassholder = /^\[(Skriv tekst her|Velg alternativ|Salme: settes inn)\]$/.test((a.text ?? '').trim());
-					if (!plassholder) out.push({ text: a.text });
-					if (it.avslutningAlts?.length) out.push({ text: it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '' });
+					if (!plassholder) out.push({ text: visTekst(a.text) });
+					if (it.avslutningAlts?.length) out.push({ text: visTekst(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '') });
 				}
 			} else if (it.text) {
-				out.push({ text: it.text });
+				out.push({ text: visTekst(it.text) });
 			}
 			// avstand: spacing før/etter dekker allerede luften — INGEN tom avsnittlinje
 		}
@@ -591,7 +601,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 			if (lines && showInstr && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
 			if (it.type !== 'salme') {
 				// innledning + valgt alternativ + avslutning (som i Word/PDF)
-				const t = leddTekst(it);
+				const t = showInstr ? leddTekst(it) : stripNotat(leddTekst(it));
 				if (lines && t) lines.push(t);
 			} else if (lines && it.alts && it.alts.length) {
 				if (it.selAlt != null) lines.push(it.alts[it.selAlt].text);
@@ -787,7 +797,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (it.type === 'salme') tekst = erPlassholder(salmeTekst(it)) ? '' : salmeTekst(it);
 			else if (it.selAlt == null && it.alts?.length) tekst = '';
 			else {
-				tekst = leddTekst(it);
+				tekst = (showInstr ?? true) ? leddTekst(it) : stripNotat(leddTekst(it));
 				// alternativ med plassholder ([Skriv tekst her]) = tomt ledd
 				if (it.alts?.length && erPlassholder(it.alts[it.selAlt ?? 0]?.text)) tekst = '';
 			}
