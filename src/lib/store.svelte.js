@@ -8,7 +8,6 @@ const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron
 export const uid = () => 'i' + Math.random().toString(36).slice(2, 9);
 
 export const app = $state({
-// DEBUG: fjernes etter feilsok
 	templates: [],
 	services: [],
 	current: null, // referanse til objektet i templates/services
@@ -661,4 +660,5 @@ export function sortedServices() {
 	);
 }
 
-// DEBUG: fjernes etter feilsok (levende peker til app-tilstanden)
+
+

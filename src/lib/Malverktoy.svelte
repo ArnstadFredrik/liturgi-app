@@ -76,13 +76,45 @@
 	/** Redigeres nå en dev-kopi av en originalmal? */
 	const devDok = $derived(app.current?.__devMal ? app.current : null);
 
-	/** Åpen rad-meny (mal-id) — én om gangen; lukkes ved klikk utenfor. */
+	/** Åpen rad-meny { id, top, left } — én om gangen. Menyen rendres ved
+ *  komponentroten (utenfor tabellen) med position: fixed, så den aldri
+ *  klippes av tabellens overflow og alltid klemmes innenfor vinduet. */
 	let åpenMeny = $state(null);
+	let menyEl = $state(null);
+	function åpneMenyFor(t, e) {
+		e.stopPropagation();
+		if (åpenMeny?.id === t.id) { åpenMeny = null; return; }
+		const r = e.currentTarget.getBoundingClientRect();
+		const bredde = 200, hoyde = 180;
+		let left = r.right - bredde;
+		left = Math.max(8, Math.min(left, window.innerWidth - bredde - 8));
+		let top = r.bottom + 4;
+		if (top + hoyde > window.innerHeight - 8) top = Math.max(8, r.top - hoyde - 4);
+		åpenMeny = { id: t.id, top, left };
+	}
+	// klem menyen innenfor vinduet etter rendering (faktisk hoyde)
 	$effect(() => {
-		if (åpenMeny === null) return;
-		const lukk = () => { åpenMeny = null; };
-		window.addEventListener('click', lukk, { once: true });
-		return () => window.removeEventListener('click', lukk);
+		if (!åpenMeny || !menyEl) return;
+		const r = menyEl.getBoundingClientRect();
+		if (r.right > window.innerWidth - 8) {
+			åpenMeny = { ...åpenMeny, left: Math.max(8, window.innerWidth - r.width - 8) };
+		}
+		if (r.bottom > window.innerHeight - 8) {
+			åpenMeny = { ...åpenMeny, top: Math.max(8, window.innerHeight - r.height - 8) };
+		}
+		const lukk = (e) => {
+			if (menyEl?.contains(e.target) || e.target.closest?.('.rad-meny-knapp')) return;
+			åpenMeny = null;
+		};
+		// pointerdown (IKKE click): menyen må være montert når menyvalgets
+		// click-event fyre — click-lukking i capture-fasen unmountet menyen
+		// før valget, så handlingene «aldri» ble utløst
+		window.addEventListener('pointerdown', lukk, { capture: true });
+		window.addEventListener('resize', lukk);
+		return () => {
+			window.removeEventListener('pointerdown', lukk, { capture: true });
+			window.removeEventListener('resize', lukk);
+		};
 	});
 
 	/** Utkaster fra ~/.config/Liturgi/malutkast (skrevet ved feil i «Lagre til prosjektet»). */
@@ -109,6 +141,21 @@
 				{@html mdi('content-save')} Lagre til prosjektet
 			</button>
 		</div>
+	{/if}
+
+	{#if åpenMeny}
+		{@const menyMal = app.templates.find((x) => x.id === åpenMeny.id)}
+		{#if menyMal}
+			<div class="rad-meny-liste" role="menu" bind:this={menyEl} style="top: {åpenMeny.top}px; left: {åpenMeny.left}px;" onclick={(e) => e.stopPropagation()}>
+				<button role="menuitem" onclick={() => { åpenMeny = null; åpneOriginal(harSeed(menyMal) ? BUILTIN_TEMPLATES.find((bt) => bt.id === menyMal.id) : menyMal); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 14)} Rediger seed</button>
+				<button role="menuitem" onclick={() => { åpenMeny = null; åpneForhåndsvisning(menyMal); }} title="Forhåndsvisning uten redigering">{@html mdi('script-text-outline', 14)} Åpne</button>
+				{#if erWip(menyMal)}
+					<button role="menuitem" onclick={() => { åpenMeny = null; bekreftWipMal(menyMal); }} title="Bekreft malen (fjern WIP) og lagre til prosjektet">{@html mdi('check', 14)} Bekreft</button>
+				{/if}
+				<hr />
+				<button role="menuitem" class="rad-meny-fare" onclick={() => { åpenMeny = null; slettMalFraProsjektet(menyMal); }} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 14)} Slett</button>
+			</div>
+		{/if}
 	{/if}
 
 	{#if utkast.length}
@@ -157,18 +204,7 @@
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
 						<td class="t-handlinger">
 							<div class="rad-meny">
-								<button class="rad-meny-knapp" onclick={(e) => { e.stopPropagation(); åpenMeny = åpenMeny === t.id ? null : t.id; }} title="Handlinger">{@html mdi('chevron-down', 16)}</button>
-								{#if åpenMeny === t.id}
-									<div class="rad-meny-liste" role="menu">
-										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; åpneOriginal(harSeed(t) ? BUILTIN_TEMPLATES.find((bt) => bt.id === t.id) : t); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 14)} Rediger seed</button>
-										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; åpneForhåndsvisning(t); }} title="Forhåndsvisning uten redigering">{@html mdi('script-text-outline', 14)} Åpne</button>
-										{#if erWip(t)}
-											<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; bekreftWipMal(t); }} title="Bekreft malen (fjern WIP) og lagre til prosjektet">{@html mdi('check', 14)} Bekreft</button>
-										{/if}
-										<hr />
-										<button role="menuitem" class="rad-meny-fare" onclick={(e) => { e.stopPropagation(); åpenMeny = null; slettMalFraProsjektet(t); }} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 14)} Slett</button>
-									</div>
-								{/if}
+								<button class="rad-meny-knapp" onclick={(e) => åpneMenyFor(t, e)} title="Handlinger">{@html mdi('chevron-down', 16)}</button>
 							</div>
 						</td>
 					</tr>
