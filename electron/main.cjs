@@ -651,22 +651,26 @@ ipcMain.handle('dev:slett-seed', async (_e, { id, filnavn }) => {
 	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
 	const linjer = src.split('\n');
 	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${id}"`));
-	if (idLinje < 0) return { ok: false, error: 'Fant ikke seeden i data.js' };
+	// manglende seed er IKKE en feil: maler uten seed i data.js (brukermaler,
+	// gjenlevende kopier) skal likevel kunne slettes — da ryddes bare filen
+	const harSeed = idLinje >= 0;
 	// entry-grensene: samme skanner som dev:lagre-datajs
-	let start = idLinje;
-	while (start > 0 && !/^\t\{$/.test(linjer[start])) start--;
-	let slutt = idLinje;
-	while (slutt < linjer.length && !/^\t},?$/.test(linjer[slutt])) slutt++;
-	if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
-	linjer.splice(start, slutt - start + 1);
-	// forrige entry må ikke ende med komma hvis entryen var den siste i arrayet
-	for (let pi = start - 1; pi > 0; pi--) {
-		const tr = linjer[pi].trim();
-		if (!tr) continue;
-		if (tr.endsWith('},') && linjer[pi + 1] !== undefined && /^\t?\]/.test((linjer[pi + 1] ?? '').trim())) linjer[pi] = linjer[pi].slice(0, -1);
-		break;
+	if (harSeed) {
+		let start = idLinje;
+		while (start > 0 && !/^\t\{$/.test(linjer[start])) start--;
+		let slutt = idLinje;
+		while (slutt < linjer.length && !/^\t},?$/.test(linjer[slutt])) slutt++;
+		if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
+		linjer.splice(start, slutt - start + 1);
+		// forrige entry må ikke ende med komma hvis entryen var den siste i arrayet
+		for (let pi = start - 1; pi > 0; pi--) {
+			const tr = linjer[pi].trim();
+			if (!tr) continue;
+			if (tr.endsWith('},') && linjer[pi + 1] !== undefined && /^\t?\]/.test((linjer[pi + 1] ?? '').trim())) linjer[pi] = linjer[pi].slice(0, -1);
+			break;
+		}
+		fs.writeFileSync(fil, linjer.join('\n'));
 	}
-	fs.writeFileSync(fil, linjer.join('\n'));
 	try {
 		await import(url.pathToFileURL(fil).href + '?v=' + Date.now());
 	} catch (err) {

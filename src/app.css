@@ -129,6 +129,15 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 #malverktoy .mal-tabell-kort { overflow-x: auto; }
 #malverktoy .mal-filter { flex-shrink: 0; }
 
+/* Laast forhandsvisning ('Aapne' i Malverktoy): klikk og redigering er
+ * deaktivert, rulling og tekstmarkering fungerer som vanlig */
+#editor.laast .sec-head,
+#editor.laast .sec-items,
+#editor.laast #add-area {
+	pointer-events: none;
+	user-select: text;
+}
+
 /* ---------- Sidebar ---------- */
 #sidebar {
 	width: 250px; min-width: 250px;

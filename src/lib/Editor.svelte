@@ -124,7 +124,7 @@
 	}}
 />
 
-<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)} class:skjul-salmeinfo={!(app.current?.visSalmeinfo ?? true)}>	<header id="ed-head">
+<div id="editor" class:skjul-roller={!(app.current?.visRoles ?? true)} class:skjul-salmeinfo={!(app.current?.visSalmeinfo ?? true)} class:laast={app.current?.__låst === true}>	<header id="ed-head">
 		<input id="ed-name" bind:value={o.name} oninput={markDirty} placeholder="Navn på gudstjenesten" spellcheck="false" />
 	</header>
 	<div id="ed-date-line">{nlDate(o.date)}{#if o.kirkeaar}&nbsp;– {o.kirkeaar.name}{/if}</div>

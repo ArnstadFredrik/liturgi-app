@@ -1,7 +1,8 @@
 <script>
 	import { app, markDirty, applyKirkeaar } from '$lib/store.svelte.js';
 	import { saveCurrent, lukkRedigering, erOriginalMal } from '$lib/fileio.svelte.js';
-	import { lagreTilProsjekt } from '$lib/malverktoy.svelte.js';
+	import { lagreTilProsjekt, åpneOriginal } from '$lib/malverktoy.svelte.js';
+	import { BUILTIN_TEMPLATES } from '$lib/data.js';
 	import { valgModal, kirkeaarListeModal, maalformModal } from '$lib/modal.svelte.js';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import { mdi } from '$lib/mdi.js';
@@ -163,6 +164,8 @@
 		{#if app.kind === 'template'}
 			{#if o?.__devMal}
 				<button class="wide primary" onclick={onLagreTilProsjekt} title="Skriv originalen tilbake til src/lib/data.js og seed-filen">{@html mdi('content-save', 17)} Lagre til prosjektet</button>
+			{:else if o?.__låst}
+				<button class="wide primary" onclick={() => { const bt = BUILTIN_TEMPLATES.find((b) => b.id === o.__devId); if (bt) åpneOriginal(bt); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 17)} Rediger seed</button>
 			{/if}
 		{:else}
 			<button class="wide" onclick={onSave} title="Lagre">{@html mdi('content-save', 17)} Lagre</button>

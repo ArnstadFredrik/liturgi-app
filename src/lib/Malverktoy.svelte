@@ -8,7 +8,7 @@
 	import { malType } from '$lib/modal.svelte.js';
 	import { målformLabel, malFormFor, erWip, kategoriFor, kategoriSort, KATEGORIER, TYPER } from '$lib/maltyper.js';
 	import { app, openTemplate } from '$lib/store.svelte.js';
-	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal, slettMalFraProsjektet } from '$lib/malverktoy.svelte.js';
+	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal, slettMalFraProsjektet, åpneForhåndsvisning } from '$lib/malverktoy.svelte.js';
 	import FilterDropdown from '$lib/FilterDropdown.svelte';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
@@ -66,6 +66,15 @@
 
 	/** Redigeres nå en dev-kopi av en originalmal? */
 	const devDok = $derived(app.current?.__devMal ? app.current : null);
+
+	/** Åpen rad-meny (mal-id) — én om gangen; lukkes ved klikk utenfor. */
+	let åpenMeny = $state(null);
+	$effect(() => {
+		if (åpenMeny === null) return;
+		const lukk = () => { åpenMeny = null; };
+		window.addEventListener('click', lukk, { once: true });
+		return () => window.removeEventListener('click', lukk);
+	});
 
 	/** Utkaster fra ~/.config/Liturgi/malutkast (skrevet ved feil i «Lagre til prosjektet»). */
 	let utkast = $state([]);
@@ -138,16 +147,20 @@
 						<td>{typeNavn(t)}</td>
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
 						<td class="t-handlinger">
-							{#if erWip(t)}
-								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft malen (fjern WIP)">{@html mdi('check', 13)} Bekreft</button>
-							{/if}
-							{#if harSeed(t)}
-								<button onclick={() => åpneOriginal(BUILTIN_TEMPLATES.find((bt) => bt.id === t.id))} title="Rediger seed-malen i data.js (lagres til prosjektet)">{@html mdi('pencil', 13)} Rediger seed</button>
-							{:else}
-								<button onclick={() => åpneOriginal(t)} title="Rediger malen i dev-editoren og lagre til prosjektet som ny seed i data.js">{@html mdi('pencil', 13)} Rediger seed</button>
-							{/if}
-							<button onclick={() => openTemplate(t.id)} title="Åpne i den vanlige editoren">Åpne</button>
-							<button class="w-mal-slett" onclick={() => slettMalFraProsjektet(t)} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 13)} Slett</button>
+							<div class="rad-meny">
+								<button class="rad-meny-knapp" onclick={(e) => { e.stopPropagation(); åpenMeny = åpenMeny === t.id ? null : t.id; }} title="Handlinger">{@html mdi('chevron-down', 16)}</button>
+								{#if åpenMeny === t.id}
+									<div class="rad-meny-liste" role="menu">
+										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; åpneOriginal(harSeed(t) ? BUILTIN_TEMPLATES.find((bt) => bt.id === t.id) : t); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 14)} Rediger seed</button>
+										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; åpneForhåndsvisning(t); }} title="Forhåndsvisning uten redigering">{@html mdi('script-text-outline', 14)} Åpne</button>
+										{#if erWip(t)}
+											<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; bekreftWipMal(t); }} title="Bekreft malen (fjern WIP) og lagre til prosjektet">{@html mdi('check', 14)} Bekreft</button>
+										{/if}
+										<hr />
+										<button role="menuitem" class="rad-meny-fare" onclick={(e) => { e.stopPropagation(); åpenMeny = null; slettMalFraProsjektet(t); }} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 14)} Slett</button>
+									</div>
+								{/if}
+							</div>
 						</td>
 					</tr>
 				{:else}
@@ -193,6 +206,23 @@
 	.w-mal-slett { color: var(--muted); }
 	.w-mal-slett:hover { color: #c0392b; border-color: #c0392b; }
 	.w-mal-slett:hover :global(svg) { color: #c0392b; }
+	.rad-meny { position: relative; display: inline-block; }
+	.rad-meny-knapp { padding: 3px 5px; }
+	.rad-meny-knapp:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); border-radius: 6px; }
+	.rad-meny-liste {
+		position: absolute; right: 0; top: calc(100% + 2px); z-index: 30;
+		background: var(--card, #fff); border: 1px solid var(--border);
+		border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+		min-width: 190px; padding: 4px; display: grid;
+	}
+	.rad-meny-liste button {
+		display: flex; align-items: center; gap: 8px; text-align: left;
+		background: none; border: none; font: inherit; font-size: 13px;
+		padding: 7px 10px; border-radius: 7px; cursor: pointer; color: inherit;
+	}
+	.rad-meny-liste button:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); }
+	.rad-meny-liste hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+	.rad-meny-liste .rad-meny-fare { color: #c0392b; }
 	.th-sort {
 		background: none; border: none; color: inherit; font: inherit;
 		font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;

@@ -153,6 +153,18 @@ export async function bekreftWipMal(t) {
 	}, 'Bekreft');
 }
 
+/** Åpne malen som LÅST forhåndsvisning: klikk og redigering er deaktivert.
+ *  DokInsp viser en «Rediger seed»-knapp som åpner redigeringsmodus. */
+export function åpneForhåndsvisning(t) {
+	const kopi = JSON.parse(JSON.stringify(t));
+	kopi.__låst = true;
+	kopi.__devId = t.id; // DokInsp bruker den for å finne seeden til «Rediger seed»
+	kopi.kind = 'template';
+	registrerÅpenMal(kopi, false);
+	app.visning = 'hjem';
+	app.dirty = false;
+}
+
 /** Slett en originalmal FRA PROSJEKTET: seed-entry i data.js + seed-fil på disk.
  *  Filen flyttes til papirkurven av handleren; bekreftelse kreves først. */
 export async function slettMalFraProsjektet(t) {
