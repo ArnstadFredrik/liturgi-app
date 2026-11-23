@@ -517,9 +517,9 @@ export async function loadTemplatesFromDisk() {
 		for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
 			const filnavn = safeNavn(bt.filnavn ?? bt.name) + '.limal';
 			if (filEksisterende.has(filnavn) || idEksisterende.has(bt.id)) continue;
-			// originaler: hovedgudtjenesten, gravferdsordningen og maler flagget erOriginal
+			// originaler: hovedgudstjenesten, gravferdsordningen og maler flagget erOriginal
 			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
-			const sub = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
+			const sub = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
 			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${filnavn}`, originalSeedJson(bt));
 		}
 
@@ -540,7 +540,7 @@ export async function loadTemplatesFromDisk() {
 				} catch {}
 			}
 			for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
-				const erOriginal = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name);
+				const erOriginal = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name);
 				if (!erOriginal) continue;
 				const meta = idTilMeta.get(bt.id);
 				if (!meta) {
