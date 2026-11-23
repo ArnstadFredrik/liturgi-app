@@ -531,6 +531,20 @@ function fellesLinjer(tekster, fraStart) {
 function trekkUtIntroAvslutning(item) {
   const alts = item.alts ?? [];
   if (alts.length < 2) return;
+  // innledningslinje som EGET alternativ: kort første-alternativ som slutter
+  // på ':' («Lat oss takka og be:», «La oss be:», «L | Lat oss saman be … :»)
+  // er innledningen til gruppen, ikke et valg — løftes til introAlts
+  if (!(item.introAlts ?? []).length && alts.length >= 2) {
+    const forste = (alts[0].text ?? '').trim();
+    const bareLinjer = forste.split('\n').filter((l) => l.trim());
+    const kort = bareLinjer.length <= 2 && forste.length <= 90;
+    if (kort && /[:\u2026]$/.test(forste) && !/^@/m.test(forste)) {
+      item.introAlts = [{ label: 'Innledning', text: forste }];
+      alts.shift();
+      item.selIntro = 0;
+      item.selAlt = item.selAlt > 0 ? item.selAlt - 1 : 0;
+    }
+  }
   if ((item.introAlts ?? []).length || (item.avslutningAlts ?? []).length) return;
   const tekster = alts.map((a) => a.text ?? '');
   const minLen = Math.min(...tekster.map((t) => t.split('\n').length));
