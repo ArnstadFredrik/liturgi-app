@@ -70,7 +70,23 @@ function finnRolle(t) {
   // enbokstavsroller («L …», «A …») aksepteres med ett mellomrom
   if (!erBokstaver && !/[|:]/.test(skille) && m[2].length < 2 && !/^[A-ZÆØÅ]/.test(rest)) return null;
   // «Å leve sammen …» — enbokstavsrolle med ett mellomrom og små forbokstav er setningsstart
-  if (erBokstaver && ord.length === 1 && !/[|:]/.test(skille) && m[2].length < 2 && !/^[A-ZÆØÅ]/.test(rest)) return null;
+  if (erBokstaver && ord.length === 1 && !/[|:]/.test(skille) && m[2].length < 2 && !/^[A-ZÆØÅ]/.test(rest)) {
+    // kvalifikator før røret: «L sier | …», «A eller L | …»,
+    // «A (eller L/ML) | …», «L synger eller sier | …» — rolletokenet
+    // utvides/kvalifikatoren legges i teksten, ikke i rollemerket
+    if (rest.includes('|')) {
+      const foer = rest.split('|')[0].trim();
+      const etter = rest.split('|').slice(1).join('|').trim();
+      if (!foer) return { rolle: ord, rest: etter };
+      if (/^(synger eller sier|synger|sier)$/i.test(foer)) return { rolle: ord, rest: foer + ': ' + etter };
+      const utvid = /^(\(?)(eller)\s+(.+?)\)?$/.exec(foer);
+      if (utvid) {
+        const ekstra = utvid[3].replace(/\s*\/\s*/g, '/').toUpperCase().replace(/[^A-ZÆØÅ/]/g, '');
+        if (/^[A-ZÆØÅ](\/[A-ZÆØÅ])*$/i.test(ekstra)) return { rolle: ord + '/' + ekstra, rest: etter };
+      }
+    }
+    return null;
+  }
   return { rolle: ord, rest };
 }
 
@@ -315,8 +331,12 @@ function byggStruktur(avsnitt, advarsler) {
     //     flyttes ut som BIBELREF; leser-angivelse («Første lesning
     //     v/klokker: Neh 9,19-21») ryddes — v/del + ref blir BIBELREF.
     const grense = !forrigeTekst || /[.!?»]$/.test(forrigeTekst) || /^Amen\.?$/.test(forrigeTekst) || forrigeVarTittel;
+    // nummerert leddtittel i ren tekst («4 Samlingsbønn», «13 Preken»):
+    // kort linje med ledende siffer, uten avsluttende tegn, etter punkt-slutt
+    const erNummerTittel = /^–?\d{1,2}\.?\s+[A-ZÆØÅ]/.test(t)
+      && t.length <= 50 && !/[.,;:!?\u00bb]$/.test(t) && !/\sv\.?\s?\d/.test(t);
     const erOmkved = /^(omkved|refreng|amen)\.?$/i.test(t);
-    if (!erOmkved && item?.type !== 'salme' && !rolleRe.test(t) && grense && erTittelLinje(t)) {
+    if (!erOmkved && item?.type !== 'salme' && !rolleRe.test(t) && grense && (erTittelLinje(t) || erNummerTittel)) {
       let tittel = t.replace(/\s*\|\s*/g, ' ');
       let tittelRef = null;
       // «… v/klokker: Neh 9,19-21» — leser-angivelse + ref etter tittelen
@@ -331,7 +351,8 @@ function byggStruktur(avsnitt, advarsler) {
           tittelRef = tRef.ref;
         }
       }
-      nyttLedd(tittel);
+      const erSalmePlass = /^(salmen|salme|musikk|salme eller musikkinnslag)\b/i.test(tittel) && tittel.length <= 40;
+      nyttLedd(tittel, erSalmePlass ? 'salme' : 'tekst');
       if (tittelRef) item.text = 'BIBELREF | ' + tittelRef;
       forrigeVarTittel = true;
       continue;
@@ -359,6 +380,71 @@ function byggStruktur(avsnitt, advarsler) {
         sekn.items[i - 1].text += '\nBIBELREF | ' + trim(it.heading.replace(/^BIBELREF\s*\|\s*/i, ''));
         sekn.items.splice(i, 1);
       }
+    }
+  }
+
+  // etterbehandling: nummerert leddtittel som førstelinje i et tekstledd
+  // («4 Samlingsbønn» slukt av forrige ledd) -> egen leddheading
+  for (const sekn of seksjoner) {
+    for (let i = 0; i < sekn.items.length; i++) {
+      const it = sekn.items[i];
+      if ((it.alts ?? []).length || (it.introAlts ?? []).length) continue;
+      const linjer = (it.text ?? '').split('\n');
+      const forste = (linjer[0] ?? '').trim();
+      const mN = /^(\d{1,2})\.?\s+([A-ZÆØÅ].{2,40})$/.exec(forste);
+      if (!mN || /[.,;:!?\u00bb]$/.test(forste)) continue;
+      const rest = linjer.slice(1).join('\n');
+      if (!rest.trim() && (it.heading ?? '').trim()) continue; // alt innhold ville blitt tom
+      const nytt = { id: uid(), type: it.type ?? 'tekst', heading: forste, instr: '', text: rest, alts: [], selAlt: 0, enabled: true, optional: false, salmeNr: '', salmeTittel: '' };
+      it.text = '';
+      sekn.items.splice(i + 1, 0, nytt);
+      i++;
+    }
+  }
+
+  // etterbehandling: kort felles åpning som alts[0] («La oss be.») ->
+  // introAlts, så variantene starter på A
+  for (const sekn of seksjoner) {
+    for (const it of sekn.items) {
+      const alts = it.alts ?? [];
+      if (alts.length < 2) continue;
+      const foerste = (alts[0].text ?? '').trim();
+      if (!foerste || foerste.length > 70) continue;
+      const restenLengre = alts.slice(1).every((a) => ((a.text ?? '').trim().length) >= foerste.length);
+      if (!restenLengre) continue;
+      if (it.introAlts?.length) continue;
+      it.introAlts = [{ label: 'Innledning', text: alts[0].text }];
+      it.selIntro = 0;
+      it.alts = alts.slice(1);
+      it.selAlt = 0;
+    }
+  }
+
+  // etterbehandling: variantmarkør-ledd slås inn i forrige ledd som alts
+  // («Eller»-markører med innhold, serietitler som «Allmenn serie 1»,
+  // «nordsamisk») — ren tom «Eller»-markør droppes
+  for (const sekn of seksjoner) {
+    const items = sekn.items;
+    for (let i = items.length - 1; i > 0; i--) {
+      const it = items[i];
+      const h = (it.heading ?? '').trim();
+      if (!h) continue;
+      if (/^\d/.test(h)) continue; // nummererte ledd er skjelettet
+      const tom = !(it.text ?? '').trim() && !(it.instr ?? '').trim() && !(it.alts ?? []).length;
+      if (/^(eller|enten|anten)[.:]?$/i.test(h)) {
+        if (tom) { items.splice(i, 1); continue; }
+      }
+      // kun eksplisitte seriemønstre merges inn — andre headinger beholdes
+      // (de kan være ekte ledd; agenten vurderer i steg 3)
+      const erSerie = /^(allmenn serie\b|serie for\b|nordsamisk$|s\u00f8rsamisk$|lulesamisk$|engelsk$|tysk$|spansk$|ukrainsk$)/i.test(h)
+        || (/^(nordsamisk|s\u00f8rsamisk|lulesamisk)\b/.test(h) && h.length <= 16);
+      if (!erSerie) continue;
+      const forrige = items[i - 1];
+      const forrigeOk = (forrige.text ?? '').trim() || (forrige.alts ?? []).length;
+      if (!forrigeOk) continue;
+      forrige.alts = forrige.alts ?? [];
+      forrige.alts.push({ label: h.replace(/[.:]$/, ''), text: (it.text ?? '').trim() });
+      items.splice(i, 1);
     }
   }
 
