@@ -134,7 +134,7 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 	.rad-meny-knapp { padding: 3px 5px; }
 	.rad-meny-knapp:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); border-radius: 6px; }
 	.rad-meny-liste {
-		position: absolute; right: 0; top: calc(100% + 4px); z-index: 30;
+		position: fixed; z-index: 40;
 		background: var(--panel2); color: var(--text);
 		border: 1px solid var(--border); border-radius: var(--radius);
 		box-shadow: var(--shadow);

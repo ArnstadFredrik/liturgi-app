@@ -15,10 +15,19 @@
 
 	/** S\u00f8k + type-filter + sortering etter type s\u00e5 navn (samme som malmodulen).
 	 *  Tabellen viser ALLE maler fra disk (originaler + wip + brukermaler). */
-	let q = $state('');
-	let typeSel = $state([]);
-	let kildeSel = $state([]);
-	let katSel = $state([]);
+	const LS_MV = 'malverktoy-filtre';
+	function lastMvFiltre() {
+		try { return JSON.parse(localStorage.getItem(LS_MV) ?? '{}'); } catch { return {}; }
+	}
+	const _mv = lastMvFiltre();
+	let q = $state(_mv.q ?? '');
+	let typeSel = $state(_mv.typeSel ?? []);
+	let kildeSel = $state(_mv.kildeSel ?? []);
+	let katSel = $state(_mv.katSel ?? []);
+	function lagreMvFiltre() {
+		try { localStorage.setItem(LS_MV, JSON.stringify({ q, typeSel, kildeSel, katSel, sorterNokkel, sortRetning })); } catch {}
+	}
+	$effect(() => { lagreMvFiltre(); });
 	function nullstillFiltre() {
 		q = '';
 		typeSel = [];
@@ -29,8 +38,8 @@
 		return !!(q || typeSel.length || kildeSel.length || katSel.length);
 	} // alle | gudstjeneste | vigsel | gravferd
 	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
-	let sorterNokkel = $state('navn'); // navn | kategori | maalform | type | kilde
-	let sortRetning = $state(1); // 1 = stigende, -1 = synkende
+	let sorterNokkel = $state(_mv.sorterNokkel ?? 'navn'); // navn | kategori | maalform | type | kilde
+	let sortRetning = $state(_mv.sortRetning ?? 1); // 1 = stigende, -1 = synkende
 	const sorterVerdi = (t) => ({
 		navn: (t.name ?? '').toLowerCase(),
 		kategori: kategoriFor(t),
@@ -141,7 +150,7 @@
 			<tbody>
 				{#each visMal as t (t.id)}
 					<tr>
-						<td class="t-navn" onclick={() => openTemplate(t.id)} title="Åpne og se gjennom">{t.name}{#if erWip(t)} <span class="wip-merke" title="Uverifisert mal — ikke med i Opprett før den bekreftes">{erOriginalMal(t) ? 'WIP' : 'Utkast'}</span>{/if}</td>
+						<td class="t-navn" onclick={() => åpneForhåndsvisning(t)} title="Åpne som forhåndsvisning (låst)">{t.name}{#if erWip(t)} <span class="wip-merke" title="Uverifisert mal — ikke med i Opprett før den bekreftes">{erOriginalMal(t) ? 'WIP' : 'Utkast'}</span>{/if}</td>
 						<td>{kategoriFor(t)}</td>
 						<td>{målformLabel(malFormFor(t))}</td>
 						<td>{typeNavn(t)}</td>
