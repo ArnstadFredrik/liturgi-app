@@ -147,7 +147,7 @@
 								<button onclick={() => åpneOriginal(t)} title="Rediger malen i dev-editoren og lagre til prosjektet som ny seed i data.js">{@html mdi('pencil', 13)} Rediger seed</button>
 							{/if}
 							<button onclick={() => openTemplate(t.id)} title="Åpne i den vanlige editoren">Åpne</button>
-							<button class="w-mal-slett" onclick={() => slettMalFraProsjektet(t)} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('trash-can-outline', 13)}</button>
+							<button class="w-mal-slett" onclick={() => slettMalFraProsjektet(t)} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 13)} Slett</button>
 						</td>
 					</tr>
 				{:else}
@@ -192,6 +192,7 @@
 .utkast-tid { color: var(--muted-foreground); font-size: 13px; }
 	.w-mal-slett { color: var(--muted); }
 	.w-mal-slett:hover { color: #c0392b; border-color: #c0392b; }
+	.w-mal-slett:hover :global(svg) { color: #c0392b; }
 	.th-sort {
 		background: none; border: none; color: inherit; font: inherit;
 		font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
