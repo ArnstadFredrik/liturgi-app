@@ -41,11 +41,13 @@
 
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)
 	let Malverktoy = $state(null); // lastes bare inn i dev-bygg (__DEV_MODE__)
+	let Diff = $state(null); // dev-modul: sammenlign .limal-filer side om side
 	if (__DEV_MODE__ && typeof window !== 'undefined') {
 		if (window.liturgi?.devTilstand) {
 			window.liturgi.devTilstand().then((t) => { app.devModus = !!t?.devModus; });
 		}
 		import('$lib/Malverktoy.svelte').then((m) => { Malverktoy = m.default; });
+		import('$lib/Diff.svelte').then((m) => { Diff = m.default; });
 	}
 
 	// hovedprosessen ber oss lagre og lukke (avsluttingsbekreftelse)
@@ -85,7 +87,7 @@
 	});
 
 	const modul = $derived.by(() => {
-		const andre = ['kirkeaar', 'forberedelse', 'bibliotek', 'maler', 'innstillinger', 'malverktoy'];
+		const andre = ['kirkeaar', 'forberedelse', 'bibliotek', 'maler', 'innstillinger', 'malverktoy', 'diff'];
 		// en åpen gudstjeneste: redigering/salmer/eksport (visning kan stå på
 		// 'hjem' mens dokumentet er åpent — fallback-renderer da editoren)
 		if (app.current && app.kind === 'service' && !andre.includes(app.visning)) {
@@ -166,6 +168,8 @@
 			<Salmer />
 		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}
 			<Malverktoy />
+		{:else if app.visning === 'diff' && app.devModus && Diff}
+			<Diff />
 		{:else if app.current}
 			<Editor />
 		{:else if app.visning === 'maler'}

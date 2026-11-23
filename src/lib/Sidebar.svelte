@@ -193,6 +193,11 @@
 			}}>
 				{@html mdi('pencil')} Malverktøy
 			</button>
+			<button class="wide" onclick={() => {
+				app.current = null; app.kind = null; app.visning = app.visning === 'diff' ? 'hjem' : 'diff';
+			}}>
+				{@html mdi('code-tags')} Diff
+			</button>
 		{/if}
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
 			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}

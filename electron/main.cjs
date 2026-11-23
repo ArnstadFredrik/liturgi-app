@@ -572,6 +572,47 @@ ipcMain.handle('dev:utkast', async () => {
 		return { ok: true, utkast };
 	} catch (err) { return { ok: false, error: err.message }; }
 });
+// ---------- dev: Diff-modul — sammenlign .limal-filer side om side ----------
+// Agent-maler: .limal-filer i ~/skill-agent-*/ (konverterings-tester).
+// Avvik mot dev-konvensjonen øvrig: lesing er brukerstyrt og skjer bare
+// eksplisitt fra Diff-modulen; skriving skjer aldri herfra.
+ipcMain.handle('dev:diff-agenter', async () => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
+	try {
+		const hjem = os.homedir();
+		const kataloger = fs.readdirSync(hjem, { withFileTypes: true })
+			.filter((d) => d.isDirectory() && /^skill-agent-/i.test(d.name))
+			.map((d) => path.join(hjem, d.name));
+		const maler = [];
+		for (const kat of kataloger) {
+			let filer = [];
+			try { filer = fs.readdirSync(kat); } catch { continue; }
+			for (const f of filer) {
+				if (!/\.limal$/i.test(f)) continue;
+				const p = path.join(kat, f);
+				try {
+					const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+					const data = d?.liturgiFormat ? d.data : d;
+					if (!data?.sections) continue;
+					maler.push({ fil: p, katalog: path.basename(kat), navn: data.name ?? f.replace(/\.limal$/i, ''), mtime: fs.statSync(p).mtimeMs });
+				} catch { }
+			}
+		}
+		maler.sort((a, b) => b.mtime - a.mtime);
+		return { ok: true, maler };
+	} catch (err) { return { ok: false, error: err.message }; }
+});
+
+ipcMain.handle('dev:diff-les', async (_e, fil) => {
+	if (app.isPackaged || typeof fil !== 'string' || !fil.toLowerCase().endsWith('.limal')) return { ok: false, error: 'Ugyldig fil' };
+	try {
+		const d = JSON.parse(fs.readFileSync(fil, 'utf8'));
+		const data = d?.liturgiFormat ? d.data : d;
+		if (!data?.sections) return { ok: false, error: 'Filen har ingen sections' };
+		return { ok: true, mal: data, filePath: fil };
+	} catch (err) { return { ok: false, error: err.message }; }
+});
+
 ipcMain.handle('dev:les-utkast', async (_e, fil) => {
 	if (app.isPackaged || typeof fil !== 'string' || fil.includes('/') || fil.includes('\\')) return { ok: false, error: 'Ugyldig utkast' };
 	try {

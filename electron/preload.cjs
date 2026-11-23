@@ -56,6 +56,8 @@ contextBridge.exposeInMainWorld('liturgi', {
 	// DEV: malredigeringsverktøy — main-prosessen avgjør (isPackaged)
 	devTilstand: () => ipcRenderer.invoke('dev:tilstand'),
 	devUtkast: () => ipcRenderer.invoke('dev:utkast'),
+	diffAgenter: () => ipcRenderer.invoke('dev:diff-agenter'),
+	diffLes: (fil) => ipcRenderer.invoke('dev:diff-les', fil),
 	devLesUtkast: (fil) => ipcRenderer.invoke('dev:les-utkast', fil),
 	slettUtkast: (fil) => ipcRenderer.invoke('dev:slett-utkast', fil),
 	lagreUtkast: (mal, fast) => ipcRenderer.invoke('dev:lagre-utkast', { mal, fast }),
