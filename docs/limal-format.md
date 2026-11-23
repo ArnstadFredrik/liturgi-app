@@ -57,7 +57,7 @@ Hoveddeler nummereres ofte med romertall i tittelen (`I. Samling`,
 {
   "id": "unik-id",
   "type": "tekst",                    // "tekst" | "salme" | "instruks"
-  "heading": "* 3 Hilsen",            // leddtittel; `* ` = valgfritt-ledd-markering
+  "heading": "* 3 Hilsen",            // leddtittel; `* ` = menigheten står under leddet (ikke valgfri)
   "bokstav": "A",                     // valgfritt: katalog-ledd i skriftlesningskatalog (A, B, C …)
   "instr": "",                        // instruksjoner/rubrikker (vises kursiv rød)
   "text": "…",                        // innholdet — se tekstkonvensjoner
@@ -130,7 +130,9 @@ variantene.
 1. **Hoveddeler**: `Heading 1` (docx) eller nummererte/ROMERTALL-titler →
    ny seksjon. Behold nummereringen i tittelen hvis kilden har den.
 2. **Leddtitler**: `Heading 2/3` eller «nummer + tittel» («2 Hilsen») →
-   `heading` med `* `-prefiks hvis leddet er valgfritt.
+   `heading` med `* `-prefiks hvis menigheten står under leddet. Valgfrie ledd
+   markeres med `optional: true` (typisk der kilden sier «Her kan følge …»),
+   ikke med `* `.
 3. **Rubrikker** (docx-stil `Rubrikk`, rød/kursiv tekst) → `instr`-feltet
    (eller `@NOTAT`-linjer).
 4. **Roller**: fet prefiks før `|` (`L |`, `ML/L |`) → `{{r}}ROLLE |{{/r}}`.

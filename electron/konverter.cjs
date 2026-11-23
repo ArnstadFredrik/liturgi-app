@@ -202,7 +202,9 @@ function byggStruktur(avsnitt, advarsler) {
   };
   const nyttLedd = (heading, type = 'tekst') => {
     if (!sec) nySeksjon('Uten tittel');
-    const valgfri = /^\*\s?/.test(heading ?? '');
+    // '* '-prefikset betyr at menigheten STAR under leddet (ikke valgfrihet) —
+    // optional settes kun ved «Her kan følge …» (manuelt av agenten)
+    const valgfri = false;
     item = { id: uid(), type, heading: heading ?? '', instr: '', text: '', alts: [], selAlt: 0, enabled: true, optional: valgfri, salmeNr: '', salmeTittel: '' };
     sec.items.push(item);
   };

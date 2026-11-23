@@ -97,15 +97,9 @@ for (const sec of data.sections) {
       if (nokkel === 'avslutningAlts' && liste.length && (it.selAvsl == null || it.selAvsl >= liste.length)) {
         feil.push(`${it.id}: selAvsl ${it.selAvsl} utenfor 0..${liste.length - 1}`);
       }
-    }
     if (it.type === 'salme' && !it.salmeNr && !it.salmeTittel && !(it.instr ?? '').trim() && !(it.text ?? '').trim()) {
       advar.push(`${it.id}: helt tom salme-ledd (verken nummer, instr eller tekst)`);
     }
-    if ((it.heading ?? '').startsWith('*') && it.optional !== true) {
-      advar.push(`${it.id}: '* '-heading men optional !== true`);
-    }
-    if (it.optional === true && !(it.heading ?? '').startsWith('*')) {
-      advar.push(`${it.id}: optional true men heading mangler '* '-prefiks`);
     }
   }
   if (sec.delGruppe && !(data.delGrupper ?? []).includes(sec.delGruppe)) {
