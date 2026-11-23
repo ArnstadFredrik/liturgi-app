@@ -24,10 +24,19 @@
 	const brukermaler = $derived(app.templates.filter((t) => !originaler.includes(t)));
 
 	/** Søk + filtre (type/kilde) + sorterbar tabell. */
-	let q = $state('');
-	let typeSel = $state([]); // multiselect: gudstjeneste | vigsel | gravferd
-	let kildeSel = $state([]); // multiselect: originaler | brukermaler
-	let katSel = $state([]); // multiselect: KATEGORIER
+	const LS_MALER = 'maler-filtre';
+	function lastFiltre() {
+		try { return JSON.parse(localStorage.getItem(LS_MALER) ?? '{}'); } catch { return {}; }
+	}
+	const _f = lastFiltre();
+	let q = $state(_f.q ?? '');
+	let typeSel = $state(_f.typeSel ?? []); // multiselect: gudstjeneste | vigsel | gravferd
+	let kildeSel = $state(_f.kildeSel ?? []); // multiselect: originaler | brukermaler
+	let katSel = $state(_f.katSel ?? []); // multiselect: KATEGORIER
+	function lagreFiltre() {
+		try { localStorage.setItem(LS_MALER, JSON.stringify({ q, typeSel, kildeSel, katSel, sortNokkel, sortRetn })); } catch {}
+	}
+	$effect(() => { lagreFiltre(); });
 	function nullstillFiltre() {
 		q = '';
 		typeSel = [];
@@ -55,11 +64,20 @@
 
 	/** Tabell: sortbar på kolonne; favoritter først når navn sorteres.
 	 *  Standard sortering: kategori i ressursbankens banner-rekkefølge. */
-	let sortNokkel = $state('kategori');
-	let sortRetn = $state(1);
+	let sortNokkel = $state(_f.sortNokkel ?? 'kategori');
+	let sortRetn = $state(_f.sortRetn ?? 1);
 	const KOLONNER = [
 		['fav', ''], ['navn', 'Navn'], ['kategori', 'Kategori'], ['malform', 'Målform'], ['type', 'Type'], ['kilde', 'Kilde']
 	];
+	/** Åpen rad-meny (mal-id) — én om gangen. */
+	let åpenMeny = $state(null);
+	$effect(() => {
+		if (åpenMeny === null) return;
+		const lukk = () => { åpenMeny = null; };
+		window.addEventListener('click', lukk, { once: true });
+		return () => window.removeEventListener('click', lukk);
+	});
+
 	function settSort(nokkel) {
 		if (sortNokkel === nokkel) sortRetn = -sortRetn;
 		else { sortNokkel = nokkel; sortRetn = 1; }
@@ -202,18 +220,26 @@
 						<td>{typeNavn[malType(t)]}</td>
 						<td>{erOriginalMal(t) ? 'Original' : 'Bruker'}</td>
 						<td class="t-handlinger">
-							<button onclick={() => aapneIsolertEksport(t)} title="Åpne eksportmodulen for malen">Eksportér</button>
-							<button onclick={() => openTemplate(t.id)} title="Åpne og rediger">Åpne</button>
-							{#if t.wip === true}
-								<button class="w-mal-bekreft" onclick={() => bekreftWipMal(t)} title="Bekreft utkastet (fjern utkast-merket)">{@html mdi('check', 13)} Bekreft</button>
-							{/if}
-							{#if !erOriginalMal(t)}
-								<button class="w-mal-del" onclick={() => slettMal(t)} title="Slett malen">Slett</button>
-							{/if}
+							<div class="rad-meny">
+								<button class="rad-meny-knapp" onclick={(e) => { e.stopPropagation(); åpenMeny = åpenMeny === t.id ? null : t.id; }} title="Handlinger">{@html mdi('chevron-down', 16)}</button>
+								{#if åpenMeny === t.id}
+									<div class="rad-meny-liste" role="menu">
+										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; openTemplate(t.id); }} title="Åpne og rediger">{@html mdi('pencil', 14)} Åpne</button>
+										<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; aapneIsolertEksport(t); }} title="Åpne eksportmodulen for malen">{@html mdi('download', 14)} Eksportér</button>
+										{#if t.wip === true}
+											<button role="menuitem" onclick={(e) => { e.stopPropagation(); åpenMeny = null; bekreftWipMal(t); }} title="Bekreft utkastet (fjern utkast-merket)">{@html mdi('check', 14)} Bekreft</button>
+										{/if}
+										{#if !erOriginalMal(t)}
+											<hr />
+											<button role="menuitem" class="rad-meny-fare" onclick={(e) => { e.stopPropagation(); åpenMeny = null; slettMal(t); }} title="Slett malen">{@html mdi('delete-outline', 14)} Slett</button>
+										{/if}
+									</div>
+								{/if}
+							</div>
 						</td>
 					</tr>
 				{:else}
-					<tr><td colspan="7" class="maler-tom">{q || typeFilter !== 'alle' || kildeFilter !== 'alle' ? 'Ingen treff.' : 'Ingen maler ennå.'}</td></tr>
+					<tr><td colspan="7" class="maler-tom">{q || typeSel.length || kildeSel.length || katSel.length ? 'Ingen treff.' : 'Ingen maler ennå.'}</td></tr>
 				{/each}
 			</tbody>
 		</table>

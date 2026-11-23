@@ -206,28 +206,6 @@
 	.w-mal-slett { color: var(--muted); }
 	.w-mal-slett:hover { color: #c0392b; border-color: #c0392b; }
 	.w-mal-slett:hover :global(svg) { color: #c0392b; }
-	.rad-meny { position: relative; display: inline-block; }
-	.rad-meny-knapp { padding: 3px 5px; }
-	.rad-meny-knapp:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); border-radius: 6px; }
-	.rad-meny-liste {
-		position: absolute; right: 0; top: calc(100% + 4px); z-index: 30;
-		background: var(--panel2); color: var(--text);
-		border: 1px solid var(--border); border-radius: var(--radius);
-		box-shadow: var(--shadow);
-		min-width: 200px; padding: 4px; display: grid;
-		overflow: hidden;
-	}
-	.rad-meny-liste button {
-		display: flex; align-items: center; gap: 8px; text-align: left;
-		background: none; border: none; font: inherit; font-size: 13px;
-		padding: 6px 8px; border-radius: calc(var(--radius) - 2px);
-		cursor: pointer; color: var(--text); outline: none;
-	}
-	.rad-meny-liste button:hover { background: var(--accent-dim); color: var(--text); }
-	.rad-meny-liste button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-	.rad-meny-liste hr { border: none; border-top: 1px solid var(--border); margin: 4px -4px; }
-	.rad-meny-liste .rad-meny-fare { color: var(--danger); }
-	.rad-meny-liste .rad-meny-fare:hover { background: rgba(208, 82, 69, 0.12); color: var(--danger); }
 	.rad-meny-knapp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 6px; }
 	.th-sort {
 		background: none; border: none; color: inherit; font: inherit;
