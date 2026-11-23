@@ -4490,7 +4490,7 @@ export const BUILTIN_TEMPLATES = [
 		"wip": true,
 		"erOriginal": true,
 		"filnavn": "Dåp i hovedgudstjenesten (2017) (nynorsk)"
-	},
+	}
 ]
 
 /** DEAKTIVERTE MALER - ikke publisert med appen, men ligger her hvis den

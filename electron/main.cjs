@@ -708,10 +708,15 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 	// fremmes til original) \u2014 legg den inn som nytt entry i
 	// BUILTIN_TEMPLATES, f\u00f8r arrayets avsluttende \u00ab];\u00bb.
 	if (idLinje < 0) {
-		// bruk den SISTE ']'-linjen — nesting-indre ']'-linjer (items/alts) ellersTreffer først
-		const trims = linjer.map((l) => l.trim());
-		const sisteHake = Math.max(trims.lastIndexOf(']'), trims.lastIndexOf('];'));
-		const arrSlutt = sisteHake;
+		// BUILTIN-arrayens ekte slutt: dyttelling fra deklarasjonen — den SISTE
+		// ']' i filen tilhører DEAKTIVERTE_MALER, ikke BUILTIN (nye seeds havnet
+		// tidligere i feil array og dukket aldri opp som originalmal).
+		let dyp = 0, arrSlutt = -1, iArr = linjer.findIndex((l) => l.includes('BUILTIN_TEMPLATES') && l.includes('['));
+		if (iArr < 0) return { ok: false, error: 'Fant ikke BUILTIN_TEMPLATES-deklarasjonen i data.js' };
+		for (let i = iArr; i < linjer.length; i++) {
+			dyp += (linjer[i].match(/\[/g) ?? []).length - (linjer[i].match(/\]/g) ?? []).length;
+			if (dyp === 0 && i > iArr) { arrSlutt = i; break; }
+		}
 		if (arrSlutt < 1) return { ok: false, error: 'Fant ikke BUILTIN_TEMPLATES-arrayens slutt i data.js' };
 		// forrige siste entry mangler typisk komma — legg det på før innsettingen
 		for (let pi = arrSlutt - 1; pi > 0; pi--) {
