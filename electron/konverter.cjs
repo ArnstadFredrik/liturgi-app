@@ -78,15 +78,16 @@ function finnRolle(t) {
       const foer = rest.split('|')[0].trim();
       const etter = rest.split('|').slice(1).join('|').trim();
       if (!foer) return { rolle: ord, rest: etter };
-      if (/^(synger eller sier|synger|sier|syng eller seier|syng|seier)$/i.test(foer)) return { rolle: ord, rest: foer + ': ' + etter };
-      const utvid = /^(\(?)(eller)\s+(.+?)\)?$/.exec(foer);
-      if (utvid) {
-        const ekstra = utvid[3].replace(/\s*\/\s*/g, '/').toUpperCase().replace(/[^A-ZÆØÅ/]/g, '');
-        if (/^[A-ZÆØÅ]{1,4}(\/[A-ZÆØÅ]{1,4})*$/i.test(ekstra)) return { rolle: ord + '/' + ekstra, rest: etter };
-      }
+      // instruksjonen («syng eller seier», «eller L/ML» …) inkluderes
+      // i rollemerket: {{r}}L syng eller seier |{{/r}} …
+      return { rolle: ord + ' ' + foer, rest: etter };
     }
     return null;
   }
+  // flerledd-roller med instruksjon før røret («L/ML seier | …»,
+  // «K reiser seg og syng | …») — instruksjonen inn i rollemerket
+  const mInstr = /^([a-zæøå][a-zæøå ]*?)\s*\|\s*(.*)$/.exec(rest);
+  if (mInstr) return { rolle: ord + ' ' + mInstr[1].trim(), rest: mInstr[2] };
   return { rolle: ord, rest };
 }
 
@@ -606,6 +607,12 @@ function formaterRollelinjer(tekst) {
   return tekst.split('\n').map((linje) => {
     const l = linje.trim();
     if (!l || l.includes('{{r}}') || /^BIBELREF/.test(l)) return linje;
+    // parentes-form: «(L seier |)» — formatter innholdet, behold parentesene
+    const mp = /^\((.+)\)$/.exec(l);
+    if (mp && !mp[1].includes('{{r}}')) {
+      const indre = finnRolle(mp[1]);
+      if (indre) return linje.slice(0, linje.indexOf('(')) + '(' + '{{r}}' + indre.rolle + ' |{{/r}}' + (indre.rest ? ' ' + indre.rest : '') + ')' + (linje.endsWith(')') && linje.lastIndexOf(')') === linje.length - 1 ? '' : linje.slice(linje.lastIndexOf(')') + 1));
+    }
     const m = /^([A-ZÆØÅ][A-Za-zæøå]*(?:\s*\/\s*[A-Za-zæøå]+)*)(\s+(?:eller\s+)?[A-Za-zæøå/()]+(?:\s+[A-Za-zæøå/]+)*)?\s*\|\s*(.*)$/.exec(l);
     if (!m) return linje;
     const rolle = finnRolle(l);
