@@ -679,6 +679,7 @@ export async function loadTemplatesFromDisk() {
 				await window.liturgi.bibSync('Kirkeårsprefasjoner (2020)', kirkeaarEntries);
 			}
 		}
+		const kildeNavn = (t) => t.name + (t.malForm && t.malForm !== 'bokmål' ? ' (' + t.malForm + ')' : ''); // bm/nn deler navn — registeret må skille dem
 		for (const tpl of disk.filter((t) => !!t.builtinKey)) {
 			const entries = [];
 			for (const sec of tpl.sections) {
@@ -701,7 +702,7 @@ export async function loadTemplatesFromDisk() {
 			}
 			// stikkprøve: antall OG innholds-hash må stemme, ellers bygges biblioteket
 			// på nytt (fanger tittel-/tekstendringer som ikke endrer radantallet)
-			const gammel = sig[tpl.name];
+			const gammel = sig[kildeNavn(tpl)];
 			if (gammel && gammel.n === entries.length && gammel.hash === hashAv(entries)) continue;
 			// sikre unike (ledd, alt_label) — bibliotek-tabellens primærnøkkel
 			const sett = new Set();
@@ -711,7 +712,7 @@ export async function loadTemplatesFromDisk() {
 				sett.add(e.ledd + '|' + l);
 				e.alt_label = l;
 			}
-			const syss = await window.liturgi.bibSync(tpl.name, entries);
+			const syss = await window.liturgi.bibSync(kildeNavn(tpl), entries);
 			if (syss && !syss.ok) toast.error('Bibliotekssynk feilet for «' + tpl.name + '»: ' + (syss.error ?? ''));
 		}
 	} catch (err) {
