@@ -78,11 +78,11 @@ function finnRolle(t) {
       const foer = rest.split('|')[0].trim();
       const etter = rest.split('|').slice(1).join('|').trim();
       if (!foer) return { rolle: ord, rest: etter };
-      if (/^(synger eller sier|synger|sier)$/i.test(foer)) return { rolle: ord, rest: foer + ': ' + etter };
+      if (/^(synger eller sier|synger|sier|syng eller seier|syng|seier)$/i.test(foer)) return { rolle: ord, rest: foer + ': ' + etter };
       const utvid = /^(\(?)(eller)\s+(.+?)\)?$/.exec(foer);
       if (utvid) {
         const ekstra = utvid[3].replace(/\s*\/\s*/g, '/').toUpperCase().replace(/[^A-ZÆØÅ/]/g, '');
-        if (/^[A-ZÆØÅ](\/[A-ZÆØÅ])*$/i.test(ekstra)) return { rolle: ord + '/' + ekstra, rest: etter };
+        if (/^[A-ZÆØÅ]{1,4}(\/[A-ZÆØÅ]{1,4})*$/i.test(ekstra)) return { rolle: ord + '/' + ekstra, rest: etter };
       }
     }
     return null;
@@ -597,6 +597,65 @@ function grupperEllerLedd(seksjoner) {
 // sammenhengende ledd med samme prefiks og ulik slutt-bokstav blir ett ledd
 // med alts[] (label = serienummeret). Teksten i hver variant = leddets tekst
 // + eventuelle etterfølgende under-ledd (f.eks. «Allmenn serie …»).
+/** Formater rollelinjer som konverteren ikke fanget (spesielt i alts-tekster):
+ *  «L syng eller seier | …», «A eller L/ML | …», «L seier | …» →
+ *  {{r}}ROLLE |{{/r}} …. Linjer med {{r}} eller BIBELREF eller tall|label
+ *  eller tall|label er urørt. Idempotent. */
+function formaterRollelinjer(tekst) {
+  if (!tekst || !tekst.includes('|') || tekst.includes('{{r}}')) return tekst;
+  return tekst.split('\n').map((linje) => {
+    const l = linje.trim();
+    if (!l || l.includes('{{r}}') || /^BIBELREF/.test(l)) return linje;
+    const m = /^([A-ZÆØÅ][A-Za-zæøå]*(?:\s*\/\s*[A-Za-zæøå]+)*)(\s+(?:eller\s+)?[A-Za-zæøå/()]+(?:\s+[A-Za-zæøå/]+)*)?\s*\|\s*(.*)$/.exec(l);
+    if (!m) return linje;
+    const rolle = finnRolle(l);
+    if (rolle) return '{{r}}' + rolle.rolle + ' |{{/r}} ' + rolle.rest;
+    return linje;
+  }).join('\n');
+}
+
+/** Deler anten/enten N + eller N-varianter INNE i ett ledd opp til alts[]
+ *  (s samme mønster som a–g-seriene i grupperSerier). Fanger også feil
+ *  «BIBELREF | anten 1»-klebring fra bibelref-regelen. */
+function splitterVariantSerier(seksjoner) {
+  for (const sec of seksjoner) {
+    for (const it of sec.items ?? []) {
+      const tekst = it.text ?? '';
+      if (!/^(?:BIBELREF\s*\|\s*)?(?:enten|anten)\s+\d+\b/im.test(tekst)) continue;
+      const linjer = tekst.split('\n');
+      const ut = [];
+      const serier = [];
+      let aktiv = null;
+      for (const raw of linjer) {
+        const l = raw.trim();
+        let m = /^(?:BIBELREF \|\s*)?(?:enten|anten)\s+(\d+)\b/i.exec(l);
+        if (m) {
+          if (aktiv) serier.push(aktiv);
+          aktiv = { label: m[1], linjer: [] };
+          const rest = l.slice(m[0].length).trim();
+          if (rest) aktiv.linjer.push(rest);
+          continue;
+        }
+        m = /^(?:BIBELREF \|\s*)?eller\s+(\d+)\b/i.exec(l);
+        if (m && aktiv) {
+          serier.push(aktiv);
+          aktiv = { label: m[1], linjer: [] };
+          const rest = l.slice(m[0].length).trim();
+          if (rest) aktiv.linjer.push(rest);
+          continue;
+        }
+        if (aktiv) aktiv.linjer.push(raw);
+        else ut.push(raw);
+      }
+      if (aktiv) serier.push(aktiv);
+      if (serier.length < 2) continue;
+      it.text = ut.join('\n').trim();
+      it.alts = serier.map((s) => ({ label: s.label, text: s.linjer.join('\n').trim() }));
+      it.selAlt = 0;
+    }
+  }
+}
+
 function grupperSerier(seksjoner) {
   for (const sec of seksjoner) {
     const items = sec.items ?? [];
@@ -689,8 +748,17 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
   while (seksjoner.length && (seksjoner[0].items ?? []).length <= 1 && (!(seksjoner[0].title ?? '').trim() || seksjoner[0].title === 'Uten tittel')) {
     seksjoner.shift();
   }
+  splitterVariantSerier(seksjoner);
   grupperEllerLedd(seksjoner);
   grupperSerier(seksjoner);
+  // rolleformatering i alle tekstfelter (spesielt alts, som hovedløpet ikke faenger)
+  for (const sec of seksjoner) for (const it of sec.items ?? []) {
+    it.text = formaterRollelinjer(it.text ?? '');
+    it.instr = formaterRollelinjer(it.instr ?? '');
+    for (const liste of [it.alts ?? [], it.introAlts ?? [], it.avslutningAlts ?? []]) {
+      for (const a of liste) a.text = formaterRollelinjer(a.text ?? '');
+    }
+  }
   for (const sec of seksjoner) for (const it of sec.items ?? []) trekkUtIntroAvslutning(it);
   return { mal, advarsler };
 }
