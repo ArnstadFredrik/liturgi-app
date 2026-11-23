@@ -501,31 +501,55 @@ export async function loadTemplatesFromDisk() {
 			pendingLocalTemplates.length = 0;
 		}
 
-		// 2) seed originalmalene hvis de mangler (BUILTIN + WIP-maler)
+		// 2) seed originalmalene hvis de mangler (BUILTIN + WIP-maler).
+		// Identitet er ID og seed-filnavn, IKKE mal-navn: bm/nn-par deler navn
+		// (målformen er ut av navnet og kategoriseres i appen).
 		const list = await window.liturgi.listTemplates();
 		if (!list.ok) return;
-		const eksisterende = new Set([...list.originaler, ...list.brukermaler].map((x) => x.name));
+		const filEksisterende = new Set();
+		const idEksisterende = new Set();
+		for (const m of [...list.originaler, ...list.brukermaler]) {
+			filEksisterende.add(m.path.split('/').pop());
+			const rd0 = await window.liturgi.readTemplate(m.path);
+			if (!rd0.ok) continue;
+			try { const id0 = (JSON.parse(rd0.json)?.data ?? {})?.id; if (id0) idEksisterende.add(id0); } catch {}
+		}
 		for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
-			if (eksisterende.has(bt.name)) continue;
-			// originaler: hovedgudstjenesten, gravferdsordningen og maler flagget erOriginal
+			const filnavn = safeNavn(bt.filnavn ?? bt.name) + '.limal';
+			if (filEksisterende.has(filnavn) || idEksisterende.has(bt.id)) continue;
+			// originaler: hovedgudtjenesten, gravferdsordningen og maler flagget erOriginal
 			// (dåp/vigsel/konfirmasjon/forbønn-ordningene); ellers brukermaler
-			const sub = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
-			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${safeNavn(bt.name)}.limal`, originalSeedJson(bt));
+			const sub = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name) ? 'originaler' : 'brukermaler';
+			await window.liturgi.writeTemplate(`${list.dirs[sub]}/${filnavn}`, originalSeedJson(bt));
 		}
 
 		// 2b) INTEGRITETSSJEKK: originalmaler i maler/originaler skal være
 		// identiske med seed-malene (kilden: src/lib/data.js). Avvik —
 		// uventet redigering, skade, halvferdige skrivinger — regenereres
-		// fra seed. Innholds-sammenligning (strekere enn en hash: oppdager
-		// alle avvik, ikke bare kollisjoner). WIP-maler (wip-flagget) følger
-		// samme mekanisme; bekreftede WIP-maler overstyres i minnet i steg 3.
+		// fra seed. Matching går på ID: bm/nn-par deler mal-navn, så navn
+		// kan ikke brukes som nøkkel (da overskriver bm-seeden nn-filen).
 		const list1b = await window.liturgi.listTemplates();
 		if (list1b.ok) {
+			const idTilMeta = new Map();
+			for (const m of list1b.originaler) {
+				const rd0 = await window.liturgi.readTemplate(m.path);
+				if (!rd0.ok) continue;
+				try {
+					const id0 = (JSON.parse(rd0.json)?.data ?? {})?.id;
+					if (id0 && !idTilMeta.has(id0)) idTilMeta.set(id0, m);
+				} catch {}
+			}
 			for (const bt of [...BUILTIN_TEMPLATES, ...WIP_TEMPLATES]) {
-				const erOriginal = bt.erOriginal || /hovedgudstjeneste|gravferd/i.test(bt.name);
+				const erOriginal = bt.erOriginal || /hovedgudtjeneste|gravferd/i.test(bt.name);
 				if (!erOriginal) continue;
-				const meta = list1b.originaler.find((m) => m.name === bt.name);
-				if (!meta) continue;
+				const meta = idTilMeta.get(bt.id);
+				if (!meta) {
+					// ingen fil med seedens id — gjenopprett på seed-filnavnet
+					const filnavn = safeNavn(bt.filnavn ?? bt.name) + '.limal';
+					await window.liturgi.writeTemplate(`${list1b.dirs.originaler}/${filnavn}`, originalSeedJson(bt));
+					console.warn('[liturgi] Originalmal manglet, seedet på nytt:', bt.name);
+					continue;
+				}
 				const rd = await window.liturgi.readTemplate(meta.path);
 				if (!rd.ok) continue;
 				const forventet = originalSeedJson(bt);
