@@ -572,12 +572,11 @@ ipcMain.handle('dev:utkast', async () => {
 		return { ok: true, utkast };
 	} catch (err) { return { ok: false, error: err.message }; }
 });
-// ---------- dev: Diff-modul — sammenlign .limal-filer side om side ----------
+// ---------- Diff-modul — sammenlign .limal-filer side om side ----------
 // Agent-maler: .limal-filer i ~/skill-agent-*/ (konverterings-tester).
-// Avvik mot dev-konvensjonen øvrig: lesing er brukerstyrt og skjer bare
-// eksplisitt fra Diff-modulen; skriving skjer aldri herfra.
+// LES-KUN og brukerstyrt: modulen kan ikke skrive, så den er tilgjengelig
+// også i pakket app (behøver ikke dev-modus).
 ipcMain.handle('dev:diff-agenter', async () => {
-	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
 	try {
 		const hjem = os.homedir();
 		const kataloger = fs.readdirSync(hjem, { withFileTypes: true })
@@ -604,7 +603,7 @@ ipcMain.handle('dev:diff-agenter', async () => {
 });
 
 ipcMain.handle('dev:diff-les', async (_e, fil) => {
-	if (app.isPackaged || typeof fil !== 'string' || !fil.toLowerCase().endsWith('.limal')) return { ok: false, error: 'Ugyldig fil' };
+	if (typeof fil !== 'string' || !fil.toLowerCase().endsWith('.limal')) return { ok: false, error: 'Ugyldig fil' };
 	try {
 		const d = JSON.parse(fs.readFileSync(fil, 'utf8'));
 		const data = d?.liturgiFormat ? d.data : d;

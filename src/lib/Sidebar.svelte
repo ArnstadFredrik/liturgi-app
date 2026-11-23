@@ -185,6 +185,11 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'innstillinger' ? 'hjem' : 'innstillinger'; }}>
 			{@html mdi('cog')} Innstillinger
 		</button>
+		<button class="wide" onclick={() => {
+			app.current = null; app.kind = null; app.visning = app.visning === 'diff' ? 'hjem' : 'diff';
+		}}>
+			{@html mdi('code-tags')} Diff
+		</button>
 		{#if app.devModus}
 			<button class="wide" onclick={() => {
 				// beholder åpent dev-dokument (malverktøy-redigering), slik at «Lagre til prosjektet» kan nås
@@ -192,11 +197,6 @@
 				app.current = null; app.kind = null; app.visning = app.visning === 'malverktoy' ? 'hjem' : 'malverktoy';
 			}}>
 				{@html mdi('pencil')} Malverktøy
-			</button>
-			<button class="wide" onclick={() => {
-				app.current = null; app.kind = null; app.visning = app.visning === 'diff' ? 'hjem' : 'diff';
-			}}>
-				{@html mdi('code-tags')} Diff
 			</button>
 		{/if}
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>

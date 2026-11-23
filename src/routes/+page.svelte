@@ -41,8 +41,8 @@
 
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)
 	let Malverktoy = $state(null); // lastes bare inn i dev-bygg (__DEV_MODE__)
-	let Diff = $state(null); // dev-modul: sammenlign .limal-filer side om side
-	if (__DEV_MODE__ && typeof window !== 'undefined') {
+	let Diff = $state(null); // sammenlign .limal-filer side om side (les-kun modul)
+	if (typeof window !== 'undefined') {
 		if (window.liturgi?.devTilstand) {
 			window.liturgi.devTilstand().then((t) => { app.devModus = !!t?.devModus; });
 		}
@@ -168,7 +168,7 @@
 			<Salmer />
 		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}
 			<Malverktoy />
-		{:else if app.visning === 'diff' && app.devModus && Diff}
+		{:else if app.visning === 'diff' && Diff}
 			<Diff />
 		{:else if app.current}
 			<Editor />
