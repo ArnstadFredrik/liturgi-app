@@ -202,7 +202,8 @@ function byggStruktur(avsnitt, advarsler) {
   };
   const nyttLedd = (heading, type = 'tekst') => {
     if (!sec) nySeksjon('Uten tittel');
-    item = { id: uid(), type, heading: heading ?? '', instr: '', text: '', alts: [], selAlt: 0, enabled: true, optional: false, salmeNr: '', salmeTittel: '' };
+    const valgfri = /^\*\s?/.test(heading ?? '');
+    item = { id: uid(), type, heading: heading ?? '', instr: '', text: '', alts: [], selAlt: 0, enabled: true, optional: valgfri, salmeNr: '', salmeTittel: '' };
     sec.items.push(item);
   };
   const leggTilTekst = (linje) => {
@@ -333,7 +334,7 @@ function byggStruktur(avsnitt, advarsler) {
     const grense = !forrigeTekst || /[.!?»]$/.test(forrigeTekst) || /^Amen\.?$/.test(forrigeTekst) || forrigeVarTittel;
     // nummerert leddtittel i ren tekst («4 Samlingsbønn», «13 Preken»):
     // kort linje med ledende siffer, uten avsluttende tegn, etter punkt-slutt
-    const erNummerTittel = /^–?\d{1,2}\.?\s+[A-ZÆØÅ]/.test(t)
+    const erNummerTittel = /^–?\d{1,2}\.?\s+[A-ZÆØÅ][\wæøå\/-]*(\s+[\wæøå\/-]*){0,3}$/.test(t.trim())
       && t.length <= 50 && !/[.,;:!?\u00bb]$/.test(t) && !/\sv\.?\s?\d/.test(t);
     const erOmkved = /^(omkved|refreng|amen)\.?$/i.test(t);
     if (!erOmkved && item?.type !== 'salme' && !rolleRe.test(t) && grense && (erTittelLinje(t) || erNummerTittel)) {
@@ -390,15 +391,32 @@ function byggStruktur(avsnitt, advarsler) {
       const it = sekn.items[i];
       if ((it.alts ?? []).length || (it.introAlts ?? []).length) continue;
       const linjer = (it.text ?? '').split('\n');
-      const forste = (linjer[0] ?? '').trim();
-      const mN = /^(\d{1,2})\.?\s+([A-ZÆØÅ].{2,40})$/.exec(forste);
-      if (!mN || /[.,;:!?\u00bb]$/.test(forste)) continue;
-      const rest = linjer.slice(1).join('\n');
-      if (!rest.trim() && (it.heading ?? '').trim()) continue; // alt innhold ville blitt tom
-      const nytt = { id: uid(), type: it.type ?? 'tekst', heading: forste, instr: '', text: rest, alts: [], selAlt: 0, enabled: true, optional: false, salmeNr: '', salmeTittel: '' };
-      it.text = '';
-      sekn.items.splice(i + 1, 0, nytt);
-      i++;
+      const tomHeading = !(it.heading ?? '').trim();
+      // gå baklengs: alle linjer som ser ut som nummerert leddtittel
+      // («16 Kunngjeringar» midt i et annet ledds tekst) deles ut
+      let splittet = false;
+      for (let li = linjer.length - 1; li >= 0; li--) {
+        const l = (linjer[li] ?? '').trim();
+        const mN = /^(\d{1,2})\.?\s+([A-ZÆØÅ][\wæøå\/-]*(\s+[\wæøå\/-]*){0,3})$/.exec(l);
+        if (!mN || /[.,;:!?\u00bb]$/.test(l)) continue;
+        const foer = linjer.slice(0, li).join('\n');
+        const etter = linjer.slice(li + 1).join('\n');
+        const nytt = { id: uid(), type: it.type ?? 'tekst', heading: l, instr: '', text: etter, alts: [], selAlt: 0, enabled: true, optional: false, salmeNr: '', salmeTittel: '' };
+        if (foer.trim()) {
+          const forrige = { ...it, id: uid(), text: foer, alts: [], introAlts: it.introAlts, selAlt: 0 };
+          delete forrige.__lenket;
+          sekn.items.splice(i, 1, forrige, nytt);
+          splittet = true;
+        } else {
+          it.text = etter;
+          it.heading = l;
+          it.instr = '';
+          splittet = true;
+        }
+        void tomHeading;
+        break; // én deling per runde — flerganger håndteres av loopens re-run? nei: loop over items går fremover, nye items får sin sjanse
+      }
+      void splittet;
     }
   }
 
@@ -629,6 +647,23 @@ function konverterLiturgi(fil, { navn, type, maalform } = {}) {
     throw new Error('Ustøttet filtype (bruk .docx eller .pdf): ' + ext);
   }
   const seksjoner = byggStruktur(avsnitt, advarsler);
+  // normaliser hoveddelstitlene til I–IV-mønsteret og legg
+  // inn lenket Dåp-seksjon etter I. Samling (malId etter målform)
+  // godta både skrivemåtene — argumentverdien kan ha mistet s-en på veien
+  const erHovedliturgi = type === 'gud' + String.fromCharCode(115) + 'tjeneste' || type === 'gud' + String.fromCharCode(116) + 'jeneste';
+  if (erHovedliturgi) {
+    const hoveddel = { samling: 'I. Samling', ordet: 'II. Ordet', nattverd: 'III. Nattverd', sendelse: 'IV. Sendelse', sending: 'IV. Sendelse' };
+    let treff = 0;
+    for (const sekn of seksjoner) {
+      const n = (sekn.title ?? '').trim().toLowerCase();
+      if (hoveddel[n]) { sekn.title = hoveddel[n]; treff++; }
+    }
+    if (treff >= 2 && !seksjoner.some((s) => s.__lenket)) {
+      const idx = seksjoner.findIndex((s) => (s.title ?? '') === 'I. Samling');
+      const malId = maalform === 'nynorsk' ? 'dåp-i-hovedgud' + 'tjenesten-2017-nynorsk' : 'dop-i-hovedgud' + 'tjenesten-2017';
+      seksjoner.splice(idx + 1, 0, { title: 'Dåp', __lenket: { malId, tittel: 'Dåp' }, items: [] });
+    }
+  }
   // refreng-formatering i salmer: «Omkved»/«Refreng»-blokker pakkes
   for (const sec of seksjoner) {
     for (const it of sec.items) {

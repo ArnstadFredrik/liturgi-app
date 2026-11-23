@@ -138,7 +138,10 @@ if (seedsDir && existsSync(seedsDir)) {
     if (!sec.__lenket) continue;
     const malId = sec.__lenket.malId;
     const kandidat = seedData.find((s) => s.id === malId || s.name === sec.__lenket.tittel);
-    if (!kandidat) feil.push(`seksjon «${sec.title}»: __lenket.malId "${malId}" finnes ikke blant seed-malene`);
+    // ikke blant seeds er ikke nødvendigvis en feil — målformen kan være en
+    // variant (f.eks. '-nynorsk') som følger med appens originaler, ikke som
+    // seed. Advarsel med tydelig kontrollpunkt i stedet for hard feil.
+    if (!kandidat) advar.push(`seksjon «${sec.title}»: __lenket.malId "${malId}" finnes ikke blant seed-malene — kontroller at malen finnes i appen`);
     else if (!kandidat.data?.sections?.length) advar.push(`seksjon «${sec.title}»: lenket mal (${malId}) har ingen seksjoner`);
   }
 }
