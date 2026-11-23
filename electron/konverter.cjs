@@ -74,9 +74,12 @@ function finnRolle(t) {
     // kvalifikator før røret: «L sier | …», «A eller L | …»,
     // «A (eller L/ML) | …», «L synger eller sier | …» — rolletokenet
     // utvides/kvalifikatoren legges i teksten, ikke i rollemerket
-    if (rest.includes('|')) {
-      const foer = rest.split('|')[0].trim();
-      const etter = rest.split('|').slice(1).join('|').trim();
+    // rollelinjer kan avslutte med '|' (hovedregel), ':' eller i sjeldne
+    // tilfelle ingen egen avslutning — alle normaliseres til '|' i merket
+    const ms = /^([^|:]*?)([|:])\s*(.*)$/.exec(rest);
+    if (ms) {
+      const foer = ms[1].trim();
+      const etter = ms[3];
       if (!foer) return { rolle: ord, rest: etter };
       // instruksjonen («syng eller seier», «eller L/ML» …) inkluderes
       // i rollemerket: {{r}}L syng eller seier |{{/r}} …
@@ -86,7 +89,7 @@ function finnRolle(t) {
   }
   // flerledd-roller med instruksjon før røret («L/ML seier | …»,
   // «K reiser seg og syng | …») — instruksjonen inn i rollemerket
-  const mInstr = /^([a-zæøå][a-zæøå ]*?)\s*\|\s*(.*)$/.exec(rest);
+  const mInstr = /^([a-zæøå][a-zæøå ]*?)\s*[:|]\s*(.*)$/.exec(rest);
   if (mInstr) return { rolle: ord + ' ' + mInstr[1].trim(), rest: mInstr[2] };
   return { rolle: ord, rest };
 }
