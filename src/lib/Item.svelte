@@ -298,6 +298,9 @@
 				{ label: 'Avslutning', checked: avslAltsLen > 0, action: () => avslAltsLen ? fjernGruppe('avslutningAlts', 'selAvsl', 'Avslutning') : opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') }
 			] : []),
 			{ label: 'Skift type …', action: skiftType },
+			// instruksjonsfelt: vises kun når det har innhold — denne legger
+			// til et tomt redigerbart felt (' ') eller fjerner det igjen
+			{ label: (it.instr ?? '').trim() ? 'Fjern instruksjonsfelt' : 'Legg til instruksjonsfelt', action: () => { it.instr = (it.instr ?? '').trim() ? '' : ' '; markDirty(); } },
 			'sep',
 			{ label: (o?.visInstr ?? true) ? '✓ Vis instruksjoner' : 'Vis instruksjoner', action: () => { if (o) { o.visInstr = !(o.visInstr ?? true); markDirty(); } } },
 			{ label: (o?.visRoles ?? true) ? '✓ Vis roller' : 'Vis roller', action: () => { if (o) { o.visRoles = !(o.visRoles ?? true); markDirty(); } } },
@@ -380,7 +383,7 @@
 		{/if}
 	</div>
 	<div class="item-body">
-		{#if (app.current?.visInstr ?? true) && it.instr}
+		{#if (app.current?.visInstr ?? true) && it.instr !== '' && it.instr != null}
 			<div class="instr-wrap">
 				<span class="item-eyebrow">instr</span>
 				<EditableText bind:value={it.instr} kind="instr" />

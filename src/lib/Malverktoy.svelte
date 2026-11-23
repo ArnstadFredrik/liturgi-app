@@ -29,10 +29,32 @@
 		return !!(q || typeSel.length || kildeSel.length || katSel.length);
 	} // alle | gudstjeneste | vigsel | gravferd
 	const typeRekkefolge = { gudstjeneste: 0, vigsel: 1, gravferd: 2 };
+	let sorterNokkel = $state('navn'); // navn | kategori | maalform | type | kilde
+	let sortRetning = $state(1); // 1 = stigende, -1 = synkende
+	const sorterVerdi = (t) => ({
+		navn: (t.name ?? '').toLowerCase(),
+		kategori: kategoriFor(t),
+		maalform: målformLabel(malFormFor(t)),
+		type: typeNavn(t),
+		kilde: erOriginalMal(t) ? 'original' : 'bruker'
+	});
+	function klikkSorter(nokkel) {
+		if (sorterNokkel === nokkel) sortRetning = -sortRetning;
+		else { sorterNokkel = nokkel; sortRetning = 1; }
+	}
+	function sortIkon(nokkel) {
+		if (sorterNokkel !== nokkel) return '';
+		return sortRetning === 1 ? ' ↑' : ' ↓';
+	}
 	const visMal = $derived(
 		(app.templates ?? [])
 			.filter((t) => (!q || t.name.toLowerCase().includes(q.toLowerCase())) && (typeSel.length === 0 || typeSel.includes(malType(t))) && (kildeSel.length === 0 || kildeSel.includes(erOriginalMal(t) ? 'originaler' : 'brukermaler')) && (katSel.length === 0 || katSel.includes(kategoriFor(t))))
-			.sort((a, b) => (kategoriSort(a) - kategoriSort(b)) || a.name.localeCompare(b.name, 'no'))
+			.sort((a, b) => {
+				const va = sorterVerdi(a);
+				const vb = sorterVerdi(b);
+				const cmp = String(va).localeCompare(String(vb), 'no') || (kategoriSort(a) - kategoriSort(b)) || a.name.localeCompare(b.name, 'no');
+				return cmp * sortRetning;
+			})
 	);
 	/** Har malen en seed i data.js (kan redigeres med \u00abLagre til prosjektet\u00bb)? */
 	function harSeed(t) {
@@ -95,7 +117,14 @@
 	<div class="mal-tabell-kort">
 		<table class="mal-tabell">
 			<thead>
-				<tr><th>Navn</th><th>Kategori</th><th>Målform</th><th>Type</th><th>Kilde</th><th class="th-handlinger"></th></tr>
+				<tr>
+					<th><button class="th-sort" onclick={() => klikkSorter('navn')}>Navn{sortIkon('navn')}</button></th>
+					<th><button class="th-sort" onclick={() => klikkSorter('kategori')}>Kategori{sortIkon('kategori')}</button></th>
+					<th><button class="th-sort" onclick={() => klikkSorter('maalform')}>Målform{sortIkon('maalform')}</button></th>
+					<th><button class="th-sort" onclick={() => klikkSorter('type')}>Type{sortIkon('type')}</button></th>
+					<th><button class="th-sort" onclick={() => klikkSorter('kilde')}>Kilde{sortIkon('kilde')}</button></th>
+					<th class="th-handlinger"></th>
+				</tr>
 			</thead>
 			<tbody>
 				{#each visMal as t (t.id)}
@@ -157,4 +186,10 @@
 }
 .utkast-navn { flex: 1; }
 .utkast-tid { color: var(--muted-foreground); font-size: 13px; }
+	.th-sort {
+		background: none; border: none; color: inherit; font: inherit;
+		font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+		font-size: 11px; cursor: pointer; padding: 0;
+	}
+	.th-sort:hover { color: var(--accent); }
 </style>

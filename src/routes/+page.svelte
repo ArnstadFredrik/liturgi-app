@@ -195,7 +195,7 @@
 		</button>
 	{/if}
 	<aside id="toc-side">
-		{#if app.current?.sections && app.current.sections.length > 1}
+		{#if app.current?.sections && app.current.sections.length >= 1}
 			<div class="toc-avsnitt">
 			<div class="sidehead">Avsnitt</div>
 			<ul class="list">
