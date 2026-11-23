@@ -210,19 +210,25 @@
 	.rad-meny-knapp { padding: 3px 5px; }
 	.rad-meny-knapp:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); border-radius: 6px; }
 	.rad-meny-liste {
-		position: absolute; right: 0; top: calc(100% + 2px); z-index: 30;
-		background: var(--card, #fff); border: 1px solid var(--border);
-		border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
-		min-width: 190px; padding: 4px; display: grid;
+		position: absolute; right: 0; top: calc(100% + 4px); z-index: 30;
+		background: var(--panel2); color: var(--text);
+		border: 1px solid var(--border); border-radius: var(--radius);
+		box-shadow: var(--shadow);
+		min-width: 200px; padding: 4px; display: grid;
+		overflow: hidden;
 	}
 	.rad-meny-liste button {
 		display: flex; align-items: center; gap: 8px; text-align: left;
 		background: none; border: none; font: inherit; font-size: 13px;
-		padding: 7px 10px; border-radius: 7px; cursor: pointer; color: inherit;
+		padding: 6px 8px; border-radius: calc(var(--radius) - 2px);
+		cursor: pointer; color: var(--text); outline: none;
 	}
-	.rad-meny-liste button:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.06)); }
-	.rad-meny-liste hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
-	.rad-meny-liste .rad-meny-fare { color: #c0392b; }
+	.rad-meny-liste button:hover { background: var(--accent-dim); color: var(--text); }
+	.rad-meny-liste button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+	.rad-meny-liste hr { border: none; border-top: 1px solid var(--border); margin: 4px -4px; }
+	.rad-meny-liste .rad-meny-fare { color: var(--danger); }
+	.rad-meny-liste .rad-meny-fare:hover { background: rgba(208, 82, 69, 0.12); color: var(--danger); }
+	.rad-meny-knapp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 6px; }
 	.th-sort {
 		background: none; border: none; color: inherit; font: inherit;
 		font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
