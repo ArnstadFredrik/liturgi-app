@@ -165,6 +165,15 @@ export function åpneForhåndsvisning(t) {
 	app.dirty = false;
 }
 
+/** Rediger seed fra en låst forhåndsvisning: finn seeden på __devId
+ *  og åpne redigeringsmodus. Feiler tydelig hvis seeden mangler. */
+export function redigerSeedForhåndsvisning(o) {
+	if (!o?.__devId) { toast.error('Ingen seed-kobling funnet for «' + (o?.name ?? '?') + '»'); return; }
+	const bt = BUILTIN_TEMPLATES.find((b) => b.id === o.__devId);
+	if (!bt) { toast.error('Fant ikke seeden for «' + (o.name ?? '?') + '»'); return; }
+	åpneOriginal(bt);
+}
+
 /** Slett en originalmal FRA PROSJEKTET: seed-entry i data.js + seed-fil på disk.
  *  Filen flyttes til papirkurven av handleren; bekreftelse kreves først. */
 export async function slettMalFraProsjektet(t) {

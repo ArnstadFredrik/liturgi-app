@@ -8,6 +8,7 @@ const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron
 export const uid = () => 'i' + Math.random().toString(36).slice(2, 9);
 
 export const app = $state({
+// DEBUG: fjernes etter feilsok
 	templates: [],
 	services: [],
 	current: null, // referanse til objektet i templates/services
@@ -659,3 +660,5 @@ export function sortedServices() {
 		(a, b) => (a.date || '9999').localeCompare(b.date || '9999') || a.name.localeCompare(b.name)
 	);
 }
+
+// DEBUG: fjernes etter feilsok (levende peker til app-tilstanden)
