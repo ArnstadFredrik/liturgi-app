@@ -168,7 +168,7 @@
 			<Salmer />
 		{:else if app.visning === 'malverktoy' && app.devModus && Malverktoy}
 			<Malverktoy />
-		{:else if app.visning === 'diff' && Diff}
+		{:else if app.visning === 'diff' && app.devModus && Diff}
 			<Diff />
 		{:else if app.current}
 			<Editor />

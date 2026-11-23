@@ -577,6 +577,7 @@ ipcMain.handle('dev:utkast', async () => {
 // LES-KUN og brukerstyrt: modulen kan ikke skrive, så den er tilgjengelig
 // også i pakket app (behøver ikke dev-modus).
 ipcMain.handle('dev:diff-agenter', async () => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
 	try {
 		const hjem = os.homedir();
 		const kataloger = fs.readdirSync(hjem, { withFileTypes: true })
@@ -603,7 +604,7 @@ ipcMain.handle('dev:diff-agenter', async () => {
 });
 
 ipcMain.handle('dev:diff-les', async (_e, fil) => {
-	if (typeof fil !== 'string' || !fil.toLowerCase().endsWith('.limal')) return { ok: false, error: 'Ugyldig fil' };
+	if (app.isPackaged || typeof fil !== 'string' || !fil.toLowerCase().endsWith('.limal')) return { ok: false, error: 'Ugyldig fil' };
 	try {
 		const d = JSON.parse(fs.readFileSync(fil, 'utf8'));
 		const data = d?.liturgiFormat ? d.data : d;
