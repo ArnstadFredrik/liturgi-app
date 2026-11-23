@@ -62,6 +62,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	slettUtkast: (fil) => ipcRenderer.invoke('dev:slett-utkast', fil),
 	lagreUtkast: (mal, fast) => ipcRenderer.invoke('dev:lagre-utkast', { mal, fast }),
 	lagreDataJs: (mal) => ipcRenderer.invoke('dev:lagre-datajs', { mal }),
+	slettSeed: (id, filnavn) => ipcRenderer.invoke('dev:slett-seed', { id, filnavn }),
 	// prekenforberedelser: mappe-tre, filer og prosjekt-oppsett
 	forbVelgMappe: (defaultSti) => ipcRenderer.invoke('forb:velg-mappe', { defaultSti }),
 	forbMappe: (p) => ipcRenderer.invoke('forb:mappe', { path: p }),

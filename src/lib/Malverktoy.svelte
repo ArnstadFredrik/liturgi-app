@@ -8,7 +8,7 @@
 	import { malType } from '$lib/modal.svelte.js';
 	import { målformLabel, malFormFor, erWip, kategoriFor, kategoriSort, KATEGORIER, TYPER } from '$lib/maltyper.js';
 	import { app, openTemplate } from '$lib/store.svelte.js';
-	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal } from '$lib/malverktoy.svelte.js';
+	import { åpneOriginal, lagreTilProsjekt, åpneUtkast, slettUtkast, bekreftWipMal, slettMalFraProsjektet } from '$lib/malverktoy.svelte.js';
 	import FilterDropdown from '$lib/FilterDropdown.svelte';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
@@ -147,6 +147,7 @@
 								<button onclick={() => åpneOriginal(t)} title="Rediger malen i dev-editoren og lagre til prosjektet som ny seed i data.js">{@html mdi('pencil', 13)} Rediger seed</button>
 							{/if}
 							<button onclick={() => openTemplate(t.id)} title="Åpne i den vanlige editoren">Åpne</button>
+							<button class="w-mal-slett" onclick={() => slettMalFraProsjektet(t)} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('trash-can-outline', 13)}</button>
 						</td>
 					</tr>
 				{:else}
@@ -189,6 +190,8 @@
 }
 .utkast-navn { flex: 1; }
 .utkast-tid { color: var(--muted-foreground); font-size: 13px; }
+	.w-mal-slett { color: var(--muted); }
+	.w-mal-slett:hover { color: #c0392b; border-color: #c0392b; }
 	.th-sort {
 		background: none; border: none; color: inherit; font: inherit;
 		font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;

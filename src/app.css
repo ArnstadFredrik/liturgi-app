@@ -124,7 +124,9 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 }
 .filter-nullstill:hover:not(:disabled) { color: var(--text); background: var(--sidebar-hover); }
 .filter-nullstill:disabled { opacity: 0.45; cursor: default; }
-.mal-tabell-kort { flex: 1; min-height: 0; overflow: auto; margin-top: 0; }
+/* høyden følger innholdet — bredden skalerer etter plassen på skjermen */
+.mal-tabell-kort { flex: 0 0 auto; overflow: visible; margin-top: 0; }
+#malverktoy .mal-tabell-kort { overflow-x: auto; }
 #malverktoy .mal-filter { flex-shrink: 0; }
 
 /* ---------- Sidebar ---------- */

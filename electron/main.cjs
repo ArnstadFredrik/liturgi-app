@@ -642,6 +642,59 @@ ipcMain.handle('dev:lagre-utkast', async (_e, { mal, fast }) => {
 });
 // Skriv en redigert originalmal tilbake til src/lib/data.js så den blir med
 // i byggprosessen. Handleren nekter å kjøre i en pakket app.
+ipcMain.handle('dev:slett-seed', async (_e, { id, filnavn }) => {
+	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
+	if (!id || typeof id !== 'string') return { ok: false, error: 'Ugyldig id' };
+	const fil = path.join(app.getAppPath(), 'src', 'lib', 'data.js');
+	let src;
+	try { src = fs.readFileSync(fil, 'utf8'); }
+	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
+	const linjer = src.split('\n');
+	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${id}"`));
+	if (idLinje < 0) return { ok: false, error: 'Fant ikke seeden i data.js' };
+	// entry-grensene: samme skanner som dev:lagre-datajs
+	let start = idLinje;
+	while (start > 0 && !/^\t\{$/.test(linjer[start])) start--;
+	let slutt = idLinje;
+	while (slutt < linjer.length && !/^\t},?$/.test(linjer[slutt])) slutt++;
+	if (start <= 0 || slutt >= linjer.length) return { ok: false, error: 'Ugyldige entry-grenser i data.js' };
+	linjer.splice(start, slutt - start + 1);
+	// forrige entry må ikke ende med komma hvis entryen var den siste i arrayet
+	for (let pi = start - 1; pi > 0; pi--) {
+		const tr = linjer[pi].trim();
+		if (!tr) continue;
+		if (tr.endsWith('},') && linjer[pi + 1] !== undefined && /^\t?\]/.test((linjer[pi + 1] ?? '').trim())) linjer[pi] = linjer[pi].slice(0, -1);
+		break;
+	}
+	fs.writeFileSync(fil, linjer.join('\n'));
+	try {
+		await import(url.pathToFileURL(fil).href + '?v=' + Date.now());
+	} catch (err) {
+		fs.writeFileSync(fil, src);
+		return { ok: false, error: 'data.js var ugyldig etter sletting (gjenopprettet): ' + err.message };
+	}
+	// seed-filen på disk (originaler/brukermaler) slettes også — til papirkurven
+	let filSlettet = false;
+	try {
+		const base = app.getPath('home');
+		for (const sub of ['originaler', 'brukermaler']) {
+			const mappe = path.join(base, '.config', 'Liturgi', 'maler', sub);
+			for (const f of fs.readdirSync(mappe)) {
+				const fp = path.join(mappe, f);
+				try {
+					const d = JSON.parse(fs.readFileSync(fp, 'utf8'));
+					if ((d?.data ?? d)?.id === id) {
+						const papirkurv = path.join(base, '.Trash');
+						fs.renameSync(fp, path.join(papirkurv, 'slettet-seed-' + f));
+						filSlettet = true;
+					}
+				} catch {}
+			}
+		}
+	} catch {}
+	return { ok: true, filSlettet };
+});
+
 ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 	if (app.isPackaged) return { ok: false, error: 'Kun tilgjengelig i dev-modus' };
 	if (!mal || typeof mal !== 'object' || !mal.id) return { ok: false, error: 'Ugyldig mal-objekt' };

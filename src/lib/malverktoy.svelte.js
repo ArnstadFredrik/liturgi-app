@@ -153,6 +153,22 @@ export async function bekreftWipMal(t) {
 	}, 'Bekreft');
 }
 
+/** Slett en originalmal FRA PROSJEKTET: seed-entry i data.js + seed-fil på disk.
+ *  Filen flyttes til papirkurven av handleren; bekreftelse kreves først. */
+export async function slettMalFraProsjektet(t) {
+	const { confirmBox } = await import('$lib/modal.svelte.js');
+	confirmBox('Slett mal fra prosjektet', `Slette «${t.name}» fra prosjektet? Seed-entryen i data.js og seed-filen på disk fjernes (filen flyttes til papirkurven).`, async () => {
+		const r = await window.liturgi.slettSeed(t.id, t.name);
+		if (r?.ok) {
+			app.templates = app.templates.filter((x) => x.id !== t.id);
+			toast.success('«' + t.name + '» er slettet fra prosjektet' + (r.filSlettet ? ' (filen ligger i papirkurven)' : ' (ingen fil på disk)'));
+			if (app.current?.id === t.id) { app.current = null; app.kind = null; app.visning = 'malverktoy'; }
+		} else {
+			toast.error(r?.error ?? 'Klarte ikke slette seeden');
+		}
+	}, 'Slett');
+}
+
 /** Lagre åpen dev-mal tilbake til src/lib/data.js + seed-filen på disk. */
 export async function lagreTilProsjekt() {
 	const o = app.current;
