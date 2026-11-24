@@ -84,6 +84,17 @@ try {
 	})()`);
 	ok('ingen duplikat mal-id (duplikat = Svelte-krasj i Maler-listen)', dup === 0);
 
+	// filter-isolering: lagrede liste-filter (kildeSel osv.) i localStorage
+	// skjuler ellers originaler og får mal-åpningene til å feile
+	const filt = await ev(`(() => {
+		const fant = [];
+		for (const k of ['maler-filtre', 'malverktoy-filtre']) {
+			if (localStorage.getItem(k)) { fant.push(k); localStorage.removeItem(k); }
+		}
+		return fant.join(',');
+	})()`);
+	if (filt) { await ev('location.reload()', true); await new Promise((r) => setTimeout(r, 2500)); }
+
 	// ---- 4. åpne ALLE maler — frys-regresjonen: mount dør ved props_invalid_value ----
 	for (const mal of ELLER_MALER) {
 		const åpnet = await ev(`(async () => {
