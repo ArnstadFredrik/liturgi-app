@@ -103,7 +103,11 @@ const TPL_SUBDIRS = ['originaler', 'brukermaler'];
 let tplFolder = null;
 function templatesDir(sub = 'brukermaler') {
 	if (!tplFolder) {
-		tplFolder = path.join(os.homedir(), '.config', 'Liturgi', 'maler');
+		// Windows: %APPDATA%\Liturgi\maler (userData); mac/linux: ~/.config/Liturgi/maler
+		// (Electrons userData på linux ER ~/.config/<navn>, så stien er identisk der).
+		tplFolder = process.platform === 'win32'
+			? path.join(app.getPath('userData'), 'maler')
+			: path.join(os.homedir(), '.config', 'Liturgi', 'maler');
 	}
 	const d = path.join(tplFolder, sub);
 	try { fs.mkdirSync(d, { recursive: true }); } catch {}
@@ -197,10 +201,8 @@ ipcMain.handle('tpl:write', async (_e, { path: p, json }) => {
 
 ipcMain.handle('tpl:delete', async (_e, { path: p }) => {
 	try {
-		await new Promise((res, rej) => {
-			const { execFile } = require('child_process');
-			execFile('osascript', ['-e', `tell app "Finder" to delete POSIX file "${p}"`], (err) => err ? rej(err) : res());
-		});
+		// flytt til papirkurven (plattformuavhengig Electron-API)
+		await shell.trashItem(p);
 		return { ok: true };
 	} catch (err) {
 		return { ok: false, error: String(err?.message ?? err) };
@@ -422,12 +424,9 @@ ipcMain.handle('svc:save-as', async (_e, { defaultName, json }) => {
 });
 
 ipcMain.handle('svc:delete', async (_e, { path: p }) => {
+	// flytt til papirkurven (plattformuavhengig Electron-API)
 	try {
-		// flytt til papirkurven via skall-kommando (sikrere enn unlink)
-		await new Promise((res, rej) => {
-			const { execFile } = require('child_process');
-			execFile('osascript', ['-e', `tell app "Finder" to delete POSIX file "${p}"`], (err) => err ? rej(err) : res());
-		});
+		await shell.trashItem(p);
 		return { ok: true };
 	} catch (err) {
 		return { ok: false, error: String(err?.message ?? err) };
@@ -688,8 +687,7 @@ ipcMain.handle('dev:slett-seed', async (_e, { id, filnavn }) => {
 				try {
 					const d = JSON.parse(fs.readFileSync(fp, 'utf8'));
 					if ((d?.data ?? d)?.id === id) {
-						const papirkurv = path.join(base, '.Trash');
-						fs.renameSync(fp, path.join(papirkurv, 'slettet-seed-' + f));
+						await shell.trashItem(fp);
 						filSlettet = true;
 					}
 				} catch {}
@@ -917,9 +915,11 @@ function createWindow(port) {
 		minWidth: 900,
 		minHeight: 600,
 		title: 'Liturgi',
-		titleBarStyle: 'hiddenInset',
-		trafficLightPosition: { x: 14, y: 16 },
-		vibrancy: 'sidebar',
+		...(process.platform === 'darwin' ? {
+			titleBarStyle: 'hiddenInset',
+			trafficLightPosition: { x: 14, y: 16 },
+			vibrancy: 'sidebar',
+		} : {}),
 		backgroundColor: '#00000000',
 		webPreferences: {
 			contextIsolation: true,

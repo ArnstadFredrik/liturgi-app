@@ -1,4 +1,4 @@
-name: Bygg og publiser Mac-app
+name: Bygg og publiser Liturgi (mac/win/linux)
 
 on:
   push:
@@ -9,8 +9,18 @@ permissions:
   contents: write
 
 jobs:
-  build-mac:
-    runs-on: macos-latest # Apple Silicon
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
     outputs:
       version: ${{ steps.ver.outputs.version }}
       sha256: ${{ steps.sha.outputs.sha256 }}
@@ -24,6 +34,7 @@ jobs:
 
       - name: Sett versjon fra taggen
         id: ver
+        shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           npm version "$VERSION" --no-git-tag-version --allow-same-version
@@ -32,14 +43,20 @@ jobs:
       - name: Installer avhengigheter
         run: npm ci
 
+      - name: Valider (tester) på plattformen
+        run: npm test
+
       - name: Bygg SvelteKit + Electron
-        run: npm run build && npx electron-builder --mac --publish always
+        shell: bash
+        run: npm run build && npx electron-builder --${{ matrix.platform }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Sikkerhetsnett: dev-verktøyene (f.eks. malverktøyet) skal ALDRI være med i et publisert bygg.
       # De inkluderes kun av «npm run build:dev» / «npm run electron:dev», som kjøres manuelt lokalt.
       - name: Verifiser at dev-modulen ikke er i byggget
+        if: matrix.platform != 'win'
+        shell: bash
         run: |
           if grep -rl "Denne modulen finnes ikke i pakkede utgaver" build/; then
             echo "::error::DEV-modulen (Malverktøy) er med i publiseringssbyggget!"
@@ -47,8 +64,22 @@ jobs:
           fi
           echo "OK: ingen dev-modul i byggget."
 
-      - name: Regn ut sjekksum
+      - name: Last opp bygg som artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Liturgi-${{ matrix.platform }}
+          path: |
+            dist/*.dmg
+            dist/*.exe
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: warn
+
+      - name: Regn ut sjekksum (mac)
         id: sha
+        if: matrix.platform == 'mac'
+        shell: bash
         run: |
           DMG="dist/Liturgi-${{ steps.ver.outputs.version }}-arm64.dmg"
           test -f "$DMG" || { ls -la dist; exit 1; }
@@ -56,7 +87,7 @@ jobs:
 
   update-tap:
     runs-on: ubuntu-latest
-    needs: build-mac
+    needs: build
     steps:
       - name: Hent homebrew-tap
         uses: actions/checkout@v4

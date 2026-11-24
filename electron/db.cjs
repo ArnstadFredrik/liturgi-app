@@ -10,7 +10,11 @@ let db = null;
 function openDb() {
 	if (db) return db;
 	// LITURGI_DB_DIR: test-instanser kan bruke egen db og røre aldri brukerens
-	const dir = process.env.LITURGI_DB_DIR || path.join(os.homedir(), '.config', 'Liturgi');
+	// Windows: %APPDATA%\Liturgi (userData); mac/linux: ~/.config/Liturgi
+	// (Electrons userData på linux ER ~/.config/<navn>, så stien er identisk).
+	const dir = process.env.LITURGI_DB_DIR || (process.platform === 'win32'
+		? path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'Liturgi')
+		: path.join(os.homedir(), '.config', 'Liturgi'));
 	fs.mkdirSync(dir, { recursive: true });
 	db = new Database(path.join(dir, 'liturgi.db'));
 	db.pragma('journal_mode = WAL');

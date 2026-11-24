@@ -1,0 +1,41 @@
+name: Valider på alle plattformer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Enhetstester
+        run: npm test
+
+      - name: Bygg SvelteKit
+        shell: bash
+        run: npm run build
+
+      - name: Verifiser at dev-modulen ikke er i byggget
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if grep -rl "Denne modulen finnes ikke i pakkede utgaver" build/; then
+            echo "::error::DEV-modulen (Malverktøy) er med i byggget!"
+            exit 1
+          fi
+          echo "OK: ingen dev-modul i byggget."

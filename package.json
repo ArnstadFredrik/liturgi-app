@@ -53,11 +53,40 @@
             "arm64"
           ]
         }
-      ]
+      ],
+      "icon": "electron/icons/liturgi.icns"
     },
     "publish": {
       "provider": "github",
       "releaseType": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/icons/liturgi.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Liturgi-${version}-setup.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "electron/icons/liturgi-512.png",
+      "category": "Office",
+      "artifactName": "Liturgi-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "category": "Office"
     }
   },
   "devDependencies": {
