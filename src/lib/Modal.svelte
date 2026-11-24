@@ -4,6 +4,7 @@
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import DelerTabell from '$lib/DelerTabell.svelte';
 	import FilterDropdown from '$lib/FilterDropdown.svelte';
+	import { valgLeddStandard } from '$lib/deler-logikk.js';
 	import { målformLabel, malFormFor, oversettelsesGruppe, MÅLFORMER } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
@@ -408,7 +409,9 @@
 		const mal = app.templates.find((t) => t.id === tplId) ?? malerForType[0];
 		jordpaaGrupper = (mal?.delGrupper ?? []).slice();
 		if (!jordpaaGrupper.includes(jordpaa)) jordpaa = jordpaaGrupper[0] ?? null;
-		valgLedd = []; // valgfrie ledd er pr mal
+		// standardvalg: originalmaler har ALLE valgfrie ledd med; brukermaler
+		// følger malens «Standard»-brytere (styres fra malredigeringen)
+		valgLedd = valgLeddStandard(mal, erOriginalMal(mal));
 	}
 
 	/** Nytt alternativ i malens katalog (brukes av alternativ-modalen) */
@@ -917,7 +920,7 @@
 					<div class="m-chk m-chk-valgledd">
 						<span class="m-jordpaa-label">Valgfrie ledd</span>
 						<FilterDropdown label="Velg ledd …" options={valgLeddListe().map((vl) => ({ verdi: vl.id, navn: vl.sec + ' · ' + vl.navn }))} bind:selected={valgLedd} />
-						<p class="m-kirkeaar muted">Valgfrie ledd tas ikke med automatisk — velg de du vil ha med. Du kan også velge dem etterpå i Oversikt.</p>
+						<p class="m-kirkeaar muted">Forhåndsvalgt etter malens standardvalg (originalmaler: alle valgfrie ledd) — juster fritt. Du kan også velge dem etterpå i Oversikt.</p>
 					</div>
 				{/if}
 				{/key}

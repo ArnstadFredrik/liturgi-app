@@ -505,7 +505,7 @@ export function saveAsTemplate(name) {
 		sections: JSON.parse(JSON.stringify(app.current.sections)).map((sec) => ({
 			title: sec.title,
 			items: sec.items.map((x) => ({
-				id: x.tplId ?? x.id, type: x.type, heading: x.heading, optional: x.optional,
+				id: x.tplId ?? x.id, type: x.type, heading: x.heading, optional: x.optional, valgStandard: x.valgStandard,
 				text: x.text, instr: x.instr, alts: x.alts, selAlt: x.selAlt, role: x.role ?? ''
 			}))
 		}))

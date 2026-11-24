@@ -82,3 +82,16 @@ export function filterTemplateItems(items, include, valgtGruppe) {
 export function filterValgfrie(items, valgLedd) {
 	return (items ?? []).filter((it) => !it.optional || (valgLedd?.has?.(it.id) ?? false));
 }
+
+/** Standardvalg ved oppretting: hvilke valgfrie ledd er førvalgt?
+ *  Originalmaler: ALLE valgfrie ledd er med som standard. Brukermaler:
+ *  de leddene malen har merket med valgStandard (styres fra malredigeringen). */
+export function valgLeddStandard(mal, erOriginal) {
+	const ut = [];
+	for (const sec of mal?.sections ?? []) {
+		for (const it of sec.items ?? []) {
+			if (it.optional && (erOriginal || it.valgStandard === true)) ut.push(it.id);
+		}
+	}
+	return ut;
+}

@@ -1056,6 +1056,8 @@ textarea {
 .m-deler-celle:disabled { opacity: 0.45; cursor: default; }
 .m-deler-celle:disabled:hover { border-color: var(--border); }
 .m-deler-ledd .avpaa-liten { font-size: 11px; padding: 2px 8px; gap: 6px; }
+.m-deler-ledd-brytere { display: flex; align-items: center; gap: 6px; flex: none; }
+.m-deler-ledd-brytere .avpaa:disabled { opacity: 0.5; cursor: default; }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
 	text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px;

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
 	secAlternativer, erStyrt, includeItem, includeSection,
-	malAlternativer, filterTemplateItems, filterValgfrie
+	malAlternativer, filterTemplateItems, filterValgfrie, valgLeddStandard
 } from '../../src/lib/deler-logikk.js';
 
 /** Alternativ/variasjon-logikk for hoveddeler OG enkeltledd:
@@ -84,4 +84,18 @@ test('includeSection: tittel-reglene (Dåp/nattverd) gjelder fortsatt hoveddeler
 	assert.equal(includeItem({ alternativer: ['dåp'] }, { dåp: false }), false);
 	// tittel-regler skal IKKE gjelde enkeltledd
 	assert.equal(includeItem({ heading: 'Dåp' }, { dåp: false }), true);
+});
+
+test('valgLeddStandard: originalmaler = alle valgfrie; brukermaler = valgStandard', () => {
+	const mal = {
+		sections: [{ title: 'I', items: [
+			{ id: 'a', heading: 'Fast' },
+			{ id: 'b', heading: 'Valgfri, standard med', optional: true, valgStandard: true },
+			{ id: 'c', heading: 'Valgfri, ikke standard', optional: true },
+			{ id: 'd', heading: 'Valgfri, eksplisitt ikke', optional: true, valgStandard: false }
+		] }]
+	};
+	assert.deepEqual(valgLeddStandard(mal, true), ['b', 'c', 'd']);
+	assert.deepEqual(valgLeddStandard(mal, false), ['b']);
+	assert.deepEqual(valgLeddStandard({}, true), []);
 });

@@ -4,6 +4,7 @@
 	 *  «Deler …»-modalen. Samme komponent = samme uttrykk begge steder. */
 	import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
 import { erStyrt } from '$lib/deler-logikk.js';
+import { erOriginalMal } from '$lib/fileio.svelte.js';
 
 	let { mal, visMalFelt = false } = $props();
 	import { mdi } from '$lib/mdi.js';
@@ -180,7 +181,7 @@ import { erStyrt } from '$lib/deler-logikk.js';
 </script>
 
 <div class="deler-tabell-rom">
-	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). En hoveddel uten merke kan styre enkeltleddene: åpne raden med chevronen og merk leddene der. Valgfrie ledd («Ta med i gudstjenesten» av) velges i «Opprett»-dialogen. Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
+	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). En hoveddel uten merke kan styre enkeltleddene: åpne raden med chevronen og merk leddene der. Valgfrie ledd merkes med «Valgfri» og får «Standard»-bryter (forhåndsvalgt ved oppretting); originalmaler har alle valgfrie ledd med som standard. Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
 	{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
 		<button role="tab" aria-selected={fane === 'hoveddeler'} class:sel={fane === 'hoveddeler'} onclick={() => { fane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
@@ -253,10 +254,24 @@ import { erStyrt } from '$lib/deler-logikk.js';
 							<span></span>
 							<span class="m-deler-navn m-deler-ledd-navn">
 								<span class="m-deler-navn-tekst">{it.heading || '(uten tittel)'}</span>
-								<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.optional !== true} title="Valgfritt ledd: når bryteren er av tas leddet ikke med automatisk ved oppretting — du velger det i «Opprett»-dialogen" onclick={() => { it.optional = it.optional !== true; markDirty(); }}>
-									<span class="avpaa-tekst">Ta med i gudstjenesten</span>
+							<div class="m-deler-ledd-brytere">
+								<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.optional === true}
+									disabled={styrt || erOriginalMal(mal)}
+									title={erOriginalMal(mal) ? 'Originalmaler har alle valgfrie ledd med som standard ved oppretting' : 'Valgfri: leddet kan slås av/på i «Opprett»-dialogen'}
+									onclick={() => { it.optional = !(it.optional === true); markDirty(); }}>
+									<span class="avpaa-tekst">Valgfri</span>
 									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 								</button>
+								{#if it.optional === true}
+									<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.valgStandard === true}
+										disabled={styrt || erOriginalMal(mal)}
+										title={erOriginalMal(mal) ? 'Originalmaler har alle valgfrie ledd med som standard ved oppretting' : 'Valgt som standard når gudstjenesten opprettes'}
+										onclick={() => { it.valgStandard = !(it.valgStandard === true); markDirty(); }}>
+										<span class="avpaa-tekst">Standard</span>
+										<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+									</button>
+								{/if}
+							</div>
 							</span>
 							<div class="m-deler-celle-wrap alt">
 								<button type="button" class="m-deler-celle" class:merket={secAlternativer(it).length} disabled={styrt} title={styrt ? 'Hoveddelen styres av alternativ/variasjon' : 'Alternativer for dette leddet'} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'alternativ' ? null : { si, li, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
