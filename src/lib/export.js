@@ -781,6 +781,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	let col = 0;
 	let y = margin;
 	let flytCx = null; // nåværende x i den flytende teksten (slidegrenser midt i linje)
+	let linjeTegnet = false; // har nåværende linje i den flytende teksten innhold?
 
 	const nySideHvisNodvendig = (h) => {
 		if (y + h > mm.h - margin) {
@@ -843,19 +844,23 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			}
 		}
 		flytCx = null; // skrivLinjer avslutter alltid på en fersk linje
+		linjeTegnet = false;
 	};
 
 	/** Skriv segmenter fra roleSegments() flytende på linjen: røde rollemerker og
 	 *  {{r}}-segmenter inline, ikke på egne linjer. */
 	const skrivSegmenter = (segs, opts = {}) => {
-		const { size: baseSize = 10.5, indent = 0, vidare = false } = opts;
+		const { size: baseSize = 10.5, indent = 0, vidare = false, vedForsteTekst = null } = opts;
 		const w = colW - indent;
 		let cx = vidare && flytCx != null ? flytCx : x0() + indent;
 		const nylinje = () => {
 			nySideHvisNodvendig(5);
 			cx = x0() + indent;
+			flytCx = null;
+			linjeTegnet = false;
 			y += baseSize * 0.48 + 1.1;
 		};
+		let forsteTekst = !vedForsteTekst;
 		for (const seg of segs) {
 			const size = seg.small ? baseSize - 1.5 : baseSize;
 			doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
@@ -863,7 +868,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
 			const parts = seg.text.split('\n');
 			parts.forEach((part, pi) => {
-				if (pi > 0) nylinje();
+				if (pi > 0 && linjeTegnet) nylinje(); // tomme linjeskift på fersk linje gir ingen ekstra avansering
 				if (!part) return;
 				// del på hevede versnummer ^{N} (tegnes mindre og hevet på samme linje)
 				for (const sp of part.split(/(\^\{[^}]+\})/)) {
@@ -880,6 +885,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						const wrapped = erSup ? [rest] : doc.splitTextToSize(rest, w - (cx - x0() - indent));
 						const l = wrapped[0];
 						if (!l) { nylinje(); continue; }
+						if (!forsteTekst) { forsteTekst = true; vedForsteTekst?.(); }
+						linjeTegnet = true;
 						doc.text(l, cx, y + (erSup ? 2.2 : 4));
 						cx += doc.getTextWidth(l);
 						rest = rest.slice(l.length).replace(/^ +/, '');
@@ -967,8 +974,9 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						li++;
 						let skriv = grp;
 						if (vi === 0 && gi === 0 && overskrift) skriv = stripForan(grp, 1); // overskriften er allerede tegnet
-						if (t) tegnLysTall(t.n); // ved gruppestart = der slideteksten begynner
-						skrivSegmenter(skriv, { size: S(10.5, 'tekst'), vidare: true });
+						let tegnet = false; // tallet tegnes ved slidetekstens første linje
+						skrivSegmenter(skriv, { size: S(10.5, 'tekst'), vidare: true, vedForsteTekst: t ? () => { tegnet = true; tegnLysTall(t.n); } : null });
+						if (t && !tegnet) tegnLysTall(t.n);
 					});
 					if (vi < vers.length - 1) y += 2.2; // vers-skille (blank linje)
 				});
@@ -983,8 +991,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 				const hopp = (lysPpt.visLeddtitler && head ? 1 : 0) + ((showInstr ?? true) && it.instr ? it.instr.split('\n').length : 0); // allerede tegnet
 				grupper.forEach((grp, gi) => {
 					const t = lys.find((x) => x.del === gi) ?? null;
-					if (t && (gi > 0 || !lysTegnet)) tegnLysTall(t.n); // ved gruppestart
-					skrivSegmenter(gi === 0 ? stripForan(grp, hopp) : grp, { size: S(10.5, 'tekst'), vidare: gi > 0 });
+					const tegn = (gi > 0 || !lysTegnet) && t ? () => tegnLysTall(t.n) : null;
+					let tegnet = false;
+					skrivSegmenter(gi === 0 ? stripForan(grp, hopp) : grp, { size: S(10.5, 'tekst'), vidare: gi > 0, vedForsteTekst: tegn ? () => { tegnet = true; tegn(); } : null });
+					if (tegn && !tegnet) tegn(); // tomt gruppeinnhold: tallet likevel
 				});
 			} else if (!brukGrupper && it.type === 'salme' && lys && lys.length) {
 				// salme med lysbildetall uten pptx-parametere: vers-for-vers, sekvensielt
