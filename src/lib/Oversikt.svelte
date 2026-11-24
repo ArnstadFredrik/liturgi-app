@@ -4,10 +4,63 @@
 	 *  nivåer (omorganisering uten å forlate oversikten). Ingen
 	 *  alternativ-/variasjonskolonner — den detaljen ligger i «Deler …». */
 	import { app, markDirty, persist, uid, synkLenkedeSeksjoner } from '$lib/store.svelte.js';
+	import { instantiate } from '$lib/store.svelte.js';
 	import { hentDelerModal, confirmBox } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
 	let visLed = $state(true);
+
+	/* ---- Valgfrie ledd (fra malen) — legg til / fjern i denne gudstjenesten ---- */
+	const tpl = $derived(app.templates.find((t) => t.id === app.current?.templateId));
+	const valgLeddListe = $derived(
+		(tpl?.sections ?? []).flatMap((sec) =>
+			(sec.items ?? [])
+				.filter((it) => it.optional)
+				.map((it) => ({ id: it.id, sec: sec.title, navn: it.heading || 'Ledd uten tittel' }))
+		)
+	);
+	let valgLeddApen = $state(false);
+	function leddIDok(id) {
+		for (const sec of app.current?.sections ?? []) {
+			for (const it of sec.items ?? []) {
+				if (it.tplId === id) return it;
+			}
+		}
+		return null;
+	}
+	function settValgLedd(id, paa) {
+		if (paa) {
+			if (leddIDok(id)) return;
+			for (let si = 0; si < (tpl?.sections ?? []).length; si++) {
+				const tsec = tpl.sections[si];
+				const idx = (tsec.items ?? []).findIndex((it) => it.id === id);
+				if (idx === -1) continue;
+				const sec = app.current.sections.find((s2) => s2.title === tsec.title) ?? app.current.sections[si];
+				if (!sec) return;
+				// sett inn etter siste mal-ledd som kommer foer dette i malen
+				let at = 0;
+				(sec.items ?? []).forEach((it, i) => {
+					const ti = (tsec.items ?? []).findIndex((x) => x.id === it.tplId);
+					if (ti !== -1 && ti < idx) at = i + 1;
+				});
+				sec.items.splice(at, 0, instantiate(tsec.items[idx]));
+				break;
+			}
+		} else {
+			for (const sec of app.current?.sections ?? []) {
+				sec.items = (sec.items ?? []).filter((it) => it.tplId !== id);
+			}
+		}
+		markDirty();
+		persist?.();
+	}
+	function dokumentLukk(e) {
+		if (valgLeddApen && !e.target.closest?.('.ovr-valgledd')) valgLeddApen = false;
+	}
+	let valgLeddRot = $state(null);
+	function valgLedeTeller() {
+		return valgLeddListe.filter((vl) => leddIDok(vl.id)).length;
+	}
 
 	// lenkede hoveddeler fornyes fra malene hver gang Oversikten besøkes
 	$effect(() => {
@@ -216,7 +269,10 @@
 			document.getElementById('sec-' + si)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}, 120);
 	}
+
 </script>
+
+<svelte:document onclick={dokumentLukk} />
 
 <div id="oversikt-side">
 	<div class="ovr-verktoy">
@@ -225,6 +281,25 @@
 			<span>{visLed ? 'Skjul ledd' : 'Vis ledd'}</span>
 		</button>
 		<span class="muted ovr-hint">Dra hoveddelene og leddene for å endre rekkefølgen. Klikk på en rad for å redigere.</span>
+		{#if valgLeddListe.length}
+		<div class="ovr-valgledd" bind:this={valgLeddRot}>
+			<button class="ovr-vis-led" class:aktiv={valgLeddApen} onclick={() => (valgLeddApen = !valgLeddApen)} title="Valgfrie ledd fra malen — legg til eller fjern fra gudstjenesten">
+				{@html mdi('format-list-checks', 14)}
+				<span>Valgfrie ledd{valgLedeTeller() ? ' (' + valgLedeTeller() + ')' : ''}</span>
+				{@html mdi('chevron-down', 12)}
+			</button>
+			{#if valgLeddApen}
+				<div class="ovr-valgledd-meny" role="menu">
+					{#each valgLeddListe as vl (vl.id)}
+						<label class="ovr-valgledd-rad">
+							<input type="checkbox" checked={!!leddIDok(vl.id)} onchange={(e) => settValgLedd(vl.id, e.currentTarget.checked)} />
+							<span>{vl.sec} · {vl.navn}</span>
+						</label>
+					{/each}
+				</div>
+			{/if}
+		</div>
+		{/if}
 		<button class="ovr-vis-led" onclick={åpneHentModal} title="Hent hoveddeler og ledd fra biblioteket eller en mal">{@html mdi('download', 14)}<span>Hent …</span></button>
 	</div>
 

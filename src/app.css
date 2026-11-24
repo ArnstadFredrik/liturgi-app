@@ -991,6 +991,21 @@ textarea {
 #maldeler-side .deler-tabell-rom { max-width: 674px; margin-inline: auto; }
 .ovr-verktoy { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
 .ovr-hint { font-size: 12.5px; }
+.ovr-valgledd { position: relative; }
+.ovr-valgledd .ovr-vis-led.aktiv { border-color: var(--accent); color: var(--accent); }
+.ovr-valgledd-meny {
+	position: absolute; top: calc(100% + 4px); left: 0; z-index: 40;
+	min-width: 320px; max-height: 320px; overflow-y: auto;
+	background: var(--panel2, var(--border)); border: 1px solid var(--border);
+	border-radius: 9px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28); padding: 5px;
+}
+.ovr-valgledd-rad {
+	display: flex; align-items: center; gap: 8px; padding: 6px 9px;
+	border-radius: 6px; font-size: 12.5px; cursor: pointer;
+}
+.ovr-valgledd-rad:hover { background: var(--accent-dim); }
+.ovr-valgledd-rad input { accent-color: var(--accent); flex: none; }
+.ovr-valgledd-rad span { overflow-wrap: anywhere; }
 .ovr-vis-led { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; padding: 5px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
 .ovr-vis-led:hover { color: var(--foreground); background: var(--accent-dim); }
 .ovr-liste { display: flex; flex-direction: column; gap: 14px; }

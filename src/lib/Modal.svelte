@@ -3,6 +3,7 @@
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
 	import DelerTabell from '$lib/DelerTabell.svelte';
+	import FilterDropdown from '$lib/FilterDropdown.svelte';
 	import { målformLabel, malFormFor, oversettelsesGruppe, MÅLFORMER } from '$lib/maltyper.js';
 	import { erOriginalMal } from '$lib/fileio.svelte.js';
 	import EditableText from '$lib/EditableText.svelte';
@@ -35,7 +36,7 @@
 	let altPaa = $state({}); // alternativ -> på/av (flere kan være på samtidig)
 	let nyType = $state(forhType);
 	let jordpaa = $state('gravferd'); // valgt del-gruppe (fra malens delGrupper)
-	let valgLedd = $state({}); // valgfrie ledd slått på i «Opprett» (ledd-id -> true)
+	let valgLedd = $state([]); // valgte valgfrie ledd (mal-ledd-id-er)
 	let jordpaaGrupper = $state([]); // malens delGrupper — Dynamiske radioer
 	// delerTabell: åpen dropdown-celle + administrer-visning
 	let apenCelle = $state(null);
@@ -407,7 +408,7 @@
 		const mal = app.templates.find((t) => t.id === tplId) ?? malerForType[0];
 		jordpaaGrupper = (mal?.delGrupper ?? []).slice();
 		if (!jordpaaGrupper.includes(jordpaa)) jordpaa = jordpaaGrupper[0] ?? null;
-		valgLedd = {}; // valgfrie ledd er pr mal
+		valgLedd = []; // valgfrie ledd er pr mal
 	}
 
 	/** Nytt alternativ i malens katalog (brukes av alternativ-modalen) */
@@ -617,7 +618,7 @@
 		return ut;
 	}
 	function valgLeddSett() {
-		return new Set(Object.keys(valgLedd).filter((k) => valgLedd[k]));
+		return new Set(valgLedd);
 	}
 
 	function includeObj() {
@@ -915,15 +916,8 @@
 				{#if valgLeddListe().length}
 					<div class="m-chk m-chk-valgledd">
 						<span class="m-jordpaa-label">Valgfrie ledd</span>
-						{#each valgLeddListe() as vl (vl.id)}
-							<button type="button" class="avpaa" role="checkbox" aria-checked={valgLedd[vl.id] === true}
-								title="Valgfritt ledd i malen — slå på for å ta det med i denne gudstjenesten"
-								onclick={() => { valgLedd = { ...valgLedd, [vl.id]: !(valgLedd[vl.id] === true) }; }}>
-								<span class="avpaa-tekst">{vl.sec} · {vl.navn}</span>
-								<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-							</button>
-						{/each}
-						<p class="m-kirkeaar muted">Valgfrie ledd tas ikke med automatisk — slå på de du vil ha med.</p>
+						<FilterDropdown label="Velg ledd …" options={valgLeddListe().map((vl) => ({ verdi: vl.id, navn: vl.sec + ' · ' + vl.navn }))} bind:selected={valgLedd} />
+						<p class="m-kirkeaar muted">Valgfrie ledd tas ikke med automatisk — velg de du vil ha med. Du kan også velge dem etterpå i Oversikt.</p>
 					</div>
 				{/if}
 				{/key}

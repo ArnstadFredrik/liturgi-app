@@ -17,7 +17,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "s1",
 						"type": "instruks",
 						"heading": "1 Forberedelse",
-						"optional": true,
+						"optional": false,
 						"text": "@NOTAT Kirkerommet er åpent en stund før gudstjenesten, med anledning til stillhet, lystenning og bønn.\n@NOTAT Klokkeringing\n@NOTAT Her eller etter ledd 3 Hilsen kan det være kort informasjon om dagens gudstjeneste ved medliturg eller liturg. Informasjonen avsluttes med:\n{{r}}ML |{{/r}} La oss være stille for Gud.\n@NOTAT Kort stillhet. Tre klokkeslag.",
 						"enabled": true,
 						"alts": [],
@@ -206,7 +206,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "o0",
 						"type": "instruks",
 						"heading": "Inngang til Ordet",
-						"optional": true,
+						"optional": false,
 						"text": "I andre hovedgudstjenester enn høymessen kan det være to lesninger, eller én lesning (evangeliet). Menigheten står under evangelielesningen og sitter under de øvrige lesningene.\n{{r}}L/ML |{{/r}} La oss høre Herrens ord.",
 						"alts": [],
 						"selAlt": 0
@@ -524,7 +524,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "nattverd-prefasjon",
 						"type": "tekst",
 						"heading": "* 21 Prefasjon",
-						"optional": true,
+						"optional": false,
 						"text": "",
 						"alts": [
 							{
@@ -628,7 +628,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "nattverd-epiklese",
 						"type": "tekst",
 						"heading": "Epiklese",
-						"optional": true,
+						"optional": false,
 						"text": "",
 						"alts": [
 							{
@@ -666,7 +666,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "nattverd-verba",
 						"type": "tekst",
 						"heading": "Innstiftelsesordene VERBA",
-						"optional": true,
+						"optional": false,
 						"text": "",
 						"alts": [
 							{
@@ -714,7 +714,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "nattverd-avslutning",
 						"type": "tekst",
 						"heading": "Avslutning",
-						"optional": true,
+						"optional": false,
 						"text": "",
 						"alts": [
 							{
@@ -827,7 +827,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "e24",
 						"type": "salme",
 						"heading": "* 24 Salme",
-						"optional": true,
+						"optional": false,
 						"instr": "Salmen kan flyttes til Postludium/Utgangsprosesjon, ledd 27."
 					},
 					{
@@ -874,7 +874,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "e27",
 						"type": "instruks",
 						"heading": "* 27 Postludium/Utgangsprosesjon",
-						"optional": true,
+						"optional": false,
 						"instr": "Dersom det er utgangsprosesjon, kan menigheten følge etter prosesjonen. I stedet for postludium kan det synges en salme mens menigheten går ut.",
 						"text": "",
 						"alts": [],
@@ -912,7 +912,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap2",
 						"type": "tekst",
 						"heading": "1 Mottakelse til dåp",
-						"optional": true,
+						"optional": false,
 						"introAlts": [
 							{
 								"label": "Mottakelse",
@@ -941,7 +941,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap3",
 						"type": "tekst",
 						"heading": "Bibelord",
-						"optional": true,
+						"optional": false,
 						"instr": "Følgende skriftord kan leses. Ved dåp av større barn, unge eller voksne kan Markus-teksten erstattes med ett av alternativene.",
 						"introAlts": [
 							{
@@ -975,7 +975,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap4",
 						"type": "tekst",
 						"heading": "Takkebønn",
-						"optional": true,
+						"optional": false,
 						"instr": "Her, eller før den avsluttende lovprisningen (1 Pet 1,3), kan liturgen si noe kortfattet om den aktuelle dåpshandlingen.",
 						"text": "{{r}}L |{{/r}} La oss takke og be:\n{{r}}L/ML |{{/r}} Evige Gud, du som gir liv til alt som lever, og har skapt oss i ditt bilde:\nVi takker deg for NN/NN (fornavn). Hun/Han/De er dyrebar(e) i dine øyne. Omslutt henne/ham/dem med din kjærlighet og gi henne/ham/dem et hjem i din kirke.\nAmen.",
 						"alts": [],
@@ -985,14 +985,14 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap5",
 						"type": "salme",
 						"heading": "2 Dåpssalme",
-						"optional": true,
+						"optional": false,
 						"instr": "En dåpssalme synges enten her, før 1 Mottakelse til dåp, før 4 Fadderansvaret eller som avslutning på dåpshandlingen. Dåpssalmen kan deles opp og synges på flere av disse stedene i dåpsliturgien. Det kan også fremføres korsang, solosang eller instrumentalmusikk på ett av disse stedene."
 					},
 					{
 						"id": "h-l-dap6",
 						"type": "tekst",
 						"heading": "3 Dåpsbefalingen",
-						"optional": true,
+						"optional": false,
 						"instr": "Teksten leses av en i dåpsfølget, en annen medliturg eller liturgen.",
 						"text": "{{r}}L |{{/r}} La oss høre Jesu ord og befaling om den hellige dåp:\n{{r}}ML/L |{{/r}} Jeg har fått all makt i himmelen og på jorden. Gå derfor og gjør alle folkeslag til disipler: Døp dem til Faderens og Sønnens og Den hellige ånds navn og lær dem å holde alt det jeg har befalt dere. Og se, jeg er med dere alle dager inntil verdens ende.\nBIBELREF | Matt 28,18-20",
 						"alts": [],
@@ -1002,7 +1002,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap7",
 						"type": "tekst",
 						"heading": "4 Fadderansvaret",
-						"optional": true,
+						"optional": false,
 						"alts": [
 							{
 								"label": "Ved dåp av barn",
@@ -1020,7 +1020,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap8",
 						"type": "tekst",
 						"heading": "5 Forsakelsen og troen",
-						"optional": true,
+						"optional": false,
 						"instr": "Den apostoliske trosbekjennelse.",
 						"introAlts": [
 							{
@@ -1045,7 +1045,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap9",
 						"type": "tekst",
 						"heading": "6 Dåpshandlingen",
-						"optional": true,
+						"optional": false,
 						"introAlts": [
 							{
 								"label": "Bønn ved døpefonten",
@@ -1077,7 +1077,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap10",
 						"type": "tekst",
 						"heading": "Presentasjon av den døpte",
-						"optional": true,
+						"optional": false,
 						"text": "@NOTAT Barnet vendes mot menigheten eller løftes opp. Ved dåp av større barn, unge eller voksne kan disse vende seg mot menigheten. Følgende ord sies:\n{{r}}L |{{/r}} Dette er NN, Guds barn, døpt inn i vår menighet og Kristi verdensvide kirke.",
 						"alts": [],
 						"selAlt": 0
@@ -1086,7 +1086,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap11",
 						"type": "tekst",
 						"heading": "Dåpslyset",
-						"optional": true,
+						"optional": false,
 						"text": "@NOTAT Etter hver dåp og presentasjon kan det tennes et lys. Lystenning kan skje her eller under menighetens forbønn. Liturgen kan si:\n{{r}}L |{{/r}} Et lys er tent for NN.\n@NOTAT Lysene settes i en lysholder. Når alle dåpslysene er tent, sier liturgen:\n{{r}}L |{{/r}} Jesus sier: «Jeg er verdens lys. Den som følger meg, skal ikke vandre i mørket, men ha livets lys.»\nBIBELREF | Joh 8,12",
 						"alts": [],
 						"selAlt": 0
@@ -1095,7 +1095,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap13",
 						"type": "tekst",
 						"heading": "7 Bønn og lovprisning",
-						"optional": true,
+						"optional": false,
 						"instr": "Bønnen leses her eller under menighetens forbønn.",
 						"alts": [
 							{
@@ -1125,7 +1125,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap16",
 						"type": "tekst",
 						"heading": "Fadervår (dåpsliturgien)",
-						"optional": true,
+						"optional": false,
 						"instr": "Fadervår fremsies. Dersom det er nattverd i gudstjenesten, kan Fadervår falle bort her. Det er også anledning til å benytte Fadervår etter 1977-liturgien eller etter 1920-liturgien.",
 						"text": "{{r}}L |{{/r}} La oss sammen be den bønnen Jesus har lært oss:\n{{r}}A |{{/r}} Vår Far i himmelen!\nLa navnet ditt helliges.\nLa riket ditt komme.\nLa viljen din skje på jorden slik som i himmelen.\nGi oss i dag vårt daglige brød,\nog tilgi oss vår skyld,\nslik også vi tilgir våre skyldnere.\nOg la oss ikke komme i fristelse,\nmen frels oss fra det onde.\nFor riket er ditt og makten og æren i evighet.\nAmen.",
 						"alts": [],
@@ -1135,7 +1135,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap14",
 						"type": "tekst",
 						"heading": "Lovprisning",
-						"optional": true,
+						"optional": false,
 						"text": "{{r}}L |{{/r}} Velsignet er Gud, vår Herre Jesu Kristi Far, han som i sin rike miskunn har født oss på ny til et levende håp ved Jesu Kristi oppstandelse fra de døde!\nBIBELREF | 1 Pet 1,3",
 						"alts": [],
 						"selAlt": 0
@@ -1144,7 +1144,7 @@ export const BUILTIN_TEMPLATES = [
 						"id": "h-l-dap15",
 						"type": "salme",
 						"heading": "Evt. sang",
-						"optional": true,
+						"optional": false,
 						"instr": "Dåpsliturgien avsluttes eventuelt med sang, jf. rubrikken til punkt 2."
 					}
 				]
@@ -1172,7 +1172,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Mens det ringes sammen, tar liturgen plass i koret.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1182,7 +1182,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Som preludium kan det fremføres egnet instrumentalmusikk, korsang eller solosang. Preludiet kan være forspill til første salme.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1192,7 +1192,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Denne salmen kan eventuelt flyttes til etter ledd 4.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -1275,7 +1275,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Et kort minneord holdes av liturgen eller av en representant for de pårørende. Det bør inneholde noen biografiske momenter med særlig vekt på hva avdødes liv har betydd for dem som stod ham/henne nær, og for andre livssammenhenger han/hun har stått i.\nHer kan følge korte hilsninger, pålegging av blomster og/eller krans og eventuelt andre minnehandlinger, som opplesning, musikk, lystenning o. a.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1517,7 +1517,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Kort tale over et av de oppleste skriftordene eller over en annen høvelig tekst.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1620,7 +1620,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Før postludiet kan det fremføres et musikkinnslag, vokalt eller instrumentalt. Under postludiet bæres kisten ut.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					}
 				]
@@ -1635,7 +1635,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Før ledd 16 Salme plasseres kisten på senkeapparatet eller på planker o.l. over graven og blir stående der inntil ledd 19 Senkning finner sted.\nHvor det er praksis, kan kisten senkes helt ned i graven med en gang før salmen (ledd 16) synges.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1726,7 +1726,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Som hovedregel senkes kisten helt ned.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1789,7 +1789,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "Gravferdshandlingen ovenfor (ledd 1–13) avsluttes med jordpåkastelse (ledd 19–23). Rent unntaksvis kan denne ordningen følges også i kirke/kapell, se Alminnelige bestemmelser punkt 8.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1799,7 +1799,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					},
 					{
@@ -1856,7 +1856,7 @@ export const BUILTIN_TEMPLATES = [
 						"text": "",
 						"instr": "I rom hvor senkning ikke er praktisk mulig, bør kisten føres bort under postludiet.",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"selAlt": 0
 					}
 				],
@@ -3416,7 +3416,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "konf21-4",
 					"type": "tekst",
 					"heading": "2 Inngangssalme",
-					"optional": true,
+					"optional": false,
 					"instr": "Menigheten står under prosesjon, Inngangssalme og Hilsen.",
 					"text": "",
 					"alts": [],
@@ -3426,7 +3426,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "konf21-5",
 					"type": "tekst",
 					"heading": "3 Hilsen",
-					"optional": true,
+					"optional": false,
 					"instr": "Før de to første alternativene til inngangsord kan liturgen si: Kjære menighet.\nOm kort informasjon om dagens gudstjeneste ikke er gitt under ledd 1, kan den gis her.",
 					"alts": [
 						{
@@ -3559,7 +3559,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "konf21-15",
 					"type": "tekst",
 					"heading": "12 Evangelium",
-					"optional": true,
+					"optional": false,
 					"instr": "Halleluja\nEvangelielesningen innledes med hallelujaomkved eller et salmevers med hallelujaomkved.\nMenigheten står under halleluja, lesning og respons.\nDet kan være evangelieprosesjon. Den som bærer boken kan ledsages av lysbærere.\nSe hallelujaomkved i N13: 977.1 – 7.  Også Lovprisning/Benedicamus i ledd 25 kan benyttes som hallelujaomkved. Omtale av halleluja og tractus i finnes i Gudstjenesteboken under ledd 12 Evangelium.\n\nRespons\nHallelujaomkved gjentas, eller det synges en kort salme eller et annet svarledd ved menighet eller kor.",
 					"text": "{{r}}L/ML |{{/r}} Det står skrevet i evangeliet etter …\n(Lesningen avsluttes med:)\n{{r}}L/ML |{{/r}} Slik lyder det hellige evangelium.",
 					"alts": [],
@@ -3775,7 +3775,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "nattverd-prefasjon",
 					"type": "tekst",
 					"heading": "* 21 Prefasjon",
-					"optional": true,
+					"optional": false,
 					"text": "",
 					"alts": [
 						{
@@ -3867,7 +3867,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "nattverd-epiklese",
 					"type": "tekst",
 					"heading": "Epiklese",
-					"optional": true,
+					"optional": false,
 					"text": "",
 					"alts": [
 						{
@@ -3905,7 +3905,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "nattverd-verba",
 					"type": "tekst",
 					"heading": "Innstiftelsesordene VERBA",
-					"optional": true,
+					"optional": false,
 					"text": "",
 					"alts": [
 						{
@@ -3953,7 +3953,7 @@ export const BUILTIN_TEMPLATES = [
 					"id": "nattverd-avslutning",
 					"type": "tekst",
 					"heading": "Avslutning",
-					"optional": true,
+					"optional": false,
 					"text": "",
 					"alts": [
 						{
@@ -4173,7 +4173,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4212,7 +4212,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4229,7 +4229,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4246,7 +4246,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4263,7 +4263,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4289,7 +4289,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4315,7 +4315,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4351,7 +4351,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4368,7 +4368,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4385,7 +4385,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4420,7 +4420,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4442,7 +4442,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4459,7 +4459,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					},
@@ -4476,7 +4476,7 @@ export const BUILTIN_TEMPLATES = [
 						"selIntro": 0,
 						"selAvsl": 0,
 						"enabled": true,
-						"optional": true,
+						"optional": false,
 						"salmeNr": "",
 						"salmeTittel": ""
 					}
