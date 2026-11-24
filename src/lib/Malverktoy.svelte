@@ -144,16 +144,16 @@
 	{/if}
 
 	{#if åpenMeny}
-		{@const menyMal = app.templates.find((x) => x.id === åpenMeny.id)}
+		{@const menyMal = åpenMeny ? app.templates.find((x) => x.id === åpenMeny.id) : null}
 		{#if menyMal}
 			<div class="rad-meny-liste" role="menu" bind:this={menyEl} style="top: {åpenMeny.top}px; left: {åpenMeny.left}px;" onclick={(e) => e.stopPropagation()}>
-				<button role="menuitem" onclick={() => { åpenMeny = null; åpneOriginal(harSeed(menyMal) ? BUILTIN_TEMPLATES.find((bt) => bt.id === menyMal.id) : menyMal); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 14)} Rediger seed</button>
-				<button role="menuitem" onclick={() => { åpenMeny = null; åpneForhåndsvisning(menyMal); }} title="Forhåndsvisning uten redigering">{@html mdi('script-text-outline', 14)} Åpne</button>
+				<button role="menuitem" onclick={() => { const m = menyMal; åpenMeny = null; åpneOriginal(harSeed(m) ? BUILTIN_TEMPLATES.find((bt) => bt.id === m.id) : m); }} title="Åpner direkte i redigering; lagres til prosjektet med «Lagre til prosjektet»">{@html mdi('pencil', 14)} Rediger seed</button>
+				<button role="menuitem" onclick={() => { const m = menyMal; åpenMeny = null; åpneForhåndsvisning(m); }} title="Forhåndsvisning uten redigering">{@html mdi('script-text-outline', 14)} Åpne</button>
 				{#if erWip(menyMal)}
-					<button role="menuitem" onclick={() => { åpenMeny = null; bekreftWipMal(menyMal); }} title="Bekreft malen (fjern WIP) og lagre til prosjektet">{@html mdi('check', 14)} Bekreft</button>
+					<button role="menuitem" onclick={() => { const m = menyMal; åpenMeny = null; bekreftWipMal(m); }} title="Bekreft malen (fjern WIP) og lagre til prosjektet">{@html mdi('check', 14)} Bekreft</button>
 				{/if}
 				<hr />
-				<button role="menuitem" class="rad-meny-fare" onclick={() => { åpenMeny = null; slettMalFraProsjektet(menyMal); }} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 14)} Slett</button>
+				<button role="menuitem" class="rad-meny-fare" onclick={() => { const m = menyMal; åpenMeny = null; slettMalFraProsjektet(m); }} title="Slett malen fra prosjektet (data.js-seed + fil)">{@html mdi('delete-outline', 14)} Slett</button>
 			</div>
 		{/if}
 	{/if}

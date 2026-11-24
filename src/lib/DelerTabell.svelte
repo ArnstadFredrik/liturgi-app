@@ -181,7 +181,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 </script>
 
 <div class="deler-tabell-rom">
-	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). En hoveddel uten merke kan styre enkeltleddene: åpne raden med chevronen og merk leddene der. Valgfrie ledd merkes med «Valgfri» og får «Standard»-bryter (forhåndsvalgt ved oppretting); originalmaler har alle valgfrie ledd med som standard. Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
+	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). En hoveddel uten merke kan styre enkeltleddene: åpne raden med chevronen og merk leddene der. Valgfrie ledd merkes med «Valgfri» og får «Standard»-bryter (forhåndsvalgt ved oppretting). Originalmaler uten egne standardvalg har alle valgfrie ledd med som standard. Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
 	{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
 		<button role="tab" aria-selected={fane === 'hoveddeler'} class:sel={fane === 'hoveddeler'} onclick={() => { fane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
@@ -256,16 +256,16 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 								<span class="m-deler-navn-tekst">{it.heading || '(uten tittel)'}</span>
 							<div class="m-deler-ledd-brytere">
 								<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.optional === true}
-									disabled={styrt || erOriginalMal(mal)}
-									title={erOriginalMal(mal) ? 'Originalmaler har alle valgfrie ledd med som standard ved oppretting' : 'Valgfri: leddet kan slås av/på i «Opprett»-dialogen'}
+									disabled={styrt}
+									title='Valgfri: leddet kan slås av/på i «Opprett»-dialogen'
 									onclick={() => { it.optional = !(it.optional === true); markDirty(); }}>
 									<span class="avpaa-tekst">Valgfri</span>
 									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 								</button>
 								{#if it.optional === true}
 									<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.valgStandard === true}
-										disabled={styrt || erOriginalMal(mal)}
-										title={erOriginalMal(mal) ? 'Originalmaler har alle valgfrie ledd med som standard ved oppretting' : 'Valgt som standard når gudstjenesten opprettes'}
+										disabled={styrt}
+										title='Valgt som standard når gudstjenesten opprettes (originalmaler uten egne standardvalg: alle valgfrie ledd er med)'
 										onclick={() => { it.valgStandard = !(it.valgStandard === true); markDirty(); }}>
 										<span class="avpaa-tekst">Standard</span>
 										<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>

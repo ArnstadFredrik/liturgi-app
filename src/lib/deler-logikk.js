@@ -84,14 +84,21 @@ export function filterValgfrie(items, valgLedd) {
 }
 
 /** Standardvalg ved oppretting: hvilke valgfrie ledd er førvalgt?
- *  Originalmaler: ALLE valgfrie ledd er med som standard. Brukermaler:
- *  de leddene malen har merket med valgStandard (styres fra malredigeringen). */
+ *  Malens egne «Standard»-brytere (valgStandard) styrer når de er i bruk.
+ *  Originalmaler UTEN egne standardvalg: alle valgfrie ledd er med som
+ *  standard (arvet regel). Brukermaler uten flagg: ingen (bryterne styrer). */
 export function valgLeddStandard(mal, erOriginal) {
 	const ut = [];
+	let harFlagg = false;
 	for (const sec of mal?.sections ?? []) {
 		for (const it of sec.items ?? []) {
-			if (it.optional && (erOriginal || it.valgStandard === true)) ut.push(it.id);
+			if (!it.optional) continue;
+			if (it.valgStandard !== undefined) harFlagg = true;
+			if (it.valgStandard === true) ut.push(it.id);
 		}
+	}
+	if (erOriginal && !harFlagg) {
+		return (mal?.sections ?? []).flatMap((sec) => (sec.items ?? []).filter((it) => it.optional).map((it) => it.id));
 	}
 	return ut;
 }

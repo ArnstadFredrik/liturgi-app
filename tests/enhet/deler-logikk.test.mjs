@@ -86,7 +86,7 @@ test('includeSection: tittel-reglene (Dåp/nattverd) gjelder fortsatt hoveddeler
 	assert.equal(includeItem({ heading: 'Dåp' }, { dåp: false }), true);
 });
 
-test('valgLeddStandard: originalmaler = alle valgfrie; brukermaler = valgStandard', () => {
+test('valgLeddStandard: malens valgStandard-flagg styrer nar de finnes', () => {
 	const mal = {
 		sections: [{ title: 'I', items: [
 			{ id: 'a', heading: 'Fast' },
@@ -95,7 +95,17 @@ test('valgLeddStandard: originalmaler = alle valgfrie; brukermaler = valgStandar
 			{ id: 'd', heading: 'Valgfri, eksplisitt ikke', optional: true, valgStandard: false }
 		] }]
 	};
-	assert.deepEqual(valgLeddStandard(mal, true), ['b', 'c', 'd']);
+	// flagg finnes: de styrer, uansett original eller brukermal
+	assert.deepEqual(valgLeddStandard(mal, true), ['b']);
 	assert.deepEqual(valgLeddStandard(mal, false), ['b']);
+	// ingen flagg: originalmaler arver «alle valgfrie med», brukermaler far ingen
+	const uflagget = {
+		sections: [{ title: 'I', items: [
+			{ id: 'x', heading: 'Valgfri', optional: true },
+			{ id: 'y', heading: 'Ogsaa valgfri', optional: true }
+		] }]
+	};
+	assert.deepEqual(valgLeddStandard(uflagget, true), ['x', 'y']);
+	assert.deepEqual(valgLeddStandard(uflagget, false), []);
 	assert.deepEqual(valgLeddStandard({}, true), []);
 });
