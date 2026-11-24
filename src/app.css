@@ -1064,6 +1064,9 @@ textarea {
 .m-deler-bryter-celle .avpaa-bryter-knapp:hover:not(:disabled) { background: var(--accent-dim); }
 .m-deler-bryter-celle .avpaa-bryter-knapp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .m-deler-bryter-celle .avpaa-bryter-knapp:disabled { opacity: 0.45; cursor: default; }
+/* aktiv tilstand: samme visning som .avpaa (bakgrunn + klump til hyre) */
+.m-deler-bryter-celle .avpaa-bryter-knapp[aria-checked="true"] .avpaa-bryter { background: var(--accent); }
+.m-deler-bryter-celle .avpaa-bryter-knapp[aria-checked="true"] .avpaa-klump { left: 16px; }
 .m-chk-valgledd { display: flex; align-items: center; gap: 8px; }
 .m-chk-valgledd .filter-dd { flex: 1; }
 .m-chk-valgledd .filter-dd-meny { min-width: 420px; max-height: 300px; }
