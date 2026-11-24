@@ -504,7 +504,7 @@ button.m-fare:disabled { opacity: 0.45; }
 .eksport-profil-slett:hover { color: var(--danger); }
 .eksport-nyprofil { display: flex; gap: 6px; margin-bottom: 18px; }
 .eksport-nyprofil input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; width: 240px; }
-.eksport-kolonner { display: flex; gap: 16px; margin-top: 8px; height: calc(100vh - 200px); }
+.eksport-kolonner { display: flex; gap: 16px; margin-top: 8px; flex: 1; min-height: 0; }
 .eksport-liste { flex: 0 0 340px; width: 340px; overflow-y: auto; overscroll-behavior: contain; padding: 8px 4px 16px 0; }
 .eksport-seksjon { margin: 16px 0 6px; color: var(--accent); }
 .eksport-rad { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--border); margin-bottom: 6px; cursor: pointer; }
@@ -546,8 +546,10 @@ button.m-fare:disabled { opacity: 0.45; }
 .eks-status { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 3px 14px; font-size: 12px; color: var(--muted); box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 6; pointer-events: none; }
 .eks-status.oppdatert { color: var(--accent); border-color: var(--accent-dim, var(--accent)); }
 /* eksportmodulen: hovedsiden selv skal ikke scrolle — bare de to kolonnene */
-#app:has(#eksport-side) #main { overflow: hidden; }
-#app:has(#eksport-side) #eksport-side { height: 100%; display: flex; flex-direction: column; }
+#app:has(#eksport-side) #main { overflow: hidden; display: flex; flex-direction: column; }
+/* flex:1 + min-height:0 — ikke height:100% (modul-topp-headeren over sto i veien,
+   så eksportmodulen flUt over vinduets bunn) */
+#app:has(#eksport-side) #eksport-side { flex: 1; min-height: 0; height: auto; display: flex; flex-direction: column; }
 .eks-side {
 	position: relative;
 	flex: 0 0 auto; width: 250px; /* høyden følger SVG-en (page-forholdet) — ingen min-height, ellers vises en boks under siden ved zoom < 100 % */
