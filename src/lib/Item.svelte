@@ -372,6 +372,15 @@
 		{#if bibelkobling}
 			<span class="dyn-badge" title="Dette leddet henter innhold dynamisk fra kirkeårets bibeltekster (koblet i malens Bibeltekster-innstillinger).">{@html mdi('database-outline', 13)} {bibelkobling.tittel}</span>
 		{/if}
+		{#if it.optional}
+			<span class="dyn-badge" title="Valgfritt ledd — tas bare med når det er slått på i Opprett-dialogen (valgfrie ledd).">{@html mdi('check-decagram', 12)} valgfri</span>
+		{/if}
+		{#if it.alts && it.alts.length && it.type !== 'salme'}
+			<span class="dyn-badge" title="Ledd med alternativer — bytt mellom dem med «Bytt alternativ»-knappen.">{@html mdi('shuffle-variant', 12)} {it.alts.length} alternativ{it.alts.length > 1 ? 'er' : ''}</span>
+		{/if}
+		{#if it.delGruppe}
+			<span class="dyn-badge" title="Variasjon (enten/eller) — tas bare med når gruppen «{it.delGruppe}» er valgt ved oppretting.">{@html mdi('source-branch', 12)} {it.delGruppe[0].toUpperCase() + it.delGruppe.slice(1)}</span>
+		{/if}
 		{#if it.__lenket}
 			<span class="lenket-info" title="Dette leddet hentes automatisk fra malen «Dåp i hovedgudstjenesten» — innholdet redigeres i den malen, ikke her. Åpne «Dåp i hovedgudstjenesten» i Maler-listen for å redigere dåpsdelen.">{@html mdi('information-outline', 14)}</span>
 		{/if}

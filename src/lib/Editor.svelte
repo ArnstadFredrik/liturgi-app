@@ -132,18 +132,19 @@
 	{#each o.sections as sec, si (si)}
 		<div class="section" id="sec-{si}" class:lenket-sec={!!sec.__lenket}>
 			<div class="sec-head">
-				{#if sec.__lenket}<span class="sec-lenket" title="Koblet til malen — innholdet fornyes ved åpning og kan ikke redigeres her">{@html mdi("link-variant", 11)} lenket</span>{/if}
-				<span class="sec-title" contenteditable={sec.__lenket ? "false" : "plaintext-only"} spellcheck="false"
-					readonly={!!sec.__lenket}
-					onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
-				>{sec.title}</span>
-				{#if app.kind === 'template'}
-				{:else if harDelGrupper}
-					<span class="sec-delgruppe sec-delgruppe-stat" title="Del-gruppe">{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
-				{/if}
-				{#if app.kind === 'service' && (sec.alternativer?.length || sec.alternativ)}
-					<span class="sec-delgruppe sec-delgruppe-stat" title="Alternativ">{(sec.alternativer ?? (sec.alternativ ? [sec.alternativ] : [])).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ')}</span>
-				{/if}
+				{#if sec.__lenket}
+				<span class="sec-lenket" title="Koblet til malen — innholdet fornyes ved åpning og kan ikke redigeres her">{@html mdi("link-variant", 11)} lenket</span>
+			{/if}
+			<span class="sec-title" contenteditable={sec.__lenket ? "false" : "plaintext-only"} spellcheck="false"
+				readonly={!!sec.__lenket}
+				onblur={(e) => { if (e.target.textContent !== sec.title) { sec.title = e.target.textContent; markDirty(); } }}
+			>{sec.title}</span>
+			{#if !sec.__lenket && harDelGrupper}
+				<span class="sec-delgruppe sec-delgruppe-stat" title="Variasjon (enten/eller) — avsnittet tas bare med når denne gruppen er valgt ved oppretting">{@html mdi("source-branch", 12)} {sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
+			{/if}
+			{#if !sec.__lenket && (sec.alternativer?.length || sec.alternativ)}
+				<span class="sec-delgruppe sec-delgruppe-stat" title="Alternativ (flervalg) — hele avsnittet tas bare med når dette alternativet er valgt ved oppretting">{@html mdi("shuffle-variant", 12)} {(sec.alternativer ?? (sec.alternativ ? [sec.alternativ] : [])).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ')}</span>
+			{/if}
 				{#if !sec.__lenket}
 				<button class="sec-flytt" title="Flytt avsnittet opp" onclick={() => flyttSeksjon(si, -1)} disabled={si === 0}>{@html mdi("arrow-up", 13)}</button>
 				{#if erSkriftlesningKilde(o, sec.title) && sec.items.length >= 5}
