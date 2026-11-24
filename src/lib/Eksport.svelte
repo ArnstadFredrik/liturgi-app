@@ -38,7 +38,7 @@
 	let pptLys = $state(false);         // lys bakgrunn på slidene (standard mørk)
 	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
 	// lysbildemanus: valget ligger i høyre sidemeny (checkbox) — følger dokumentet
-	const pptLysManus = $derived(!!o?.eksportPptx?.lysManus);
+	const pptLysManus = $derived(!!app.current?.eksportPptx?.lysManus);
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
 	let pptZoom = $state(1);            // zoom på lysbildevisningen (localStorage ppt-zoom)
@@ -1058,6 +1058,7 @@
 			justering: pptJustering,
 			lysBakgrunn: pptLys
 		}, isElectron);
+		window.__lysRes = { finnes: !!res, plan: res?.plan?.length ?? null, filnavn: res?.filnavn ?? null, lysManus: pptLysManus }; // DEBUG: fjernes
 		if (res) {
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
 			if (r.ok) { toast.success(res.filnavn + ' → ' + r.filePath); }
@@ -1069,7 +1070,9 @@
 			const lysFormater = vilWord || vilPdf ? { word: vilWord, pdf: vilPdf || !vilWord } : { word: false, pdf: true };
 			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
-				const tall = lysbildeTallFor(res.plan, medKopi);
+				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(pptTekstSkala * 38), visLeddtitler: pptLeddtitler });
+				window.__lysTall = tall; // DEBUG: fjernes
+				window.__lysPlan = res.plan.map((s) => ({ nr: s.nr, nokkel: s.nokkel ?? null, blank: !!s.blank, t: (typeof s.segs === 'string' ? s.segs : (s.segs ?? []).map((g2) => g2.text).join('')) })); // DEBUG: fjernes
 				const base = baseNavn('Medarbeider') + ' - lysbildemanus';
 				const innst = {
 					storrelse: getInnstP('Medarbeider', 'storrelse', 'A5'),

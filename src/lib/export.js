@@ -223,14 +223,14 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			if (head && it.__visOverskrift !== false) {
 				// avsnittstitler AV: første overskrift i avsnittet får redusert topp-luft
 				const forste = !forrige || forrige.heading === 'h2';
-				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste, __lys: lys ? lys[0]?.n ?? null : null });
+				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste, __lys: lys ? lys.map((x) => x.n) : null });
 			}
 			forrige = out[out.length - 1];
 			if (it.__visInnhold === false) continue;
 			if (showInstr && it.instr) out.push({ text: it.instr, muted: true });
 			const visTekst = (t) => (showInstr ? t : stripNotat(t));
 			const harOverskriftNaa = head && it.__visOverskrift !== false;
-			const lysUtenHode = !harOverskriftNaa && lys ? lys[0]?.n ?? null : null;
+			const lysUtenHode = !harOverskriftNaa && lys ? lys.map((x) => x.n) : null;
 			if (it.type === 'salme') {
 				const st = salmeTekst(it);
 				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true, __lys: lysUtenHode });
@@ -300,8 +300,15 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * afFor * MM), after: Math.round(3.5 * afEtter * MM) }
 					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * afFor * MM)), after: Math.round(1.8 * afEtter * MM) };
 			const lysKant = { style: BorderStyle.SINGLE, size: 6, color: '2563EB', space: 3 };
-			const lysRuns = p.__lys != null
-				? [new TextRun({ text: String(p.__lys), bold: true, color: '2563EB', size: Math.round(22 * WF('ledd')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } }), new TextRun({ text: '\t' })]
+			const lysListe = p.__lys == null ? null : (Array.isArray(p.__lys) ? p.__lys : [p.__lys]);
+			const lysRuns = lysListe != null
+				? [
+					...lysListe.flatMap((n, i) => [
+						...(i > 0 ? [new TextRun({ text: '', break: 1 })] : []),
+						new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round(22 * WF('ledd')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
+					]),
+					new TextRun({ text: '\t' })
+				]
 				: [];
 			paras.push(new Paragraph({
 				...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
@@ -342,8 +349,13 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		}
 		paras.push(new Paragraph({
 			...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
-			children: p.__lys != null
-				? [new TextRun({ text: String(p.__lys), bold: true, color: '2563EB', size: Math.round(21 * WF('tekst')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } }), new TextRun({ text: '\t' }), ...runs]
+			children: lysListe != null
+				? [
+					...lysListe.flatMap((n, i) => [
+						...(i > 0 ? [new TextRun({ text: '', break: 1 })] : []),
+						new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round(21 * WF('tekst')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
+					]),
+					new TextRun({ text: '\t' }), ...runs]
 				: runs,
 			spacing: { after: Math.round(3 * afEtter * MM), line: 348 }
 		}));
@@ -506,6 +518,8 @@ export function byggSlidePlan(svc, valg = {}) {
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 38);
 	const plan = [];
 	const legg = (s) => plan.push(s);
+	/** Slidenes ren-tekst (for matching mot manuset ved margtall). */
+	const gruppeTekst = (grp) => (typeof grp === 'string' ? grp : grp.map((g) => g.text).join('')).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 	const emitEkstra = (ekstra) => {
 		const joined = flytAvsnitt(((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim());
 		const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
@@ -542,7 +556,7 @@ export function byggSlidePlan(svc, valg = {}) {
 			const notat = it.pptNotat ?? heading;
 			if (it.type === 'salme' && salmeTekst(it)) {
 				if (it.__visInnhold === false) {
-					legg({ segs: '', big: false, notat, nokkel, del: 0 });
+					legg({ segs: '', big: false, notat, nokkel, del: 0, tekst: '' });
 					for (const ekstra of (valg.ekstra ?? [])) {
 						if ((ekstra?.etter ?? '') === nokkel) emitEkstra(ekstra);
 					}
@@ -573,7 +587,7 @@ export function byggSlidePlan(svc, valg = {}) {
 			}
 			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim()) : (visLeddtitler && heading ? heading.trim() : '');
 			if (!joined) { legg({ segs: '', big: false, notat, nokkel, del: 0 }); }
-			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) legg({ segs: grp, big: false, notat: gi === 0 ? notat : '', nokkel, del: gi });
+			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) legg({ segs: grp, big: false, notat: gi === 0 ? notat : '', nokkel, del: gi, tekst: gruppeTekst(grp) });
 			for (const ekstra of (valg.ekstra ?? [])) {
 				if ((ekstra?.etter ?? '') === nokkel) emitEkstra(ekstra);
 			}
@@ -602,9 +616,12 @@ export function byggSlidePlan(svc, valg = {}) {
  *  per vers/del). Ledd uten slides (ikke i skjermutvalget): sliden som vises
  *  under det = neste emitterte slide − 1 (blanken foran neste innhold, eller
  *  forrige innholdsslide når tomSlide er av). Ingen slide etter → intet tall. */
-export function lysbildeTallFor(plan, manuscript) {
+export function lysbildeTallFor(plan, manuscript, ppt = null) {
 	const tall = {};
 	if (!manuscript?.sections || !plan?.posisjoner) return tall;
+	// pptx-delingsparametere følger med kartet (non-enumerable: påvirker ikke
+	// nøkkeltellingen eller JSON-persistering)
+	if (ppt) Object.defineProperty(tall, 'lysPpt', { value: ppt, enumerable: false });
 	const pos = plan.posisjoner;
 	const sects = manuscript.sections ?? [];
 	// tjenesterekkefølgen av leddnøkler (samme posisjoner i begge kopiene)
@@ -773,6 +790,22 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		return false;
 	};
 	const x0 = () => margV + col * (colW + colGap);
+	/** Fjern de første 'ant' tekstlinjene fra en segmentgruppe (allerede tegnet
+ *  som overskrift/instruksjon i manuset). */
+	const stripForan = (segs, ant) => {
+		if (!ant) return segs;
+		const ut = [];
+		let igjen = ant;
+		for (const s of segs) {
+			if (igjen <= 0) { ut.push(s); continue; }
+			if (s.text === '\n') continue; // linjeskift mellom hoppede linjer
+			const deler = s.text.split('\n');
+			const behold = deler.slice(igjen);
+			igjen = Math.max(0, igjen - deler.length);
+			if (behold.length) ut.push({ ...s, text: behold.join('\n') });
+		}
+		return ut;
+	};
 	/** Tegn lysbildenummer i venstre marg på nåværende linje (høyrestilt). */
 	const tegnLysTall = (n) => {
 		if (!lysMargin || n == null) return;
@@ -881,6 +914,9 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
 			const lys = lysTall ? lysTall[si + ':' + ii] ?? null : null;
+			// pptx-delingsparametere: uten dem kan ikke manuset speile slidenes
+			// tekstdeling og tallene havner bare på leddets første slide
+			const lysPpt = lys && (valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt) ? (valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt) : null;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
 			// avsnittstitler AV: første ledd behøver ikke ekstra topp-luft (avsnittslinjen
@@ -909,9 +945,43 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
-			if (it.type === 'salme' && lys && lys.length) {
-				// salme med lysbildetall: vers-for-vers (samme splitting som pptx-en),
-				// hvert vers med sitt nummer i venstre marg
+			const brukGrupper = lys && lys.length && lysPpt;
+			if (brukGrupper) {
+				// speil pptx-ens tekstdeling EKSAKT: samme join og samme delPptSegs
+				// — hvert tall tegnes der sliden det tilhører begynner i teksten
+				if (it.type === 'salme' && tekst) {
+					const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+					let li = 0;
+					vers.forEach((v, vi) => {
+						const overskrift = vi === 0 && lysPpt.visLeddtitler && head ? head + '\n' : '';
+						const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v, { beholdLinjer: true })), lysPpt.storrelse);
+						grupper.forEach((grp, gi) => {
+							const gTekst = (typeof grp === 'string' ? grp : grp.map((g) => g.text).join('')).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+							const t = lys.find((x) => x.del === li) ?? lys[li] ?? null;
+							li = Math.max(li, lys.findIndex((x) => x === t) + 1);
+							let skriv = grp;
+							if (vi === 0 && gi === 0 && overskrift) skriv = stripForan(grp, 1); // overskriften er allerede tegnet
+							if (t) tegnLysTall(t.n);
+							skrivSegmenter(skriv, { size: S(10.5, 'tekst') });
+						});
+						if (vi < vers.length - 1) y += 2.2; // vers-skille (blank linje)
+					});
+				} else {
+					const lysLinjer = [];
+					if ((showInstr ?? true) && it.instr) lysLinjer.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
+					if (tekst) lysLinjer.push(tekst);
+					const lysJoined = flytAvsnitt(((lysPpt.visLeddtitler && head ? head + '\n' : '') + lysLinjer.join('\n')).trim());
+					const grupper = delPptSegs(roleSegments(lysJoined), lysPpt.storrelse);
+					const hopp = (lysPpt.visLeddtitler && head ? 1 : 0) + (it.instr ? 1 : 0); // allerede tegnet
+					grupper.forEach((grp, gi) => {
+						const gTekst = (typeof grp === 'string' ? grp : grp.map((g) => g.text).join('')).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+						const t = lys.find((x) => x.del === gi) ?? null;
+						if (t && (gi > 0 || !lysTegnet)) tegnLysTall(t.n);
+						skrivSegmenter(gi === 0 ? stripForan(grp, hopp) : grp, { size: S(10.5, 'tekst') });
+					});
+				}
+			} else if (!brukGrupper && it.type === 'salme' && lys && lys.length) {
+				// salme med lysbildetall uten pptx-parametere: vers-for-vers, sekvensielt
 				const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				vers.forEach((v, vi) => {
 					const t = lys.find((x) => x.del === vi) ?? lys[vi] ?? null;
@@ -920,7 +990,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					if (vi < vers.length - 1) y += 2.2; // vers-skille (blank linje)
 				});
 			} else {
-				if (lys && lys.length && !lysTegnet && it.type !== 'salme') tegnLysTall(lys[0].n);
+				if (lys && lys.length && !lysTegnet) tegnLysTall(lys[0].n);
 				skrivSegmenter(roleSegments(it.type === 'salme' ? flytAvsnitt(tekst, { beholdLinjer: true }) : flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
 			}
 			y += (hefte ? 1.8 : 3) * afEtter;
