@@ -3,6 +3,7 @@
 	import { regenererBibliotek } from '$lib/fileio.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { app } from '$lib/store.svelte.js';
+	import { mdi } from '$lib/mdi.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -45,11 +46,11 @@ const fm = await window.liturgi.dbGet('forbModul');
 	}
 
 	// salmedatabasen (gudstjeneste.no): innlogging lagres kryptert i databasen
-	let salmeKonfigurert = false;
-	let salmeUser = '';
-	let salmePass = '';
-	let salmeJobber = false;
-	let salmeStatusTekst = '';
+	let salmeKonfigurert = $state(false);
+	let salmeUser = $state('');
+	let salmePass = $state('');
+	let salmeJobber = $state(false);
+	let salmeStatusTekst = $state('');
 
 	onMount(async () => {
 		if (!isElectron || !window.liturgi?.salmeStatus) return;
@@ -73,13 +74,18 @@ const fm = await window.liturgi.dbGet('forbModul');
 			salmeStatusTekst = 'Klarte ikke lagre: ' + (r?.error ?? 'ukjent feil');
 			return;
 		}
-		// verifiser mot gudstjeneste.no med én gang — brukeren får ekte tilbakemelding
+		// verifiser mot gudstjeneste.no med én gang — ekte sjekk av brukernavn/passord
 		salmeStatusTekst = 'Logger inn mot gudstjeneste.no …';
 		const t = await window.liturgi.salmeTestLogin?.();
 		salmeJobber = false;
+		if (!t?.ok) {
+			// oppgitt innlogging virket ikke — bli på skjemaet så brukeren kan rette
+			salmeStatusTekst = 'Innlogging feilet: ' + (t?.error ?? 'ukjent feil') + '. Sjekk brukernavn og passord.';
+			return;
+		}
 		salmeKonfigurert = true;
 		salmePass = '';
-		salmeStatusTekst = t?.ok ? 'Innlogging verifisert ✓' : 'Lagret, men innlogging feilet: ' + (t?.error ?? 'ukjent feil');
+		salmeStatusTekst = '';;
 	}
 
 	// prekenforberedelser: mappe (db-nøkkel 'prekenforberedelseMappe') + migrering
@@ -239,7 +245,7 @@ function settForbModul(v) {
 			{:else if salmeKonfigurert}
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Innlogget som <strong>{salmeUser}</strong></div>
+						<div class="inn-rad-tittel inn-logget-inn">{@html mdi('check-circle', 16)} Innlogget som <strong>{salmeUser}</strong></div>
 						<div class="inn-rad-beskriv">
 							Kontoen brukes når salmetekster hentes inn i salmeledd. Passordet
 							lagres kryptert i appens database.
@@ -269,9 +275,12 @@ function settForbModul(v) {
 						<input id="salmePass" type="password" bind:value={salmePass} autocomplete="new-password" />
 						{#if salmeStatusTekst}<p class="salme-status">{salmeStatusTekst}</p>{/if}
 					</div>
-					<button class="inn-handling" onclick={lagreSalmeLogin} disabled={salmeJobber}>
-						{salmeJobber ? 'Lagrer …' : 'Lagre'}
-					</button>
+					<div class="salme-handling">
+						{#if salmeJobber}<span class="salme-spinner" aria-hidden="true"></span>{/if}
+						<button class="inn-handling" onclick={lagreSalmeLogin} disabled={salmeJobber}>
+							{salmeJobber ? 'Logger inn …' : 'Logg inn'}
+						</button>
+					</div>
 				</div>
 			{/if}
 		</div>

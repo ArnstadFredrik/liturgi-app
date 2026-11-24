@@ -46,7 +46,12 @@ async function hent(sti, opts = {}) {
 }
 
 function erInnloggetSide(html) {
-	return !html.includes('Du må først logg inn') && !html.includes('dsplogin');
+	// case-insensitivt: ved feil bruker/passord redirecter sidene til
+	// dspLogin (stor L) — og viser innloggingsskjemaet med «Glemt passord?»
+	const s = String(html || '').toLowerCase();
+	return !s.includes('dsplogin')
+		&& !s.includes('glemt passord')
+		&& !s.includes('du må først logg inn');
 }
 
 /** POST doLogin + velg abonnement (første i listen). */

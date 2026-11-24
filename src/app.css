@@ -283,6 +283,16 @@ button.wide { width: 100%; }
 .salme-login input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 14px; }
 .salme-knapper { margin-top: 4px; }
 .salme-status { color: var(--muted); font-size: 13px; }
+.salme-handling { display: flex; align-items: center; gap: 10px; }
+.salme-spinner {
+	width: 16px; height: 16px; flex: none;
+	border: 2px solid var(--border); border-top-color: var(--accent);
+	border-radius: 50%;
+	animation: salme-spon 0.8s linear infinite;
+}
+@keyframes salme-spon { to { transform: rotate(360deg); } }
+.inn-logget-inn { display: flex; align-items: center; gap: 6px; }
+.inn-logget-inn :global(svg), .inn-logget-inn svg { color: var(--accent); }
 /* temaknapp (ikon) nederst i menyen */
 .sidefoot-ikoner { display: flex; justify-content: flex-end; margin-top: 4px; }
 .ikon-btn { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel2); color: var(--muted); }
