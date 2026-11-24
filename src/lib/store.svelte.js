@@ -307,7 +307,13 @@ export function loadStore() {
 		const raw = localStorage.getItem(LS_KEY);
 		if (raw) {
 			const s = JSON.parse(raw);
-			app.templates = s.templates ?? [];
+			// normaliser: gamle/korraupte entries skal ikke krasje oppstarten
+			app.templates = (s.templates ?? []).filter((t) => t && typeof t === 'object');
+			for (const t of app.templates) {
+				t.sections ??= [];
+				t.id ??= 'mal-' + Math.random().toString(36).slice(2, 10);
+				t.name ??= 'Uten navn';
+			}
 			// Electron: gudstjenester bor som filer på disk, ikke i localStorage
 			if (!isElectron) app.services = s.services ?? [];
 		}
@@ -340,7 +346,7 @@ export function loadStore() {
 		const stored = app.templates.find((t) => t.builtinKey === bt.builtinKey);
 		if (!stored) {
 			const copy = JSON.parse(JSON.stringify(bt));
-			for (const sec of copy.sections) for (const it of sec.items) migrateItem(it);
+			for (const sec of (copy.sections ?? [])) for (const it of (sec?.items ?? [])) migrateItem(it);
 			app.templates.push(copy);
 		} else if (JSON.stringify(stored.sections) !== JSON.stringify(bt.sections)) {
 			// innebygd mal er oppdatert – erstatt strukturen (navn og egne maler røres ikke)
@@ -348,8 +354,8 @@ export function loadStore() {
 		}
 	}
 	// migrer eksisterende brukerdata til eksplisitte rollemarkører
-	for (const t of app.templates) for (const sec of t.sections) for (const it of sec.items) migrateItem(it);
-	for (const s of app.services) for (const sec of s.sections) for (const it of sec.items) migrateItem(it);
+	for (const t of app.templates) for (const sec of (t.sections ?? [])) for (const it of (sec?.items ?? [])) migrateItem(it);
+	for (const s of app.services) for (const sec of (s.sections ?? [])) for (const it of (sec?.items ?? [])) migrateItem(it);
 	persist();
 }
 
