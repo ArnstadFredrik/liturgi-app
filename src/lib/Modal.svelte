@@ -804,7 +804,7 @@
 
 {#if m}
 	<div id="modal-back">
-		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' || m.type === 'delerTabell' ? 'bred' : ''} role="dialog">
+		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' || m.type === 'delerTabell' || m.type === 'newService' ? 'bred' : ''} role="dialog">
 			<h3>{m.title}</h3>
 			{#if m.type === 'confirm'}
 				<p>{m.message}</p>
@@ -920,7 +920,7 @@
 					<div class="m-chk m-chk-valgledd">
 						<span class="m-jordpaa-label">Valgfrie ledd</span>
 						<FilterDropdown label="Velg ledd …" options={valgLeddListe().map((vl) => ({ verdi: vl.id, navn: vl.sec + ' · ' + vl.navn }))} bind:selected={valgLedd} />
-						<p class="m-kirkeaar muted">Forhåndsvalgt etter malens standardvalg (originalmaler: alle valgfrie ledd) — juster fritt. Du kan også velge dem etterpå i Oversikt.</p>
+						<span class="m-valgledd-info" title="Forhåndsvalgt etter malens standardvalg — originalmaler har alle valgfrie ledd med som standard. Juster fritt her; du kan også velge dem etterpå i gudstjenestens Oversikt.">{@html mdi('information-outline', 14)}</span>
 					</div>
 				{/if}
 				{/key}

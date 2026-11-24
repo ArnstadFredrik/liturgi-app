@@ -130,6 +130,28 @@ export async function slettUtkast(fil) {
 	return r?.ok ?? false;
 }
 
+/** Lagre wip-statusendringen for en dev-mal umiddelbart: filen på disk
+ *  (wip bor i malen) + seeden i data.js for originaler med seed. Uten dette
+ *  reverterer bryteren ved omstart, og seed-regenereringen kan gjenopprette
+ *  gammel status. */
+export async function lagreWipStatus(mal) {
+	if (!mal?.__devMal || !mal.filePath) return;
+	const data = JSON.parse(JSON.stringify(mal));
+	for (const k of ['filePath', 'kind', 'builtinKey', '__devMal', '__devId', '__devKey']) delete data[k];
+	const w = await window.liturgi.writeTemplate(mal.filePath, JSON.stringify({ liturgiFormat: 1, kind: 'template', data }, null, '\t'));
+	if (!w?.ok) { toast.error('Klarte ikke lagre wip-statusen til filen'); return; }
+	// originalmaler med seed i data.js: seeden må følge med, ellers
+	// regenererer oppstartssjekken filen med gammel status
+	if (BUILTIN_TEMPLATES.some((bt) => bt.id === (mal.__devId ?? mal.id))) {
+		const r = await window.liturgi.lagreDataJs(data).catch(() => null);
+		if (r && r.ok === false) {
+			toast.error((r.error ?? 'Klarte ikke lagre seeden') + (r.utkast ? ' — utkast lagret i ~/.config/Liturgi/malutkast' : ''));
+			return;
+		}
+	}
+	toast.success('WIP-statusen er lagret');
+}
+
 /** Bekreft en WIP/utkast-mal: wip-flagget fjernes i malen og lagres til filen
  *  (originaler i dev, brukermaler fra biblioteket). Ingen db-nøkkel —
  *  wip-statusen bor i malen selv. */

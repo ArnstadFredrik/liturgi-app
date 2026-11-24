@@ -650,7 +650,7 @@ ipcMain.handle('dev:slett-seed', async (_e, { id, filnavn }) => {
 	try { src = fs.readFileSync(fil, 'utf8'); }
 	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
 	const linjer = src.split('\n');
-	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${id}"`));
+	const idLinje = linjer.findIndex((l) => /^\t\t"id": "${id}",?\s*$/.test(l));
 	// manglende seed er IKKE en feil: maler uten seed i data.js (brukermaler,
 	// gjenlevende kopier) skal likevel kunne slettes — da ryddes bare filen
 	const harSeed = idLinje >= 0;
@@ -707,7 +707,7 @@ ipcMain.handle('dev:lagre-datajs', async (_e, { mal }) => {
 	try { src = fs.readFileSync(fil, 'utf8'); }
 	catch (err) { return { ok: false, error: 'Fant ikke data.js: ' + err.message }; }
 	const linjer = src.split('\n');
-	const idLinje = linjer.findIndex((l) => l.includes(`"id": "${mal.id}"`));
+	const idLinje = linjer.findIndex((l) => /^\t\t"id": "${mal.id}",?\s*$/.test(l));
 	// NY SEED: id-en finnes ikke i data.js fra f\u00f8r (wip-mal som skal
 	// fremmes til original) \u2014 legg den inn som nytt entry i
 	// BUILTIN_TEMPLATES, f\u00f8r arrayets avsluttende \u00ab];\u00bb.

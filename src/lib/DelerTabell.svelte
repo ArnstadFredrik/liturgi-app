@@ -192,7 +192,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 
 	{#if fane === 'hoveddeler'}
 		<div class="m-deler-tabell">
-			<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span></div>
+			<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Alternativ</span><span>Variasjon</span><span>Valgfri</span><span>Standard</span></div>
 			{#each mal?.sections ?? [] as sec, si (si)}
 				<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor} class:deler-dragging={dragSi === si}
 					ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
@@ -254,24 +254,6 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 							<span></span>
 							<span class="m-deler-navn m-deler-ledd-navn">
 								<span class="m-deler-navn-tekst">{it.heading || '(uten tittel)'}</span>
-							<div class="m-deler-ledd-brytere">
-								<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.optional === true}
-									disabled={styrt}
-									title='Valgfri: leddet kan slås av/på i «Opprett»-dialogen'
-									onclick={() => { it.optional = !(it.optional === true); markDirty(); }}>
-									<span class="avpaa-tekst">Valgfri</span>
-									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-								</button>
-								{#if it.optional === true}
-									<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.valgStandard === true}
-										disabled={styrt}
-										title='Valgt som standard når gudstjenesten opprettes (originalmaler uten egne standardvalg: alle valgfrie ledd er med)'
-										onclick={() => { it.valgStandard = !(it.valgStandard === true); markDirty(); }}>
-										<span class="avpaa-tekst">Standard</span>
-										<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
-									</button>
-								{/if}
-							</div>
 							</span>
 							<div class="m-deler-celle-wrap alt">
 								<button type="button" class="m-deler-celle" class:merket={secAlternativer(it).length} disabled={styrt} title={styrt ? 'Hoveddelen styres av alternativ/variasjon' : 'Alternativer for dette leddet'} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'alternativ' ? null : { si, li, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
@@ -313,6 +295,24 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 									</div>
 								{/if}
 							</div>
+							<span class="m-deler-bryter-celle">
+								<button type="button" class="avpaa-bryter-knapp" role="checkbox" aria-checked={it.optional === true}
+									disabled={styrt}
+									title="Valgfri: leddet kan slås av/på i «Opprett»-dialogen"
+									onclick={() => { it.optional = !(it.optional === true); markDirty(); }}>
+									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+								</button>
+							</span>
+							<span class="m-deler-bryter-celle">
+								{#if it.optional === true}
+									<button type="button" class="avpaa-bryter-knapp" role="checkbox" aria-checked={it.valgStandard === true}
+										disabled={styrt}
+										title="Valgt som standard når gudstjenesten opprettes (originalmaler uten egne standardvalg: alle valgfrie ledd er med)"
+										onclick={() => { it.valgStandard = !(it.valgStandard === true); markDirty(); }}>
+										<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+									</button>
+								{/if}
+							</span>
 						</div>
 					{/each}
 				{/if}
@@ -358,16 +358,16 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 				</select>
 			</div>
 			<div>
-				<p class="m-deler-adm-tittel">Utkast</p>
+				<p class="m-deler-adm-tittel">WIP</p>
 				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.wip === true} title="Merk malen som utkast (wip) — skjules fra Opprett og (originaler) biblioteket til den bekreftes. Lagres med malen."
-					onclick={() => { mal.wip = mal.wip !== true; markDirty(); }}>
-					<span class="avpaa-tekst">Merk som utkast</span>
+					onclick={async () => { mal.wip = mal.wip !== true; markDirty(); if (mal.__devMal) { const { lagreWipStatus } = await import('$lib/malverktoy.svelte.js'); await lagreWipStatus(mal); } }}>
+					<span class="avpaa-tekst">Merk som WIP</span>
 					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 				</button>
 			</div>
 			<div>
 				<p class="m-deler-adm-tittel">Bruk</p>
-				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Kan malen brukes til å opprette gudstjenester?" onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
+				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.kanGudstjeneste !== false} title="Styrer om MALEN vises i «Opprett gudstjeneste» — noe annet enn valgfrie ledd, som styrer hvilke enkeltledd som er med som standard." onclick={() => { mal.kanGudstjeneste = mal.kanGudstjeneste === false; markDirty(); }}>
 					<span class="avpaa-tekst">Kan brukes til gudstjenester</span>
 					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 				</button>

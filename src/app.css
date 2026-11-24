@@ -939,7 +939,7 @@ textarea {
  * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
  * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
 .m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; }
-.m-deler-rad { display: grid; grid-template-columns: 24px 1.4fr 1.2fr 1fr; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
+.m-deler-rad { display: grid; grid-template-columns: 24px 1.5fr 1.1fr 0.9fr 56px 56px; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
 .m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
@@ -1056,8 +1056,13 @@ textarea {
 .m-deler-celle:disabled { opacity: 0.45; cursor: default; }
 .m-deler-celle:disabled:hover { border-color: var(--border); }
 .m-deler-ledd .avpaa-liten { font-size: 11px; padding: 2px 8px; gap: 6px; }
-.m-deler-ledd-brytere { display: flex; align-items: center; gap: 6px; flex: none; }
-.m-deler-ledd-brytere .avpaa:disabled { opacity: 0.5; cursor: default; }
+.m-deler-bryter-celle { display: flex; justify-content: center; }
+.m-chk-valgledd { display: flex; align-items: center; gap: 8px; }
+.m-chk-valgledd .filter-dd { flex: 1; }
+.m-chk-valgledd .filter-dd-meny { min-width: 420px; max-height: 300px; }
+.m-valgledd-info { color: var(--muted); display: inline-flex; cursor: help; flex: none; }
+.m-deler-bryter-celle .avpaa-bryter-knapp:disabled { opacity: 0.45; cursor: default; }
+.m-deler-head span:nth-child(5), .m-deler-head span:nth-child(6) { text-align: center; }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
 	text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px;
