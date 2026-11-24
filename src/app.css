@@ -1029,6 +1029,18 @@ textarea {
 /* (3) hele kilderaden «flyter» under drag */
 .m-deler-rad.deler-dragging { opacity: 0.45; outline: 2px dashed var(--accent); outline-offset: -2px; border-radius: 8px; }
 .m-deler-drag.aktiv { color: var(--accent); }
+.m-deler-ekspander { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 2px; border-radius: 5px; display: inline-flex; flex: none; }
+.m-deler-ekspander:hover { color: var(--foreground); background: var(--accent-dim); }
+.m-deler-navn { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.m-deler-navn-tekst { overflow-wrap: anywhere; }
+.m-deler-styrt { color: var(--muted); display: inline-flex; flex: none; }
+.m-deler-ledd-hint { font-size: 11px; color: var(--muted); padding: 4px 10px 4px 46px; }
+.m-deler-ledd .m-deler-navn { padding-left: 18px; font-weight: 400; gap: 8px; }
+.m-deler-ledd .m-deler-navn-tekst { flex: 1; }
+.m-deler-ledd .m-deler-celle { font-size: 11.5px; padding: 3px 9px; }
+.m-deler-celle:disabled { opacity: 0.45; cursor: default; }
+.m-deler-celle:disabled:hover { border-color: var(--border); }
+.m-deler-ledd .avpaa-liten { font-size: 11px; padding: 2px 8px; gap: 6px; }
 .m-deler-celle {
 	display: flex; align-items: center; justify-content: space-between; gap: 6px;
 	text-align: left; font-size: 12.5px; padding: 5px 8px; border-radius: 8px;
@@ -1712,10 +1724,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-visning-velger { display: inline-flex; gap: 4px; background: var(--panel2, var(--border)); border-radius: 9px; padding: 3px; }
 .fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 12px; padding: 5px 14px; cursor: pointer; border-radius: 7px; }
 .m-deler-faner { margin-bottom: 10px; }
-.m-deler-faner button { border: 1px solid var(--border); background: var(--panel); color: var(--muted); padding: 5px 16px; }
-.m-deler-faner button:first-child { border-radius: 8px 0 0 8px; }
-.m-deler-faner button:last-child { border-radius: 0 8px 8px 0; margin-left: -1px; }
-.m-deler-faner button:not(.sel):hover { color: var(--foreground); background: var(--accent-dim); }
+/* fanene arver fb-visning-velger-segmenteringen: rund beholder + runde
+ * knapper i alle hjørner (samme uttrykk som øvrige undernavigasjoner) */
 .fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
 .fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
 /* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler

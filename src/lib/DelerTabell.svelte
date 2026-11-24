@@ -3,6 +3,7 @@
 	 *  brukes både som undermodul-side (Alternativer) og som innhold i
 	 *  «Deler …»-modalen. Samme komponent = samme uttrykk begge steder. */
 	import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
+import { erStyrt } from '$lib/deler-logikk.js';
 
 	let { mal, visMalFelt = false } = $props();
 	import { mdi } from '$lib/mdi.js';
@@ -11,6 +12,7 @@
 
 	let fane = $state('hoveddeler');
 	let apenCelle = $state(null);
+	let apenSek = $state(null); // ekspandert hoveddel (si)
 	let katNyAlt = $state('');
 	let katNyVar = $state('');
 	let dragSi = $state(null);
@@ -178,7 +180,7 @@
 </script>
 
 <div class="deler-tabell-rom">
-	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
+	<p class="muted m-velg-hint">Merk hver hoveddel med alternativer (flervalg — delen tas kun med når alle merkede er på ved oppretting) og variasjon (enten/eller — bare den valgte tas med). En hoveddel uten merke kan styre enkeltleddene: åpne raden med chevronen og merk leddene der. Valgfrie ledd («Ta med i gudstjenesten» av) velges i «Opprett»-dialogen. Katalogene gjelder for malen og styrer valgene i «Opprett»-dialogen.</p>
 	{#if apenCelle}<div class="m-deler-overlay" onclick={() => { apenCelle = null; }}></div>{/if}
 	<div class="fb-visning-velger m-deler-faner" role="tablist">
 		<button role="tab" aria-selected={fane === 'hoveddeler'} class:sel={fane === 'hoveddeler'} onclick={() => { fane = 'hoveddeler'; apenCelle = null; }}>Hoveddeler</button>
@@ -195,7 +197,11 @@
 					ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
 					<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
 						ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>
-					<span class="m-deler-navn">{sec.title}</span>
+					<span class="m-deler-navn">
+					<button type="button" class="m-deler-ekspander" title={apenSek === si ? 'Skjul leddene' : 'Vis leddene'} onclick={() => { apenSek = apenSek === si ? null : si; }}>{@html mdi(apenSek === si ? 'chevron-down' : 'chevron-right', 14)}</button>
+					<span class="m-deler-navn-tekst">{sec.title}</span>
+					{#if erStyrt(sec)}<span class="m-deler-styrt" title="Hoveddelen styres av alternativ/variasjon — alle leddene følger med sammen med den">{@html mdi('subdirectory-arrow-right', 13)}</span>{/if}
+				</span>
 					<div class="m-deler-celle-wrap alt">
 						<button type="button" class="m-deler-celle" class:merket={secAlternativer(sec).length} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'alternativ' ? null : { si, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
 							<span>{secAlternativer(sec).length ? secAlternativer(sec).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
@@ -215,14 +221,14 @@
 					</div>
 					<div class="m-deler-celle-wrap var">
 						<button type="button" class="m-deler-celle" onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.kol === 'variasjon' ? null : { si, kol: 'variasjon', opp: vilBakOver(e.currentTarget) }; }}>
-							<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : 'Standard'}</span>
+							<span>{sec.delGruppe ? sec.delGruppe[0].toUpperCase() + sec.delGruppe.slice(1) : '—'}</span>
 						</button>
 						{#if apenCelle?.si === si && apenCelle?.kol === 'variasjon'}
 							<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
 								<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!sec.delGruppe}
 									onclick={() => { sec.delGruppe = undefined; markDirty(); }}>
 									<span class="m-alt-ind">{#if !sec.delGruppe}{@html mdi('check', 14)}{/if}</span>
-									<span class="m-alt-tekst">Standard</span>
+									<span class="m-alt-tekst">—</span>
 								</button>
 								<div class="m-deler-sep"></div>
 								{#each variasjoner as v (v)}
@@ -237,6 +243,64 @@
 						{/if}
 					</div>
 				</div>
+				{#if apenSek === si}
+					{@const styrt = erStyrt(sec)}
+					{#if styrt}
+						<div class="m-deler-ledd-hint">Hoveddelen styres av alternativ/variasjon — alle leddene følger med sammen med den. Enkeltledd-merker gjelder ikke her.</div>
+					{/if}
+					{#each (sec.items ?? []).filter((it) => it.type !== 'instruks') as it, li (it.id ?? 'l' + li)}
+						<div class="m-deler-rad m-deler-ledd">
+							<span></span>
+							<span class="m-deler-navn m-deler-ledd-navn">
+								<span class="m-deler-navn-tekst">{it.heading || '(uten tittel)'}</span>
+								<button type="button" class="avpaa avpaa-liten" role="checkbox" aria-checked={it.optional !== true} title="Valgfritt ledd: når bryteren er av tas leddet ikke med automatisk ved oppretting — du velger det i «Opprett»-dialogen" onclick={() => { it.optional = it.optional !== true; markDirty(); }}>
+									<span class="avpaa-tekst">Ta med i gudstjenesten</span>
+									<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
+								</button>
+							</span>
+							<div class="m-deler-celle-wrap alt">
+								<button type="button" class="m-deler-celle" class:merket={secAlternativer(it).length} disabled={styrt} title={styrt ? 'Hoveddelen styres av alternativ/variasjon' : 'Alternativer for dette leddet'} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'alternativ' ? null : { si, li, kol: 'alternativ', opp: vilBakOver(e.currentTarget) }; }}>
+									<span>{secAlternativer(it).length ? secAlternativer(it).map((t) => t[0].toUpperCase() + t.slice(1)).join(', ') : '—'}</span>
+								</button>
+								{#if !styrt && apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'alternativ'}
+									<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
+										{#each alternativer as t (t)}
+											<button type="button" class="m-alt-rad" role="menuitemcheckbox" aria-checked={secAlternativer(it).includes(t)}
+												onclick={() => veksleSecAlt(it, t, !secAlternativer(it).includes(t))}>
+												<span class="m-alt-ind">{#if secAlternativer(it).includes(t)}{@html mdi('check', 14)}{/if}</span>
+												<span class="m-alt-tekst">{t[0].toUpperCase() + t.slice(1)}</span>
+											</button>
+										{/each}
+										{#if !alternativer.length}<span class="muted m-alt-tom">Ingen alternativer i katalogen.</span>{/if}
+									</div>
+								{/if}
+							</div>
+							<div class="m-deler-celle-wrap var">
+								<button type="button" class="m-deler-celle" disabled={styrt} title={styrt ? 'Hoveddelen styres av alternativ/variasjon' : 'Variasjon (del-gruppe) for dette leddet'} onclick={(e) => { apenCelle = apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'variasjon' ? null : { si, li, kol: 'variasjon', opp: vilBakOver(e.currentTarget) }; }}>
+									<span>{it.delGruppe ? it.delGruppe[0].toUpperCase() + it.delGruppe.slice(1) : '—'}</span>
+								</button>
+								{#if !styrt && apenCelle?.si === si && apenCelle?.li === li && apenCelle?.kol === 'variasjon'}
+									<div class="m-deler-meny" class:opp={apenCelle?.opp} role="menu">
+										<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={!it.delGruppe}
+											onclick={() => { it.delGruppe = undefined; markDirty(); }}>
+											<span class="m-alt-ind">{#if !it.delGruppe}{@html mdi('check', 14)}{/if}</span>
+											<span class="m-alt-tekst">—</span>
+										</button>
+										<div class="m-deler-sep"></div>
+										{#each variasjoner as v (v)}
+											<button type="button" class="m-alt-rad" role="menuitemradio" aria-checked={it.delGruppe === v}
+												onclick={() => { it.delGruppe = v; markDirty(); }}>
+												<span class="m-alt-ind">{#if it.delGruppe === v}{@html mdi('check', 14)}{/if}</span>
+												<span class="m-alt-tekst">{v[0].toUpperCase() + v.slice(1)}</span>
+											</button>
+										{/each}
+										{#if !variasjoner.length}<span class="muted m-alt-tom">Ingen variasjoner i katalogen.</span>{/if}
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				{/if}
 			{/each}
 		</div>
 	{:else if fane === 'innstillinger'}

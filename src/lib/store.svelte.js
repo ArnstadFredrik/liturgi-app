@@ -148,6 +148,8 @@ export function toggleTheme() {
 	setTheme(app.theme === 'dark' ? 'light' : 'dark');
 }
 
+import { secAlternativer, includeSection, includeItem, malAlternativer, filterTemplateItems, filterValgfrie } from '$lib/deler-logikk.js';
+
 /* ---------- instansiering ---------- */
 
 export function instantiate(it) {
@@ -179,7 +181,9 @@ function migrateItem(it) {
 	// (redigerbar chip) — pakkes ikke lenger automatisk inn i {{r}}…{{/r}}
 }
 
-export function newServiceFromTemplate(tpl, include) {
+export function newServiceFromTemplate(tpl, include, valgLedd = null, valgtGruppe = null) {
+	// valgLedd: Set med id-er på valgfrie ledd brukeren har slått på i
+	// «Opprett»-dialogen; valgtGruppe: den valgte del-gruppen (variasjon)
 	return {
 		id: uid(), kind: 'service', templateId: tpl.id, templateName: tpl.name,
 		malForm: tpl.malForm ?? 'bokmål',
@@ -187,7 +191,13 @@ export function newServiceFromTemplate(tpl, include) {
 		name: tpl.name, date: '',
 		sections: tpl.sections
 			.filter((sec) => includeSection(sec, include))
-			.map((sec) => ({ title: sec.title, delGruppe: sec.delGruppe, alternativer: secAlternativer(sec), items: sec.items.map(instantiate) })),
+			.map((sec) => {
+				// hoveddelen styrt av alternativ/variasjon? da folger ALLE leddene;
+				// ellers gjelder alternativ/variasjon per enkeltledd
+				const styrt = secAlternativer(sec).length > 0 || !!sec.delGruppe;
+				const items = filterValgfrie(styrt ? (sec.items ?? []) : filterTemplateItems(sec.items, include, valgtGruppe), valgLedd);
+				return { title: sec.title, delGruppe: sec.delGruppe, alternativer: secAlternativer(sec), items: items.map(instantiate) };
+			}),
 		// malens egne eksport-standarder følger med til den nye gudstjenesten
 		...(tpl.eksportFormater ? { eksportFormater: { ...tpl.eksportFormater } } : {}),
 		...(tpl.eksportValg ? { eksportValg: JSON.parse(JSON.stringify(tpl.eksportValg)) } : {}),
@@ -218,42 +228,16 @@ export function finnSkriftlesningSeksjon(dok) {
 	return dok.sections.find((s) => /skriftlesning/i.test(s.title) && s.items.length >= 5) ?? null;
 }
 
-/** seksjonens alternativ-merker — array; gammel enkelt-streng (sec.alternativ)
- *  støttes fortsatt (bakoverkompatibel med maler lagret før flervalget). */
-export function secAlternativer(sec) {
-	if (Array.isArray(sec?.alternativer)) return sec.alternativer.filter(Boolean);
-	if (sec?.alternativ) return [sec.alternativ];
-	return [];
-}
-
-/** Alternativ-katalogen for en mal: eksplisitt liste + tagger i bruk +
- *  tittel-utledede standarder («Dåp»-seksjon → dåp, nattverd i tittel → nattverd).
- *  «Opprett gudstjeneste» bygger bryterne sine fra denne. */
-export function malAlternativer(mal) {
-	const sett = new Set(mal?.alternativer ?? []);
-	for (const sec of mal?.sections ?? []) {
-		for (const t of secAlternativer(sec)) sett.add(t);
-		const title = sec?.title ?? '';
-		if (title === 'Dåp') sett.add('dåp');
-		if (/nattverd/i.test(title)) sett.add('nattverd');
-	}
-	return [...sett];
-}
+// secAlternativer / malAlternativer / includeSection ligger i deler-logikk.js
+// (ren logikk — testbar) og re-eksporteres her for eksisterende import-steder.
+export { secAlternativer, includeSection, includeItem, malAlternativer, filterTemplateItems, filterValgfrie };
 
 /* Dåp og Nattverd kan slås av ved oppretting. To mekanismer:
  *  1. tittel-regler (hardkodet): seksjon «Dåp» / tittel med nattverd
  *  2. alternativ-merker fra malredigeringen (sec.alternativer, flervalg —
  *     en del kan være merket med både dåp og nattverd)
  * Godtar både seksjonsobjekt og gammel tittel-streng (bakoverkompatibelt). */
-export function includeSection(sec, include) {
-	const obj = typeof sec === 'string' ? { title: sec } : sec;
-	for (const t of secAlternativer(obj)) {
-		if (include && include[t] === false) return false;
-	}
-	if (obj.title === 'Dåp' && include && include.dåp === false) return false;
-	if (/nattverd/i.test(obj.title ?? '') && include && include.nattverd === false) return false;
-	return true;
-}
+
 
 /** Legg inn manglende deler fra malen i en eksisterende gudstjeneste, på riktig plass. */
 export function insertSectionsFromTemplate(svc, titles) {
@@ -269,7 +253,13 @@ export function insertSectionsFromTemplate(svc, titles) {
 			const pos = svc.sections.findIndex((s) => s.title === tpl.sections[j].title);
 			if (pos !== -1) { at = pos; break; }
 		}
-		svc.sections.splice(at, 0, { title: tsec.title, delGruppe: tsec.delGruppe, alternativer: secAlternativer(tsec), items: tsec.items.map(instantiate) });
+		// gudstjenestens valgte variasjon: dersom den finnes (samme del-gruppe
+		// hos de eksisterende delene) filtreres hoveddelens ledd likt
+		const grupper = new Set(svc.sections.map((s) => s.delGruppe).filter(Boolean));
+		const valgt = grupper.size === 1 ? [...grupper][0] : null;
+		const styrt = secAlternativer(tsec).length > 0 || !!tsec.delGruppe;
+		const items = styrt ? (tsec.items ?? []) : (tsec.items ?? []).filter((it) => !it.delGruppe || !valgt || it.delGruppe === valgt);
+		svc.sections.splice(at, 0, { title: tsec.title, delGruppe: tsec.delGruppe, alternativer: secAlternativer(tsec), items: items.map(instantiate) });
 	}
 }
 
@@ -524,10 +514,10 @@ export function saveAsTemplate(name) {
 	persist();
 }
 
-export function createService(name, date, tplId, include, kirkeaar, tekster) {
+export function createService(name, date, tplId, include, kirkeaar, tekster, valgLedd = null, valgtGruppe = null) {
 	const tpl = app.templates.find((t) => t.id === tplId);
 	if (!tpl) return null;
-	const s = newServiceFromTemplate(tpl, include);
+	const s = newServiceFromTemplate(tpl, include, valgLedd, valgtGruppe);
 	s.visInstr = true;
 	s.visRoles = true;
 	s.visSalmeinfo = true;

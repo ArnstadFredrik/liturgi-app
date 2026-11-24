@@ -92,11 +92,16 @@ try {
 			klikk('Hjem'); await new Promise(r => setTimeout(r, 300));
 			klikk('Bibliotek'); await new Promise(r => setTimeout(r, 450));
 			klikk('Maler'); await new Promise(r => setTimeout(r, 700));
-			const bs = [...document.querySelectorAll('button')].filter(x => x.textContent.trim() === 'Åpne');
+			// rad-menyen: «Åpne» ligger i handlings-dropdownen per rad
+			const knapper = [...document.querySelectorAll('.rad-meny-knapp')];
 			const ord = ${JSON.stringify(mal)}.split(' ');
-			const b = bs.find(x => ord.some(w => (x.closest('tr')?.textContent ?? x.parentElement?.textContent ?? '').toLowerCase().includes(w.toLowerCase())));
-			if (!b) return 'fant-ikke: ' + bs.map(x => (x.parentElement?.textContent ?? '').slice(0, 22)).join(' | ');
-			b.click();
+			const knapp = knapper.find(x => ord.some(w => (x.closest('tr')?.textContent ?? '').toLowerCase().includes(w.toLowerCase())));
+			if (!knapp) return 'fant-ikke: ' + knapper.map(x => (x.closest('tr')?.textContent ?? '').slice(0, 22)).join(' | ');
+			knapp.click();
+			await new Promise(r => setTimeout(r, 350));
+			const aapne = [...document.querySelectorAll('.rad-meny-liste button')].find(x => x.textContent.trim() === 'Åpne');
+			if (!aapne) return 'fant-ikke-meny';
+			aapne.click();
 			// poll: vent til leddene er montert (tunge maler kan ta noen hundre ms)
 			let items = 0;
 			for (let i = 0; i < 12; i++) {

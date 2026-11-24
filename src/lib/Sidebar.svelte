@@ -35,8 +35,8 @@
 		// sørg for at malene er lastet (kan mangle rett etter app-oppstart)
 		if (!app.templates.length && isElectron) await loadTemplatesFromDisk();
 		if (!app.templates.length) return;
-		newServiceModal((name, date, tplId, include, kirkeaar, tekster) => {
-			createService(name, date, tplId, include, kirkeaar, tekster);
+		newServiceModal((name, date, tplId, include, kirkeaar, tekster, valgLedd, valgtGruppe) => {
+			createService(name, date, tplId, include, kirkeaar, tekster, valgLedd, valgtGruppe);
 		});
 	}
 

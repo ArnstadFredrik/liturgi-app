@@ -997,8 +997,8 @@ listenForSaveThenClose();
 // ---------- mac-menylinjen: handlinger fra toppmenyen ----------
 function nyGudstjenesteFraMeny(type = 'gudstjeneste') {
 	if (!app.templates.length) { toast.error('Ingen maler å base ny gudstjeneste på'); return; }
-	newServiceModal((name, date, tplId, include, kirkeaar, tekster) => {
-		createService(name, date, tplId, include, kirkeaar, tekster);
+	newServiceModal((name, date, tplId, include, kirkeaar, tekster, valgLedd, valgtGruppe) => {
+		createService(name, date, tplId, include, kirkeaar, tekster, valgLedd, valgtGruppe);
 	}, type);
 }
 
