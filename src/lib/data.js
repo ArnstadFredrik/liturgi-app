@@ -4514,7 +4514,7 @@ export const DEAKTIVERTE_MALER = [
 						"text": "",
 						"instr": "Klokkeringing\n\nInformasjon om dagens gudstjeneste\n\nTre klokkeslag",
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"enabled": false,
 						"selAlt": 0
 					},
@@ -5034,7 +5034,7 @@ export const DEAKTIVERTE_MALER = [
 						"instr": "",
 						"bibDup": true,
 						"alts": [],
-						"optional": true,
+						"optional": false,
 						"avslutningAlts": [
 							{
 								"label": "Lovprisning (full form)",
