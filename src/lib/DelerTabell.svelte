@@ -311,6 +311,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 										onclick={() => { it.valgStandard = !(it.valgStandard === true); markDirty(); }}>
 										<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 									</button>
+								{:else}<span class="muted" style="opacity: 0.5;">—</span>
 								{/if}
 							</span>
 						</div>

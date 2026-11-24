@@ -938,8 +938,8 @@ textarea {
  * solid popover-bakgrunn, border, skygge, kompakte fullbredde-rader med
  * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
  * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
-.m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; }
-.m-deler-rad { display: grid; grid-template-columns: 24px 1.5fr 1.1fr 0.9fr 56px 56px; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
+.m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; width: 100%; max-width: 1200px; }
+.m-deler-rad { display: grid; grid-template-columns: 24px 1.5fr 1.1fr 0.9fr 64px 64px; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
 .m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
 .m-deler-navn { font-weight: 500; overflow-wrap: anywhere; }
@@ -987,8 +987,8 @@ textarea {
 
 /* ---- Oversikt (undermodul i gudstjenestemodulen) ---- */
 #oversikt-side { max-width: min(860px, 92vw); margin-inline: auto; padding: 6px 26px 48px; }
-#maldeler-side { max-width: min(860px, 92vw); margin-inline: auto; padding: 6px 26px 48px; }
-#maldeler-side .deler-tabell-rom { max-width: 674px; margin-inline: auto; }
+#maldeler-side { max-width: min(1280px, 94vw); margin-inline: auto; padding: 6px 26px 48px; }
+#maldeler-side .deler-tabell-rom { margin-inline: auto; }
 .ovr-verktoy { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
 .ovr-hint { font-size: 12.5px; }
 .ovr-valgledd { position: relative; }
@@ -1057,6 +1057,13 @@ textarea {
 .m-deler-celle:disabled:hover { border-color: var(--border); }
 .m-deler-ledd .avpaa-liten { font-size: 11px; padding: 2px 8px; gap: 6px; }
 .m-deler-bryter-celle { display: flex; justify-content: center; }
+.m-deler-bryter-celle .avpaa-bryter-knapp {
+	border: none; background: transparent; padding: 4px 6px;
+	display: inline-flex; align-items: center; cursor: pointer; border-radius: 6px;
+}
+.m-deler-bryter-celle .avpaa-bryter-knapp:hover:not(:disabled) { background: var(--accent-dim); }
+.m-deler-bryter-celle .avpaa-bryter-knapp:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.m-deler-bryter-celle .avpaa-bryter-knapp:disabled { opacity: 0.45; cursor: default; }
 .m-chk-valgledd { display: flex; align-items: center; gap: 8px; }
 .m-chk-valgledd .filter-dd { flex: 1; }
 .m-chk-valgledd .filter-dd-meny { min-width: 420px; max-height: 300px; }
@@ -1104,7 +1111,7 @@ textarea {
 .m-alt-rad[aria-checked='true'] .m-alt-ind { visibility: visible; }
 .m-alt-tekst { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-alt-tom { padding: 6px 10px; font-size: 12px; display: block; }
-.m-deler-tabell, .m-deler-admin { max-width: 674px; }
+.m-deler-tabell, .m-deler-admin { max-width: 1200px; }
 .hd-info { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 14px; margin-top: 10px; }
 .hd-info-rad { display: flex; gap: 10px; font-size: 13px; padding: 3px 0; align-items: baseline; }
 .hd-info-nokkel { width: 120px; flex: none; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
