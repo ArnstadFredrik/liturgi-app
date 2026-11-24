@@ -209,4 +209,9 @@ function bibSearch(q, limit = 500) {
 	return scored.slice(0, limit).map((s) => s.row);
 }
 
-module.exports = { openDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSig, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete };
+function closeDb() {
+	try { db?.close(); } catch {}
+	db = null;
+}
+
+module.exports = { openDb, closeDb, dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSig, bibSync, bibSearch, bibUserList, bibUserAdd, bibUserUpdate, bibUserDelete };

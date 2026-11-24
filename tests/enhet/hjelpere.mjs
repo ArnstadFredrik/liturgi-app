@@ -2,7 +2,7 @@
  *  TEMPORÆR db (LITURGI_DB_DIR settes av testen før første kall). bibSig
  *  er ikke eksportert per-kilde, så hash-sammenligningen gjøres på hele
  *  registeret via bibSig()-nøkler. */
-import { openDb, bibSync, bibCounts, bibSearch } from '../../electron/db.cjs';
+import { openDb, closeDb, bibSync, bibCounts, bibSearch } from '../../electron/db.cjs';
 
 /** Samme per-rad-hash som i db.cjs — for ordens-uavhengighetstesten. */
 function radHash(s) {
@@ -23,4 +23,4 @@ function sigFor(kilde) {
 	return sig;
 }
 
-export { openDb, bibSync, bibCounts, bibSearch, sigFor };
+export { openDb, closeDb, bibSync, bibCounts, bibSearch, sigFor };

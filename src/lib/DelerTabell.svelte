@@ -361,7 +361,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			<div>
 				<p class="m-deler-adm-tittel">WIP</p>
 				<button type="button" class="avpaa" role="checkbox" aria-checked={mal.wip === true} title="Merk malen som utkast (wip) — skjules fra Opprett og (originaler) biblioteket til den bekreftes. Lagres med malen."
-					onclick={async () => { mal.wip = mal.wip !== true; markDirty(); if (mal.__devMal) { const { lagreWipStatus } = await import('$lib/malverktoy.svelte.js'); await lagreWipStatus(mal); } }}>
+					onclick={() => { mal.wip = mal.wip !== true; markDirty(); if (mal.__devMal) window.dispatchEvent(new CustomEvent('liturgi:lagre-wip', { detail: mal })); }}>
 					<span class="avpaa-tekst">Merk som WIP</span>
 					<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
 				</button>

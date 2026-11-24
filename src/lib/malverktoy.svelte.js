@@ -130,6 +130,14 @@ export async function slettUtkast(fil) {
 	return r?.ok ?? false;
 }
 
+// WIP-bryteren i DelerTabell sender et event i stedet for å importere
+// denne modulen direkte — en dynamisk import her ville trukket hele
+// Malverktøyet inn i produksjonsbyggget (tre-shaking brutt). Lytteren
+// registreres kun i dev-bygg (modulen tree-shakes ut i prod).
+if (typeof window !== 'undefined') {
+	window.addEventListener('liturgi:lagre-wip', (e) => { lagreWipStatus(e.detail); });
+}
+
 /** Lagre wip-statusendringen for en dev-mal umiddelbart: filen på disk
  *  (wip bor i malen) + seeden i data.js for originaler med seed. Uten dette
  *  reverterer bryteren ved omstart, og seed-regenereringen kan gjenopprette

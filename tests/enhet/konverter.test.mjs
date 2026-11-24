@@ -58,10 +58,9 @@ test('konvertering: bibelreferanse med kapittelområde (Mark 10,13–16) gjenkje
 	assert.match(mottakelse.text, /BIBELREF \| Mark 10,13–16$/);
 });
 
-test('konvertering: eneste Sønn-malens navn og type settes riktig for docx', () => {
-	// konverterLiturgi krever en ekte fil — test navne-/type-avledning via en
-	// lit docx bygget i temp med systemets zip.
-	const { execFileSync } = require('node:child_process');
+test('konvertering: eneste Sønn-malens navn og type settes riktig for docx', async () => {
+	// konverterLiturgi krever en ekte fil — bygg en lit docx med jszip
+	// (plattformuavhengig: 'zip'-binæren finnes ikke overalt, f.eks. Windows).
 	const os = require('node:os');
 	const fs = require('node:fs');
 	const path = require('node:path');
@@ -74,16 +73,11 @@ test('konvertering: eneste Sønn-malens navn og type settes riktig for docx', ()
 <w:p><w:pPr><w:pStyle w:val="Overskrift1"/></w:pPr><w:r><w:t>Testordning</w:t></w:r></w:p>
 <w:p><w:r><w:t>L | Test.</w:t></w:r></w:p>
 </w:body></w:document>`;
-	fs.writeFileSync(path.join(dir, 'doc.xml'), xml, 'utf8');
-	fs.writeFileSync(path.join(dir, '[Content_Types].xml'), '<?xml version="1.0"?><Types/>', 'utf8');
-	execFileSync('zip', ['-q', '-X', docx, '[Content_Types].xml', 'doc.xml'], { cwd: dir });
-	// doc.xml må hete word/document.xml inne i pakken
-	fs.unlinkSync(docx);
-	const pakke = path.join(dir, 'in');
-	fs.mkdirSync(path.join(pakke, 'word'), { recursive: true });
-	fs.writeFileSync(path.join(pakke, '[Content_Types].xml'), '<?xml version="1.0"?><Types/>', 'utf8');
-	fs.writeFileSync(path.join(pakke, 'word', 'document.xml'), xml, 'utf8');
-	execFileSync('zip', ['-q', '-r', '-X', docx, '[Content_Types].xml', 'word/'], { cwd: pakke });
+	const JSZip = (await import('jszip')).default;
+	const zip = new JSZip();
+	zip.file('[Content_Types].xml', '<?xml version="1.0"?><Types/>');
+	zip.file('word/document.xml', xml);
+	fs.writeFileSync(docx, await zip.generateAsync({ type: 'nodebuffer' }));
 
 	const { mal } = konverterLiturgi(docx);
 	assert.equal(mal.name, 'bm test-' + gudt);

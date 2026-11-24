@@ -42,7 +42,7 @@
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)
 	let Malverktoy = $state(null); // lastes bare inn i dev-bygg (__DEV_MODE__)
 	let Diff = $state(null); // sammenlign .limal-filer side om side (les-kun modul)
-	if (typeof window !== 'undefined') {
+	if (__DEV_MODE__ && typeof window !== 'undefined') {
 		if (window.liturgi?.devTilstand) {
 			window.liturgi.devTilstand().then((t) => { app.devModus = !!t?.devModus; });
 		}

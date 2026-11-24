@@ -4,7 +4,7 @@ import Database from 'better-sqlite3';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { bibSearch, bibSync, bibCounts, sigFor, openDb } from './hjelpere.mjs';
+import { bibSearch, bibSync, bibCounts, sigFor, openDb, closeDb } from './hjelpere.mjs';
 
 /** Tester bibliotekslogikken (bibSearch/bibSync/bibSig) mot en TEMPORÆR db —
  *  aldri brukerens ekte liturgi.db. */
@@ -15,6 +15,7 @@ before(() => {
 	process.env.LITURGI_DB_DIR = tmp;
 });
 after(() => {
+	closeDb(); // Windows: db-fila er laast mens tilkoblingen er aapen
 	rmSync(tmp, { recursive: true, force: true });
 });
 
