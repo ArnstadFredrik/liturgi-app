@@ -8,6 +8,7 @@ const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron
 export const uid = () => 'i' + Math.random().toString(36).slice(2, 9);
 
 export const app = $state({
+	sisteFaner: {}, // per dokument: siste aktive fane (editor/salmer/eksport …)
 	templates: [],
 	services: [],
 	current: null, // referanse til objektet i templates/services
@@ -288,7 +289,11 @@ export function loadStore() {
 	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {
 		app.vimModus = (r?.value ?? '0') === '1';
 	});
+	try { app.sisteFaner = JSON.parse(localStorage.getItem('liturgi-siste-faner') ?? '{}') ?? {}; } catch { app.sisteFaner = {}; }
 	if (isElectron) {
+		window.liturgi?.dbGet?.('sisteFaner')?.then?.((r) => {
+			if (r?.value && typeof r.value === 'object') app.sisteFaner = r.value;
+		});
 		// maler: innebygde + lokale fra ~/.config/Liturgi/maler (lastes async av fileio)
 		// gamle lokale maler i localStorage migreres til maler-mappen én gang
 		try {
@@ -357,6 +362,30 @@ export function loadStore() {
 	for (const t of app.templates) for (const sec of (t.sections ?? [])) for (const it of (sec?.items ?? [])) migrateItem(it);
 	for (const s of app.services) for (const sec of (s.sections ?? [])) for (const it of (sec?.items ?? [])) migrateItem(it);
 	persist();
+}
+
+let faneLagreT = null;
+/** Lagre siste aktive fane per dokument (db i electron, localStorage i web). */
+export function huskFane(noekkel, visning) {
+	if (!noekkel || !visning) return;
+	app.sisteFaner[noekkel] = visning;
+	clearTimeout(faneLagreT);
+	faneLagreT = setTimeout(() => {
+		// reaktive proxies kan ikke klones gjennom IPC — send en ren kopi
+		if (isElectron) window.liturgi?.dbSet?.('sisteFaner', JSON.parse(JSON.stringify(app.sisteFaner)));
+		else { try { localStorage.setItem('liturgi-siste-faner', JSON.stringify(app.sisteFaner)); } catch {} }
+	}, 400);
+}
+
+/** Siste fane for et dokument (eller null). */
+export function hentFane(noekkel) {
+	return noekkel ? (app.sisteFaner[noekkel] ?? null) : null;
+}
+
+/** Stabil noekkel for et apent dokument (fil-sti i electron, id i web). */
+export function dokNoekkel(obj, kind) {
+	if (!obj) return '';
+	return (kind ?? '') + ':' + (obj.filePath ?? obj.id ?? obj.__åpenId ?? obj.name ?? '');
 }
 
 export function persist() {
@@ -466,7 +495,7 @@ export function registrerÅpenMal(obj, dev) {
 	}
 	const sider = ['maler', 'bibliotek', 'innstillinger', 'kirkeaar', 'forberedelse', 'malverktoy'];
 	if (sider.includes(app.visning)) app.tilbakeVisning = app.visning;
-	app.visning = 'editor';
+	app.visning = hentFane(dokNoekkel(obj, 'template')) ?? 'editor';
 	app.current = obj;
 	app.kind = 'template';
 }

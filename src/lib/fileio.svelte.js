@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn, synkLenkedeSeksjoner } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn, synkLenkedeSeksjoner, hentFane, dokNoekkel } from './store.svelte.js';
 import { BUILTIN_TEMPLATES, WIP_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -322,7 +322,7 @@ function dokumentValg(data) {
 function åpneNy(obj) {
 	app.current = obj;
 	app.kind = 'service';
-	app.visning = 'hjem';
+	app.visning = hentFane(dokNoekkel(obj, 'service')) ?? 'hjem';
 	app.dirty = !!obj.__dirty;
 	syncDirty();
 }
@@ -337,7 +337,7 @@ function åpneIFil(data, filePath) {
 	data.kind = 'service';
 	app.current = data;
 	app.kind = 'service';
-	app.visning = 'hjem';
+	app.visning = hentFane(dokNoekkel(data, 'service')) ?? 'hjem';
 	app.dirty = false;
 	syncDirty();
 	// registrer som «åpne gudstjeneste» (denne økten)

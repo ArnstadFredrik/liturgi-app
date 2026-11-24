@@ -1,5 +1,5 @@
 <script>
-	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty } from '$lib/store.svelte.js';
+	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty, hentFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { newServiceModal, valgModal, confirmBox } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
@@ -40,7 +40,7 @@
 		if (app.current === e.obj) return;
 		app.current = e.obj;
 		app.kind = 'service';
-		app.visning = 'hjem';
+		app.visning = hentFane(dokNoekkel(e.obj, 'service')) ?? 'hjem';
 		app.dirty = !!e.dirty;
 		window.liturgi?.setDirty?.(!!e.dirty);
 	}

@@ -1,7 +1,7 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Modulfaner from '$lib/Modulfaner.svelte';
-	import { app, veksleSidebar, veksleToc, loadStore } from '$lib/store.svelte.js';
+	import { app, veksleSidebar, veksleToc, loadStore, huskFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';
 	import Welcome from '$lib/Welcome.svelte';
@@ -77,13 +77,42 @@
 	/** Kompakt modul-heading ved rulling: fanestripen forblir synlig (sticky),
 	 *  og tittelen krymper når innholdet ruller under den. */
 	let mainEl = $state(null);
+
+	/* Rullminne per dokument + fane: hver fane husker sin egen rulleposisjon,
+	   så bytte frem og tilbake ikke flytter stedet mellom fanene. */
+	let rullMinne = {};
+	let aktivRull = '';
+	// 'hjem' med åpent dokument = redigeringsvisningen (fallback) — samme rullslot
+	const rullNoekkel = $derived(dokNoekkel(app.current, app.kind) + ':' + ((app.current && app.visning === 'hjem') ? 'editor' : app.visning));
+	$effect.pre(() => {
+		// foer fane-swap: lagre naavaerende rulleposisjon under GAMMEL noekkel
+		if (aktivRull && aktivRull !== rullNoekkel && mainEl) rullMinne[aktivRull] = mainEl.scrollTop;
+		aktivRull = rullNoekkel;
+	});
 	$effect(() => {
 		const el = mainEl;
 		if (!el) return;
-		const onScroll = () => el.classList.toggle('main-scrollt', el.scrollTop > 8);
+		const lagret = rullMinne[rullNoekkel] ?? 0;
+		// gjenopprett etter at den nye fanen er montert (dobbel rAF = layout ferdig)
+		requestAnimationFrame(() => requestAnimationFrame(() => { el.scrollTop = lagret; }));
+	});
+	$effect(() => {
+		const el = mainEl;
+		if (!el) return;
+		const onScroll = () => {
+			el.classList.toggle('main-scrollt', el.scrollTop > 8);
+			// lopende lagring: rulleposisjonen til AKTIV fane
+			if (aktivRull) rullMinne[aktivRull] = el.scrollTop;
+		};
 		el.addEventListener('scroll', onScroll, { passive: true });
 		onScroll();
 		return () => el.removeEventListener('scroll', onScroll);
+	});
+	/* husk siste aktive fane per dokument (persistert i db/localStorage) */
+	$effect(() => {
+		const v = app.visning;
+		const ok = ['editor', 'oversikt', 'salmer', 'eksport', 'maldeler'];
+		if (app.current && ok.includes(v)) huskFane(dokNoekkel(app.current, app.kind), v);
 	});
 
 	const modul = $derived.by(() => {
