@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "electron": "electron . --remote-debugging-port=9230",
     "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac",
-    "test": "node --test tests/enhet/",
+    "test": "node --test \"tests/enhet/*.test.mjs\"",
     "test:royk": "npm run build && node tests/royktest.mjs"
   },
   "build": {
