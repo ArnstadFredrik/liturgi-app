@@ -758,7 +758,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const margin = marger === 'smal' ? 10 : marger === 'bred' ? 20 : 15;
 	// lysbildemanus: tall i venstre marg — utvid venstre marg og tegn tallene der
 	const lysTall = valg.lysbildeTall ?? null;
-	const lysMargin = lysTall && Object.keys(lysTall).length ? 13 : 0;
+	const lysMargin = 0; // prøveutgave: ikke utvid venstre marg — tallene tegnes i den opprinnelige
 	const margV = margin + lysMargin;
 	const kolonner = valg.kolonner === 2 ? 2 : 1;
 	const colGap = hefte ? 4 : 6;
@@ -809,15 +809,15 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	};
 	/** Tegn lysbildenummer i venstre marg på nåværende linje (høyrestilt). */
 	const tegnLysTall = (n, yPaa) => {
-		if (!lysMargin || n == null) return;
-		// blå sirkel med blått tall i — i venstre marg
-		const cx = margV - 4.2;
+		if (!lysTall || n == null) return;
+		// blå sirkel med blått tall i — i den opprinnelige venstre margen
+		const cx = Math.max(3.5, margin - 6);
 		const cy = (yPaa ?? y) + 2.1;
 		doc.setDrawColor(37, 99, 235);
 		doc.setLineWidth(0.5);
-		doc.circle(cx, cy, 2.5, 'S');
+		doc.circle(cx, cy, 2.2, 'S');
 		doc.setFont('helvetica', 'bold');
-		doc.setFontSize(9.5);
+		doc.setFontSize(8.5);
 		doc.setTextColor(37, 99, 235);
 		doc.text(String(n), cx, cy + 1.15, { align: 'center' });
 	};
