@@ -223,7 +223,9 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			if (head && it.__visOverskrift !== false) {
 				// avsnittstitler AV: første overskrift i avsnittet får redusert topp-luft
 				const forste = !forrige || forrige.heading === 'h2';
-				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste, __lys: lys ? lys.map((x) => x.n) : null });
+				// salmer med vers-tall: overskriften får ingen tall (versene får sine)
+				const hodeLys = it.type === 'salme' && lys && lys.length && (valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt) ? null : (lys ? lys.map((x) => x.n) : null);
+				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste, __lys: hodeLys });
 			}
 			forrige = out[out.length - 1];
 			if (it.__visInnhold === false) continue;
@@ -234,7 +236,21 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			if (it.type === 'salme') {
 				const st = salmeTekst(it);
 				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true, __lys: lysUtenHode });
-				if (st) out.push({ text: st, __lys: lysUtenHode });
+				else if (st) {
+					// vers for vers: hvert vers får sine slidetall (samme deling som pptx)
+					const lysPpt = valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt ?? null;
+					if (lys && lys.length && lysPpt) {
+						const vers = st.split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+						let li = 0;
+						vers.forEach((v, vi) => {
+							const overskrift = vi === 0 && lysPpt.visLeddtitler && head ? head + '\n' : '';
+							const antall = delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), lysPpt.storrelse).length;
+							const nrs = [];
+							for (let g2i = 0; g2i < antall && li < lys.length; g2i++, li++) nrs.push(lys[li].n);
+							out.push({ text: v, __lys: nrs.length ? nrs : null });
+						});
+					} else out.push({ text: st, __lys: lysUtenHode });
+				}
 			} else if (it.alts && it.alts.length) {
 				if (it.selAlt == null) continue; // tomt ledd — ingenting i eksporten
 				else {
@@ -326,7 +342,9 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			}));
 			continue;
 		}
+		const lysKant = { style: BorderStyle.SINGLE, size: 6, color: '2563EB', space: 3 }; // sirkeltall-rammen
 		// brødtekst: Times 10,5 pt, linjeavstand som PDF-en (size*0.48+1,1 mm ≈ 17,4 pt)
+		const lysListe = p.__lys == null ? null : (Array.isArray(p.__lys) ? p.__lys : [p.__lys]);
 		// linjeskift: '\n'-segmentene fra roleSegments blir EKTE linjeskift (break) —
 		// docx viser ellers rå \n som mellomrom, så avsnittene i visningen forsvinner
 		const runs = [];
@@ -452,7 +470,8 @@ export function delPptSider(tekst, fs) {
  *  (fet/kursiv/rød) følger teksten, så markdown-par kan aldri bli delt midt i.
  *  Kapasitet per slide = cpl × maxLinjer (samme mål som delPptSider). Siste side
  *  balanseres mot nest siste hvis den blir spinkel. */
-export function delPptSegs(segs, fs) {
+export function delPptSegs(segs, fs, opts = {}) {
+	const beholdBrudd = !!opts.beholdBrudd; // manuset: behold avsnittskift ved gruppegrenser
 	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5)));
 	const maxLinjer = Math.max(4, Math.floor(302 / (fs * 1.15)));
 	const kap = cpl * maxLinjer;
@@ -477,7 +496,7 @@ export function delPptSegs(segs, fs) {
 				if (kutt <= 0) { pushGrp(); continue; }
 				grp.push({ ...s, text: rest.slice(0, kutt) });
 				lengde += kutt;
-				rest = rest.slice(kutt).replace(/^\n+/, '');
+				rest = beholdBrudd ? rest.slice(kutt) : rest.slice(kutt).replace(/^\n+/, '');
 				pushGrp();
 			}
 		}
@@ -782,6 +801,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	let y = margin;
 	let flytCx = null; // nåværende x i den flytende teksten (slidegrenser midt i linje)
 	let linjeTegnet = false; // har nåværende linje i den flytende teksten innhold?
+	let bruddSidenTekst = 0; // linjeskift siden siste tegnede tekst (avsnittskift = to brudd)
 
 	const nySideHvisNodvendig = (h) => {
 		if (y + h > mm.h - margin) {
@@ -845,6 +865,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		}
 		flytCx = null; // skrivLinjer avslutter alltid på en fersk linje
 		linjeTegnet = false;
+		bruddSidenTekst = 0;
 	};
 
 	/** Skriv segmenter fra roleSegments() flytende på linjen: røde rollemerker og
@@ -868,7 +889,14 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
 			const parts = seg.text.split('\n');
 			parts.forEach((part, pi) => {
-				if (pi > 0 && linjeTegnet) nylinje(); // tomme linjeskift på fersk linje gir ingen ekstra avansering
+				if (pi > 0) {
+					// linjeskift: avanser hvis linja har innhold (linjeskift) eller hvis et
+					// brudd allerede er konsumert (andre bruddet i \n\n = blanklinjen).
+					// Ett enkelt brudd på en fersk linje (gruppegrense etter orddeling)
+					// gir ingen ekstra avansering.
+					if (linjeTegnet || bruddSidenTekst > 0) nylinje();
+					bruddSidenTekst++;
+				}
 				if (!part) return;
 				// del på hevede versnummer ^{N} (tegnes mindre og hevet på samme linje)
 				for (const sp of part.split(/(\^\{[^}]+\})/)) {
@@ -885,8 +913,16 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						const wrapped = erSup ? [rest] : doc.splitTextToSize(rest, w - (cx - x0() - indent));
 						const l = wrapped[0];
 						if (!l) { nylinje(); continue; }
-						if (!forsteTekst) { forsteTekst = true; vedForsteTekst?.(); }
+						if (!forsteTekst) {
+							forsteTekst = true;
+							vedForsteTekst?.();
+							// tallet-endringen endrer farge/skrift — gjenopprett segmentets stil
+							doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
+							doc.setFontSize(supSize);
+							doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
+						}
 						linjeTegnet = true;
+						bruddSidenTekst = 0;
 						doc.text(l, cx, y + (erSup ? 2.2 : 4));
 						cx += doc.getTextWidth(l);
 						rest = rest.slice(l.length).replace(/^ +/, '');
@@ -939,6 +975,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			const toppLuft = ((!visAvsnittstitler && forsteLedd) ? (hefte ? 1.5 : 2.5) : (hefte ? 3.2 : 5.5)) * afFor;
 			forsteLedd = false;
 			let lysTegnet = false;
+			// hvert ledd starter på fersk linje i den flytende teksten
+			flytCx = null; linjeTegnet = false; bruddSidenTekst = 0;
 			if (head && it.__visOverskrift !== false) {
 				y += toppLuft; nySideHvisNodvendig(10);
 				if (lys && lys.length && it.type !== 'salme') { tegnLysTall(lys[0].n); lysTegnet = true; }
@@ -961,14 +999,13 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
 			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
 			const brukGrupper = lys && lys.length && lysPpt;
-			if (brukGrupper) flytCx = null; // hvert ledd starter på fersk linje
 			if (brukGrupper && it.type === 'salme' && tekst) {
 				// salme: vers for vers; hvert vers' slidetall der verset/sliden begynner
 				const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
 				let li = 0;
 				vers.forEach((v, vi) => {
 					const overskrift = vi === 0 && lysPpt.visLeddtitler && head ? head + '\n' : '';
-					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v, { beholdLinjer: true })), lysPpt.storrelse);
+					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v, { beholdLinjer: true })), lysPpt.storrelse, { beholdBrudd: true });
 					grupper.forEach((grp, gi) => {
 						const t = lys.find((x) => x.del === li) ?? lys[li] ?? null;
 						li++;
@@ -987,7 +1024,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 				if ((showInstr ?? true) && it.instr) lysLinjer.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
 				if (tekst) lysLinjer.push(tekst);
 				const lysJoined = flytAvsnitt(((lysPpt.visLeddtitler && head ? head + '\n' : '') + lysLinjer.join('\n')).trim());
-				const grupper = delPptSegs(roleSegments(lysJoined), lysPpt.storrelse);
+				const grupper = delPptSegs(roleSegments(lysJoined), lysPpt.storrelse, { beholdBrudd: true });
 				const hopp = (lysPpt.visLeddtitler && head ? 1 : 0) + ((showInstr ?? true) && it.instr ? it.instr.split('\n').length : 0); // allerede tegnet
 				grupper.forEach((grp, gi) => {
 					const t = lys.find((x) => x.del === gi) ?? null;
