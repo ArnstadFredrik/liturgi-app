@@ -200,6 +200,7 @@ button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-s
 .list li .nm { overflow-wrap: anywhere; word-break: break-word; }
 .list li .nm .dt { display: block; color: var(--muted); font-size: 11px; margin-bottom: 1px; }
 .list li .nm .under { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+.list li.active .nm .under, .list li.active .nm .dt { color: rgba(255, 255, 255, 0.85); }
 .list li .fjern { opacity: 0; border: none; background: none; color: var(--muted); cursor: pointer; padding: 2px; border-radius: 4px; flex: 0 0 auto; }
 .list li:hover .fjern { opacity: 0.75; }
 .list li .fjern:hover { opacity: 1; background: var(--sidebar-hover); }

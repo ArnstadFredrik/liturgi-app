@@ -233,6 +233,8 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			} else if (it.alts && it.alts.length) {
 				if (it.selAlt == null) continue; // tomt ledd — ingenting i eksporten
 				else {
+					// stale selAlt etter sletting av alternativer: klem til gyldig område
+					it.selAlt = Math.min(it.selAlt, it.alts.length - 1);
 					if (it.introAlts?.length) out.push({ text: visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '') });
 					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudstjenesteredigeringen —
 					// kun innledning + valgt alternativ + avslutning følger med i eksporten
@@ -604,7 +606,7 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 				const t = showInstr ? leddTekst(it) : stripNotat(leddTekst(it));
 				if (lines && t) lines.push(t);
 			} else if (lines && it.alts && it.alts.length) {
-				if (it.selAlt != null) lines.push(it.alts[it.selAlt].text);
+				if (it.selAlt != null && it.alts[it.selAlt]) lines.push(it.alts[it.selAlt].text);
 			} else if (lines && it.text) {
 				lines.push(it.text);
 			}

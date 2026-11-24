@@ -11,10 +11,14 @@
 	/** Undertittel: dato + kirkeårsdag. Tjenesteobjekt (kirkeaar = objekt) eller
 	 *  recent-rad fra databasen (kirkeaar = ren streng). */
 	function underTittel(obj) {
+		return underLinjer(obj).join(' · ');
+	}
+
+	/** dato og kirkeaarsdag på egne linjer */
+	function underLinjer(obj) {
 		const d = obj?.date ?? '';
 		const k = typeof obj?.kirkeaar === 'string' ? obj.kirkeaar : (obj?.kirkeaar?.name ?? '');
-		if (!d && !k) return '';
-		return [d ? nlDate(d) : '', k].filter(Boolean).join(' · ');
+		return [d ? nlDate(d) : '', k].filter(Boolean);
 	}
 
 	$effect(() => {
@@ -115,7 +119,7 @@
 						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
 							{#if e.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
 							<span class="nm-t">{navn(e)}</span>
-							{#if underTittel(e.obj)}<span class="under">{underTittel(e.obj)}</span>{/if}
+							{#each underLinjer(e.obj) as linje}<span class="under" class:under-dato={linje.startsWith('søndag') || /^\d/.test(linje)}>{linje}</span>{/each}
 						</span>
 						<button class="åpne-x" title="Lukk gudstjenesten" onclick={(ev) => { ev.stopPropagation(); lukkFraListe(e); }}>
 							{@html mdi('close', 13)}
@@ -154,7 +158,7 @@
 					<li>
 						<span class="nm" onclick={() => openServiceFile(s.path)} title={s.path}>
 							<span class="nm-t">{s.name}</span>
-							{#if underTittel(s)}<span class="under">{underTittel(s)}</span>{/if}
+							{#each underLinjer(s) as linje}<span class="under">{linje}</span>{/each}
 						</span>
 						<button class="fjern" title="Fjern fra listen (filen beholdes)" onclick={(e) => { e.stopPropagation(); fjernRecent(s.path); }}>
 							{@html mdi('close', 14)}
@@ -168,7 +172,7 @@
 					<li class:active={app.current === s}>
 						<span class="nm" onclick={() => openService(s.id)}>
 							<span class="nm-t">{s.name}</span>
-							{#if underTittel(s)}<span class="under">{underTittel(s)}</span>{/if}
+							{#each underLinjer(s) as linje}<span class="under">{linje}</span>{/each}
 						</span>
 						<button class="fjern" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>
 							{@html mdi('delete-outline', 14)}
