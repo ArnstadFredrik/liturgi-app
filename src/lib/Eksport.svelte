@@ -1058,7 +1058,6 @@
 			justering: pptJustering,
 			lysBakgrunn: pptLys
 		}, isElectron);
-		window.__lysRes = { finnes: !!res, plan: res?.plan?.length ?? null, filnavn: res?.filnavn ?? null, lysManus: pptLysManus }; // DEBUG: fjernes
 		if (res) {
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
 			if (r.ok) { toast.success(res.filnavn + ' → ' + r.filePath); }
@@ -1071,8 +1070,6 @@
 			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
 				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(pptTekstSkala * 38), visLeddtitler: pptLeddtitler });
-				window.__lysTall = tall; // DEBUG: fjernes
-				window.__lysPlan = res.plan.map((s) => ({ nr: s.nr, nokkel: s.nokkel ?? null, blank: !!s.blank, t: (typeof s.segs === 'string' ? s.segs : (s.segs ?? []).map((g2) => g2.text).join('')) })); // DEBUG: fjernes
 				const base = baseNavn('Medarbeider') + ' - lysbildemanus';
 				const innst = {
 					storrelse: getInnstP('Medarbeider', 'storrelse', 'A5'),
