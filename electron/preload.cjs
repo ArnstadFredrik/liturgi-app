@@ -19,7 +19,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	dbGet: (key) => ipcRenderer.invoke('db:get', key),
 	dbSet: (key, value) => ipcRenderer.invoke('db:set', { key, value }),
 	listRecent: () => ipcRenderer.invoke('rec:list'),
-	touchRecent: (p, name, date) => ipcRenderer.invoke('rec:touch', { path: p, name, date }),
+	touchRecent: (p, name, date, kirkeaar) => ipcRenderer.invoke('rec:touch', { path: p, name, date, kirkeaar }),
 	removeRecent: (p) => ipcRenderer.invoke('rec:remove', { path: p }),
 	// bibliotek: oppslagsregister over hovedgudstjenesten (sqlite)
 	bibSync: (source, entries) => ipcRenderer.invoke('bib:sync', { source, entries }),

@@ -1,11 +1,21 @@
 <script>
 	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty } from '$lib/store.svelte.js';
-	import { newServiceModal, valgModal } from '$lib/modal.svelte.js';
+	import { newServiceModal, valgModal, confirmBox } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import { nlDate } from '$lib/export.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const MAX_RECENT = 5;
+
+	/** Undertittel: dato + kirkeårsdag. Tjenesteobjekt (kirkeaar = objekt) eller
+	 *  recent-rad fra databasen (kirkeaar = ren streng). */
+	function underTittel(obj) {
+		const d = obj?.date ?? '';
+		const k = typeof obj?.kirkeaar === 'string' ? obj.kirkeaar : (obj?.kirkeaar?.name ?? '');
+		if (!d && !k) return '';
+		return [d ? nlDate(d) : '', k].filter(Boolean).join(' · ');
+	}
 
 	$effect(() => {
 		if (isElectron) {
@@ -104,7 +114,8 @@
 					<li class:active={app.current?.__åpenId === e.åpenId} class:dirty={e.dirty}>
 						<span class="nm" onclick={() => åpneNy(e)} title={e.path ?? 'Ikke lagret ennå'}>
 							{#if e.dirty}<span class="dirty-dot" title="Ulagrede endringer"></span>{/if}
-							{navn(e)}
+							<span class="nm-t">{navn(e)}</span>
+							{#if underTittel(e.obj)}<span class="under">{underTittel(e.obj)}</span>{/if}
 						</span>
 						<button class="åpne-x" title="Lukk gudstjenesten" onclick={(ev) => { ev.stopPropagation(); lukkFraListe(e); }}>
 							{@html mdi('close', 13)}
@@ -142,8 +153,8 @@
 				{#each recent as s (s.path)}
 					<li>
 						<span class="nm" onclick={() => openServiceFile(s.path)} title={s.path}>
-							{#if s.date}<span class="dt">{s.date}</span>{/if}
 							<span class="nm-t">{s.name}</span>
+							{#if underTittel(s)}<span class="under">{underTittel(s)}</span>{/if}
 						</span>
 						<button class="fjern" title="Fjern fra listen (filen beholdes)" onclick={(e) => { e.stopPropagation(); fjernRecent(s.path); }}>
 							{@html mdi('close', 14)}
@@ -156,8 +167,8 @@
 				{#each sortedServices() as s (s.id)}
 					<li class:active={app.current === s}>
 						<span class="nm" onclick={() => openService(s.id)}>
-							{#if s.date}<span class="dt">{s.date}</span>{/if}
 							<span class="nm-t">{s.name}</span>
+							{#if underTittel(s)}<span class="under">{underTittel(s)}</span>{/if}
 						</span>
 						<button class="fjern" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>
 							{@html mdi('delete-outline', 14)}

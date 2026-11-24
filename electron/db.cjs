@@ -59,6 +59,11 @@ function openDb() {
 	for (const kol of ['intro_tekst', 'avsl_tekst']) {
 		if (!kolonner.includes(kol)) db.exec(`ALTER TABLE bibliotek ADD COLUMN ${kol} TEXT NOT NULL DEFAULT ''`);
 	}
+	// migrering: kirkeaar-kolonnen i recent_services (eldre databaser)
+	const recKolonner = db.prepare('PRAGMA table_info(recent_services)').all().map((k) => k.name);
+	if (!recKolonner.includes('kirkeaar')) {
+		db.exec("ALTER TABLE recent_services ADD COLUMN kirkeaar TEXT NOT NULL DEFAULT ''");
+	}
 	return db;
 }
 
@@ -75,15 +80,15 @@ function dbSet(key, value) {
 
 function recList(limit = 8) {
 	return openDb()
-		.prepare('SELECT path, name, date, last_opened FROM recent_services ORDER BY last_opened DESC LIMIT ?')
+		.prepare('SELECT path, name, date, kirkeaar, last_opened FROM recent_services ORDER BY last_opened DESC LIMIT ?')
 		.all(limit);
 }
 
-function recTouch(p, name, date) {
+function recTouch(p, name, date, kirkeaar) {
 	openDb()
-		.prepare(`INSERT INTO recent_services (path, name, date, last_opened) VALUES (?, ?, ?, ?)
-			ON CONFLICT(path) DO UPDATE SET name = excluded.name, date = excluded.date, last_opened = excluded.last_opened`)
-		.run(p, name ?? '', date ?? '', Date.now());
+		.prepare(`INSERT INTO recent_services (path, name, date, kirkeaar, last_opened) VALUES (?, ?, ?, ?, ?)
+			ON CONFLICT(path) DO UPDATE SET name = excluded.name, date = excluded.date, kirkeaar = excluded.kirkeaar, last_opened = excluded.last_opened`)
+		.run(p, name ?? '', date ?? '', kirkeaar ?? '', Date.now());
 }
 
 function recRemove(p) {

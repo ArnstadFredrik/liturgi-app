@@ -280,7 +280,7 @@ export async function refreshRecentServices() {
 
 async function touchRecent(o) {
 	if (!o?.filePath) return;
-	try { await window.liturgi.touchRecent(o.filePath, o.name ?? '', o.date ?? ''); } catch {}
+	try { await window.liturgi.touchRecent(o.filePath, o.name ?? '', o.date ?? '', o.kirkeaar?.name ?? ''); } catch {}
 }
 
 /** Åpne en gudstjenestefil fra disken — der den ligger, uten å kopieres.

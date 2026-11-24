@@ -214,7 +214,7 @@ const { dbGet, dbSet, recList, recTouch, recRemove, bibCounts, bibSig, bibSync, 
 ipcMain.handle('db:get', (_e, key) => { try { return { ok: true, value: dbGet(key) }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('db:set', (_e, { key, value }) => { try { dbSet(key, value); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:list', () => { try { return { ok: true, list: recList() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
-ipcMain.handle('rec:touch', (_e, { path: p, name, date }) => { try { recTouch(p, name, date); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
+ipcMain.handle('rec:touch', (_e, { path: p, name, date, kirkeaar }) => { try { recTouch(p, name, date, kirkeaar); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('rec:remove', (_e, { path: p }) => { try { recRemove(p); return { ok: true }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 ipcMain.handle('bib:counts', () => { try { return { ok: true, counts: bibCounts(), sig: bibSig() }; } catch (err) { return { ok: false, error: String(err?.message ?? err) }; } });
 
