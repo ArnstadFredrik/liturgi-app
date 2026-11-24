@@ -255,11 +255,11 @@ export function buildOutline(svc, showInstr, valg = {}) {
 							grupper.forEach((grp, gi) => {
 								let t = grp.map((s) => s.text).join('');
 								if (vi === 0 && gi === 0 && overskrift) t = t.split('\n').slice(1).join('\n'); // overskriften er eget avsnitt
-								t = t.replace(/^\n+/, '');
+								t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // som over
 								if (!t.trim()) return;
 								const n = lys[li];
 								li++;
-								out.push({ text: t, __lys: n ? [n.n] : null, __siste: vi === vers.length - 1 && gi === grupper.length - 1 }); // salmens overskrift får aldri tall, så alle gruppene får sine
+								out.push({ text: t, __lys: n ? [n.n] : null, __siste: gi === grupper.length - 1 }); // hvert vers' siste gruppe får etter-avstand (vers-skillet)
 							});
 						});
 					} else out.push({ text: st, __lys: lysUtenHode });
@@ -311,7 +311,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 					grupper.forEach((grp, gi) => {
 						let t = grp.map((s) => s.text).join('');
 						if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
-						t = t.replace(/^\n+/, ''); // avsnittskift ved gruppegrense = nytt avsnitt her
+						t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // avsnittskift ved grensen = nytt avsnitt; blanklinjen beholdes som første tomme linje
 						if (!t.trim()) return;
 						out.push({ text: t, __lys: (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null, __siste: gi === grupper.length - 1 });
 					});
