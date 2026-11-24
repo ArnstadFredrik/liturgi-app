@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber, AlignmentType, BorderStyle } from 'docx';
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
@@ -299,11 +299,12 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 				: p.heading === 'h2'
 					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * afFor * MM), after: Math.round(3.5 * afEtter * MM) }
 					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * afFor * MM)), after: Math.round(1.8 * afEtter * MM) };
+			const lysKant = { style: BorderStyle.SINGLE, size: 6, color: '2563EB', space: 3 };
 			const lysRuns = p.__lys != null
-				? [new TextRun({ text: String(p.__lys), bold: true, color: '555555', size: Math.round(22 * WF('ledd')), font: SANS }), new TextRun({ text: '\t' })]
+				? [new TextRun({ text: String(p.__lys), bold: true, color: '2563EB', size: Math.round(22 * WF('ledd')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } }), new TextRun({ text: '\t' })]
 				: [];
 			paras.push(new Paragraph({
-				...(p.__lys != null ? { indent: { left: 850, hanging: 850 } } : {}),
+				...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
 				children: [...lysRuns, new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
 				spacing: { before: spec.before, after: spec.after }
@@ -340,9 +341,9 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			});
 		}
 		paras.push(new Paragraph({
-			...(p.__lys != null ? { indent: { left: 850, hanging: 850 } } : {}),
+			...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
 			children: p.__lys != null
-				? [new TextRun({ text: String(p.__lys), bold: true, color: '555555', size: Math.round(21 * WF('tekst')), font: SANS }), new TextRun({ text: '\t' }), ...runs]
+				? [new TextRun({ text: String(p.__lys), bold: true, color: '2563EB', size: Math.round(21 * WF('tekst')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } }), new TextRun({ text: '\t' }), ...runs]
 				: runs,
 			spacing: { after: Math.round(3 * afEtter * MM), line: 348 }
 		}));
@@ -354,7 +355,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 	// marger som PDF-en: smal 10 mm, normal 15 mm, bred 20 mm (MM twips per mm)
 	const marg = (valg.marger === 'smal' ? 10 : valg.marger === 'bred' ? 20 : 15) * MM;
 	// lysbildemanus: venstre marg utvides slik at tallene får plass i margsonen
-	const lysMarg = valg.lysbildeTall && Object.keys(valg.lysbildeTall).length ? 13 * MM : 0;
+	const lysMarg = valg.lysbildeTall && Object.keys(valg.lysbildeTall).length ? 7 * MM : 0;
 	const doc = new Document({
 		sections: [{
 			properties: {
@@ -775,10 +776,16 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	/** Tegn lysbildenummer i venstre marg på nåværende linje (høyrestilt). */
 	const tegnLysTall = (n) => {
 		if (!lysMargin || n == null) return;
+		// blå sirkel med blått tall i — i venstre marg
+		const cx = margV - 4.2;
+		const cy = y + 2.1;
+		doc.setDrawColor(37, 99, 235);
+		doc.setLineWidth(0.5);
+		doc.circle(cx, cy, 2.5, 'S');
 		doc.setFont('helvetica', 'bold');
-		doc.setFontSize(12);
-		doc.setTextColor(60, 60, 60);
-		doc.text(String(n), margV - 2.5, y + 4, { align: 'right' });
+		doc.setFontSize(9.5);
+		doc.setTextColor(37, 99, 235);
+		doc.text(String(n), cx, cy + 1.15, { align: 'center' });
 	};
 
 	const skrivLinjer = (text, opts = {}) => {

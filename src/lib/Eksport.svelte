@@ -37,9 +37,8 @@
 	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
 	let pptLys = $state(false);         // lys bakgrunn på slidene (standard mørk)
 	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
-	let pptLysManus = $state(false);     // lysbildemanus med i Skjerm-eksporten
-	let pptLysManusPdf = $state(true);   // manuset som PDF
-	let pptLysManusWord = $state(false); // manuset som Word-docx
+	// lysbildemanus: valget ligger i høyre sidemeny (checkbox) — følger dokumentet
+	const pptLysManus = $derived(!!o?.eksportPptx?.lysManus);
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
 	let pptZoom = $state(1);            // zoom på lysbildevisningen (localStorage ppt-zoom)
@@ -264,9 +263,6 @@
 			pptLeddtitler = o.eksportPptx?.leddtitler ?? false;
 			pptLys = o.eksportPptx?.lysBakgrunn ?? false;
 			pptJustering = o.eksportPptx?.justering ?? 'center';
-			pptLysManus = o.eksportPptx?.lysManus ?? false;
-			pptLysManusPdf = o.eksportPptx?.lysManusPdf ?? true;
-			pptLysManusWord = o.eksportPptx?.lysManusWord ?? false;
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
 			formater = egne ?? { ...appFormater };
@@ -305,11 +301,7 @@
 				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
 				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
 				{ label: 'Lys bakgrunn', checked: chk(pptLys), action: () => window.__eksMeny('eks:lys') },
-					{ label: 'Lysbildemanus', submenu: [
-						{ label: 'Med i eksporten', checked: chk(pptLysManus), action: () => window.__eksMeny('eks:lysbmanus') },
-						{ label: 'Som PDF', checked: chk(pptLysManusPdf), action: () => window.__eksMeny('eks:lysbmanus-pdf') },
-						{ label: 'Som Word', checked: chk(pptLysManusWord), action: () => window.__eksMeny('eks:lysbmanus-word') }
-					]},
+					{ label: 'Lysbildemanus', checked: chk(pptLysManus), action: () => window.__eksMeny('eks:lysbmanus') },
 				'sep',
 				{ label: 'Justering', submenu: [
 					{ label: 'Venstrejustert', checked: pptJustering === 'left', action: () => window.__eksMeny('eks:justering:left') },
@@ -361,9 +353,7 @@
 		else if (nk === 'blank') settTomSlide(!tomSlide);
 		else if (nk === 'tittelslide') { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }
 		else if (nk === 'lys') { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }
-		else if (nk === 'lysbmanus') { pptLysManus = !pptLysManus; setPptx('lysManus', pptLysManus); }
-		else if (nk === 'lysbmanus-pdf') { pptLysManusPdf = !pptLysManusPdf; setPptx('lysManusPdf', pptLysManusPdf); }
-		else if (nk === 'lysbmanus-word') { pptLysManusWord = !pptLysManusWord; setPptx('lysManusWord', pptLysManusWord); }
+		else if (nk === 'lysbmanus') { setPptx('lysManus', !pptLysManus); }
 		else if (nk === 'justering') { pptJustering = v; setPptx('justering', pptJustering); }
 	};
 	// menylinje-tilstand: valgene (sjekkbokser/radioer i Eksportvalg-menyen)
@@ -1072,9 +1062,12 @@
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
 			if (r.ok) { toast.success(res.filnavn + ' → ' + r.filePath); }
 			else toast.error('Klarte ikke lagre: ' + (r.error ?? 'ukjent feil'));
-			// lysbildemanus: medarbeider-utvalg og -format, lysbildenummer i venstre marg
+			// lysbildemanus: medarbeider-utvalg og -format, lysbildenummer i venstre marg.
+			// Formatet følger eksportens formatvalg (Word/PDF) — fallback PDF.
 			let n = r.ok ? 1 : 0;
-			if (pptLysManus && res.plan && (pptLysManusPdf || pptLysManusWord)) {
+			const vilWord = !!formater.word, vilPdf = !!formater.pdf;
+			const lysFormater = vilWord || vilPdf ? { word: vilWord, pdf: vilPdf || !vilWord } : { word: false, pdf: true };
+			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
 				const tall = lysbildeTallFor(res.plan, medKopi);
 				const base = baseNavn('Medarbeider') + ' - lysbildemanus';
@@ -1088,13 +1081,13 @@
 					skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...(o?.eksportInnst?.['Medarbeider']?.skriftSkala ?? {}) },
 					lysbildeTall: tall
 				};
-				if (pptLysManusPdf && isElectron) {
+				if (lysFormater.pdf && isElectron) {
 					const { base64 } = buildPdfBase64(medKopi, visInstrValg, innst);
 					const rp = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 					if (rp.ok) { toast.success('Lysbildemanus (PDF) → ' + rp.filePath); n++; }
 					else toast.error('Klarte ikke lagre manuset: ' + (rp.error ?? 'ukjent feil'));
 				}
-				if (pptLysManusWord) {
+				if (lysFormater.word) {
 					const rw = await exportWord(medKopi, visInstrValg, base + '.docx', innst, isElectron);
 					if (rw) {
 						const rd = await window.liturgi.lagrePdf(rw.base64, rw.filnavn, o.filePath);
