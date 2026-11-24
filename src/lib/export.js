@@ -216,6 +216,8 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
 			const lys = valg.lysbildeTall ? valg.lysbildeTall[si + ':' + ii] ?? null : null;
+			const ppt = valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt ?? null;
+			const gruppeFlyt = it.type !== 'salme' && lys && lys.length && ppt && !!it.text;
 			let head = it.heading || '';
 			if (it.type === 'salme' && (it.salmeNr || it.salmeTittel)) {
 				head += (head ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
@@ -223,8 +225,11 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			if (head && it.__visOverskrift !== false) {
 				// avsnittstitler AV: første overskrift i avsnittet får redusert topp-luft
 				const forste = !forrige || forrige.heading === 'h2';
-				// salmer med vers-tall: overskriften får ingen tall (versene får sine)
-				const hodeLys = it.type === 'salme' && lys && lys.length && (valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt) ? null : (lys ? lys.map((x) => x.n) : null);
+				// salmer med vers-tall: overskriften får ingen tall (versene får sine).
+				// Tekstledd med gruppeflyt: overskriften får bare første tall (resten
+				// kommer på sine gruppe-avsnitt, som i PDF-en).
+				const hodeLys = it.type === 'salme' && lys && lys.length && ppt ? null
+					: gruppeFlyt ? [lys[0].n] : (lys ? lys.map((x) => x.n) : null);
 				out.push({ heading: 'h3', text: head, __forsteEtterH2: forste, __lys: hodeLys });
 			}
 			forrige = out[out.length - 1];
@@ -267,7 +272,24 @@ export function buildOutline(svc, showInstr, valg = {}) {
 					if (it.avslutningAlts?.length) out.push({ text: visTekst(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '') });
 				}
 			} else if (it.text) {
-				out.push({ text: visTekst(it.text) });
+				const bt = visTekst(it.text);
+				if (gruppeFlyt) {
+					// et avsnitt per slidegruppe — gruppens lysbildetall på sitt avsnitt
+					// (samme deling som pptx/PDF)
+					const lysLinjer = [];
+					if (showInstr && it.instr) lysLinjer.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
+					if (bt) lysLinjer.push(bt);
+					const overskrift = ppt.visLeddtitler && head ? head + '\n' : '';
+					const grupper = delPptSegs(roleSegments(flytAvsnitt((overskrift + lysLinjer.join('\n')).trim())), ppt.storrelse, { beholdBrudd: true });
+					const hopp = (ppt.visLeddtitler && head ? 1 : 0) + (showInstr && it.instr ? it.instr.split('\n').length : 0);
+					grupper.forEach((grp, gi) => {
+						let t = grp.map((s) => s.text).join('');
+						if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
+						t = t.replace(/^\n+/, ''); // avsnittskift ved gruppegrense = nytt avsnitt her
+						if (!t.trim()) return;
+						out.push({ text: t, __lys: (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null, __siste: gi === grupper.length - 1 });
+					});
+				} else out.push({ text: bt });
 			}
 			// avstand: spacing før/etter dekker allerede luften — INGEN tom avsnittlinje
 		}

@@ -1070,7 +1070,8 @@
 			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
 				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(pptTekstSkala * 38), visLeddtitler: pptLeddtitler });
-				const base = baseNavn('Medarbeider') + ' - lysbildemanus';
+				// filnavnet: profilen (Medarbeider) byttes ut med «Lysbildemanus»
+				const base = safeName([o?.date ?? '', o?.name ?? '', 'Lysbildemanus'].filter(Boolean).join(' - '));
 				const innst = {
 					storrelse: getInnstP('Medarbeider', 'storrelse', 'A5'),
 					kolonner: getInnstP('Medarbeider', 'kolonner', 1),
