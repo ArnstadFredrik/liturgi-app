@@ -25,9 +25,9 @@ jobs:
       version: ${{ steps.ver.outputs.version }}
       sha256: ${{ steps.sha.outputs.sha256 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -85,12 +85,29 @@ jobs:
           test -f "$DMG" || { ls -la dist; exit 1; }
           echo "sha256=$(shasum -a 256 "$DMG" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
+  publiser:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Publiser releasen (draft -> release) og kontroller formatene
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release edit "$TAG" --draft=false --latest
+          gh release view "$TAG" --json assets --jq '.assets[].name' > assets.txt
+          for format in dmg exe AppImage deb; do
+            grep -q "$format" assets.txt || { echo "::error::Mangler $format i releasen"; exit 1; }
+          done
+          echo "OK: alle fire formatene er i releasen."
+
   update-tap:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Hent homebrew-tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ArnstadFredrik/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
