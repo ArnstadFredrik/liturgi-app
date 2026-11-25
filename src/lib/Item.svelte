@@ -88,8 +88,13 @@
 			it.text = d.text;
 			if (d.alts.length > 1) { it.alts = d.alts; it.selAlt = 0; }
 			it.showSalmeTekst = true;
+			it.salmeIkkeRegistrert = !!r.ikkeRegistrert;
 			markDirty();
-			toast.success('Hentet «' + r.tittel + '» fra salmedatabasen');
+			if (r.ikkeRegistrert) {
+				toast.info('Hentet «' + r.tittel + '» fra cachen — offline, registreres mot gudstjeneste.no nr du er online');
+			} else {
+				toast.success('Hentet «' + r.tittel + '» fra salmedatabasen');
+			}
 		} catch (err) {
 			toast.error('Klarte ikke hente salmen: ' + (err?.message ?? err));
 		} finally {
@@ -420,6 +425,9 @@
 
 		{#if it.type === 'salme'}
 			<div class="salme-row">
+				{#if it.salmeIkkeRegistrert}
+					<span class="salme-ureg" title="Teksten er hentet fra cachen mens appen var offline - registreres mot gudstjeneste.no nr du er online">Ikke registrert</span>
+				{/if}
 				<input class="nr" placeholder="Nr" spellcheck="false" bind:value={it.salmeNr} onchange={markDirty} />
 				<input class="tittel" placeholder="Salmens tittel" spellcheck="false" bind:value={it.salmeTittel} onchange={markDirty} />
 				<button

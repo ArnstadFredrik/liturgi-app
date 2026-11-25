@@ -2,6 +2,7 @@
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Modulfaner from '$lib/Modulfaner.svelte';
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import { app, veksleSidebar, veksleToc, loadStore, huskFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';

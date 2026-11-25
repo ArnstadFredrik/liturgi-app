@@ -885,6 +885,8 @@ body.hide-roles .lit-text .role, .lit-text.plain .role { color: inherit; font-we
 .et-edit textarea { margin-top: 2px; }
 .alt-text { white-space: pre-wrap; cursor: text; }
 .salme-row { display: flex; gap: 8px; align-items: center; }
+.salme-ureg { font-size: 10px; padding: 2px 7px; border: 1px solid #c9803a; color: #c9803a; border-radius: 6px; white-space: nowrap; }
+@media print { .salme-ureg { display: none; } }
 .salme-row input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 13px; }
 .salme-row input.nr { width: 70px; text-align: center; }
 .salme-row input.tittel { flex: 1; }

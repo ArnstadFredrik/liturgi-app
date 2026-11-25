@@ -1,6 +1,7 @@
 // Salmetekst-cache (db 'salmeCache') + bruksstatistikk (db 'salmeBruk').
-// Tekster fra gudstjeneste.no caches til etter gudstjenestens dato har passert.
-// Salmer som brukes ofte (3+ ganger de siste 3 mnedene) beholdes i 90 dager.
+// Tekster fra gudstjeneste.no caches i ubestemt tid; entrer for salmer som er
+// lite brukt (ingen registrering de siste 3 mnedene) ryddes ut. TONO-
+// registrering skjer for hver henting uansett, s cachen er trygg.
 // Ren modul: bare db.cjs, testbar med node --test.
 const { dbGet, dbSet } = require('./db.cjs');
 
@@ -36,6 +37,14 @@ function erOfteBrukt(bruk) {
 	return (bruk?.datoer ?? []).filter((d) => d >= grense).length >= OFTE_GRENS;
 }
 
+/** Lite brukt = ingen registrering de siste 3 mnedene (ryddes fra cachen). */
+function erLiteBrukt(bruk) {
+	if (!bruk) return true;
+	const grense = isoDato(new Date(Date.now() - 90 * DAG_MS));
+	const siste = [...(bruk.datoer ?? []), bruk.sist ?? ''].sort().pop() ?? '';
+	return siste < grense;
+}
+
 /** Registrer bruken (TONO-statistikk) og gi ofte brukte salmer lang cache. */
 function registrerBruk(q, dato) {
 	const nk = cacheNoekkel(q);
@@ -51,33 +60,39 @@ function registrerBruk(q, dato) {
 	return erOfteBrukt(b);
 }
 
-/** Lagre en nytekst i cachen og kast utlpte entrer (unntatt ofte brukte). */
-function cacheTekst(q, valgt, tekst, dato, ofte) {
+/** Rydd cachen: salmer som har ligget der i over 3 mnd og er lite brukt
+ *  (ingen registrering de siste 3 mnedene) kastes. */
+function ryddCache() {
+	const c = lesCache();
+	const bruk = lesBruk();
+	const grense = isoDato(new Date(Date.now() - 90 * DAG_MS));
+	let ryddet = 0;
+	for (const k of Object.keys(c)) {
+		if ((c[k].hentet ?? '') < grense && erLiteBrukt(bruk[k])) { delete c[k]; ryddet++; }
+	}
+	if (ryddet) lagreCache(c);
+	return ryddet;
+}
+
+/** Lagre en nytekst i cachen (ubegrenset) og rydd lite brukte entrer. */
+function cacheTekst(q, valgt, tekst) {
 	const c = lesCache();
 	const nk = cacheNoekkel(q);
-	let gyldig = gyldighet(dato);
-	if (ofte) gyldig = isoDato(new Date(Date.now() + OFTE_DAGER * DAG_MS));
 	c[nk] = {
 		tekst, tittel: valgt?.title ?? '', tittel2: valgt?.title2 ?? '',
 		tekstForfatter: valgt?.tekst ?? '', melodi: valgt?.melodi ?? '',
 		rettighet: valgt?.rettighet ?? '', mediaid: valgt?.mediaid,
-		nr: q?.nr ?? '', gyldigTil: gyldig, hentet: isoDato(new Date())
+		nr: q?.nr ?? '', hentet: isoDato(new Date())
 	};
-	const iDag = isoDato(new Date());
-	const bruk = lesBruk();
-	for (const k of Object.keys(c)) {
-		if (c[k].gyldigTil < iDag && !erOfteBrukt(bruk[k])) delete c[k];
-	}
 	lagreCache(c);
+	ryddCache();
 }
 
-/** Cache-treff som fortsatt er gyldig (gudstjenesten har ikke vrt), eller null. */
+/** Cache-treff (cachen gjelder i ubestemt tid; rydding skjer for lite brukte). */
 function cacheTreff(q) {
 	const c = lesCache();
 	const e = c[cacheNoekkel(q)];
-	if (!e) return null;
-	if ((e.gyldigTil ?? '') < isoDato(new Date())) return null;
-	return e;
+	return e ?? null;
 }
 
-module.exports = { isoDato, cacheNoekkel, gyldighet, registrerBruk, cacheTekst, cacheTreff, lesCache, lesBruk };
+module.exports = { isoDato, cacheNoekkel, gyldighet, registrerBruk, cacheTekst, cacheTreff, lesCache, lesBruk, erLiteBrukt, erOfteBrukt, ryddCache };

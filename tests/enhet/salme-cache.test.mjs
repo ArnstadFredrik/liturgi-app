@@ -7,8 +7,16 @@ import path from 'node:path';
 // egen throwaway-db for testen
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'liturgi-salme-cache-'));
 process.env.LITURGI_DB_DIR = dir;
-const { cacheNoekkel, gyldighet, registrerBruk, cacheTekst, cacheTreff, lesCache, lesBruk } =
+const { cacheNoekkel, gyldighet, registrerBruk, cacheTekst, cacheTreff, lesCache, lesBruk, erLiteBrukt, ryddCache } =
 	await import('../../electron/salme-cache.cjs');
+const { dbSet } = await import('../../electron/db.cjs');
+const nDager = (dager) => {
+	const d = new Date(Date.now() - dager * 24 * 60 * 60 * 1000);
+	const pad = (x) => String(x).padStart(2, '0');
+	return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+};
+const datoFor = nDager;
+
 const valgt = {
 	title: 'Herren er min hyrde', title2: '', tekst: 'T: Noen', melodi: 'M: Noen',
 	rettighet: 'TONO', mediaid: 12345
@@ -19,13 +27,11 @@ test('cacheNoekkel: nummer fregr tittel og er stabil', () => {
 	assert.equal(cacheNoekkel({ tittel: '  Min  Salme ' }), 't:min salme');
 });
 
-test('cacheTreff: treff innenfor gyldighet, ingen etter gudstjenesten har passert', () => {
-	// dato langt fram i tid = gyldig lenge
-	cacheTekst({ nr: '280' }, valgt, 'TEKST', '2099-06-01', false);
-	assert.ok(cacheTreff({ nr: '280' }), 'gyldig treff');
-	// dato langt tilbake = utlp
-	cacheTekst({ nr: '281' }, valgt, 'TEKST', '2020-01-01', false);
-	assert.equal(cacheTreff({ nr: '281' }), null, 'utlp => ingen treff');
+test('cacheTreff: cachen gjelder i ubestemt tid', () => {
+	// gamle hentinger forblir gyldige (ryddes frst nr de er lite brukt i 3 mnd)
+	cacheTekst({ nr: '280' }, valgt, 'TEKST');
+	assert.ok(cacheTreff({ nr: '280' }), 'treff uansett alder');
+	assert.ok(cacheTreff({ nr: 'ikke-cachet' }) === null, 'ingen treff');
 });
 
 test('gyldighet: gudstjenestedato + dagen', () => {
@@ -49,36 +55,26 @@ test('registrerBruk: antall telles, ofte brukte (3+) flagges', () => {
 	assert.equal(b.antall, 3);
 });
 
-test('cacheTekst: ofte brukte fr lang gyldighet', () => {
-	const q = { nr: '998' };
-	const n = (dager) => {
-		const d = new Date(Date.now() - dager * 24 * 60 * 60 * 1000);
-		const pad = (x) => String(x).padStart(2, '0');
-		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-	};
-	for (const d of [80, 50, 10]) registrerBruk(q, n(d));
-	cacheTekst(q, valgt, 'TEKST', '2026-08-01', true);
-	const e = lesCache()['nr:998'];
-	// 90 dager fremover fra i dag = langt fram i tid (ikke bare gudstjenestedatoen)
-	const om90 = new Date(Date.now() + 85 * 24 * 60 * 60 * 1000);
-	const pad = (x) => String(x).padStart(2, '0');
-	assert.ok(e.gyldigTil >= om90.getFullYear() + '-' + pad(om90.getMonth() + 1) + '-' + pad(om90.getDate()),
-		'ofte brukt => lang gyldighet: ' + e.gyldigTil);
-	assert.equal(cacheTreff(q).tekst, 'TEKST');
+test('rydding: lite brukte salmer fjernes etter 3 mnd, brukte beholdes', () => {
+	// lite brukt: cachet for lenge siden, ingen bruk de siste 3 mnd
+	cacheTekst({ nr: '997' }, valgt, 'GAMMEL');
+	const c0 = lesCache();
+	c0['nr:997'].hentet = '2020-01-01'; // simulr gammel
+	dbSet('salmeCache', c0);
+	ryddCache();
+	assert.equal(lesCache()['nr:997'], undefined, 'lite brukt og gammel => ryddet');
+	// nylig brukt med gammel hentet beholdes
+	cacheTekst({ nr: '995' }, valgt, 'BRUKT');
+	const c1 = lesCache();
+	c1['nr:995'].hentet = '2020-01-01';
+	dbSet('salmeCache', c1);
+	registrerBruk({ nr: '995' }, datoFor(5)); // brukt for 5 dager siden
+	ryddCache();
+	assert.ok(lesCache()['nr:995'], 'nylig brukt beholdes');
 });
 
-test('cacheTekst: rydder utlpte entrer, beholder ofte brukte', () => {
-	cacheTekst({ nr: '997' }, valgt, 'GAMMEL', '2020-01-01', false);
-	cacheTekst({ nr: '996' }, valgt, 'OFTE', '2099-01-01', false);
-	const n = (dager) => {
-		const d = new Date(Date.now() - dager * 24 * 60 * 60 * 1000);
-		const pad = (x) => String(x).padStart(2, '0');
-		return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-	};
-	for (const d of [80, 50, 10]) registrerBruk({ nr: '995' }, n(d));
-	cacheTekst({ nr: '995' }, valgt, 'OFTE2', '2020-01-01', true);
-	const c = lesCache();
-	assert.equal(c['nr:997'], undefined, 'gammel og ubrukt skal ryddes');
-	assert.ok(c['nr:996'], 'gyldig behandles');
-	assert.ok(c['nr:995'], 'ofte brukt beholdes selv om dato er passert');
+test('erLiteBrukt: uten bruk = lite brukt, med ny bruk = ikke', () => {
+	assert.equal(erLiteBrukt(null), true);
+	assert.equal(erLiteBrukt({ datoer: [], sist: '' }), true);
+	assert.equal(erLiteBrukt({ datoer: [datoFor(5)], sist: datoFor(5) }), false);
 });

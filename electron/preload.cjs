@@ -77,4 +77,7 @@ contextBridge.exposeInMainWorld('liturgi', {
 	salmeHent: (payload) => ipcRenderer.invoke('salme:hent', payload),
 	salmeTestLogin: () => ipcRenderer.invoke('salme:test-login'),
 	salmeHentFlere: (payload) => ipcRenderer.invoke('salme:hent-flere', payload),
+	salmeFlushKo: () => ipcRenderer.invoke('salme:ko-flush'),
+	salmeKoStatus: () => ipcRenderer.invoke('salme:ko-status'),
+	onSalmeKoFlushet: (cb) => { ipcRenderer.on('salme:ko-flushet', (_e, data) => cb(data)); },
 });

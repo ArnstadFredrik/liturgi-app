@@ -18,6 +18,8 @@ const PUB_NOS13 = '8'; // Norsk Salmebok 2013
 // Salmer som brukes ofte (3+ ganger de siste 3 mnedene) beholdes i 90 dager.
 // Alle bruk registreres likevel mot gudstjeneste.no (TONO), også ved cache-treff.
 const { cacheNoekkel, registrerBruk, cacheTekst, cacheTreff } = require('./salme-cache.cjs');
+const { lesCache, lesBruk, erLiteBrukt, isoDato } = require('./salme-cache.cjs');
+const { net } = require('electron');
 
 /** Registrer salmebruk i bakgrunnen (TONO) — tekst kommer fra cachen, men
  *  registreringen skal gjerne som vanlig. Kaldt ild: venter ikke på svar. */
@@ -26,6 +28,9 @@ async function registrerIBakgrunn(mediaids, dato, navn) {
 		const ses = await sikreSesjon();
 		if (!ses.ok) { console.error('[salme-cache] bakgrunnsregistrering:', ses.error); return; }
 		await registrerValgte(mediaids, dato, navn);
+		// ken kan ha innleveringer fra offline-perioden - tm den n
+		const f = await flushKo();
+		if (f.ok && f.registrert > 0) varsleKoTomt(f.registrert);
 	} catch (err) {
 		console.error('[salme-cache] bakgrunnsregistrering:', String(err?.message ?? err));
 	}
@@ -164,25 +169,94 @@ async function registrerValgte(mediaids, dato, navn) {
 	return { ok: true, filer };
 }
 
+/** Registreringsk (db 'salmeRegistrerKo'): bruker registrert offline, kjres
+ *  nr appen kommer online. Grupperes p dato+arrangement (n registrering per gudstjeneste). */
+function leggIKo(mediaids, dato, navn) {
+	const ko = dbGet('salmeRegistrerKo') ?? [];
+	const nk = (dato || 'ingen-dato') + '|' + (navn || 'Gudstjeneste');
+	const eksisterende = ko.find((k) => k.nokkel === nk);
+	if (eksisterende) {
+		for (const m of mediaids) if (!eksisterende.mediaids.includes(m)) eksisterende.mediaids.push(m);
+	} else {
+		ko.push({ nokkel: nk, dato: dato || '', navn: navn || 'Gudstjeneste', mediaids: [...mediaids] });
+	}
+	dbSet('salmeRegistrerKo', ko);
+}
+
+/** Kjr køen: n registrering per dato+arrangement. Returnerer antall registrert. */
+async function flushKo() {
+	const ko = dbGet('salmeRegistrerKo') ?? [];
+	if (!ko.length) return { ok: true, registrert: 0, gjenvrende: 0 };
+	const ses = await sikreSesjon();
+	if (!ses.ok) return { ok: false, error: ses.error, gjenvrende: ko.length };
+	let registrert = 0;
+	const gjen = [];
+	for (const k of ko) {
+		try {
+			const reg = await registrerValgte(k.mediaids, k.dato, k.navn);
+			if (reg.ok) registrert += k.mediaids.length;
+			else gjen.push(k);
+		} catch {
+			gjen.push(k);
+		}
+	}
+	dbSet('salmeRegistrerKo', gjen);
+	return { ok: true, registrert, gjenvrende: gjen.length };
+}
+
+/** IPC: kjr registreringskken (renderer kaller den ved window-online). */
+ipcMain.handle('salme:ko-flush', async () => {
+	try { return await flushKo(); } catch (err) { return { ok: false, error: String(err?.message ?? err) }; }
+});
+
+/** IPC: registreringsk-status (antall i ken). */
+ipcMain.handle('salme:ko-status', () => {
+	const ko = dbGet('salmeRegistrerKo') ?? [];
+	return { ok: true, antall: ko.reduce((n, k) => n + k.mediaids.length, 0) };
+});
+
+/** Varsle renderer om at ken er tmt (salmeleddene kan markeres som registrert). */
+function varsleKoTomt(registrert) {
+	for (const w of require('electron').BrowserWindow.getAllWindows()) {
+		w.webContents.send('salme:ko-flushet', { registrert });
+	}
+}
+
 /** IPC: hent salmetekst. payload = { nr, tittel, dato, navn } */
 ipcMain.handle('salme:hent', async (_e, payload = {}) => {
 	try {
 		const q = { nr: String(payload.nr || '').trim(), tittel: String(payload.tittel || '').trim() };
 		if (!q.nr && !q.tittel) return { ok: false, error: 'Fyll inn salmenummer eller tittel' };
-		// 1) cache: teksten umiddelbart hvis den finnes og gudstjenesten ikke er passert
+		// innlogging kreves for salmehenting, ogs nr teksten ligger i cache
+		const login = dbGet('salmeLogin');
+		if (!login?.user) return { ok: false, error: 'Innlogging til salmedatabasen kreves' };
+		const online = net.isOnline();
+		// 1) cache: teksten umiddelbart hvis den finnes (cachen gjelder ubestemt tid)
 		const cachet = cacheTreff(q);
 		if (cachet) {
-			// TONO-registrering i bakgrunnen (teksten kommer altså fra cachen)
 			registrerBruk(q, payload.dato);
-			registrerIBakgrunn([cachet.mediaid], payload.dato, payload.navn);
+			if (online) {
+				// TONO-registrering i bakgrunnen (teksten kommer altså fra cachen)
+				registrerIBakgrunn([cachet.mediaid], payload.dato, payload.navn);
+				return {
+					ok: true, cachet: true,
+					tittel: cachet.tittel, tittel2: cachet.tittel2,
+					tekst: cachet.tekst,
+					tekstForfatter: cachet.tekstForfatter, melodi: cachet.melodi,
+					rettighet: cachet.rettighet, mediaid: cachet.mediaid
+				};
+			}
+			// offline: lever teksten, marker som ikke registrert og legg i køen
+			leggIKo([cachet.mediaid], payload.dato, payload.navn);
 			return {
-				ok: true, cachet: true,
+				ok: true, cachet: true, ikkeRegistrert: true,
 				tittel: cachet.tittel, tittel2: cachet.tittel2,
 				tekst: cachet.tekst,
 				tekstForfatter: cachet.tekstForfatter, melodi: cachet.melodi,
 				rettighet: cachet.rettighet, mediaid: cachet.mediaid
 			};
 		}
+		if (!online) return { ok: false, error: 'Offline og salmen er ikke cachet enn' };
 		// 2) vanlig vei: søk + registrering + hent tekst
 		const ses = await sikreSesjon();
 		if (!ses.ok) return { ok: false, error: ses.error };
@@ -191,9 +265,9 @@ ipcMain.handle('salme:hent', async (_e, payload = {}) => {
 		const valgt = soekRes.valgt;
 		const reg = await registrerOgHentTekst(valgt.mediaid, payload.dato, payload.navn);
 		if (!reg.ok) return reg;
-		// 3) cache til etter gudstjenestens dato (+90 dager hvis ofte brukt)
-		const ofte = registrerBruk(q, payload.dato);
-		cacheTekst(q, valgt, reg.tekst, payload.dato, ofte);
+		// 3) cache (ubegrenset) + bruksstatistikk
+		registrerBruk(q, payload.dato);
+		cacheTekst(q, valgt, reg.tekst);
 		return {
 			ok: true,
 			tittel: valgt.title,
@@ -218,6 +292,10 @@ ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 		const resultater = [];
 		const valgte = [];
 		const cachetListe = [];
+		// innlogging kreves for salmehenting, ogs nr teksten ligger i cache
+		const login = dbGet('salmeLogin');
+		if (!login?.user) return { ok: false, error: 'Innlogging til salmedatabasen kreves' };
+		const online = net.isOnline();
 		// 1) cache frst: salmer vi allerede har (teksten kommer umiddelbart)
 		for (const s of (payload.salmer ?? [])) {
 			const q = { nr: String(s.nr || '').trim(), tittel: String(s.tittel || '').trim() };
@@ -227,7 +305,7 @@ ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 				registrerBruk(q, dato);
 				cachetListe.push(cachet);
 				resultater.push({
-					key: s.key, ok: true, cachet: true,
+					key: s.key, ok: true, cachet: true, ikkeRegistrert: !online,
 					tekst: cachet.tekst, tittel: cachet.tittel, tittel2: cachet.tittel2,
 					tekstForfatter: cachet.tekstForfatter, melodi: cachet.melodi,
 					rettighet: cachet.rettighet, mediaid: cachet.mediaid
@@ -236,10 +314,14 @@ ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 			}
 			valgte.push({ key: s.key, q });
 		}
-		// TONO-registrering av cache-treffene i bakgrunnen (n registrering for alle)
-		if (cachetListe.length) registrerIBakgrunn(cachetListe.map((c) => c.mediaid), dato, navn);
+		// TONO-registrering av cache-treffene: online = i bakgrunnen, offline = i ken
+		if (cachetListe.length) {
+			if (online) registrerIBakgrunn(cachetListe.map((c) => c.mediaid), dato, navn);
+			else leggIKo(cachetListe.map((c) => c.mediaid), dato, navn);
+		}
 		if (!valgte.length) return { ok: true, resultater };
 		// 2) sk + n registrering med alle verkene
+		if (!online) return { ok: false, error: 'Offline og salmene er ikke cachet enn', resultater };
 		const soekte = [];
 		const ses = await sikreSesjon();
 		if (!ses.ok) return { ok: false, error: ses.error, resultater };
@@ -270,8 +352,8 @@ ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 			});
 			if (innhold) {
 				const q0 = valgte.find((v) => v.key === key)?.q ?? { nr: '', tittel: '' };
-				const ofte = registrerBruk(q0, dato);
-				cacheTekst(q0, valgt, innhold + '\n', dato, ofte);
+				registrerBruk(q0, dato);
+				cacheTekst(q0, valgt, innhold + '\n');
 			}
 		}
 		return { ok: true, resultater };
