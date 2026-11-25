@@ -315,12 +315,8 @@
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
 			...(erLesningsLedd(it) && !erMal ? [{ label: 'Hent bibeltekster på nytt', action: hentPåNytt }] : []),
-			// malredigering: innledning/avslutning er TOGGLES (et ledd har høyst én av hver) —
-			// optakt/fjerning av alternativer skjer i gruppens egen meny (tannhjul)
-			...(erMal ? [
-				{ label: 'Innledning', checked: introAltsLen > 0, action: () => introAltsLen ? fjernGruppe('introAlts', 'selIntro', 'Innledning') : opprettGruppe('introAlts', 'selIntro', 'Innledning') },
-				{ label: 'Avslutning', checked: avslAltsLen > 0, action: () => avslAltsLen ? fjernGruppe('avslutningAlts', 'selAvsl', 'Avslutning') : opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') }
-			] : []),
+			{ label: 'Innledning', checked: introAltsLen > 0, action: () => introAltsLen ? fjernGruppe('introAlts', 'selIntro', 'Innledning') : opprettGruppe('introAlts', 'selIntro', 'Innledning') },
+			{ label: 'Avslutning', checked: avslAltsLen > 0, action: () => avslAltsLen ? fjernGruppe('avslutningAlts', 'selAvsl', 'Avslutning') : opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') },
 			{ label: 'Skift type …', action: skiftType },
 			// instruksjonsfelt: vises kun når det har innhold — denne legger
 			// til et tomt redigerbart felt (' ') eller fjerner det igjen
