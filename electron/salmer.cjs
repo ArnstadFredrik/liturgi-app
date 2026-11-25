@@ -13,6 +13,9 @@ const { dbGet, dbSet } = require('./db.cjs');
 const BASE = 'https://gudstjeneste.no/';
 const PUB_NOS13 = '8'; // Norsk Salmebok 2013
 
+let cookieJar = new Map(); // navn  verdi (CFID/CFTOKEN m.m.)
+let innloggetTid = 0;
+
 // --- Salmetekst-cache (db 'salmeCache') + bruksstatistikk (db 'salmeBruk') ---
 // Tekster fra gudstjeneste.no caches til etter gudstjenestens dato har passert.
 // Salmer som brukes ofte (3+ ganger de siste 3 mnedene) beholdes i 90 dager.
@@ -34,6 +37,117 @@ async function registrerIBakgrunn(mediaids, dato, navn) {
 	} catch (err) {
 		console.error('[salme-cache] bakgrunnsregistrering:', String(err?.message ?? err));
 	}
+}
+
+function lagreCookies(res) {
+	try {
+		for (const c of res.headers.getSetCookie()) {
+			const pair = c.split(';')[0];
+			const i = pair.indexOf('=');
+			if (i > 0) cookieJar.set(pair.slice(0, i).trim(), pair.slice(i + 1).trim());
+		}
+	} catch { /* ingen cookies */ }
+}
+
+function cookieHeader() {
+	return [...cookieJar.entries()].map(([k, v]) => k + '=' + v).join('; ');
+}
+
+async function hent(sti, opts = {}) {
+	const res = await fetch(BASE + sti.replace(/^\//, ''), {
+		...opts,
+		headers: {
+			cookie: cookieHeader(),
+			referer: BASE + 'index.cfm/medialib/',
+			'User-Agent': 'Liturgi-app/1.0',
+			...(opts.headers || {})
+		},
+		redirect: 'follow'
+	});
+	lagreCookies(res);
+	return res;
+}
+
+function erInnloggetSide(html) {
+	// case-insensitivt: ved feil bruker/passord redirecter sidene til
+	// dspLogin (stor L) — og viser innloggingsskjemaet med «Glemt passord?»
+	const s = String(html || '').toLowerCase();
+	return !s.includes('dsplogin')
+		&& !s.includes('glemt passord')
+		&& !s.includes('du må først logg inn');
+}
+
+/** POST doLogin + velg abonnement (første i listen). */
+async function loggInn() {
+	const login = dbGet('salmeLogin');
+	if (!login?.user || !login?.passEnc) return { ok: false, error: 'Ikke konfigurert' };
+	let pass = '';
+	try {
+		pass = safeStorage.decryptString(Buffer.from(login.passEnc, 'base64'));
+	} catch {
+		return { ok: false, error: 'Klarte ikke dekryptere passordet' };
+	}
+	cookieJar = new Map();
+	// NB: redirect: 'manual' — cookies fra 302-redirecten (CFID/CFTOKEN) går ellers tapt
+	const body = new URLSearchParams({ username: login.user, password: pass });
+	let res = await fetch(BASE + 'index.cfm/users/doLogin/', {
+		method: 'POST',
+		redirect: 'manual',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Liturgi-app/1.0' },
+		body: body.toString()
+	});
+	lagreCookies(res);
+	// følg redirects manuelt (sett-cookie på hvert steg)
+	for (let i = 0; i < 6 && res.status >= 300 && res.status < 400; i++) {
+		const lok = res.headers.get('location');
+		if (!lok) break;
+		res = await fetch(lok.startsWith('http') ? lok : BASE + lok.replace(/^\//, ''), {
+			redirect: 'manual',
+			headers: { cookie: cookieHeader(), 'User-Agent': 'Liturgi-app/1.0' }
+		});
+		lagreCookies(res);
+	}
+	const side = await res.text();
+	if (!side.includes('dspSubsChoice') && !erInnloggetSide(side)) {
+		return { ok: false, error: 'Feil brukernavn eller passord' };
+	}
+	// velg abonnement (første SubscriptionId i skjemaet)
+	const sub = await hent('index.cfm/users/dspSubsChoice');
+	const subSide = await sub.text();
+	const m = subSide.match(/name="SubscriptionId"[^>]*>\s*<option[^>]*value="([^"]+)"/)
+		|| subSide.match(/name="SubscriptionId"[^>]*value="([^"]+)"/);
+	if (m) {
+		const sett = await hent('index.cfm/users/doSetSubscription/', {
+			method: 'POST',
+			redirect: 'manual',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: 'SubscriptionId=' + encodeURIComponent(m[1])
+		});
+		lagreCookies(sett);
+	}
+	innloggetTid = Date.now();
+	return { ok: true };
+}
+
+/** Sikre at vi har en gyldig sesjon; re-login hvis siden krever innlogging. */
+async function sikreSesjon() {
+	if (cookieJar.size === 0 || Date.now() - innloggetTid > 10 * 60 * 1000) {
+		const r = await loggInn();
+		if (!r.ok) return r;
+	}
+	return { ok: true };
+}
+
+async function hentMedReLogin(sti, opts = {}) {
+	let res = await hent(sti, opts);
+	let tekst = res.headers.get('content-type')?.includes('json') ? await res.text() : await res.text();
+	if (!erInnloggetSide(tekst)) return { res, tekst };
+	// sesjonen er utløpt → én re-login og prøv igjen
+	const r = await loggInn();
+	if (!r.ok) return { res, tekst, feil: r.error };
+	res = await hent(sti, opts);
+	tekst = await res.text();
+	return { res, tekst };
 }
 
 /** Søk i salmedatabasen. q = { nr?, tittel? } → liste av treff. */
