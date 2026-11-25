@@ -136,6 +136,14 @@
 		/* normal: pandoc-kilden har linjeskift/tomlinjer som ellers rendres som ekstra tomme linjer */
 		white-space: normal;
 	}
+	.handbok-innhold :global(img) {
+		max-width: 100%;
+		height: auto;
+		display: block;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		margin: 0.8em 0;
+	}
 	.handbok-innhold :global(h1) { font-size: 22px; margin: 0.4em 0 0.6em; }
 	.handbok-innhold :global(p), .handbok-innhold :global(ul), .handbok-innhold :global(ol), .handbok-innhold :global(pre), .handbok-innhold :global(table), .handbok-innhold :global(blockquote) {
 		margin: 0 0 0.4em;

@@ -27,7 +27,7 @@ Liturgi finnes i to varianter som fungerer likt:
 
 ## Oversikt: modulene i appen
 
-![Redigeringsvisningen med sidefeltet, fanene og leddkortene](bilder/redigering.png)
+![Redigeringsvisningen med sidefeltet, fanene og leddkortene](bilder/redigering.webp)
 
 Appen består av følgende hoveddeler:
 
@@ -52,7 +52,7 @@ Appen består av følgende hoveddeler:
 
 ## Maler og bibliotek
 
-![Malbiblioteket med filtermeny](bilder/maler.png)
+![Malbiblioteket med filtermeny](bilder/maler.webp)
 
 ### Maler
 
@@ -94,7 +94,7 @@ Ledd som fylles av kirkeåret (dagens bønn, bibeltekstene) kalles **dynamiske**
 
 ### Bibliotek
 
-![Biblioteket: liturgiske tekster og dokumentdeler](bilder/bibliotek.png)
+![Biblioteket: liturgiske tekster og dokumentdeler](bilder/bibliotek.webp)
 
 Biblioteket søker i **hovedgudstjenesten** (hele liturgien) og kopierer innholdet inn i dokumentet:
 
@@ -107,7 +107,7 @@ Innholdet **kopieres** inn i filen – dokumentet forblir delbart uten referanse
 
 ## Ny gudstjeneste og kirkeåret
 
-![Hjem-visningen viser kommende søndag med kollektbønn og bibeltekster](bilder/hjem.png)
+![Hjem-visningen viser kommende søndag med kollektbønn og bibeltekster](bilder/hjem.webp)
 
 1. **«Ny gudstjeneste …»** (⌘N) åpner valget av mal, navn og dato. Navneforslaget er «dato - type - kirkeårsdag».
 2. **Kirkeårsdagen** slås opp automatisk fra datoen (manuell overstyring er mulig). Kirkeårsdagen lagres i gudstjenesten sammen med tekstrekke og liturgisk farge.
@@ -124,7 +124,7 @@ Ved oppstart henter appen i bakgrunnen bibeltekstene for hele kirkeåret og de a
 
 ## Redigeringsvisningen
 
-![Redigering: hvert ledd er et kort med verktøylinje og alternativer](bilder/redigering.png)
+![Redigering: hvert ledd er et kort med verktøylinje og alternativer](bilder/redigering.webp)
 
 Redigeringsvisningen viser gudstjenesten ledd for ledd, seksjon for seksjon. Alt redigeres ved klikk – appen skiller mellom visning (ferdig rendret tekst) og redigering (kildetekst med «Vis kildekode»).
 
@@ -154,7 +154,7 @@ Ledd lenket til en mal (dåpen) synkroniseres automatisk når malen endres. Synk
 
 ## Oversikt og salmer
 
-![Oversikten viser hele gudstjenesten i kompakt struktur](bilder/oversikt.png)
+![Oversikten viser hele gudstjenesten i kompakt struktur](bilder/oversikt.webp)
 
 - **Oversikt** viser hele gudstjenesten kompakt med seksjoner og leddoverskrifter – rask navigering og helhetssjekk.
 - **Salmer** viser alle salmer med nummer, tittel og tekst – og er utgangspunktet for å sjekke at sanginnholdet er komplett før eksport.
@@ -163,7 +163,7 @@ Ledd lenket til en mal (dåpen) synkroniseres automatisk når malen endres. Synk
 
 ## Eksportmodulen
 
-![Eksport med Skjerm-profilen: lysbildeforhåndsvisning og profiler](bilder/eksport-skjerm.png)
+![Eksport med Skjerm-profilen: lysbildeforhåndsvisning og profiler](bilder/eksport-skjerm.webp)
 
 Eksportmodulen har profiler, per-ledd valg og forhåndsvisning. **Forhåndsvisningen er førende**: den genereres av samme layoutmotor som eksporten.
 
@@ -216,7 +216,7 @@ Med «Lysbildemanus» påslått eksporteres samtidig en Medarbeider-utskrift med
 
 ## Innstillinger
 
-![Innstillinger](bilder/innstillinger.png)
+![Innstillinger](bilder/innstillinger.webp)
 
 Innstillinger (⌘,) samler:
 
@@ -230,7 +230,7 @@ Innstillinger lagres i SQLite (`~/.config/Liturgi/liturgi.db`) i Mac-appen og i 
 
 ## Kommandopaletten
 
-![Kommandopaletten (⌘K)](bilder/kommandopalett.png)
+![Kommandopaletten (⌘K)](bilder/kommandopalett.webp)
 
 **⌘K** åpner kommandopaletten: søk i alle menyvalg – filhandlinger, navigasjon, eksportvalg og henting av bibeltekster. ↑↓ velger, ⏎ kjører, esc lukker. Paletten har samme handlinger som menylinjen og er kontekstavhengig (eksportvalg vises bare i eksportvisningen osv.).
 
