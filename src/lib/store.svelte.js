@@ -650,8 +650,6 @@ export function applyKirkeaar(svc, k, tekster) {
 	}
 }
 
-}
-
 export function sortedServices() {
 	return [...app.services].sort(
 		(a, b) => (a.date || '9999').localeCompare(b.date || '9999') || a.name.localeCompare(b.name)
