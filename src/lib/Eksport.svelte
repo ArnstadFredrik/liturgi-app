@@ -28,7 +28,7 @@
 	let pptSlides = $state([]); // [{ big, tekstStorrelse, tittelStorrelse, deler }]
 	let formater = $state({ word: true, pptx: false, pdf: false });
 	let appFormater = $state({ word: true, pptx: false, pdf: false }); // app-standard (DB)
-	let tomSlide = $state(false);
+	let tomSlideModus = $state('av'); // 'av' | 'alle' | 'smart' — blanke sider mellom ledd
 	// PowerPoint-innstillinger (følger Menighet-profilen, men har egen konfigurasjon)
 	let pptVisTittel = $state(true);
 	let pptTekstSkala = $state(1);      // skala på brødtekst-slides (24 pt grunn)
@@ -252,7 +252,7 @@
 			});
 		}
 		if (o) {
-			tomSlide = o.eksportTomSlide ?? false;
+			tomSlideModus = o.eksportTomSlideModus ?? (o.eksportTomSlide ? 'alle' : 'av'); // gammel boolsk verdi migreres
 			visInstrValg = o.visInstr ?? true;
 			visSalmeinfoValg = o.visSalmeinfo ?? true;
 			// PowerPoint-innstillinger (per dokument, serialiseres med .liturgi-filen)
@@ -296,7 +296,6 @@
 		if (aktiv === 'Skjerm') {
 			openContextMenu(x, y, [
 				{ label: 'Leddtitler', checked: chk(pptLeddtitler), action: () => window.__eksMeny('eks:leddtitler') },
-				{ label: 'Blank side mellom ledd', checked: chk(tomSlide), action: () => window.__eksMeny('eks:blank') },
 				{ label: 'Tittelslide', checked: chk(pptVisTittel), action: () => window.__eksMeny('eks:tittelslide') },
 				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
 				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
@@ -350,8 +349,7 @@
 		else if (nk === 'marger') setInnst('marger', v);
 		else if (nk === 'avstand') setInnst('avstand', v);
 		else if (nk === 'leddtitler') { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }
-		else if (nk === 'blank') settTomSlide(!tomSlide);
-		else if (nk === 'tittelslide') { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }
+			else if (nk === 'tittelslide') { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }
 		else if (nk === 'lys') { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }
 		else if (nk === 'lysbmanus') { setPptx('lysManus', !pptLysManus); }
 		else if (nk === 'justering') { pptJustering = v; setPptx('justering', pptJustering); }
@@ -359,7 +357,7 @@
 	// menylinje-tilstand: valgene (sjekkbokser/radioer i Eksportvalg-menyen)
 	$effect(() => {
 		app.eksMenyTilstand = aktiv === 'Skjerm'
-			? { skjerm: true, leddtitler: pptLeddtitler, blank: tomSlide, tittelslide: pptVisTittel, instr: visInstrValg, salmeinfo: visSalmeinfoValg, lys: pptLys, justering: pptJustering }
+			? { skjerm: true, leddtitler: pptLeddtitler, blank: tomSlideModus !== 'av', tittelslide: pptVisTittel, instr: visInstrValg, salmeinfo: visSalmeinfoValg, lys: pptLys, justering: pptJustering }
 			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), instr: visInstrValg, salmeinfo: visSalmeinfoValg, format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
 	});
 	$effect(() => () => { window.__eksMeny = null; });
@@ -601,9 +599,9 @@
 		toast.success('Formatvalgene er lagret som app-standard');
 	}
 
-	function settTomSlide(v) {
-		tomSlide = v;
-		if (o) { o.eksportTomSlide = v; }
+	function settTomSlideModus(m) {
+		tomSlideModus = m;
+		if (o) { o.eksportTomSlideModus = m; }
 		pptVersjon++;
 		markDirty();
 	}
@@ -635,8 +633,10 @@
 		};
 		const egne = (slot) => (pptEkstra ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
 		for (const { e, i } of egne('')) emitEkstra(e, 'e' + i);
-		// blank side mellom leddene (unngå dobbelt-tom og tom først)
-		const tom = () => { if (tomSlide && slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
+		// blank side mellom leddene: 'alle' = mellom alle, 'smart' = kun der ledd med
+		// skjulte mellom seg følger (ett tomt bilde mellom aktuelle ledd)
+		let skjulte = false; // ledd som ikke er med i presentasjonen siden forrige viste ledd
+		const tom = (smart) => { if (tomSlideModus === 'av' || (tomSlideModus === 'smart' && !smart)) return; if (slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
 		// utvalg = Menighet (delt), bibelmodus = Skjerm — samme som eksporten
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
@@ -648,9 +648,11 @@
 				if (!it.enabled) {
 					// egne slides plassert etter et deaktivert ledd kommer likevel
 					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
+					skjulte = true;
 					continue;
 				}
-				tom();
+				tom(tomSlideModus === 'smart' && skjulte);
+				skjulte = false;
 				// rå overskrift (uavhengig av «Leddtitler») — brukes i slidenotatet
 				const raaHeading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
@@ -697,7 +699,7 @@
 	// bygg forhåndsvisningen når Skjerm-profilen er aktiv eller noe endres (live)
 	$effect(() => {
 		if (aktiv !== 'Skjerm') return;
-		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; pptJustering; tomSlide; pptEkstra.length; pptVersjon; o?.name; o?.date;
+		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; pptJustering; tomSlideModus; pptEkstra.length; pptVersjon; o?.name; o?.date;
 		Promise.resolve().then(() => {
 			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); window.__pptErr = e?.message + '\n' + (e?.stack ?? '').slice(0, 300); }
 		});
@@ -1049,7 +1051,7 @@
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
 			filnavn: baseNavn('Skjerm') + '.pptx',
-			tomSlide,
+			tomSlideModus,
 			showInstr: visInstrValg,
 			tekstSkala: pptTekstSkala,
 			tittelSkala: pptTittelSkala,
@@ -1074,6 +1076,7 @@
 				// filnavnet: profilen (Medarbeider) byttes ut med «Lysbildemanus»
 				const base = safeName([o?.date ?? '', o?.name ?? '', 'Lysbildemanus'].filter(Boolean).join(' - '));
 				const innst = {
+					tomSlideModus,
 					storrelse: getInnstP('Medarbeider', 'storrelse', 'A5'),
 					kolonner: getInnstP('Medarbeider', 'kolonner', 1),
 					marger: getInnstP('Medarbeider', 'marger', 'normal'),
@@ -1170,7 +1173,11 @@
 			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
 					<button class="eks-toggle" class:paa={pptLeddtitler} title="Leddtitler med på slidene (standard uten)" onclick={() => { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }}>{@html mdi('format-title', 14)} Leddtitler</button>
-					<button class="eks-toggle" class:paa={tomSlide} title="Blank side mellom leddene" onclick={() => settTomSlide(!tomSlide)}>{@html mdi('file-document-outline', 14)} Blank side</button>
+					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={tomSlideModus} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
+						<option value="av">Ingen</option>
+						<option value="alle">Alle</option>
+						<option value="smart">Smart</option>
+					</select></div>
 					<button class="eks-toggle" class:paa={pptVisTittel} title="Tittelslide med navn og dato" onclick={() => { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }}>{@html mdi('presentation', 14)} Tittelslide</button>
 					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
 					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
@@ -1431,7 +1438,11 @@
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
 					{#if formater.pptx}
-						<label class="eksport-chk"><input type="checkbox" checked={tomSlide} onchange={(e) => settTomSlide(e.currentTarget.checked)} /> Blank side mellom leddene</label>
+						<label class="eksport-chk"><span>Blanke sider </span><select value={tomSlideModus} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
+							<option value="av">Ingen</option>
+							<option value="alle">Alle</option>
+							<option value="smart">Smart</option>
+						</select></label>
 					{/if}
 					<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
 				</div>

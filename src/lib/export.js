@@ -583,7 +583,7 @@ export function delPptSegs(segs, fs, opts = {}) {
  *  innhold, notat og anker til leddet den kommer fra ('si:ii' + del-indeks).
  *  exportPptx renderer planen; lysbildemanuset bruker ankene til margtallene. */
 export function byggSlidePlan(svc, valg = {}) {
-	const tomSlide = !!valg.tomSlide;
+	const tomModus = valg.tomSlideModus ?? (valg.tomSlide ? 'alle' : 'av'); // 'av' | 'alle' | 'smart'
 	const showInstr = valg.showInstr !== undefined ? !!valg.showInstr : false;
 	const visLeddtitler = !!valg.visLeddtitler;
 	const tekstStorrelse = Math.round((valg.tekstSkala ?? 1) * 38);
@@ -602,8 +602,8 @@ export function byggSlidePlan(svc, valg = {}) {
 		if ((ekstra?.etter ?? '') === '') emitEkstra(ekstra);
 	}
 	let forrigeTom = true;
-	const leggTom = () => {
-		if (!tomSlide || forrigeTom) return;
+	const leggTom = (smart) => {
+		if (tomModus === 'av' || (tomModus === 'smart' && !smart) || forrigeTom) return;
 		legg({ blank: true });
 		forrigeTom = true;
 	};
@@ -611,6 +611,7 @@ export function byggSlidePlan(svc, valg = {}) {
 	for (let si = 0; si < seksjoner.length; si++) {
 		const sec = seksjoner[si];
 		const items = sec.items ?? [];
+		let skjulte = false; // ledd mellom viste ledd som ikke er med i presentasjonen
 		for (let ii = 0; ii < items.length; ii++) {
 			const it = items[ii];
 			const nokkel = si + ':' + ii;
@@ -618,9 +619,10 @@ export function byggSlidePlan(svc, valg = {}) {
 				for (const ekstra of (valg.ekstra ?? [])) {
 					if ((ekstra?.etter ?? '') === nokkel) emitEkstra(ekstra);
 				}
+				skjulte = true;
 				continue;
 			}
-			leggTom();
+			leggTom(tomModus === 'smart' && skjulte); skjulte = false;
 			forrigeTom = false;
 			const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
@@ -725,7 +727,7 @@ export function lysbildeTallFor(plan, manuscript, ppt = null) {
 export async function exportPptx(svc, valg = {}, tilDisk = false) {
 	const pptx = new PptxGenJS();
 	pptx.layout = 'LAYOUT_16x9';
-	const tomSlide = !!valg.tomSlide;
+	const tomModus = valg.tomSlideModus ?? (valg.tomSlide ? 'alle' : 'av'); // 'av' | 'alle' | 'smart'
 	const lys = !!valg.lysBakgrunn; // lys bakgrunn: hvite slides med mørk tekst (teksten forblir lesbar)
 	// farger: mørk standard, lys variant med tilpasset rød/grå
 	const fBakgrunn = lys ? 'FFFFFF' : '0D0D0F';
