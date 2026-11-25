@@ -1705,6 +1705,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* flytende zoom-kontroll for lysbildene (som i PDF-forhåndsvisningen) */
 .ppt-flyt-zoom { position: sticky; bottom: 12px; align-self: center; display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.18); z-index: 5; }
 /* indikator: første side i et nytt ledd — accentlinje langs venstre kant */
+.ppt-side .ppt-sup { font-size: 0.72em; vertical-align: super; }
 .ppt-side.ledd-start::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); }
 /* mørke slides: accenten (#6c9bd1 lys / #3a5f8a mørk tema) er for like den svarte
    bakgrunnen — bruk en lysere blå på markøren uavhengig av app-temaet */

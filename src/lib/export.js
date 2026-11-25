@@ -785,7 +785,8 @@ export async function exportPptx(svc, valg = {}, tilDisk = false) {
 					ut.push({
 						text: seg.text,
 						options: {
-							fontSize: big ? tittelStorrelse : tekstStorrelse,
+							// versnummer i hevet skrift: redusert strrelse (som i PDF-manuset)
+							fontSize: Math.round((big ? tittelStorrelse : tekstStorrelse) * (seg.sup ? 0.72 : 1)),
 							bold: big || !!seg.red || !!seg.bold,
 							italics: !!seg.italics || !!seg.small,
 							superscript: !!seg.sup,

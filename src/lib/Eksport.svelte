@@ -1439,7 +1439,7 @@
 								{#if !slide.blank}
 								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67 * pptZoom}px; text-align: {pptJustering}">
 									{#each slide.deler as del}
-										<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics}>{del.text}</span>
+										<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics} class:ppt-sup={del.sup}>{del.text}</span>
 									{/each}
 								</div>
 								{/if}
