@@ -44,4 +44,20 @@ for (const [id, fil] of dokumenter) {
 }
 fs.mkdirSync(path.dirname(utFil), { recursive: true });
 fs.writeFileSync(utFil, deler.join('\n') + '\n');
+
+// synkroniser skjermbildene (kilde: docs/bilder) til src/assets/bilder for vite-bygget
+const bildeKilde = path.join(rot, 'docs', 'bilder');
+const bildeMal = path.join(rot, 'src', 'assets', 'bilder');
+fs.mkdirSync(bildeMal, { recursive: true });
+if (fs.existsSync(bildeKilde)) {
+	const eksisterende = new Set();
+	for (const f of fs.readdirSync(bildeKilde)) {
+		if (!/\.(png|jpe?g|gif|webp|svg)$/i.test(f)) continue;
+		fs.copyFileSync(path.join(bildeKilde, f), path.join(bildeMal, f));
+		eksisterende.add(f);
+	}
+	for (const f of fs.readdirSync(bildeMal)) {
+		if (!eksisterende.has(f)) fs.unlinkSync(path.join(bildeMal, f));
+	}
+}
 console.log('handbok-html.js generert');

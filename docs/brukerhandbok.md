@@ -27,6 +27,8 @@ Liturgi finnes i to varianter som fungerer likt:
 
 ## Oversikt: modulene i appen
 
+![Redigeringsvisningen med sidefeltet, fanene og leddkortene](bilder/redigering.png)
+
 Appen består av følgende hoveddeler:
 
 | Modul | Hvor | Hva den gjør |
@@ -49,6 +51,8 @@ Appen består av følgende hoveddeler:
 ---
 
 ## Maler og bibliotek
+
+![Malbiblioteket med filtermeny](bilder/maler.png)
 
 ### Maler
 
@@ -90,6 +94,8 @@ Ledd som fylles av kirkeåret (dagens bønn, bibeltekstene) kalles **dynamiske**
 
 ### Bibliotek
 
+![Biblioteket: liturgiske tekster og dokumentdeler](bilder/bibliotek.png)
+
 Biblioteket søker i **hovedgudstjenesten** (hele liturgien) og kopierer innholdet inn i dokumentet:
 
 - **«Hent innhold …»** – erstatter leddets hoveddel med et valgt alternativ; leddets egen innledning/avslutning og alternativgrupper røres ikke.
@@ -101,6 +107,8 @@ Innholdet **kopieres** inn i filen – dokumentet forblir delbart uten referanse
 
 ## Ny gudstjeneste og kirkeåret
 
+![Hjem-visningen viser kommende søndag med kollektbønn og bibeltekster](bilder/hjem.png)
+
 1. **«Ny gudstjeneste …»** (⌘N) åpner valget av mal, navn og dato. Navneforslaget er «dato - type - kirkeårsdag».
 2. **Kirkeårsdagen** slås opp automatisk fra datoen (manuell overstyring er mulig). Kirkeårsdagen lagres i gudstjenesten sammen med tekstrekke og liturgisk farge.
 3. Ved opprettelse fyller appen **dagens bønn** og **bibeltekstene** fra kirkeåret, med malens struktur i behold (innledning/hoveddel/avslutning).
@@ -108,15 +116,15 @@ Innholdet **kopieres** inn i filen – dokumentet forblir delbart uten referanse
 5. **Hente bibeltekster på nytt**: høyreklikk et lesningsledd → «Hent bibeltekster på nytt», eller bruk kommandopaletten (⌘K). Appen slår opp kirkeårsdagen og fyller alle lesningsledd: bibelteksten i hoveddelen, referansen i innledningens «Det står skrevet i/hos …», avslutningen fra malen. Dagens bønn røres ikke.
 6. **Kirkeåret-visningen** viser kirkeårsdagene, dagens bønn og bibeltekstene som forberedelsesmateriell (tekstene hentes i bakgrunnen og foldest ut ved behov).
 
-Bibeltekstene krever innlogging hos bibel.no (lagres i appens innstillinger); tekstene caches lokalt så appen fungerer også uten nett.
-
 ---
 
 ### Bakgrunnscaching av bibeltekster
 
-Ved oppstart henter appen i bakgrunnen bibeltekstene for hele kirkeåret og de andre tekstrekkene (den kommende kirkeårsdagen først, så resten av kirkeåret, deretter nabokirkeårene og til slutt merkedagene). Hentingen er rolig og sekvensiell med hvile mellom hver forespørsel til bibel.no, og kjører helt i bakgrunnen. Kirkeåret-modulen viser en fremdriftsindikator mens hentingen pågår. Tekstene lagres i databasen og gjenbrukes for evig — etter første henting fungerer alt offline. Lukker du appen midt i hentingen, fortsetter den der den slapp ved neste oppstart.
+Ved oppstart henter appen i bakgrunnen bibeltekstene for hele kirkeåret og de andre tekstrekkene (den kommende kirkeårsdagen først, så resten av kirkeåret, deretter nabokirkeårene og til slutt merkedagene). Hentingen er rolig og sekvensiell med hvile mellom hver forespørsel til bibel.no, og kjører helt i bakgrunnen. Kirkeåret-modulen viser en fremdriftsindikator mens hentingen pågår. Etter første henting fungerer alt offline. Lukker du appen midt i hentingen, fortsetter den der den slapp ved neste oppstart.
 
 ## Redigeringsvisningen
+
+![Redigering: hvert ledd er et kort med verktøylinje og alternativer](bilder/redigering.png)
 
 Redigeringsvisningen viser gudstjenesten ledd for ledd, seksjon for seksjon. Alt redigeres ved klikk – appen skiller mellom visning (ferdig rendret tekst) og redigering (kildetekst med «Vis kildekode»).
 
@@ -146,12 +154,16 @@ Ledd lenket til en mal (dåpen) synkroniseres automatisk når malen endres. Synk
 
 ## Oversikt og salmer
 
+![Oversikten viser hele gudstjenesten i kompakt struktur](bilder/oversikt.png)
+
 - **Oversikt** viser hele gudstjenesten kompakt med seksjoner og leddoverskrifter – rask navigering og helhetssjekk.
 - **Salmer** viser alle salmer med nummer, tittel og tekst – og er utgangspunktet for å sjekke at sanginnholdet er komplett før eksport.
 
 ---
 
 ## Eksportmodulen
+
+![Eksport med Skjerm-profilen: lysbildeforhåndsvisning og profiler](bilder/eksport-skjerm.png)
 
 Eksportmodulen har profiler, per-ledd valg og forhåndsvisning. **Forhåndsvisningen er førende**: den genereres av samme layoutmotor som eksporten.
 
@@ -204,6 +216,8 @@ Med «Lysbildemanus» påslått eksporteres samtidig en Medarbeider-utskrift med
 
 ## Innstillinger
 
+![Innstillinger](bilder/innstillinger.png)
+
 Innstillinger (⌘,) samler:
 
 - **Versjon og byggnr** – «Versjon 0.0.4 · bygg YYYYMMDD.HHMM».
@@ -215,6 +229,8 @@ Innstillinger lagres i SQLite (`~/.config/Liturgi/liturgi.db`) i Mac-appen og i 
 ---
 
 ## Kommandopaletten
+
+![Kommandopaletten (⌘K)](bilder/kommandopalett.png)
 
 **⌘K** åpner kommandopaletten: søk i alle menyvalg – filhandlinger, navigasjon, eksportvalg og henting av bibeltekster. ↑↓ velger, ⏎ kjører, esc lukker. Paletten har samme handlinger som menylinjen og er kontekstavhengig (eksportvalg vises bare i eksportvisningen osv.).
 
