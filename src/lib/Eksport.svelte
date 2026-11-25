@@ -659,7 +659,7 @@
 		let forrigeSkjultAvsl = false; // forrige viste ledd hadde skjult avslutning
 		const tom = (smart) => { if (tomSlideModus === 'av' || (tomSlideModus === 'smart' && !smart)) return; if (slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
-		// utvalg = Menighet (delt), bibelmodus = Skjerm — samme som eksporten
+		// utvalg og deler = Skjerm-profilens visning (styrende for pptx)
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const seksjoner = kopi.sections ?? [];
 		for (let si = 0; si < seksjoner.length; si++) {
@@ -933,10 +933,11 @@
 	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
 	function klonMedValg(svc, profil, brProfil = null) {
 		const kopi = JSON.parse(JSON.stringify(svc));
-		// lagrede valg i filen går foran øktens midlertidige valg
-		const lagret = valg[profil] ?? o?.eksportValg?.[profil];
-		// brProfil: bibelmodus leses fra en annen profil (Skjerm — full tekst som standard)
-		const brLagret = brProfil ? (valg[brProfil] ?? o?.eksportValg?.[brProfil]) : null;
+		// lagrede valg i filen går foran øktens midlertidige valg.
+		// brProfil (pptx → Skjerm): SKJERM-profilens visning er styrende for
+		// alle per-ledd valg (hovedboks, innhold, innledning/avslutning, bibelref)
+		const lagret = brProfil ? (valg[brProfil] ?? o?.eksportValg?.[brProfil]) : (valg[profil] ?? o?.eksportValg?.[profil]);
+		const brLagret = lagret;
 		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
 		kopi.__visTittel = getInnst('tittel', true);
 		// salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) kan ekskluderes per dokument
@@ -955,7 +956,7 @@
 					if (it.alts?.length) it.alts.forEach((a) => { a.text = stripSalmeinfo(a.text); });
 				}
 				const v = lagret?.[nokkel(si, ii)];
-				it.enabled = v !== undefined ? v : standardFor(profil, it);
+				it.enabled = v !== undefined ? v : standardFor(brProfil ?? profil, it);
 				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet.
 				// NB: «:t» er ikke eksponert for bibelledd (Hele teksten/Bibelref. erstatter den),
 				// så et stalte «:t»: false må ikke stripppe bibelteksten når «Hele teksten» er valgt.
@@ -1073,7 +1074,7 @@
 
 	/** PowerPoint-eksporten (Skjerm-profilen): følger Menighet-utvalget; instruksjoner per dokument. */
 	async function eksporterPptx() {
-		// utvalg = Menighet (delt), bibelmodus = Skjerm (full tekst som standard)
+		// utvalg og deler = Skjerm-profilens visning (styrende for pptx)
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
 			filnavn: baseNavn('Skjerm') + '.pptx',
