@@ -1,6 +1,7 @@
 <script>
 	/** Cmd+K-kommandopalett: søk i alle menylinje-alternativene. */
-	import { app, veksleSidebar, veksleToc, toggleTheme, veksleVim } from './store.svelte.js';
+	import { app, veksleSidebar, veksleToc, toggleTheme, veksleVim, hentBibelteksterPåNytt, markDirty } from './store.svelte.js';
+	import { toast } from 'svelte-sonner';
 	import { saveCurrent, saveCurrentToFile, openFileToStore, kjorMenyId, erOriginalMal } from './fileio.svelte.js';
 
 	let aapen = $state(false);
@@ -42,6 +43,7 @@
 		{ id: 'eks-avstand-tett', navn: 'Eksport: Tett avstand', kategori: 'Eksport', taster: '', enabled: () => app.visning === 'eksport', kjor: () => kjorMenyId('eks:avstand:tett') },
 		{ id: 'eks-avstand-normal', navn: 'Eksport: Normal avstand', kategori: 'Eksport', taster: '', enabled: () => app.visning === 'eksport', kjor: () => kjorMenyId('eks:avstand:normal') },
 		{ id: 'eks-avstand-luft', navn: 'Eksport: Luftig avstand', kategori: 'Eksport', taster: '', enabled: () => app.visning === 'eksport', kjor: () => kjorMenyId('eks:avstand:luft') },
+		{ id: 'hent-bibeltekster', navn: 'Hent bibeltekster på nytt', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current && app.kind === 'service', kjor: async () => { try { const n = await hentBibelteksterPåNytt(app.current); markDirty(); toast.success(n ? 'Hentet ' + n + ' bibeltekster på nytt' : 'Fant ingen lesningsledd å fylle'); } catch (e) { toast.error('Klarte ikke hente bibeltekster: ' + (e?.message ?? e)); } } },
 		{ id: 'apne-mappe', navn: 'Åpne mappe (vis filen i Finder)', kategori: 'Gudstjeneste', taster: '', enabled: () => !!app.current?.filePath, kjor: () => kjorMenyId('apne-mappe') },
 		{ id: 'veksle-sidebar', navn: 'Vis/skjul sidemenyen', kategori: 'Visning', taster: '⌘\\', enabled: () => true, kjor: () => veksleSidebar() },
 		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘@', enabled: () => true, kjor: () => veksleToc() },

@@ -1,5 +1,6 @@
 import { BUILTIN_TEMPLATES } from './data.js';
 import { fyllLesning } from './lit.js';
+import { lookupKirkeaar, hentTekster, lesTeksterCache } from './kirkeaar.js';
 
 const LS_KEY = 'liturgi-store-v1';
 const THEME_KEY = 'liturgi-theme';
@@ -648,6 +649,37 @@ export function applyKirkeaar(svc, k, tekster) {
 			}
 		}
 	}
+}
+
+/** Hent bibeltekstene fra kirkeåret på nytt i en åpnet gudstjeneste
+ *  (lesningsledd + dynamiske koblinger; Dagens bønn røres ikke).
+ *  Returnerer antall fylte lesninger; kaster hvis kirkeårsdagen ikke finnes. */
+export async function hentBibelteksterPåNytt(svc) {
+	if (!svc) return 0;
+	const k = lookupKirkeaar(svc.date);
+	if (!k) throw new Error('Ingen kirkeårsdag funnet for ' + (svc.date ?? 'ukjent dato'));
+	const tekster = await hentTekster(k.day, await lesTeksterCache(), k.series);
+	const erLesningsLedd = (x) => {
+		const h = (x.heading || '').toLowerCase();
+		return x.type === 'lesning' ||
+			(!h.includes('ingress') && (h.includes('første lesning') || h.includes('andre lesning') || h.includes('evangelium')));
+	};
+	let n = 0;
+	for (const sec of svc.sections) {
+		for (const x of sec.items) {
+			if (!erLesningsLedd(x)) continue;
+			const kobling = (svc.bibeltekster ?? []).find((b) => b.leddId === x.id);
+			const lesning = kobling?.lesning ??
+				((x.heading || '').toLowerCase().includes('evangelium') ? 'E'
+					: (x.heading || '').toLowerCase().includes('andre lesning') ? 'L2' : 'L1');
+			const ref = lesning === 'E' ? k.E : lesning === 'L2' ? k.L2 : k.L1;
+			if (!ref) continue;
+			fyllLesning(x, ref, tekster?.[lesning], lesning === 'E');
+			if (lesning === 'L1') x.instr = (x.instr ? x.instr + ' ' : '') + 'Tekstrekke ' + k.series;
+			n++;
+		}
+	}
+	return n;
 }
 
 export function sortedServices() {
