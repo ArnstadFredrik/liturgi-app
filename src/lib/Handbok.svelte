@@ -6,16 +6,12 @@
 	 * i toppen. Lenker til andre .md-dokumenter bytter fane.
 	 */
 	import { app } from './store.svelte.js';
-	import { handbokDokumenter, mdTilHtml } from './handbok.js';
+	import { handbokDokumenter } from './handbok.js';
 	import { mdi } from './mdi.js';
 
 	let valgt = $state('brukerhandbok');
 	const dok = $derived(handbokDokumenter.find((d) => d.id === valgt) ?? handbokDokumenter[0]);
-	// TOC-seksjonen i md-fila er erstattet av sidekolonnen
-	const mdUtenToc = $derived(dok.md.replace(/^## Innholdsfortegnel\w*[\s\S]*?(?=\n## )/m, ''));
-	const html = $derived.by(() => {
-		try { return mdTilHtml(mdUtenToc); } catch { return '<p>Klarte ikke rendre dokumentasjonen.</p>'; }
-	});
+	const html = $derived(dok.html);
 	// sidekolonne: alle h2-overskrifter med anker
 	const toc = $derived.by(() => {
 		const liste = [];
@@ -137,10 +133,12 @@
 		width: 100%;
 		margin: 0 auto;
 		line-height: 1.55;
+		/* normal: pandoc-kilden har linjeskift/tomlinjer som ellers rendres som ekstra tomme linjer */
+		white-space: normal;
 	}
 	.handbok-innhold :global(h1) { font-size: 22px; margin: 0.4em 0 0.6em; }
 	.handbok-innhold :global(p), .handbok-innhold :global(ul), .handbok-innhold :global(ol), .handbok-innhold :global(pre), .handbok-innhold :global(table), .handbok-innhold :global(blockquote) {
-		margin: 0 0 0.75em;
+		margin: 0 0 0.4em;
 	}
 	.handbok-innhold :global(li) { margin: 0; }
 	.handbok-innhold :global(h2) { font-size: 17px; margin: 1.6em 0 0.5em; border-bottom: 1px solid var(--border); padding-bottom: 4px; }

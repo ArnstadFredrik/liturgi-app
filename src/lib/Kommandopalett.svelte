@@ -48,7 +48,9 @@
 		{ id: 'veksle-sidebar', navn: 'Vis/skjul sidemenyen', kategori: 'Visning', taster: '⌘\\', enabled: () => true, kjor: () => veksleSidebar() },
 		{ id: 'veksle-toc', navn: 'Vis/skjul dokumentpanelet', kategori: 'Visning', taster: '⌥⌘@', enabled: () => true, kjor: () => veksleToc() },
 		{ id: 'tema', navn: app.theme === 'dark' ? 'Bytt til lyst utseende' : 'Bytt til mørkt utseende', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => toggleTheme() },
-		{ id: 'vim', navn: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => veksleVim() }
+		{ id: 'vim', navn: app.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', kategori: 'Visning', taster: '', enabled: () => true, kjor: () => veksleVim() },
+		{ id: 'apne-mappe', navn: 'Åpne mappe', kategori: 'Fil', taster: '⌘M', enabled: () => !!app.current, kjor: () => kjorMenyId('apne-mappe') },
+		{ id: 'brukerhandbok', navn: 'Åpne brukerhåndbok', kategori: 'Hjelp', taster: '', enabled: () => true, kjor: () => { app.tilbakeVisning = app.visning; app.visning = 'handbok'; } }
 	];
 
 	const filtrert = $derived.by(() => {

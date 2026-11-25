@@ -1,18 +1,13 @@
 /**
- * Brukerhåndbok: leser dokumentasjonsfilene (docs/*.md) og renderer dem til HTML.
- * En liten egen markdown-renderer — dokumentasjonen skal være lesbar i appen
- * uten eksterne avhengigheter, også offline.
+ * Brukerhåndbok: dokumentasjonen (docs/*.md) konvertert til HTML med pandoc.
+ * HTML-en genereres ved build (scripts/handbok-html.mjs, se prebuild i
+ * package.json) og er commit-et, slik at appen fungerer offline uten pandoc.
  */
+import { brukerhandbokHtml, apiHtml, limal_formatHtml } from './generated/handbok-html.js';
 
-import handbokMd from '../../docs/brukerhandbok.md?raw';
-import apiMd from '../../docs/api.md?raw';
-import limalMd from '../../docs/limal-format.md?raw';
-
-/** Innholdsfortegnelsen: alle dokumenter med tittel. */
+/** Innholdsfortegnelsen: alle dokumenter med tittel og ferdig HTML. */
 export const handbokDokumenter = [
-	{ id: 'brukerhandbok', tittel: 'Brukerhåndbok', md: handbokMd },
-	{ id: 'api', tittel: 'Utviklerdokumentasjon', md: apiMd },
-	{ id: 'limal-format', tittel: 'Limal-format', md: limalMd },
+	{ id: 'brukerhandbok', tittel: 'Brukerhåndbok', html: brukerhandbokHtml },
+	{ id: 'api', tittel: 'Utviklerdokumentasjon', html: apiHtml },
+	{ id: 'limal-format', tittel: 'Limal-format', html: limal_formatHtml },
 ];
-
-export { mdTilHtml } from './md-doc.js';

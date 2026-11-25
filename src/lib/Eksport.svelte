@@ -849,7 +849,7 @@
 			el.classList.remove('ppt-puls');
 			void el.offsetWidth; // restart animasjonen
 			el.classList.add('ppt-puls');
-			setTimeout(() => el.classList.remove('ppt-puls'), 1200);
+			setTimeout(() => el.classList.remove('ppt-puls'), 1700);
 		}
 	}
 	/** Scroll ETTERDET: kun innenfor forhåndsvisningsruten (første rullbare forfar) — aldri

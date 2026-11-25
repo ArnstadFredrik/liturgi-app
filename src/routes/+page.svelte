@@ -204,6 +204,8 @@
 			<Malverktoy />
 		{:else if app.visning === 'diff' && app.devModus && Diff}
 			<Diff />
+		{:else if app.visning === 'handbok'}
+			<Handbok />
 		{:else if app.current}
 			<Editor />
 		{:else if app.visning === 'maler'}
@@ -218,9 +220,7 @@
 			<Forberedelse />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
-				{:else if app.visning === 'handbok'}
-			<Handbok />
-{:else}
+	{:else}
 			<Welcome />
 		{/if}
 	</main>

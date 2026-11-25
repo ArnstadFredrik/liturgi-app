@@ -17,7 +17,10 @@
     "electron": "electron . --remote-debugging-port=9230",
     "app:mac": "node scripts/skriv-byggnr.mjs && vite build && electron-builder --mac",
     "test": "node --test \"tests/enhet/*.test.mjs\"",
-    "test:royk": "npm run build && node tests/royktest.mjs"
+    "test:royk": "npm run build && node tests/royktest.mjs",
+    "handbok": "node scripts/handbok-html.mjs",
+    "prebuild": "npm run handbok",
+    "prebuild:dev": "npm run handbok"
   },
   "build": {
     "appId": "no.arnstad.liturgi",
