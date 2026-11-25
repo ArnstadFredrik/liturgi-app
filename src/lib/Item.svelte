@@ -6,7 +6,8 @@
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { sorterPrefasjoner } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
-	import { formaterSalme, salmeAlts } from '$lib/lit.js';
+	import { formaterSalme, salmeAlts, fyllLesning } from '$lib/lit.js';
+	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
 	import EditableText from './EditableText.svelte';
 	import { nyVimTilstand } from '$lib/vim.js';
 	import { veksleVim } from '$lib/store.svelte.js';
@@ -270,6 +271,43 @@
 		markDirty();
 	}
 
+	/** Lesningsledd? (typen «lesning» eller overskriften første/andre lesning / evangelium) */
+	function erLesningsLedd(x) {
+		const h = (x.heading || '').toLowerCase();
+		return x.type === 'lesning' ||
+			(!h.includes('ingress') && (h.includes('første lesning') || h.includes('andre lesning') || h.includes('evangelium')));
+	}
+
+	/** Hent bibeltekstene fra kirkeåret på nytt (lesningsledd + dynamiske koblinger). */
+	async function hentBibelteksterPåNytt() {
+		const o = app.current;
+		if (!o) return;
+		try {
+			const k = lookupKirkeaar(o.date);
+			if (!k) { toast.error('Ingen kirkeårsdag funnet for ' + (o.date ?? 'ukjent dato')); return; }
+			const tekster = await hentTekster(k.day, await lesTeksterCache(), k.series);
+			let n = 0;
+			for (const sec of o.sections) {
+				for (const x of sec.items) {
+					if (!erLesningsLedd(x)) continue;
+					const kobling = (o.bibeltekster ?? []).find((b) => b.leddId === x.id);
+					const lesning = kobling?.lesning ??
+						((x.heading || '').toLowerCase().includes('evangelium') ? 'E'
+							: (x.heading || '').toLowerCase().includes('andre lesning') ? 'L2' : 'L1');
+					const ref = lesning === 'E' ? k.E : lesning === 'L2' ? k.L2 : k.L1;
+					if (!ref) continue;
+					fyllLesning(x, ref, tekster?.[lesning], lesning === 'E');
+					if (lesning === 'L1') x.instr = (x.instr ? x.instr + ' ' : '') + 'Tekstrekke ' + k.series;
+					n++;
+				}
+			}
+			markDirty();
+			toast.success(n ? 'Hentet ' + n + ' bibeltekster fra «' + k.name + '»' : 'Fant ingen lesningsledd å fylle');
+		} catch (e2) {
+			toast.error('Klarte ikke hente bibeltekster: ' + (e2?.message ?? e2));
+		}
+	}
+
 	function context(e) {
 		e.preventDefault();
 		const o = app.current;
@@ -291,6 +329,7 @@
 			{ label: 'Legg til del under', action: () => nyttLedd(1) },
 			{ label: 'Hent innhold fra biblioteket …', action: () => hentFraBibliotek('innhold') },
 			{ label: 'Hent ledd fra biblioteket …', action: () => hentFraBibliotek('ledd') },
+			...(erLesningsLedd(it) && !erMal ? [{ label: 'Hent bibeltekster på nytt', action: hentBibelteksterPåNytt }] : []),
 			// malredigering: innledning/avslutning er TOGGLES (et ledd har høyst én av hver) —
 			// optakt/fjerning av alternativer skjer i gruppens egen meny (tannhjul)
 			...(erMal ? [
