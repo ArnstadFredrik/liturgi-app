@@ -914,7 +914,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			if (!line.trim()) { y += 2.2; continue; }
 			const wrapped = doc.splitTextToSize(line, w);
 			for (const l of wrapped) {
-				nySideHvisNodvendig(5);
+				nySideHvisNodvendig((opts.size ?? 10.5) * 0.48 + 1.2);
 				doc.text(l, x0() + indent, y + 4);
 				y += size * 0.48 + 1.1;
 			}
@@ -930,8 +930,11 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		const { size: baseSize = 10.5, indent = 0, vidare = false, vedForsteTekst = null } = opts;
 		const w = colW - indent;
 		let cx = vidare && flytCx != null ? flytCx : x0() + indent;
+		// første linje kan ellers tegnes under sidebunnen hvis y ble skjøvet forbi den
+		if (y + baseSize * 0.9 > mm.h - margin) nySideHvisNodvendig(baseSize * 0.9);
 		const nylinje = () => {
-			nySideHvisNodvendig(5);
+			if (valg.__dbgLinje && y > 185) console.log('nylinje: y=' + y.toFixed(1) + ' base=' + baseSize + ' grense=' + (mm.h - margin) + ' mm.h=' + mm.h + ' margin=' + margin); // DEBUG
+			nySideHvisNodvendig(baseSize * 0.48 + 1.2); // reserve = linjehoyden (5 var for lite — linjen landet 1-2 mm i bunnmargen)
 			cx = x0() + indent;
 			flytCx = null;
 			linjeTegnet = false;
@@ -1072,6 +1075,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						if (t && !tegnet) tegnLysTall(t.n);
 					});
 					if (vi < vers.length - 1) y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); // vers-skille = linje + blank linje (som prest-PDF)
+					nySideHvisNodvendig(14); // vers-skillet kan tråkke over bunnen
 				});
 			} else if (brukGrupper) {
 				// andre ledd: gruppevis skriving med kontinuerlig flyt — hvert tall
@@ -1096,7 +1100,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					const t = lys.find((x) => x.del === vi) ?? lys[vi] ?? null;
 					if (t) tegnLysTall(t.n);
 					skrivSegmenter(roleSegments(flytAvsnitt(v, { beholdLinjer: true })), { size: S(10.5, 'tekst') });
-					if (vi < vers.length - 1) y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); // vers-skille = linje + blank linje
+					if (vi < vers.length - 1) { y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); nySideHvisNodvendig(14); } // vers-skille = linje + blank linje
 				});
 			} else {
 				if (lys && lys.length && !lysTegnet) tegnLysTall(lys[0].n);
