@@ -2,6 +2,8 @@
 	/**
 	 * Brukerhåndbok: dokumentasjonen (docs/*.md) rendret i appen.
 	 * Åpnes fra Innstillinger eller menylinjen under «Hjelp».
+	 * Innholdsfortegnelsen vises i en sidekolonne; navigasjonen er sentrert
+	 * i toppen. Lenker til andre .md-dokumenter bytter fane.
 	 */
 	import { app } from './store.svelte.js';
 	import { handbokDokumenter, mdTilHtml } from './handbok.js';
@@ -9,9 +11,31 @@
 
 	let valgt = $state('brukerhandbok');
 	const dok = $derived(handbokDokumenter.find((d) => d.id === valgt) ?? handbokDokumenter[0]);
+	// TOC-seksjonen i md-fila er erstattet av sidekolonnen
+	const mdUtenToc = $derived(dok.md.replace(/^## Innholdsfortegnel\w*[\s\S]*?(?=\n## )/m, ''));
 	const html = $derived.by(() => {
-		try { return mdTilHtml(dok.md); } catch { return '<p>Klarte ikke rendre dokumentasjonen.</p>'; }
+		try { return mdTilHtml(mdUtenToc); } catch { return '<p>Klarte ikke rendre dokumentasjonen.</p>'; }
 	});
+	// sidekolonne: alle h2-overskrifter med anker
+	const toc = $derived.by(() => {
+		const liste = [];
+		const re = /<h2 id="([^"]+)">(.*?)<\/h2>/g;
+		let m;
+		while ((m = re.exec(html))) liste.push({ id: m[1], tekst: m[2].replace(/<[^>]+>/g, '') });
+		return liste;
+	});
+
+	/** Lenker til andre dokumenter (.md) bytter fane i stedet for  navigere. */
+	function klikk(e) {
+		const a = e.target?.closest?.('a');
+		if (!a) return;
+		const href = a.getAttribute('href') ?? '';
+		if (href.endsWith('.md')) {
+			e.preventDefault();
+			const id = href.replace(/^\.\//, '').replace(/\.md$/, '');
+			if (handbokDokumenter.some((d) => d.id === id)) valgt = id;
+		}
+	}
 </script>
 
 <div id="handbok-side">
@@ -26,8 +50,17 @@
 			{/each}
 		</div>
 	</div>
-	<div class="handbok-innhold lit-text">
-		{@html html}
+	<div class="handbok-body">
+		<nav class="handbok-toc" aria-label="Innholdsfortegnelse">
+			<div class="handbok-toc-tittel">Innhold</div>
+			{#each toc as punkt (punkt.id)}
+				<a href={'#' + punkt.id}>{punkt.tekst}</a>
+			{/each}
+		</nav>
+		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+		<div class="handbok-innhold lit-text" onclick={klikk}>
+			{@html html}
+		</div>
 	</div>
 </div>
 
@@ -39,6 +72,7 @@
 		overflow: hidden;
 	}
 	.handbok-topp {
+		position: relative;
 		display: flex;
 		align-items: center;
 		gap: 12px;
@@ -51,17 +85,57 @@
 		background: none; border: 1px solid var(--border); border-radius: 6px;
 		color: var(--accent); cursor: pointer; padding: 3px 9px; font-size: 12px;
 	}
-	.handbok-faner { display: flex; gap: 6px; margin-left: auto; }
+	/* navigasjonen sentrert midt p headeren */
+	.handbok-faner {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 6px;
+	}
 	.handbok-faner button {
 		background: none; border: 1px solid var(--border); border-radius: 6px;
 		color: var(--muted-foreground); cursor: pointer; padding: 3px 10px; font-size: 12px;
 	}
 	.handbok-faner button.valgt { color: var(--accent); border-color: var(--accent); }
+	.handbok-body {
+		flex: 1;
+		display: flex;
+		min-height: 0;
+	}
+	/* innholdsfortegnelsen i sidekolonne */
+	.handbok-toc {
+		flex: 0 0 210px;
+		overflow-y: auto;
+		border-right: 1px solid var(--border);
+		padding: 16px 12px 40px;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.handbok-toc-tittel {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--muted-foreground);
+		margin-bottom: 8px;
+	}
+	.handbok-toc a {
+		color: var(--muted-foreground);
+		text-decoration: none;
+		font-size: 12.5px;
+		padding: 4px 8px;
+		border-radius: 6px;
+		overflow-wrap: anywhere;
+	}
+	.handbok-toc a:hover { background: var(--panel2); color: var(--accent); }
 	.handbok-innhold {
 		flex: 1;
 		overflow-y: auto;
 		padding: 18px 26px 60px;
 		max-width: 860px;
+		width: 100%;
+		margin: 0 auto;
 		line-height: 1.55;
 	}
 	.handbok-innhold :global(h1) { font-size: 22px; margin: 0.4em 0 0.6em; }

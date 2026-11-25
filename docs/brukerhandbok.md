@@ -9,7 +9,7 @@ Liturgi finnes i to varianter som fungerer likt:
 
 ---
 
-## Innholdsfortegnelse
+## Innholdsfortegnelsen
 
 1. [Oversikt: modulene i appen](#oversikt-modulene-i-appen)
 2. [Maler og bibliotek](#maler-og-bibliotek)

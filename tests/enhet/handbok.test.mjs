@@ -7,7 +7,7 @@ const docsMappe = new URL('../../docs/', import.meta.url);
 
 test('mdTilHtml: overskrifter, lister og avsnitt', () => {
   const html = mdTilHtml('# Tittel\n\nAvsnitt med **fet** og *kursiv*.\n\n- punkt en\n- punkt to\n\n1. frste\n2. andre\n');
-  assert.ok(html.includes('<h1>Tittel</h1>'));
+  assert.ok(html.includes('<h1 id="tittel">Tittel</h1>'));
   assert.ok(html.includes('<strong>fet</strong>'));
   assert.ok(html.includes('<em>kursiv</em>'));
   assert.ok(html.includes('<ul>') && html.includes('<li>punkt en</li>') && html.includes('<li>punkt to</li>'));
@@ -28,13 +28,19 @@ test('mdTilHtml: html-escaper innhold', () => {
   assert.ok(html.includes('&lt;tag&gt;'));
 });
 
+test('mdTilHtml: h2 fr github-stil anker-id', () => {
+  const html = mdTilHtml('## Oversikt: modulene i appen\n\n## Kirkeåret og tekster\n');
+  assert.ok(html.includes('<h2 id="oversikt-modulene-i-appen">'));
+  assert.ok(html.includes('<h2 id="kirkeåret-og-tekster">'));
+});
+
 test('dokumentene finnes og kan rendres', () => {
   for (const fil of ['brukerhandbok.md', 'api.md']) {
     const md = fs.readFileSync(new URL(fil, docsMappe), 'utf-8');
     assert.ok(md.length > 2000, fil + ' mangler innhold');
     assert.ok(md.includes('# Liturgi'), fil + ' mangler tittel');
     const html = mdTilHtml(md);
-    assert.ok(html.includes('<h1>'), fil + ' renderer ikke overskrift');
+    assert.ok(/<h1( id="[^"]*")?>/.test(html), fil + ' renderer ikke overskrift');
     assert.ok(!html.includes('&lt;h1&gt;'), fil + ' har uescaped HTML');
   }
 });

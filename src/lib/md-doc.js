@@ -5,6 +5,13 @@
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+/** Github-stil slug for overskriftsankre (bevarer norske bokstaver). */
+const slug = (s) =>
+	s.replace(/<[^>]+>/g, '')
+		.toLowerCase()
+		.replace(/[^\p{L}\p{N}]+/gu, '-')
+		.replace(/^-+|-+$/g, '');
+
 /** Inline-markdown: fet, kursiv, kode, lenker. */
 function inline(s) {
 	let ut = esc(s);
@@ -42,7 +49,9 @@ export function mdTilHtml(md) {
 		if (h) {
 			lukkListe();
 			const niv = h[1].length;
-			ut.push('<h' + niv + '>' + inline(h[2]) + '</h' + niv + '>');
+			// h2/h3 fr anker-id (github-stil) slik at TOC/ankerlenker fungerer
+			const id = niv <= 3 ? ' id="' + slug(h[2]) + '"' : '';
+			ut.push('<h' + niv + id + '>' + inline(h[2]) + '</h' + niv + '>');
 			i++;
 			continue;
 		}

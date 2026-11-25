@@ -4,7 +4,7 @@ Denne dokumentasjonen beskriver kodebasen: hvordan appen er bygd opp, hva de uli
 
 ---
 
-## Innholdsfortegnelse
+## Innholdsfortegnelsen
 
 1. [Overordnet arkitektur](#overordnet-arkitektur)
 2. [Dataformater](#dataformater)
