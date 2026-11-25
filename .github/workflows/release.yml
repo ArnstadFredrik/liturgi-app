@@ -115,8 +115,8 @@ jobs:
 
       - name: Skriv cask
         run: |
-          VERSION="${{ needs.build-mac.outputs.version }}"
-          SHA="${{ needs.build-mac.outputs.sha256 }}"
+          VERSION="${{ needs.build.outputs.version }}"
+          SHA="${{ needs.build.outputs.sha256 }}"
           cat > Casks/liturgi.rb <<EOF
           cask "liturgi" do
             version "$VERSION"
@@ -143,5 +143,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add Casks/liturgi.rb
           git diff --cached --quiet && echo "Ingen endringer" && exit 0
-          git commit -m "liturgi ${{ needs.build-mac.outputs.version }}"
+          git commit -m "liturgi ${{ needs.build.outputs.version }}"
           git push
