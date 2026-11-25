@@ -490,6 +490,26 @@
 		return lagret !== undefined ? lagret : true;
 	}
 
+	/** Skal leddets innledning ('i') eller avslutning ('a') være med?
+ *  Skjerm/Menighet-profilene kan velge bort deler pr. ledd (lagres med «:i»/«:a»). */
+	function visDel(si, ii, d) {
+		if (aktiv !== 'Skjerm' && aktiv !== 'Menighet') return true;
+		const v = valg[valgProfil()]?.[nokkel(si, ii) + ':' + d];
+		if (v !== undefined) return v;
+		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(si, ii) + ':' + d];
+		return lagret !== undefined ? lagret : true;
+	}
+
+	/** leddTekst med dele-valget (innledning/avslutning borte når valgt bort). */
+	function leddTekstValgt(it, si, ii) {
+		if (!it.introAlts?.length && !it.avslutningAlts?.length) return leddTekst(it);
+		const t = { ...it,
+			introAlts: visDel(si, ii, 'i') ? it.introAlts : [],
+			avslutningAlts: visDel(si, ii, 'a') ? it.avslutningAlts : [],
+		};
+		return leddTekst(t);
+	}
+
 	/** Er leddet et bibeltekst-ledd? Defineres av BIBELREF-linjen i teksten
 	 *  (ikke av overskriften — «Ingress til lesning» matcher ellers med).
 	 *  FOTNOTE er kun generell liten tekstnotis-formatering. */
@@ -938,6 +958,9 @@
 				// NB: «:t» er ikke eksponert for bibelledd (Hele teksten/Bibelref. erstatter den),
 				// så et stalte «:t»: false må ikke stripppe bibelteksten når «Hele teksten» er valgt.
 				const erB = erBibel(it);
+				// per-ledd dele-valg (Skjerm/Menighet): innledning/avslutning kan tas bort
+				if (lagret?.[nokkel(si, ii) + ':i'] === false) it.introAlts = [];
+				if (lagret?.[nokkel(si, ii) + ':a'] === false) it.avslutningAlts = [];
 				it.__visOverskrift = it.enabled;
 				it.__visInnhold = (!erB && lagret?.[nokkel(si, ii) + ':t'] !== undefined) ? lagret[nokkel(si, ii) + ':t'] : true;
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
@@ -1278,6 +1301,22 @@
 												<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
 											</button>
 										{/if}
+										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
+											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'i')}
+												title={visDel(si, ii, 'i') ? 'Innledningen er med i eksporten — klikk for å ta den bort' : 'Innledningen er ikke med i eksporten — klikk for å ta den med'}
+												onclick={() => settDel(si, ii, ':i', !visDel(si, ii, 'i'))}>
+												{@html mdi('format-quote-open')}
+												<span>{visDel(si, ii, 'i') ? 'Innledning med' : 'Innledning uten'}</span>
+											</button>
+										{/if}
+										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
+											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'a')}
+												title={visDel(si, ii, 'a') ? 'Avslutningen er med i eksporten — klikk for å ta den bort' : 'Avslutningen er ikke med i eksporten — klikk for å ta den med'}
+												onclick={() => settDel(si, ii, ':a', !visDel(si, ii, 'a'))}>
+												{@html mdi('account-voice')}
+												<span>{visDel(si, ii, 'a') ? 'Avslutning med' : 'Avslutning uten'}</span>
+											</button>
+										{/if}
 										{#if erBibel(it)}
 <button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
 	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
@@ -1316,8 +1355,20 @@
 													<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
 													{@html mdi('text')}
 												</label>
+											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
+												<label class="eksport-del" title={visDel(si, ii, 'i') ? 'Innledningen er med i eksporten' : 'Innledningen er ikke med i eksporten'}>
+													<input type="checkbox" checked={visDel(si, ii, 'i')} onchange={(e) => settDel(si, ii, ':i', e.currentTarget.checked)} />
+													{@html mdi('format-quote-open')}
+												</label>
 											{/if}
-											<div class="eksport-innhold lit-text">{@html litHtml(erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? bibelrefTxt(it) : leddTekst(it))}</div>
+											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
+												<label class="eksport-del" title={visDel(si, ii, 'a') ? 'Avslutningen er med i eksporten' : 'Avslutningen er ikke med i eksporten'}>
+													<input type="checkbox" checked={visDel(si, ii, 'a')} onchange={(e) => settDel(si, ii, ':a', e.currentTarget.checked)} />
+													{@html mdi('account-voice')}
+												</label>
+											{/if}
+{/if}
+											<div class="eksport-innhold lit-text">{@html litHtml(erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? bibelrefTxt(it) : leddTekstValgt(it, si, ii))}</div>
 										</div>
 									{/if}
 	{#if aktiv === 'Skjerm'}
