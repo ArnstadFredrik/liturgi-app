@@ -1,7 +1,7 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
 	import { saveCurrent, saveCurrentToFile } from '$lib/fileio.svelte.js';
-	import { exportWord, exportPptx, buildPdfBase64, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt, stripNotat, lysbildeTallFor } from '$lib/export.js';
+	import { exportWord, exportPptx, buildPdfBase64, byggSlidePlan, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt, stripNotat, lysbildeTallFor } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
@@ -655,88 +655,29 @@
 		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, lys: pptLys, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
-		const emitEkstra = (ekstra, slot) => {
-			pptSlidePos[slot] = slides.length;
-			pptSlotVed[slides.length] = slot;
-			const joined = flytAvsnitt(((ekstra?.tittel ? ekstra.tittel + '\n' : '') + (ekstra?.innhold ?? '')).trim());
-			const grupper = delPptSegs(roleSegments(joined), tekstStorrelse);
-			if (grupper.length) for (const grp of grupper) push(grp);
-			else push([{ text: '' }]);
-		};
-		const egne = (slot) => (pptEkstra ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
-		for (const { e, i } of egne('')) emitEkstra(e, 'e' + i);
-		// blank side mellom leddene: 'alle' = mellom alle, 'smart' = kun der ledd med
-		// skjulte mellom seg følger (ett tomt bilde mellom aktuelle ledd)
-		let skjulte = false; // ledd som ikke er med i presentasjonen siden forrige viste ledd
-		let forrigeSkjultAvsl = false; // forrige viste ledd hadde skjult avslutning
-		const tom = (smart) => { if (tomSlideModus === 'av' || (tomSlideModus === 'smart' && !smart)) return; if (slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
-		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
-		// utvalg og deler = Skjerm-profilens visning (styrende for pptx)
+		// Forhåndsvisningen konsumerer SAMME plan som pptx-eksporten (byggSlidePlan)
+		// — fordeling av ledd og blanke sider blir da identisk, alltid.
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
-		const seksjoner = kopi.sections ?? [];
-		for (let si = 0; si < seksjoner.length; si++) {
-			const items = seksjoner[si].items ?? [];
-			for (let ii = 0; ii < items.length; ii++) {
-				const it = items[ii];
-				if (!it.enabled) {
-					// egne slides plassert etter et deaktivert ledd kommer likevel
-					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
-					skjulte = true;
-					continue;
-				}
-				tom(tomSlideModus === 'smart' && (skjulte || !visDel(si, ii, 'i') || forrigeSkjultAvsl));
-				skjulte = false;
-				forrigeSkjultAvsl = !visDel(si, ii, 'a');
-				// rå overskrift (uavhengig av «Leddtitler») — brukes i slidenotatet
-				const raaHeading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
-					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
-				const heading = pptLeddtitler ? raaHeading : '';
-				const notat = it.pptNotat ?? raaHeading; // egendefinert notat går foran overskriften
-				if (it.type === 'salme' && salmeTekst(it)) {
-					pptSlidePos[nokkel(si, ii)] = slides.length;
-					pptSlotVed[slides.length] = nokkel(si, ii);
-					if (it.__visInnhold === false) { // «vis innhold» av — tom slide, overskriften i notatet
-						push([{ text: '' }], false, false, notat, nokkel(si, ii), true);
-						for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
-						continue;
-					}
-					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
-					let forste = true; // kun første gruppe av første vers er 'første side i leddet'
-					vers.forEach((v) => {
-						const overskrift = heading ? heading + '\n' : '';
-						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) {
-							push(grp, false, false, forste ? notat : '', forste ? nokkel(si, ii) : '', forste);
-							forste = false;
-						}
-					});
-					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
-					continue;
-				}
-				// NB: valgte ledd kommer ALLTID med — selv når valgene (innhold av, ingen leddtitler)
-				// gjør slidet tomt; overskriften havner da i slidenotatet.
-				const lines = [];
-				const innholdAv = it.__visInnhold === false;
-				if (it.type !== 'salme' && !innholdAv) {
-					if (visInstrValg && it.instr) lines.push(it.instr.replace(/\{\{\/?r\}\}/g, '')); // samme som eksporten
-					const t = visInstrValg ? leddTekst(it) : stripNotat(leddTekst(it));
-					if (t) lines.push(t);
-				}
-				const joined = flytAvsnitt(((heading ? heading + '\n' : '') + lines.join('\n')).trim());
-				pptSlidePos[nokkel(si, ii)] = slides.length;
-				pptSlotVed[slides.length] = nokkel(si, ii);
-				if (!joined) { push([{ text: '' }], false, false, notat, nokkel(si, ii), true); }
-				else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) push(grp, false, false, gi === 0 ? notat : '', gi === 0 ? nokkel(si, ii) : '', gi === 0);
-				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
+		const plan = byggSlidePlan(kopi, {
+			tomSlideModus,
+			showInstr: visInstrValg,
+			tekstSkala: pptTekstSkala,
+			tittelSkala: pptTittelSkala,
+			ekstra: pptEkstra,
+			visLeddtitler: pptLeddtitler
+		});
+		plan.forEach((s, idx) => {
+			if (s.blank) { push(null, false, true); return; }
+			if (s.big && !pptVisTittel) return; // tittelsliden kan skrus av
+			const slot = s.nokkel ?? '';
+			if (slot && pptSlidePos[slot] == null) {
+				pptSlidePos[slot] = slides.length;
+				pptSlotVed[slides.length] = slot;
 			}
-		}
-		// Smart: blank side til slutt hvis siste viste ledd har skjult avslutning
-		// eller det ligger skjulte ledd etter det (fremdeles aldri dobbelt-blank)
-		if (tomSlideModus === 'smart' && (skjulte || forrigeSkjultAvsl) && slides.length && !slides[slides.length - 1].blank) push(null, false, true);
-		// aldri tom side til slutt
-		while (slides.length && slides[slides.length - 1].blank) slides.pop();
+			push(s.segs, s.big, false, s.notat ?? '', slot, (s.del ?? 0) === 0 && !!slot);
+		});
 		pptSlides = slides;
 	}
-
 	// bygg forhåndsvisningen når Skjerm-profilen er aktiv eller noe endres (live)
 	$effect(() => {
 		if (aktiv !== 'Skjerm') return;

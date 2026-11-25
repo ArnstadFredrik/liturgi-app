@@ -530,28 +530,48 @@ export function delPptSegs(segs, fs, opts = {}) {
 	const beholdBrudd = !!opts.beholdBrudd; // manuset: behold avsnittskift ved gruppegrenser
 	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5)));
 	const maxLinjer = Math.max(4, Math.floor(302 / (fs * 1.15)));
-	const kap = cpl * maxLinjer;
-	// pakk segmentene i slides — lange segmenter deles på naturlige punkter
-	// med hensyn til den LEDIGE plassen i gruppen (rolle-prefiks + tekst holdes sammen)
+	// antall rendrete linjer en tekst blokker til (korte verslinjer teller som
+	// hele linjer — tegnbudsjett alene ga tekstoverflyt på slidene)
+	const linjerITekst = (t) => t.split('\n').reduce((sum, l) => sum + Math.max(1, Math.ceil(l.length / cpl)), 0);
+	// tegnposisjon som holder seg innenfor maksl rendrete linjer
+	const delVedLinjer = (t, maksl) => {
+		let brukt = 0, pos = 0;
+		for (const linje of t.split('\n')) {
+			const wl = Math.max(1, Math.ceil(linje.length / cpl));
+			if (brukt + wl > maksl) {
+				const igjen = maksl - brukt;
+				if (igjen <= 0) return pos > 0 ? pos : Math.min(t.length, cpl);
+				const tegn = Math.min(linje.length, igjen * cpl);
+				const ord = linje.slice(0, tegn);
+				const siste = ord.lastIndexOf(' ');
+				return pos + (siste > 0 ? siste : tegn);
+			}
+			brukt += wl; pos += linje.length + 1;
+		}
+		return t.length;
+	};
+	// pakk segmentene i slides — budsjettet er antall rendrete LINJER per slide
 	const sider = [];
-	let grp = [], lengde = 0;
-	const pushGrp = () => { if (grp.length) { sider.push(grp); grp = []; lengde = 0; } };
+	let grp = [], linjer = 0;
+	const pushGrp = () => { if (grp.length) { sider.push(grp); grp = []; linjer = 0; } };
 	for (const s of segs) {
 		let rest = s.text;
 		if (!rest) continue;
 		while (rest.length) {
-			const ledig = kap - lengde;
-			if (rest.length <= ledig) {
+			const ledig = maxLinjer - linjer;
+			if (linjerITekst(rest) <= ledig) {
 				grp.push({ ...s, text: rest });
-				lengde += rest.length;
+				linjer += linjerITekst(rest);
 				rest = '';
 			} else {
-				let kutt = rest.lastIndexOf('\n', ledig);
-				if (kutt < ledig * 0.5) kutt = rest.lastIndexOf(' ', ledig);
-				if (kutt < ledig * 0.5) kutt = ledig;
+				let kutt = delVedLinjer(rest, ledig);
 				if (kutt <= 0) { pushGrp(); continue; }
+				// unngå å kutte midt i hevet versnummer ^{N}
+				const supStart = rest.lastIndexOf('^{', kutt);
+				const supSlutt = rest.indexOf('}', supStart);
+				if (supStart > 0 && supSlutt !== -1 && supSlutt >= kutt) kutt = supStart;
 				grp.push({ ...s, text: rest.slice(0, kutt) });
-				lengde += kutt;
+				linjer += linjerITekst(rest.slice(0, kutt));
 				rest = beholdBrudd ? rest.slice(kutt) : rest.slice(kutt).replace(/^\n+/, '');
 				pushGrp();
 			}
@@ -562,6 +582,7 @@ export function delPptSegs(segs, fs, opts = {}) {
 	// store segmenter DELS underveis, ellers kan ett ord stå alene på en side
 	if (sider.length > 1) {
 		const fyll = (g) => g.reduce((a, s) => a + s.text.length, 0);
+		const kap = cpl * maxLinjer;
 		if (fyll(sider.at(-1)) < kap * 0.25) {
 			const alle = [...sider.at(-2), ...sider.at(-1)];
 			const halv = Math.ceil(alle.reduce((a, s) => a + s.text.length, 0) / 2);
@@ -605,7 +626,7 @@ export function byggSlidePlan(svc, valg = {}) {
 	for (const ekstra of (valg.ekstra ?? [])) {
 		if ((ekstra?.etter ?? '') === '') emitEkstra(ekstra);
 	}
-	let forrigeTom = true;
+	let forrigeTom = false; // blank etter tittelslidet er lov (som i forhåndsvisningen)
 	let forrigeSkjultAvsl = false; // forrige viste ledd hadde skjult avslutning (Smart)
 	let sistNokkel = null; // siste emiterte ledd (blanken får dette som anker)
 	const leggTom = (smart, grunn) => {
