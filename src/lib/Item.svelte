@@ -480,28 +480,28 @@
 				</div>
 			{/if}
 		{:else}
-			{#if erMal && introAltsLen}
-				<div class="alt-gruppe-tittel">Innledning&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Administrer innledningsalternativer">{@html mdi('cog', 12)}</button></div>
+			{#if introAltsLen}
+				<div class="alt-gruppe-tittel">Innledning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'introAlts', 'selIntro', 'Innledning')} title="Administrer innledningsalternativer">{@html mdi('cog', 12)}</button>{/if}</div>
 				<div class="alt-cur">
-					<EditableText bind:value={it.introAlts[it.selIntro ?? 0].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
+					<EditableText bind:value={it.introAlts[Math.min(it.selIntro ?? 0, introAltsLen - 1)].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgIntro()}>
 						Bytt innledning ({(it.selIntro ?? 0) + 1} av {introAltsLen})
 					</button>
-					<button class="alt-red" onclick={() => leggTilAlt('introAlts', 'selIntro')} title="Nytt tomt innledningsalternativ">{@html mdi('plus', 13)}</button>
+					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('introAlts', 'selIntro')} title="Nytt tomt innledningsalternativ">{@html mdi('plus', 13)}</button>{/if}
 				</div>
 			{/if}
 			<EditableText bind:value={it.text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 			{#if erMal}
 				<div class="alt-gruppe-tittel">Alternativer&nbsp;<button class="alt-red" onclick={() => leggTilAlt('alts', 'selAlt')} title="Opprett alternativgruppe">{@html mdi('plus', 13)} Alternativ</button></div>
 			{/if}
-			{#if erMal && avslAltsLen}
-				<div class="alt-gruppe-tittel">Avslutning&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog', 12)}</button></div>
+			{#if avslAltsLen}
+				<div class="alt-gruppe-tittel">Avslutning{#if erMal}&nbsp;<button class="alt-red" onclick={(e) => altMeny(e, 'avslutningAlts', 'selAvsl', 'Avslutning')} title="Administrer avslutningsalternativer">{@html mdi('cog', 12)}</button>{/if}</div>
 				<div class="alt-cur">
-					<EditableText bind:value={it.avslutningAlts[Math.min(it.selAvsl ?? 0, it.avslutningAlts.length - 1)].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
+					<EditableText bind:value={it.avslutningAlts[Math.min(it.selAvsl ?? 0, avslAltsLen - 1)].text} kind="lit" vimAktiv={app.vimModus} vimSt={vimSt} />
 					<button class="alt-btn" onclick={() => velgAvsl()}>
 						Bytt avslutning ({(it.selAvsl ?? 0) + 1} av {avslAltsLen})
 					</button>
-					<button class="alt-red" onclick={() => leggTilAlt('avslutningAlts', 'selAvsl')} title="Nytt tomt avslutningsalternativ">{@html mdi('plus', 13)}</button>
+					{#if erMal}<button class="alt-red" onclick={() => leggTilAlt('avslutningAlts', 'selAvsl')} title="Nytt tomt avslutningsalternativ">{@html mdi('plus', 13)}</button>{/if}
 				</div>
 			{/if}
 		{/if}

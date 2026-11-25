@@ -23,6 +23,8 @@ test('lesning med malens struktur: bibeltekst i hoveddelen, referanse i innledni
   // referansen inn i innledningens «...»
   assert.equal(it.introAlts[1].text, '{{r}}ML | {{/r}}Det står skrevet i Jes 61,1-3:');
   assert.equal(it.introAlts[0].text, '[Første Lesetekst]'); // plassholder røres ikke
+  // valgt innledning var plassholderen -> den reelle innledningen velges automatisk
+  assert.equal(it.selIntro, 1);
   // avslutningen kommer fra malen
   assert.equal(it.avslutningAlts[0].text, '{{r}}ML |{{/r}} Slik lyder Herrens ord');
 });

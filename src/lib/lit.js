@@ -374,6 +374,9 @@ export function fyllLesning(it, ref, tekst, evangelium = false) {
 		for (const ia of (it.introAlts ?? [])) {
 			if (typeof ia?.text === 'string') ia.text = referanseIInnledning(ia.text, ref);
 		}
+		// hvis valgt innledning er en plassholder («[Første Lesetekst]»), velg en reell
+		const idx = (it.introAlts ?? []).findIndex((ia) => typeof ia?.text === 'string' && !erPlassholderTekst(ia.text));
+		if (idx >= 0 && erPlassholderTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '')) it.selIntro = idx;
 	} else {
 		// frittstående ledd (f.eks. B&G): bygg med innledning/avslutning
 		it.text = intro + '\n' + innhold + '\n' + outro;
