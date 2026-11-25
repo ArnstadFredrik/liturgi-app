@@ -176,6 +176,15 @@ function settForbModul(v) {
 	<div class="inn-seksjon">
 		<div class="inn-seksjon-tittel">Generelt</div>
 		<div class="inn-kort">
+			<div class="inn-rad" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+				<div>
+					<div>Brukerhåndbok</div>
+					<div style="opacity:0.6; font-size:12px;">Slik fungerer appen: maler, bibliotek, redigering, eksport og profiler.</div>
+				</div>
+				<button class="inn-knapp" onclick={() => { app.visning = 'handbok'; }}>Åpne håndbok</button>
+			</div>
+		</div>
+		<div class="inn-kort">
 			{#if isElectron}
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">

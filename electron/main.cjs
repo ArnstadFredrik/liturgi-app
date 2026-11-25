@@ -898,6 +898,12 @@ function byggMeny(win, st = {}) {
 				{ label: 'Koblet visning (liste + forhåndsvisning)', type: 'checkbox', checked: st.koblet !== false, enabled: dok && erTjeneste && st.visning === 'eksport', click: () => send('koblet-visning') },
 				{ label: 'Åpne mappe', enabled: dok && erTjeneste && st.harFil, click: () => send('apne-mappe') }
 			]
+		},
+		{
+			label: 'Hjelp',
+			submenu: [
+				{ label: 'Brukerhåndbok', click: () => send('handbok') }
+			]
 		}
 	];
 	Menu.setApplicationMenu(Menu.buildFromTemplate(mal));

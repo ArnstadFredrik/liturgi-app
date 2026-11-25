@@ -12,6 +12,7 @@
 	import Oversikt from '$lib/Oversikt.svelte';
 	import MalAlternativer from '$lib/MalAlternativer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
+	import Handbok from '$lib/Handbok.svelte';
 
 	/** ⌥⌘@ veksler dokumentpanelet (høyremenyen). e.code === 'Backslash' er den
 	 *  FYSISKE @-tasten på norsk tastatur (layout-uavhengig) — Electron-menyens
@@ -213,7 +214,9 @@
 			<Forberedelse />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
-		{:else}
+				{:else if app.visning === 'handbok'}
+			<Handbok />
+{:else}
 			<Welcome />
 		{/if}
 	</main>

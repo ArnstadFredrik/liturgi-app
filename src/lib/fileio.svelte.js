@@ -1035,6 +1035,7 @@ export async function kjorMenyId(id) {
 		case 'bibliotek': app.current = null; app.kind = null; app.visning = 'bibliotek'; break;
 		case 'kirkeaar': app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
+		case 'handbok': app.visning = 'handbok'; break;
 		case 'veksle-vim': veksleVim(); break;
 		case 'forb-modul': app.forbModul = true; app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'forb-apne-mappe': {
