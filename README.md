@@ -70,12 +70,16 @@ Nye liturgier kan bli maler på tre måter:
 - **Gudstjenester**: opprett fra valgt mal med navn og dato; lagres som filer, åpnes fra listen over de siste fem.
 - **Kirkeårsdag**: velges automatisk fra datoen, eller manuelt («☀️ … · ✏️ endre») fra alle kirkeårsdager – både i redigeringsvisning og i «Ny gudstjeneste». Endres datoen, spør appen om innholdet (dagens bønn + bibeltekster) skal oppdateres.
 - **Dagens bønn**: kirkeårsbønnen hentes inn i leddet «Dagens bønn» – som plassholderfylling, nytt alternativ eller eget ledd, avhengig av malen.
-- **Bibeltekster**: «Første lesning», «Andre lesning» og «Evangelium» fylles med referanse og tekst fra bibel.no, innledes/avsluttes som i ordningen («Det står skrevet i/hos …» / «Slik lyder Herrens ord.») og får referansen som fotnote. Ingress-ledd røres ikke.
+- **Bibeltekster**: «Første lesning», «Andre lesning» og «Evangelium» fylles med referanse og tekst fra bibel.no: teksten ligger i leddets hoveddel, referansen settes inn i innledningens «Det står skrevet i/hos …», og avslutningen kommer fra malen. Versnummer renderes hevet i alle eksporter. Tekstene kan hentes på nytt når som helst («Hent bibeltekster på nytt» i kontekstmenyen på et lesningsledd, eller i kommandopaletten ⌘K).
 - **Bibliotek**: hent enkeltalternativer («Hent innhold …») eller hele ledd («Hent ledd …») fra hovedgudstjenesten – innholdet kopieres inn i filen, så den forblir delbar.
 - **Ledd**: flytt med drag-and-drop (drag i leddhodet) eller høyreklikk-meny (flytt, legg til over/under, fjern, slett). Tekst, instruksjoner og overskrifter redigeres ved klikk.
 - **Alternativer**: ledd med flere alternativer; velg med «Bytt alternativ», rediger fritt.
 - **Salmer**: salmeledd har felt for nummer og tittel, og salmetekst kan legges inn.
-- **Eksport**: PDF (utskriftsvisning), Word (.docx) og PowerPoint (.pptx) – røde roller og liturgidesign i alle formater; fotnoter renders i alle tre.
+- **Eksport med profiler**: Prest (full liturgi), Medarbeider (manus med lysbildenumre), Menighet (utvalg for menigheten) og Skjerm (PowerPoint). PDF og Word per profil, med forhåndsvisning som er generert av samme layoutmotor som eksporten – det du ser er det du får.
+- **Skjerm/pptx**: PowerPoint-eksport med rollefarger, hevede versnummer, tomme mellomsider og notater. Blanke sider styres med «Ingen/Alle/Smart» – Smart legger inn blank side der det ligger skjulte ledd eller skjult innledning/avslutning mellom viste ledd (aldri dobbelt-blanke). Forhåndsvisningen og eksporten bruker samme slidplan, så de er alltid like.
+- **Per-ledd valg i eksporten**: hovedboks (med/ikke med), innhold, innledning, avslutning og bibelreferanse styres per ledd og lagres per profil.
+- **Lysbildemanus**: Medarbeider-utskrift med lysbildenummer i margen ved det leddet/verset hvert lysbilde begynner – også for blanke mellomsider. Eksporteres som PDF eller Word sammen med pptx.
+- **Kommandopalett**: ⌘K åpner søk i alle menyvalg (filer, visninger, eksportvalg, henting av bibeltekster).
 - **Filer**: «Lagre som …», «Åpne fil …» og dobbeltklikk på `.liturgi`-filer i Finder.
 
 ## Tekstformat (markdown-syntaksen)
@@ -129,7 +133,7 @@ Nye linjer rendres som linjeskift. Tomme linjer gir avsnitt. Linjer som starter 
     src/lib/malverktoy.svelte.js – DEV: felles logikk for Malverktøy (åpne/lagre originalmaler)
     src/lib/store.svelte.js    – tilstand (Svelte 5 runes)
     src/lib/fileio.svelte.js   – lagre/åpne filer, siste-gudstjenester-liste, maler på disk
-    src/lib/export.js          – Word/PowerPoint/PDF-eksport (docx, pptxgenjs)
+    src/lib/export.js          – eksportmotor: slidplan (pptx), PDF-layout (jsPDF), Word (docx), lysbildemanus
     src/lib/kirkeaar.js        – kirkeårsdata + bibeltekster fra bibel.no
     src/lib/Sidebar.svelte     – sidefelt med siste gudstjenester og maler
     src/lib/Editor.svelte      – redigering av gudstjeneste/mal
