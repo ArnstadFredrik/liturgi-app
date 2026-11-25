@@ -139,6 +139,10 @@
 		line-height: 1.55;
 	}
 	.handbok-innhold :global(h1) { font-size: 22px; margin: 0.4em 0 0.6em; }
+	.handbok-innhold :global(p), .handbok-innhold :global(ul), .handbok-innhold :global(ol), .handbok-innhold :global(pre), .handbok-innhold :global(table), .handbok-innhold :global(blockquote) {
+		margin: 0 0 0.75em;
+	}
+	.handbok-innhold :global(li) { margin: 0; }
 	.handbok-innhold :global(h2) { font-size: 17px; margin: 1.6em 0 0.5em; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 	.handbok-innhold :global(h3) { font-size: 14px; margin: 1.2em 0 0.4em; }
 	.handbok-innhold :global(code) {
