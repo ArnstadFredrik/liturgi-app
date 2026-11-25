@@ -927,7 +927,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	/** Skriv segmenter fra roleSegments() flytende på linjen: røde rollemerker og
 	 *  {{r}}-segmenter inline, ikke på egne linjer. */
 	const skrivSegmenter = (segs, opts = {}) => {
-		const { size: baseSize = 10.5, indent = 0, vidare = false, vedForsteTekst = null } = opts;
+		const { size: baseSize = 10.5, indent = 0, vidare = false, vedForsteTekst = null, maalPos = null } = opts;
 		const w = colW - indent;
 		let cx = vidare && flytCx != null ? flytCx : x0() + indent;
 		// første linje kan ellers tegnes under sidebunnen hvis y ble skjøvet forbi den
@@ -941,11 +941,16 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			y += baseSize * 0.48 + 1.1;
 		};
 		let forsteTekst = !vedForsteTekst;
+		// lysbildetall «flytende»: sporer tegn-offset og fyrr maalPos.ved(gruppe, y)
+		// naar en slidetekst begynner på en linje
+		let maalNeste = maalPos ? (maalPos.fra ?? 0) : 0;
+		let segStart = 0; // offset for naavaerende segment i den komponerte teksten
 		for (const seg of segs) {
 			const size = seg.small ? baseSize - 1.5 : baseSize;
 			doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
 			doc.setFontSize(size);
 			doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
+			let del = 0; // tegn-offset innenfor segmentet (kildeteksten, markører inkludert)
 			const parts = seg.text.split('\n');
 			parts.forEach((part, pi) => {
 				if (pi > 0) {
@@ -966,12 +971,27 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					// wrap ÉN linje om gangen: hvis linja bryter, om-wrapp resten ved full
 					// kolonnebredde på neste linje (ellers forblir alle linjene korte)
 					let rest = erSup ? sp.slice(2, -1) : sp;
+					const restStart = del;
 					while (rest) {
 						const restBredde = w - (cx - x0() - indent);
 						if (restBredde < doc.getTextWidth('XX')) nylinje();
 						const wrapped = erSup ? [rest] : doc.splitTextToSize(rest, w - (cx - x0() - indent));
 						const l = wrapped[0];
 						if (!l) { nylinje(); continue; }
+					if (maalPos) {
+						const linjeSlutt = segStart + del + l.length;
+						let fyrt = false;
+						while (maalNeste < maalPos.starts.length && maalPos.starts[maalNeste] < linjeSlutt) {
+							maalPos.ved(maalNeste, y);
+							maalNeste++;
+							fyrt = true;
+						}
+						if (fyrt) {
+							doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
+							doc.setFontSize(supSize);
+							doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
+						}
+					}
 						if (!forsteTekst) {
 							forsteTekst = true;
 							vedForsteTekst?.();
@@ -984,12 +1004,14 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						bruddSidenTekst = 0;
 						doc.text(l, cx, y + (erSup ? 2.2 : 4));
 						cx += doc.getTextWidth(l);
+						del += l.length + (rest.length - rest.slice(l.length).replace(/^ +/, '').length);
 						rest = rest.slice(l.length).replace(/^ +/, '');
 						if (rest) nylinje();
 					}
 					doc.setFontSize(size);
 				}
 			});
+			segStart += seg.text.length;
 		}
 		flytCx = cx;
 	};
@@ -1036,13 +1058,14 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			let lysTegnet = false;
 			// hvert ledd starter på fersk linje i den flytende teksten
 			flytCx = null; linjeTegnet = false; bruddSidenTekst = 0;
+			let hodeY = null, instrY = null;
 			if (head && it.__visOverskrift !== false) {
 				y += toppLuft; nySideHvisNodvendig(10);
-				if (lys && lys.length && it.type !== 'salme') { tegnLysTall(lys[0].n); lysTegnet = true; }
+				hodeY = y;
 				skrivLinjer(head.replace(/\{\{\/?r\}\}/g, ''), { bold: true, size: S(11, 'ledd'), sans: true }); y += 0.6;
 			}
 			if (it.__visInnhold === false) continue;
-			if ((showInstr ?? true) && it.instr) { skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
+			if ((showInstr ?? true) && it.instr) { instrY = y; skrivLinjer(it.instr.replace(/\{\{\/?r\}\}/g, ''), { red: true, italics: true, size: S(9.5) }); y += 1.5; }
 			// @r — hele linjen som rolle
 			let tekst = '';
 			const erPlassholder = (t) => /^\[(Skriv tekst her|Velg alternativ|Salme: settes inn)\]$/.test((t ?? '').trim());
@@ -1056,42 +1079,55 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			tekst = (tekst || '').replace(/^@r ?\|? ?(.+)$/gm, (m, t) => '@r ' + t);
 			// roleSegments håndterer @r-linjer (hele linjen rød), inline {{r}}…{{/r}} inline,
 			// rollemerker som «L |», FOTNOTE og markdown — alt flytende på linjen
-			// flyt harde linjeskift midt i avsnitt (limt inn tekst) — behold ekte avsnittskift
+			// Linjeskiftene fra redigeringen er førende (beholdLinjer) — WYSIWYG mot
+			// forhåndsvisningen og docx-eksporten.
 			const brukGrupper = lys && lys.length && lysPpt;
-			if (brukGrupper && it.type === 'salme' && tekst) {
-				// salme: vers for vers; hvert vers' slidetall der verset/sliden begynner
-				const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
-				let li = 0;
-				vers.forEach((v, vi) => {
-					const overskrift = vi === 0 && lysPpt.visLeddtitler && head ? head + '\n' : '';
-					const grupper = delPptSegs(roleSegments(flytAvsnitt(overskrift + v, { beholdLinjer: true })), lysPpt.storrelse, { beholdBrudd: true });
-					grupper.forEach((grp, gi) => {
-						const t = lys.find((x) => x.del === li) ?? lys[li] ?? null;
-						li++;
-						let skriv = grp;
-						if (vi === 0 && gi === 0 && overskrift) skriv = stripForan(grp, 1); // overskriften er allerede tegnet
-						let tegnet = false; // tallet tegnes ved slidetekstens første linje
-						skrivSegmenter(skriv, { size: S(10.5, 'tekst'), vidare: true, vedForsteTekst: t ? () => { tegnet = true; tegnLysTall(t.n); } : null });
-						if (t && !tegnet) tegnLysTall(t.n);
+			if (brukGrupper) {
+				// Lysbildemanus: teksten rendres NØYAKTIG som i prest-printen (samme flyt,
+				// ingen gruppevis om-setup) — slidetekstenes y-posisjoner måles underveis
+				// og tallene tegnes «flytende» i margen ved riktig lysbilde.
+				const overskrift = lysPpt.visLeddtitler && head ? head + '\n' : '';
+				const instrT = (showInstr ?? true) && it.instr ? it.instr.replace(/\{\{\/?r\}\}/g, '') : '';
+				const starts = []; const numre = [];
+				if (it.type === 'salme') {
+					const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
+					let li = 0;
+					let off = overskrift ? flytAvsnitt(head + '\n', { beholdLinjer: true }).length : 0;
+					vers.forEach((v) => {
+						const vj = flytAvsnitt(v, { beholdLinjer: true });
+						const grupper = delPptSegs(roleSegments(vj), lysPpt.storrelse, { beholdBrudd: true });
+						let p = off;
+						for (const grp of grupper) {
+							starts.push(p);
+							numre.push(lys[li] ? lys[li].n : null);
+							p += grp.map((s) => s.text).join('').length;
+							li++;
+						}
+						off += vj.length + 2; // '\n\n' mellom versene
 					});
-					if (vi < vers.length - 1) y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); // vers-skille = linje + blank linje (som prest-PDF)
-					nySideHvisNodvendig(14); // vers-skillet kan tråkke over bunnen
-				});
-			} else if (brukGrupper) {
-				// andre ledd: gruppevis skriving med kontinuerlig flyt — hvert tall
-				// der sliden det tilhører begynner (også midt i avsnitt)
-				const lysLinjer = [];
-				if ((showInstr ?? true) && it.instr) lysLinjer.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
-				if (tekst) lysLinjer.push(tekst);
-				const lysJoined = flytAvsnitt(((lysPpt.visLeddtitler && head ? head + '\n' : '') + lysLinjer.join('\n')).trim(), { beholdLinjer: true });
-				const grupper = delPptSegs(roleSegments(lysJoined), lysPpt.storrelse, { beholdBrudd: true });
-				const hopp = (lysPpt.visLeddtitler && head ? 1 : 0) + ((showInstr ?? true) && it.instr ? it.instr.split('\n').length : 0); // allerede tegnet
-				grupper.forEach((grp, gi) => {
-					const t = lys.find((x) => x.del === gi) ?? null;
-					const tegn = (gi > 0 || !lysTegnet) && t ? () => tegnLysTall(t.n) : null;
-					let tegnet = false;
-					skrivSegmenter(gi === 0 ? stripForan(grp, hopp) : grp, { size: S(10.5, 'tekst'), vidare: gi > 0, vedForsteTekst: tegn ? () => { tegnet = true; tegn(); } : null });
-					if (tegn && !tegnet) tegn(); // tomt gruppeinnhold: tallet likevel
+				} else {
+					const joined = flytAvsnitt((overskrift + [instrT, tekst].filter(Boolean).join('\n')).trim(), { beholdLinjer: true });
+					const grupper = delPptSegs(roleSegments(joined), lysPpt.storrelse, { beholdBrudd: true });
+					let p = 0;
+					grupper.forEach((grp, gi) => {
+						starts.push(p);
+						numre.push(lys[gi] ? lys[gi].n : null);
+						p += grp.map((s) => s.text).join('').length;
+					});
+				}
+				// gruppe-starts i overskriften/instruksjonen: tall der (vanligvis bare gruppe 0)
+				const hodeLen = overskrift ? flytAvsnitt(head + '\n', { beholdLinjer: true }).length : 0;
+				const instrLen = instrT ? flytAvsnitt(instrT, { beholdLinjer: true }).length + 1 : 0;
+				const bodyBase = hodeLen + instrLen;
+				for (let g = 0; g < starts.length; g++) {
+					if (starts[g] >= bodyBase) break;
+					if (numre[g] != null) tegnLysTall(numre[g], (starts[g] < hodeLen ? hodeY : instrY) ?? y);
+				}
+				const forsteBody = starts.findIndex((s) => s >= bodyBase);
+				// kroppen: identisk flyt med prest-printen
+				skrivSegmenter(roleSegments(flytAvsnitt(tekst, { beholdLinjer: true })), {
+					size: S(10.5, 'tekst'),
+					maalPos: { starts, numre, fra: forsteBody === -1 ? starts.length : forsteBody, base: bodyBase, ved: (gi, yP) => { if (numre[gi] != null) tegnLysTall(numre[gi], yP); } }
 				});
 			} else if (!brukGrupper && it.type === 'salme' && lys && lys.length) {
 				// salme med lysbildetall uten pptx-parametere: vers-for-vers, sekvensielt
