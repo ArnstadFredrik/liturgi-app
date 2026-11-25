@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { BOKER_TABELL, bibelBok, innledningsNavn } from '/Users/fredrikarnstad/05 projects/liturgi-app/src/lib/bibelboeker.js';
 
-test('66 bøker i begge målformene, unike forkortelser', () => {
-	assert.equal(BOKER_TABELL.length, 66);
+test('75 bøker (66 kanoniske + 9 deuterokanoniske) i begge målformene, unike forkortelser', () => {
+	assert.equal(BOKER_TABELL.length, 75);
 	for (const sprak of ['nb', 'nn']) {
 		const fork = BOKER_TABELL.map((r) => r[sprak + 'Fork']);
 		const navn = BOKER_TABELL.map((r) => r[sprak + 'Navn']);
-		assert.equal(new Set(fork).size, 66);
-		assert.equal(new Set(navn).size, 66);
+		assert.equal(new Set(fork).size, 75);
+		assert.equal(new Set(navn).size, 75);
 	}
 });
 
@@ -67,6 +67,49 @@ test('punktum-former («1. Kor.», «Matt.»)', () => {
 	assert.equal(innledningsNavn('1. Kor. 13, 7-13'), "Paulus' første brev til korinterne, kapittel 13");
 	assert.equal(innledningsNavn('1. Joh 4, 7-12'), "Johannes' første brev, kapittel 4");
 	assert.equal(innledningsNavn('Joh. 14, 1-7'), 'Evangeliet etter Johannes, kapittel 14');
+});
+
+test('engelske aliaser (logos.com): GT', () => {
+	assert.equal(innledningsNavn('Gen 1,1'), 'Første Mosebok, kapittel 1');
+	assert.equal(innledningsNavn('Gen. 1,1'), 'Første Mosebok, kapittel 1');
+	assert.equal(innledningsNavn('Ex 20,1'), 'Andre Mosebok, kapittel 20');
+	assert.equal(innledningsNavn('Ps 23,1'), 'Salmenes bok, kapittel 23');
+	assert.equal(innledningsNavn('Psalm 91,1'), 'Salmenes bok, kapittel 91');
+	assert.equal(innledningsNavn('Prov 3,5'), 'Salomos ordspråk, kapittel 3');
+	assert.equal(innledningsNavn('Isa 53,4'), 'Jesaja, kapittel 53');
+	assert.equal(innledningsNavn('1 Kgs 3,9'), 'Første Kongebok, kapittel 3');
+	assert.equal(innledningsNavn('II Chron 7,14'), 'Andre Krønikebok, kapittel 7');
+});
+
+test('engelske aliaser (logos.com): NT', () => {
+	assert.equal(innledningsNavn('Mt 5,1'), 'Evangeliet etter Matteus, kapittel 5');
+	assert.equal(innledningsNavn('Mt 5,1', 'nb', true), 'Matteus i kapittel 5');
+	assert.equal(innledningsNavn('Mk 16,15'), 'Evangeliet etter Markus, kapittel 16');
+	assert.equal(innledningsNavn('Jn 3,16'), 'Evangeliet etter Johannes, kapittel 3');
+	assert.equal(innledningsNavn('Ac 2,1'), 'Apostlenes gjerninger, kapittel 2');
+	assert.equal(innledningsNavn('1 Cor 13,4'), "Paulus' første brev til korinterne, kapittel 13");
+	assert.equal(innledningsNavn('I Jn 4,8'), "Johannes' første brev, kapittel 4");
+	assert.equal(innledningsNavn('2 Th 2,1'), "Paulus' andre brev til tessalonikerne, kapittel 2");
+	assert.equal(innledningsNavn('Jas 1,5'), 'Jakobs brev, kapittel 1');
+	assert.equal(innledningsNavn('Rev 21,1'), "Johannes' åpenbaring, kapittel 21");
+	assert.equal(innledningsNavn('Rev 21,1', 'nn'), "Johannes' openberring, kapittel 21");
+});
+
+test('deuterokanoniske bøker (bibel.no nb/nn + engelske former)', () => {
+	assert.equal(innledningsNavn('Tob 1,3'), 'Tobit, kapittel 1');
+	assert.equal(innledningsNavn('Tb 1,3'), 'Tobit, kapittel 1');
+	assert.equal(innledningsNavn('Judit 1,1'), 'Judit, kapittel 1');
+	assert.equal(innledningsNavn('Jdt 1,1'), 'Judit, kapittel 1');
+	assert.equal(innledningsNavn('Gr Est 1,1'), 'Den greske Ester-boken, kapittel 1');
+	assert.equal(innledningsNavn('Gr Est 1,1', 'nn'), 'Den greske Ester-boka, kapittel 1');
+	assert.equal(innledningsNavn('Wisd of Sol 3,1'), 'Visdommen, kapittel 3');
+	assert.equal(innledningsNavn('Visd 3,1', 'nn'), 'Visdomsboka, kapittel 3');
+	assert.equal(innledningsNavn('Ecclus 6,5'), 'Sirak, kapittel 6');
+	assert.equal(innledningsNavn('Sir 6,5'), 'Sirak, kapittel 6');
+	assert.equal(innledningsNavn('Bar 3,1'), 'Baruk, kapittel 3');
+	assert.equal(innledningsNavn('Ep Jer 1,1'), 'Jeremias brev, kapittel 1');
+	assert.equal(innledningsNavn('1 Macc 1,1'), 'Første Makkabeerbok, kapittel 1');
+	assert.equal(innledningsNavn('2 Macc 7,1'), 'Andre Makkabeerbok, kapittel 7');
 });
 
 test('ukjent/avvikende referanse returneres uendret', () => {
