@@ -602,6 +602,7 @@ export function byggSlidePlan(svc, valg = {}) {
 		if ((ekstra?.etter ?? '') === '') emitEkstra(ekstra);
 	}
 	let forrigeTom = true;
+	let forrigeSkjultAvsl = false; // forrige viste ledd hadde skjult avslutning (Smart)
 	const leggTom = (smart) => {
 		if (tomModus === 'av' || (tomModus === 'smart' && !smart) || forrigeTom) return;
 		legg({ blank: true });
@@ -622,8 +623,9 @@ export function byggSlidePlan(svc, valg = {}) {
 				skjulte = true;
 				continue;
 			}
-			leggTom(tomModus === 'smart' && skjulte); skjulte = false;
+			leggTom(tomModus === 'smart' && (skjulte || it.__skjultIntro || forrigeSkjultAvsl)); skjulte = false;
 			forrigeTom = false;
+			forrigeSkjultAvsl = !!it.__skjultAvsl;
 			const heading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 				? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
 			const notat = it.pptNotat ?? heading;

@@ -517,7 +517,7 @@ button.m-fare:disabled { opacity: 0.45; }
 .eksport-rad:hover { border-color: var(--accent); }
 .eksport-rad input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); }
 .eksport-rad-tekst { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.eksport-rad-knapper { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
+.eksport-rad-knapper { display: flex; gap: 6px; flex-wrap: wrap; row-gap: 4px; align-items: center; }
 .eksport-rad:not(.med) .eksport-rad-nm { color: var(--muted); text-decoration: line-through; }
 .eksport-rad:not(.med):not(.deaktivert) { opacity: 0.45; }
 .eksport-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }

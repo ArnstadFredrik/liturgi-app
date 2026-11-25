@@ -656,6 +656,7 @@
 		// blank side mellom leddene: 'alle' = mellom alle, 'smart' = kun der ledd med
 		// skjulte mellom seg følger (ett tomt bilde mellom aktuelle ledd)
 		let skjulte = false; // ledd som ikke er med i presentasjonen siden forrige viste ledd
+		let forrigeSkjultAvsl = false; // forrige viste ledd hadde skjult avslutning
 		const tom = (smart) => { if (tomSlideModus === 'av' || (tomSlideModus === 'smart' && !smart)) return; if (slides.length && !slides[slides.length - 1].blank) push(null, false, true); };
 		if (pptVisTittel) push(o.name + (o.date ? '\n' + nlDate(o.date) : '') + (o.kirkeaar ? '\n' + o.kirkeaar.name : ''), true);
 		// utvalg = Menighet (delt), bibelmodus = Skjerm — samme som eksporten
@@ -671,8 +672,9 @@
 					skjulte = true;
 					continue;
 				}
-				tom(tomSlideModus === 'smart' && skjulte);
+				tom(tomSlideModus === 'smart' && (skjulte || !visDel(si, ii, 'i') || forrigeSkjultAvsl));
 				skjulte = false;
+				forrigeSkjultAvsl = !visDel(si, ii, 'a');
 				// rå overskrift (uavhengig av «Leddtitler») — brukes i slidenotatet
 				const raaHeading = (it.heading || '') + (it.type === 'salme' && (it.salmeNr || it.salmeTittel)
 					? (it.heading ? ': ' : '') + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : '');
@@ -958,9 +960,10 @@
 				// NB: «:t» er ikke eksponert for bibelledd (Hele teksten/Bibelref. erstatter den),
 				// så et stalte «:t»: false må ikke stripppe bibelteksten når «Hele teksten» er valgt.
 				const erB = erBibel(it);
-				// per-ledd dele-valg (Skjerm/Menighet): innledning/avslutning kan tas bort
-				if (lagret?.[nokkel(si, ii) + ':i'] === false) it.introAlts = [];
-				if (lagret?.[nokkel(si, ii) + ':a'] === false) it.avslutningAlts = [];
+				// per-ledd dele-valg (Skjerm/Menighet): innledning/avslutning kan tas bort.
+				// Merkene brukes av Smart-modusen: skjulte deler gir blank side.
+				if (lagret?.[nokkel(si, ii) + ':i'] === false) { it.introAlts = []; it.__skjultIntro = true; }
+				if (lagret?.[nokkel(si, ii) + ':a'] === false) { it.avslutningAlts = []; it.__skjultAvsl = true; }
 				it.__visOverskrift = it.enabled;
 				it.__visInnhold = (!erB && lagret?.[nokkel(si, ii) + ':t'] !== undefined) ? lagret[nokkel(si, ii) + ':t'] : true;
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
