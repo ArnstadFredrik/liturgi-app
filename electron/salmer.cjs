@@ -13,118 +13,22 @@ const { dbGet, dbSet } = require('./db.cjs');
 const BASE = 'https://gudstjeneste.no/';
 const PUB_NOS13 = '8'; // Norsk Salmebok 2013
 
-let cookieJar = new Map(); // navn → verdi (CFID/CFTOKEN m.m.)
-let innloggetTid = 0;
+// --- Salmetekst-cache (db 'salmeCache') + bruksstatistikk (db 'salmeBruk') ---
+// Tekster fra gudstjeneste.no caches til etter gudstjenestens dato har passert.
+// Salmer som brukes ofte (3+ ganger de siste 3 mnedene) beholdes i 90 dager.
+// Alle bruk registreres likevel mot gudstjeneste.no (TONO), også ved cache-treff.
+const { cacheNoekkel, registrerBruk, cacheTekst, cacheTreff } = require('./salme-cache.cjs');
 
-function lagreCookies(res) {
+/** Registrer salmebruk i bakgrunnen (TONO) — tekst kommer fra cachen, men
+ *  registreringen skal gjerne som vanlig. Kaldt ild: venter ikke på svar. */
+async function registrerIBakgrunn(mediaids, dato, navn) {
 	try {
-		for (const c of res.headers.getSetCookie()) {
-			const pair = c.split(';')[0];
-			const i = pair.indexOf('=');
-			if (i > 0) cookieJar.set(pair.slice(0, i).trim(), pair.slice(i + 1).trim());
-		}
-	} catch { /* ingen cookies */ }
-}
-
-function cookieHeader() {
-	return [...cookieJar.entries()].map(([k, v]) => k + '=' + v).join('; ');
-}
-
-async function hent(sti, opts = {}) {
-	const res = await fetch(BASE + sti.replace(/^\//, ''), {
-		...opts,
-		headers: {
-			cookie: cookieHeader(),
-			referer: BASE + 'index.cfm/medialib/',
-			'User-Agent': 'Liturgi-app/1.0',
-			...(opts.headers || {})
-		},
-		redirect: 'follow'
-	});
-	lagreCookies(res);
-	return res;
-}
-
-function erInnloggetSide(html) {
-	// case-insensitivt: ved feil bruker/passord redirecter sidene til
-	// dspLogin (stor L) — og viser innloggingsskjemaet med «Glemt passord?»
-	const s = String(html || '').toLowerCase();
-	return !s.includes('dsplogin')
-		&& !s.includes('glemt passord')
-		&& !s.includes('du må først logg inn');
-}
-
-/** POST doLogin + velg abonnement (første i listen). */
-async function loggInn() {
-	const login = dbGet('salmeLogin');
-	if (!login?.user || !login?.passEnc) return { ok: false, error: 'Ikke konfigurert' };
-	let pass = '';
-	try {
-		pass = safeStorage.decryptString(Buffer.from(login.passEnc, 'base64'));
-	} catch {
-		return { ok: false, error: 'Klarte ikke dekryptere passordet' };
+		const ses = await sikreSesjon();
+		if (!ses.ok) { console.error('[salme-cache] bakgrunnsregistrering:', ses.error); return; }
+		await registrerValgte(mediaids, dato, navn);
+	} catch (err) {
+		console.error('[salme-cache] bakgrunnsregistrering:', String(err?.message ?? err));
 	}
-	cookieJar = new Map();
-	// NB: redirect: 'manual' — cookies fra 302-redirecten (CFID/CFTOKEN) går ellers tapt
-	const body = new URLSearchParams({ username: login.user, password: pass });
-	let res = await fetch(BASE + 'index.cfm/users/doLogin/', {
-		method: 'POST',
-		redirect: 'manual',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Liturgi-app/1.0' },
-		body: body.toString()
-	});
-	lagreCookies(res);
-	// følg redirects manuelt (sett-cookie på hvert steg)
-	for (let i = 0; i < 6 && res.status >= 300 && res.status < 400; i++) {
-		const lok = res.headers.get('location');
-		if (!lok) break;
-		res = await fetch(lok.startsWith('http') ? lok : BASE + lok.replace(/^\//, ''), {
-			redirect: 'manual',
-			headers: { cookie: cookieHeader(), 'User-Agent': 'Liturgi-app/1.0' }
-		});
-		lagreCookies(res);
-	}
-	const side = await res.text();
-	if (!side.includes('dspSubsChoice') && !erInnloggetSide(side)) {
-		return { ok: false, error: 'Feil brukernavn eller passord' };
-	}
-	// velg abonnement (første SubscriptionId i skjemaet)
-	const sub = await hent('index.cfm/users/dspSubsChoice');
-	const subSide = await sub.text();
-	const m = subSide.match(/name="SubscriptionId"[^>]*>\s*<option[^>]*value="([^"]+)"/)
-		|| subSide.match(/name="SubscriptionId"[^>]*value="([^"]+)"/);
-	if (m) {
-		const sett = await hent('index.cfm/users/doSetSubscription/', {
-			method: 'POST',
-			redirect: 'manual',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			body: 'SubscriptionId=' + encodeURIComponent(m[1])
-		});
-		lagreCookies(sett);
-	}
-	innloggetTid = Date.now();
-	return { ok: true };
-}
-
-/** Sikre at vi har en gyldig sesjon; re-login hvis siden krever innlogging. */
-async function sikreSesjon() {
-	if (cookieJar.size === 0 || Date.now() - innloggetTid > 10 * 60 * 1000) {
-		const r = await loggInn();
-		if (!r.ok) return r;
-	}
-	return { ok: true };
-}
-
-async function hentMedReLogin(sti, opts = {}) {
-	let res = await hent(sti, opts);
-	let tekst = res.headers.get('content-type')?.includes('json') ? await res.text() : await res.text();
-	if (!erInnloggetSide(tekst)) return { res, tekst };
-	// sesjonen er utløpt → én re-login og prøv igjen
-	const r = await loggInn();
-	if (!r.ok) return { res, tekst, feil: r.error };
-	res = await hent(sti, opts);
-	tekst = await res.text();
-	return { res, tekst };
 }
 
 /** Søk i salmedatabasen. q = { nr?, tittel? } → liste av treff. */
@@ -263,16 +167,33 @@ async function registrerValgte(mediaids, dato, navn) {
 /** IPC: hent salmetekst. payload = { nr, tittel, dato, navn } */
 ipcMain.handle('salme:hent', async (_e, payload = {}) => {
 	try {
-		const ses = await sikreSesjon();
-		if (!ses.ok) return { ok: false, error: ses.error };
 		const q = { nr: String(payload.nr || '').trim(), tittel: String(payload.tittel || '').trim() };
 		if (!q.nr && !q.tittel) return { ok: false, error: 'Fyll inn salmenummer eller tittel' };
+		// 1) cache: teksten umiddelbart hvis den finnes og gudstjenesten ikke er passert
+		const cachet = cacheTreff(q);
+		if (cachet) {
+			// TONO-registrering i bakgrunnen (teksten kommer altså fra cachen)
+			registrerBruk(q, payload.dato);
+			registrerIBakgrunn([cachet.mediaid], payload.dato, payload.navn);
+			return {
+				ok: true, cachet: true,
+				tittel: cachet.tittel, tittel2: cachet.tittel2,
+				tekst: cachet.tekst,
+				tekstForfatter: cachet.tekstForfatter, melodi: cachet.melodi,
+				rettighet: cachet.rettighet, mediaid: cachet.mediaid
+			};
+		}
+		// 2) vanlig vei: søk + registrering + hent tekst
+		const ses = await sikreSesjon();
+		if (!ses.ok) return { ok: false, error: ses.error };
 		const soekRes = await soekOgVelg(q);
 		if (!soekRes.ok) return soekRes;
 		const valgt = soekRes.valgt;
-		// 2) registrer og hent tekst
 		const reg = await registrerOgHentTekst(valgt.mediaid, payload.dato, payload.navn);
 		if (!reg.ok) return reg;
+		// 3) cache til etter gudstjenestens dato (+90 dager hvis ofte brukt)
+		const ofte = registrerBruk(q, payload.dato);
+		cacheTekst(q, valgt, reg.tekst, payload.dato, ofte);
 		return {
 			ok: true,
 			tittel: valgt.title,
@@ -292,26 +213,46 @@ ipcMain.handle('salme:hent', async (_e, payload = {}) => {
  *  payload = { dato, navn, salmer: [{ key, nr, tittel }] } → { ok, resultater: [{ key, ok, tekst, tittel, error }] } */
 ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 	try {
-		const ses = await sikreSesjon();
-		if (!ses.ok) return { ok: false, error: ses.error };
 		const dato = payload.dato ?? '';
 		const navn = payload.navn ?? 'Gudstjeneste';
 		const resultater = [];
 		const valgte = [];
-		// 1) søk + legg alle i kurven
+		const cachetListe = [];
+		// 1) cache frst: salmer vi allerede har (teksten kommer umiddelbart)
 		for (const s of (payload.salmer ?? [])) {
 			const q = { nr: String(s.nr || '').trim(), tittel: String(s.tittel || '').trim() };
 			if (!q.nr && !q.tittel) { resultater.push({ key: s.key, ok: false, error: 'Mangler nummer og tittel' }); continue; }
-			const soekRes = await soekOgVelg(q);
-			if (!soekRes.ok) { resultater.push({ key: s.key, ok: false, error: soekRes.error }); continue; }
-			valgte.push({ key: s.key, valgt: soekRes.valgt });
+			const cachet = cacheTreff(q);
+			if (cachet) {
+				registrerBruk(q, dato);
+				cachetListe.push(cachet);
+				resultater.push({
+					key: s.key, ok: true, cachet: true,
+					tekst: cachet.tekst, tittel: cachet.tittel, tittel2: cachet.tittel2,
+					tekstForfatter: cachet.tekstForfatter, melodi: cachet.melodi,
+					rettighet: cachet.rettighet, mediaid: cachet.mediaid
+				});
+				continue;
+			}
+			valgte.push({ key: s.key, q });
 		}
-		if (!valgte.length) return { ok: false, error: 'Ingen treff i salmedatabasen', resultater };
-		// 2) én registrering med alle verkene
-		const reg = await registrerValgte(valgte.map((v) => v.valgt.mediaid), dato, navn);
+		// TONO-registrering av cache-treffene i bakgrunnen (n registrering for alle)
+		if (cachetListe.length) registrerIBakgrunn(cachetListe.map((c) => c.mediaid), dato, navn);
+		if (!valgte.length) return { ok: true, resultater };
+		// 2) sk + n registrering med alle verkene
+		const soekte = [];
+		const ses = await sikreSesjon();
+		if (!ses.ok) return { ok: false, error: ses.error, resultater };
+		for (const v of valgte) {
+			const soekRes = await soekOgVelg(v.q);
+			if (!soekRes.ok) { resultater.push({ key: v.key, ok: false, error: soekRes.error }); continue; }
+			soekte.push({ key: v.key, valgt: soekRes.valgt });
+		}
+		if (!soekte.length) return { ok: true, resultater };
+		const reg = await registrerValgte(soekte.map((v) => v.valgt.mediaid), dato, navn);
 		if (!reg.ok) return { ok: false, error: reg.error, resultater };
 		// 3) hent tekstfilen per verk
-		for (const { key, valgt } of valgte) {
+		for (const { key, valgt } of soekte) {
 			const sti = reg.filer.find((f) => new RegExp('/' + valgt.mediaid + '\\.txt').test(f));
 			if (!sti) { resultater.push({ key, ok: false, error: 'Fant ikke tekstfil for «' + valgt.title + '»' }); continue; }
 			const txt = await hent('/' + sti.replace(/^\//, ''));
@@ -327,6 +268,11 @@ ipcMain.handle('salme:hent-flere', async (_e, payload = {}) => {
 				mediaid: valgt.mediaid,
 				error: innhold ? undefined : 'Tekstfilen var tom'
 			});
+			if (innhold) {
+				const q0 = valgte.find((v) => v.key === key)?.q ?? { nr: '', tittel: '' };
+				const ofte = registrerBruk(q0, dato);
+				cacheTekst(q0, valgt, innhold + '\n', dato, ofte);
+			}
 		}
 		return { ok: true, resultater };
 	} catch (err) {
