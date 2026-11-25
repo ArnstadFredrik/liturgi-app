@@ -609,10 +609,11 @@ export function byggSlidePlan(svc, valg = {}) {
 		forrigeTom = true;
 	};
 	const seksjoner = svc.sections ?? [];
+	let skjulte = false; // ledd mellom viste ledd som ikke er med i presentasjonen
 	for (let si = 0; si < seksjoner.length; si++) {
 		const sec = seksjoner[si];
 		const items = sec.items ?? [];
-		let skjulte = false; // ledd mellom viste ledd som ikke er med i presentasjonen
+		skjulte = false;
 		for (let ii = 0; ii < items.length; ii++) {
 			const it = items[ii];
 			const nokkel = si + ':' + ii;
@@ -685,7 +686,10 @@ export function byggSlidePlan(svc, valg = {}) {
 		// slide før neste emission + blank-logikken håndteres i lysbildeTallFor
 		sist = s.nr;
 	}
-	return plan;
+		// Smart: blank side til slutt hvis siste viste ledd har skjult avslutning
+	// eller det ligger skjulte ledd etter det (fremdeles aldri dobbelt-blank)
+	if (tomModus === 'smart' && (skjulte || forrigeSkjultAvsl) && plan.length && !plan[plan.length - 1].blank) legg({ blank: true });
+return plan;
 }
 
 /** Margtall for lysbildemanuset: map 'si:ii' → [{ n, del }] — tallet = sliden

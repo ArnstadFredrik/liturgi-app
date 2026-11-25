@@ -51,3 +51,19 @@ test('smart: skjulte deler (intro/avslutning) gir blank, fortsatt maks ett mello
   const planAlle = byggSlidePlan(structuredClone(svc2), { tomSlideModus: 'alle' });
   assert.equal(planAlle.filter((s) => s.blank).length, 2);
 });
+
+test('smart: blank side til slutt n\u00e5r siste ledd har skjult avslutning', () => {
+  const svc3 = {
+    name: 'T3', sections: [{ title: 'I', items: [
+      { id: 'a', type: 'tekst', heading: 'Velsignelsen', text: 'Herren velsigne deg.', enabled: true, __skjultAvsl: true },
+    ] }]
+  };
+  const plan = byggSlidePlan(structuredClone(svc3), { tomSlideModus: 'smart' });
+  assert.equal(plan.filter((s) => s.blank).length, 1);
+  assert.equal(plan[plan.length - 1].blank, true); // blank til slutt
+  assert.ok(!plan[plan.length - 2].blank); // innholdsslidene har ikke blank-flagget
+  // 'alle' uten skjulte deler: ingen ekstra blank til slutt
+  const svc4 = { name: 'T4', sections: [{ title: 'I', items: [
+    { id: 'a', type: 'tekst', heading: 'Velsignelsen', text: 'Herren velsigne deg.', enabled: true } ] }] };
+  assert.equal(byggSlidePlan(structuredClone(svc4), { tomSlideModus: 'smart' }).filter((s) => s.blank).length, 0);
+});

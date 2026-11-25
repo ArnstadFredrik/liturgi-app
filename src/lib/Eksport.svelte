@@ -701,9 +701,13 @@
 						continue;
 					}
 					const vers = salmeTekst(it).split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
-					vers.forEach((v, vi) => {
+					let forste = true; // kun første gruppe av første vers er 'første side i leddet'
+					vers.forEach((v) => {
 						const overskrift = heading ? heading + '\n' : '';
-						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) push(grp, false, false, vi === 0 ? notat : '', vi === 0 ? nokkel(si, ii) : '', vi === 0);
+						for (const grp of delPptSegs(roleSegments(flytAvsnitt(overskrift + v)), tekstStorrelse)) {
+							push(grp, false, false, forste ? notat : '', forste ? nokkel(si, ii) : '', forste);
+							forste = false;
+						}
 					});
 					for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 					continue;
@@ -725,6 +729,9 @@
 				for (const { e, i } of egne(nokkel(si, ii))) emitEkstra(e, 'e' + i);
 			}
 		}
+		// Smart: blank side til slutt hvis siste viste ledd har skjult avslutning
+		// eller det ligger skjulte ledd etter det (fremdeles aldri dobbelt-blank)
+		if (tomSlideModus === 'smart' && (skjulte || forrigeSkjultAvsl) && slides.length && !slides[slides.length - 1].blank) push(null, false, true);
 		// aldri tom side til slutt
 		while (slides.length && slides[slides.length - 1].blank) slides.pop();
 		pptSlides = slides;
