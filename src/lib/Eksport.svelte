@@ -940,7 +940,9 @@
 	/** Standardmarkering uavhengig av aktiv fane (brukes ved kloning). */
 	function standardFor(profil, it) {
 		if (profil === 'Medarbeider') return !PREKEN_RE.test(it.heading || '');
-		if (profil === 'Menighet') {
+		// NB: må være lik standard(it) (UI-ens standardmarkering) for samme profil,
+		// ellers matcher ikke eksporten/forhåndsvisningen leddoversikten.
+		if (profil === 'Menighet' || profil === 'Skjerm') {
 			if (it.type === 'salme') return true;
 			if (erLesning(it)) return true;
 			const tekst = (it.alts?.length ? it.alts[it.selAlt ?? 0]?.text ?? '' : it.text) || '';
