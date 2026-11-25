@@ -333,3 +333,50 @@ export function formaterSalme(raa) {
 	if (iRef) ut.push('{{/refreng}}');
 	return ut.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
+
+/** Sett bibelreferanse inn i en innledningstekst («...står skrevet i...»).
+ *  Bytter ut avsluttende «...»/«…», evt. en eksisterende referanse etter «i/etter».
+ *  Plassholder-alternativer («[Første Lesetekst]») røres ikke. */
+export function referanseIInnledning(t, ref) {
+	const refRe = ref.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	if (/^\[.*\]$/.test(t.trim())) return t;
+	if (t.includes('…')) t = t.replace('…', ref + ':');
+	else if (/\.{2,}\s*:?\s*$/.test(t)) t = t.replace(/\.{2,}\s*:?\s*$/, ref + ':');
+	else return t.includes(ref) ? t
+		: (/(i|etter)\s+[\dA-Za-zÆØÅæøå .,–-]+:\s*$/.test(t)
+			? t.replace(/(i|etter)\s+[\dA-Za-zÆØÅæøå .,–-]+:\s*$/, '$1 ' + ref + ':')
+			: t.replace(/:\s*$/, '') + ' ' + ref + ':');
+	// ett mellomrom mellom «...» og referansen («i...» → «i Jes …»)
+	return t.replace(new RegExp('([a-zA-Z\u00e6\u00f8\u00e5\u00c6\u00d8\u00c5])(' + refRe + ':)'), '$1 $2');
+	return t;
+}
+
+/** Fyll en lesning med referanse og (hvis hentet) selve teksten fra bibel.no.
+ *  Malens struktur respekteres: innledning/avslutning ligger i introAlts/avslutningAlts,
+ *  bibelteksten = hoveddelen (text), referansen inn i innledningens «...står skrevet i ...». */
+export function fyllLesning(it, ref, tekst, evangelium = false) {
+	const intro = evangelium
+		? '{{r}}L |{{/r}} Det står skrevet i evangeliet etter ' + ref + ':'
+		: '{{r}}ML |{{/r}} Det står skrevet i ' + ref + ':';
+	const outro = evangelium
+		? '{{r}}L |{{/r}} Slik lyder det hellige evangelium.'
+		: '{{r}}ML |{{/r}} Slik lyder Herrens ord.';
+	const fotnote = tekst ? '\nBIBELREF | ' + ref : '';
+	const innhold = (tekst ? (tekst.title ? tekst.title + '\n' : '') + tekst.text : ref) + fotnote;
+	if (it.text?.includes(evangelium ? '[Evangelietekst]' : '[Lesningstekst]')) {
+		// malen har plassholder med egen innledning/avslutning – behold den
+		it.text = it.text
+			.replace(evangelium ? '[Evangelietekst]' : '[Lesningstekst]', innhold)
+			.replace('…', ref);
+	} else if ((it.introAlts?.length ?? 0) || (it.avslutningAlts?.length ?? 0)) {
+		// malen har struktur: bibelteksten i hoveddelen, referansen inn i innledningen
+		it.text = innhold;
+		for (const ia of (it.introAlts ?? [])) {
+			if (typeof ia?.text === 'string') ia.text = referanseIInnledning(ia.text, ref);
+		}
+	} else {
+		// frittstående ledd (f.eks. B&G): bygg med innledning/avslutning
+		it.text = intro + '\n' + innhold + '\n' + outro;
+	}
+	if (it.instr?.includes('(eksempel)')) it.instr = '';
+}

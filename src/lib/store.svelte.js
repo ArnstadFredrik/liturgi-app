@@ -1,4 +1,5 @@
 import { BUILTIN_TEMPLATES } from './data.js';
+import { fyllLesning } from './lit.js';
 
 const LS_KEY = 'liturgi-store-v1';
 const THEME_KEY = 'liturgi-theme';
@@ -649,34 +650,6 @@ export function applyKirkeaar(svc, k, tekster) {
 	}
 }
 
-/** Fyll en lesning med referanse og (hvis hentet) selve teksten fra bibel.no. */
-function fyllLesning(it, ref, tekst, evangelium = false) {
-	// teksten innledes/avsluttes som i ordningen; referansen settes som fotnote
-	const intro = evangelium
-		? '{{r}}L |{{/r}} Det står skrevet i evangeliet etter ' + ref + ':'
-		: '{{r}}ML |{{/r}} Det står skrevet i ' + ref + ':';
-	const outro = evangelium
-		? '{{r}}L |{{/r}} Slik lyder det hellige evangelium.'
-		: '{{r}}ML |{{/r}} Slik lyder Herrens ord.';
-	const fotnote = tekst ? '\nBIBELREF | ' + ref : '';
-	if (tekst) {
-		const innhold = (tekst.title ? tekst.title + '\n' : '') + tekst.text + fotnote;
-		if (it.text?.includes(evangelium ? '[Evangelietekst]' : '[Lesningstekst]')) {
-			// malen har plassholder med egen innledning/avslutning – behold den
-			it.text = it.text
-				.replace(evangelium ? '[Evangelietekst]' : '[Lesningstekst]', innhold)
-				.replace('…', ref);
-		} else {
-			// frittstående ledd (f.eks. B&G): bygg med innledning/avslutning
-			it.text = intro + '\n' + innhold + '\n' + outro;
-		}
-	} else {
-		// kun referanse
-		if (it.text?.includes('[Lesningstekst]')) it.text = it.text.replace('[Lesningstekst]', ref);
-		else if (it.text?.includes('[Evangelietekst]')) it.text = it.text.replace('[Evangelietekst]', ref);
-		else it.text = (evangelium ? '[Evangelietekst: ' : '[Lesningstekst: ') + ref + ']';
-	}
-	if (it.instr?.includes('(eksempel)')) it.instr = '';
 }
 
 export function sortedServices() {
