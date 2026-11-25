@@ -361,7 +361,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			const spec = p.heading === 'h1'
 				? { size: Math.round(32 * WF('hoveddel')), before: 0, after: Math.round(4 * MM) }
 				: p.heading === 'h2'
-					? { size: Math.round(26 * WF('hoveddel')), before: Math.round(5 * afFor * MM), after: Math.round(3.5 * afEtter * MM) }
+					? { size: Math.round(22 * WF('hoveddel')), before: Math.round(5 * afFor * MM), after: Math.round(3.5 * afEtter * MM), linjeUnder: true }
 					: { size: Math.round(22 * WF('ledd')), before: ((valg.visAvsnittstitler === false && p.__forsteEtterH2) ? 0 : Math.round(3 * afFor * MM)), after: Math.round(1.8 * afEtter * MM) };
 			const lysKant = { style: BorderStyle.SINGLE, size: 6, color: '2563EB', space: 3 };
 			const lysListe = p.__lys == null ? null : (Array.isArray(p.__lys) ? p.__lys : [p.__lys]);
@@ -377,6 +377,8 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			paras.push(new Paragraph({
 				...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
+				// seksjonstitler får horisontal linje under (som i PDF-en/forhåndsvisningen)
+				...(spec.linjeUnder ? { border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'B4B4B4', space: 2 } } } : {}),
 				children: [...lysRuns, new TextRun({ text: p.text ?? '', bold: true, color: BLACK, size: spec.size, font: SANS })],
 				spacing: { before: spec.before, after: spec.after }
 			}));
@@ -1063,7 +1065,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						skrivSegmenter(skriv, { size: S(10.5, 'tekst'), vidare: true, vedForsteTekst: t ? () => { tegnet = true; tegnLysTall(t.n); } : null });
 						if (t && !tegnet) tegnLysTall(t.n);
 					});
-					if (vi < vers.length - 1) y += 2.2; // vers-skille (blank linje)
+					if (vi < vers.length - 1) y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); // vers-skille = linje + blank linje (som prest-PDF)
 				});
 			} else if (brukGrupper) {
 				// andre ledd: gruppevis skriving med kontinuerlig flyt — hvert tall
@@ -1088,7 +1090,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					const t = lys.find((x) => x.del === vi) ?? lys[vi] ?? null;
 					if (t) tegnLysTall(t.n);
 					skrivSegmenter(roleSegments(flytAvsnitt(v, { beholdLinjer: true })), { size: S(10.5, 'tekst') });
-					if (vi < vers.length - 1) y += 2.2; // vers-skille (blank linje)
+					if (vi < vers.length - 1) y += 2 * (S(10.5, 'tekst') * 0.48 + 1.1); // vers-skille = linje + blank linje
 				});
 			} else {
 				if (lys && lys.length && !lysTegnet) tegnLysTall(lys[0].n);

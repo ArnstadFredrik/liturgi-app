@@ -918,8 +918,9 @@
 		// salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) kan ekskluderes per dokument
 		const visSalmeinfo = visSalmeinfoValg;
 		const stripSalmeinfo = (t) => !t ? t
-			: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '')
-				.replace(/\n{2,}/g, '\n').replace(/^\n+/, '').replace(/\n+$/, '');
+			// NB: kollaps ikke \n\n her — tomme linjer mellom salmevers skal overleve
+		: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '')
+				.replace(/^\n+/, '').replace(/\n+$/, '');
 		kopi.sections?.forEach((sec, si) => {
 			sec.items?.forEach((it, ii) => {
 				const original = svc.sections?.[si]?.items?.[ii];
