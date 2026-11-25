@@ -20,8 +20,8 @@ test('lesning med malens struktur: bibeltekst i hoveddelen, referanse i innledni
   // ingen flatet intro/outro i hoveddelen
   assert.ok(!it.text.includes('står skrevet'));
   assert.ok(!it.text.includes('Slik lyder'));
-  // referansen inn i innledningens «...»
-  assert.equal(it.introAlts[1].text, '{{r}}ML | {{/r}}Det står skrevet i Jes 61,1-3:');
+  // referansen inn i innledningens «...» som fullt boknavn + kapittel
+  assert.equal(it.introAlts[1].text, '{{r}}ML | {{/r}}Det står skrevet i Jesaja, kapittel 61:');
   assert.equal(it.introAlts[0].text, '[Første Lesetekst]'); // plassholder røres ikke
   // valgt innledning var plassholderen -> den reelle innledningen velges automatisk
   assert.equal(it.selIntro, 1);
@@ -32,7 +32,7 @@ test('lesning med malens struktur: bibeltekst i hoveddelen, referanse i innledni
 test('evangelium: referanse inn i «etter ...»', () => {
   const it = { introAlts: [{ label: 'Innledning', text: '{{r}}L | {{/r}}Det står skrevet i evangeliet etter ...' }], avslutningAlts: [{ label: 'Avslutning', text: '{{r}}L |{{/r}} Slik lyder det Hellige evangelium' }] };
   fyllLesning(it, 'Luk 4,16-22a', TEKST, true);
-  assert.equal(it.introAlts[0].text, '{{r}}L | {{/r}}Det står skrevet i evangeliet etter Luk 4,16-22a:');
+  assert.equal(it.introAlts[0].text, '{{r}}L | {{/r}}Det står skrevet i evangeliet etter Lukas, kapittel 4:');
 });
 
 test('gjenbruk: eksisterende referanse erstattes ved ny henting, idempotent ellers', () => {
@@ -48,7 +48,7 @@ test('uten mal-struktur (B&G): flat bygging beholdes', () => {
   assert.equal(it.text, '1 Joh 1,9'); // referansen erstatter plassholderen
   const it2 = { text: '' };
   fyllLesning(it2, 'Sal 103,1', TEKST);
-	assert.ok(it2.text.startsWith('{{r}}ML |{{/r}} Det står skrevet i Sal 103,1:'));
+  assert.ok(it2.text.startsWith('{{r}}ML |{{/r}} Det står skrevet i Salmenes bok, kapittel 103:'));
 	assert.ok(it2.text.endsWith('{{r}}ML |{{/r}} Slik lyder Herrens ord.'));
 });
 

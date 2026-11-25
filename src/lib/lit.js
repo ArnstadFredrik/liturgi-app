@@ -1,3 +1,5 @@
+import { innledningsNavn } from './bibelboeker.js';
+
 /** Plassholdertekster som aldri skal rendres i eksport/visning: de faste
  *  redigerings-plassholdrene og bibeltekst-plassholderne ([Første Lesetekst] osv.),
  *  som nå styres via malinnstillingene for bibeltekster. */
@@ -353,11 +355,14 @@ export function referanseIInnledning(t, ref) {
 
 /** Fyll en lesning med referanse og (hvis hentet) selve teksten fra bibel.no.
  *  Malens struktur respekteres: innledning/avslutning ligger i introAlts/avslutningAlts,
- *  bibelteksten = hoveddelen (text), referansen inn i innledningens «...står skrevet i ...». */
+ *  bibelteksten = hoveddelen (text), referansen inn i innledningen «...står skrevet i ...».
+ *  Innledningen får fullt boknavn + kapittel («Første Mosebok, kapittel 3»), mens
+ *  BIBELREF-fotnoten beholder forkortelsen («1 Mos 3,15-20»). */
 export function fyllLesning(it, ref, tekst, evangelium = false) {
+	const navnRef = innledningsNavn(ref, 'nb', evangelium);
 	const intro = evangelium
-		? '{{r}}L |{{/r}} Det står skrevet i evangeliet etter ' + ref + ':'
-		: '{{r}}ML |{{/r}} Det står skrevet i ' + ref + ':';
+		? '{{r}}L |{{/r}} Det står skrevet i evangeliet etter ' + navnRef + ':'
+		: '{{r}}ML |{{/r}} Det står skrevet i ' + navnRef + ':';
 	const outro = evangelium
 		? '{{r}}L |{{/r}} Slik lyder det hellige evangelium.'
 		: '{{r}}ML |{{/r}} Slik lyder Herrens ord.';
@@ -367,12 +372,12 @@ export function fyllLesning(it, ref, tekst, evangelium = false) {
 		// malen har plassholder med egen innledning/avslutning – behold den
 		it.text = it.text
 			.replace(evangelium ? '[Evangelietekst]' : '[Lesningstekst]', innhold)
-			.replace('…', ref);
+			.replace('…', navnRef);
 	} else if ((it.introAlts?.length ?? 0) || (it.avslutningAlts?.length ?? 0)) {
 		// malen har struktur: bibelteksten i hoveddelen, referansen inn i innledningen
 		it.text = innhold;
 		for (const ia of (it.introAlts ?? [])) {
-			if (typeof ia?.text === 'string') ia.text = referanseIInnledning(ia.text, ref);
+			if (typeof ia?.text === 'string') ia.text = referanseIInnledning(ia.text, navnRef);
 		}
 		// hvis valgt innledning er en plassholder («[Første Lesetekst]»), velg en reell
 		const idx = (it.introAlts ?? []).findIndex((ia) => typeof ia?.text === 'string' && !erPlassholderTekst(ia.text));

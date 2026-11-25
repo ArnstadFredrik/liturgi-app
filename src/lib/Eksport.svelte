@@ -1119,6 +1119,13 @@
 			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
 				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(pptTekstSkala * 38), visLeddtitler: pptLeddtitler });
+				// planens slidegrupper per ledd: kilden til tall-plasseringen i manuset
+				const planGrupper = {};
+				for (const s of res.plan) {
+					if (s.nokkel == null || s.blank) continue;
+					(planGrupper[s.nokkel] ??= []).push(s.segs);
+				}
+				Object.defineProperty(tall.lysPpt, 'grupper', { value: planGrupper, enumerable: false });
 				// filnavnet: profilen (Medarbeider) byttes ut med «Lysbildemanus»
 				const base = safeName([o?.date ?? '', o?.name ?? '', 'Lysbildemanus'].filter(Boolean).join(' - '));
 				const innst = {
