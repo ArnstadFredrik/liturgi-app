@@ -40,6 +40,7 @@ test('buildOutline: visInstr av fjerner @NOTAT fra alternativer, on beholder', (
 	assert.doesNotMatch(alle(buildOutline(svc2, false)), /@NOTAT|@n\b/);
 	assert.doesNotMatch(alle(av), /@NOTAT|@n\b/);
 	assert.match(alle(av), /Trur de\?/); // selve teksten blir igjen
-	// labelen (navnet formulert fra instruksjonen) beholdes i begge
-	assert.ok(alle(av).includes('Ved d\u00e5p av born'));
+	// labelen (navnet formulert fra instruksjonen) følger vis instruksjoner:
+	// skjules når bryteren er av, vises når den er på
+	assert.doesNotMatch(alle(av), /Ved d\u00e5p av born/);
 });

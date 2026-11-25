@@ -2,7 +2,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, Footer, PageNumber,
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
-import { leddTekst, salmeTekst } from './lit.js';
+import { leddTekst, salmeTekst, erPlassholderTekst } from './lit.js';
 
 const ROLE_RE = /^((?:L|ML|M|A|KA|K|L\/ML|ML\/L|L\/M|KA\/L))(\s*\|)(.*)$/;
 const ROLE_COLOR = 'C0392B';
@@ -241,8 +241,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 			const lysUtenHode = !harOverskriftNaa && lys ? lys.map((x) => x.n) : null;
 			if (it.type === 'salme') {
 				const st = salmeTekst(it);
-				if (!it.salmeNr && !it.salmeTittel && !st) out.push({ text: '[Salme: settes inn]', muted: true, __lys: lysUtenHode });
-				else if (st) {
+					if (st) { // tom salmeplass rendres ikke (forhåndsvisningen/PDF viser ikke plassholderen)
 					// et avsnitt per slidegruppe (gruppene per vers, samme deling som pptx):
 					// gruppens lysbildetall på sitt avsnitt — også når versene ikke er
 					// skilt med tomme linjer
@@ -269,11 +268,12 @@ export function buildOutline(svc, showInstr, valg = {}) {
 				else {
 					// stale selAlt etter sletting av alternativer: klem til gyldig område
 					it.selAlt = Math.min(it.selAlt, it.alts.length - 1);
-					if (it.introAlts?.length) out.push({ text: visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '') });
+					if (it.introAlts?.length && !erPlassholderTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '')) out.push({ text: visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '') });
 					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudstjenesteredigeringen —
 					// kun innledning + valgt alternativ + avslutning følger med i eksporten
 					const a = it.alts[it.selAlt];
-					if (a.label) out.push({ text: a.label, muted: true });
+											// alternativetiketten (formulert fra instruksjonen) følger vis instruksjoner
+						if (a.label && showInstr) out.push({ text: a.label, muted: true });
 					// plassholder-tekst ([Skriv tekst her] osv.) = tomt ledd — ikke med i eksporten
 					const plassholder = /^\[(Skriv tekst her|Velg alternativ|Salme: settes inn)\]$/.test((a.text ?? '').trim());
 					if (!plassholder) {
@@ -344,8 +344,10 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 	const GRAY = '777777';
 	const paras = [];
 	for (const p of outline) {
+		// samme faktor for før og etter — forholdet mellom forrige/kommende tekst skal
+		// være uavhengig av avstandsvalget
 		const afFor = valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luft' ? 1.5 : 1;
-		const afEtter = valg.avstand === 'tett' ? 0.35 : valg.avstand === 'luft' ? 1.6 : 1;
+		const afEtter = afFor;
 		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round((p.tynn ? 0.8 : 2.2) * afEtter * MM) } })); continue; }
 		if (p.heading) {
 			// h1 tittel (sort Arial 16), h2 avsnitt (13, +5 mm før, +3,5 etter),
@@ -654,7 +656,9 @@ export function byggSlidePlan(svc, valg = {}) {
 			} else if (lines && it.text) {
 				lines.push(it.text);
 			}
-			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim()) : (visLeddtitler && heading ? heading.trim() : '');
+			// beholdLinjer: linjeskiftene fra redigeringen er førende (WYSIWYG — forhåndsvisningen,
+			// PDF og docx viser tekstens egne linjeskift, f.eks. evangelietekstens korte linjer)
+			const joined = lines ? flytAvsnitt(((visLeddtitler && heading ? heading + '\n' : '') + lines.join('\n')).trim(), { beholdLinjer: true }) : (visLeddtitler && heading ? heading.trim() : '');
 			if (!joined) { legg({ segs: '', big: false, notat, nokkel, del: 0 }); }
 			else for (const [gi, grp] of delPptSegs(roleSegments(joined), tekstStorrelse).entries()) legg({ segs: grp, big: false, notat: gi === 0 ? notat : '', nokkel, del: gi, tekst: gruppeTekst(grp) });
 			for (const ekstra of (valg.ekstra ?? [])) {
@@ -836,8 +840,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	const skala = hefte ? 0.85 : 1;
 	// avstand mellom ledd (valget «Avstand»): separate for/etter-faktorer —
 	// «tett» skal ha mer luft FØR ledd og mindre ETTER
+	// samme faktor for før og etter — forholdet mellom forrige/kommende tekst skal
+	// være uavhengig av avstandsvalget
 	const afFor = valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luft' ? 1.5 : 1;
-	const afEtter = valg.avstand === 'tett' ? 0.35 : valg.avstand === 'luft' ? 1.6 : 1;
+	const afEtter = afFor;
 	const S = (n, omr) => {
 		const f = omr ? (skriftSkala[omr] ?? 1) : 1;
 		return Math.round(n * skala * f * 10) / 10;
@@ -1073,7 +1079,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 				const lysLinjer = [];
 				if ((showInstr ?? true) && it.instr) lysLinjer.push(it.instr.replace(/\{\{\/?r\}\}/g, ''));
 				if (tekst) lysLinjer.push(tekst);
-				const lysJoined = flytAvsnitt(((lysPpt.visLeddtitler && head ? head + '\n' : '') + lysLinjer.join('\n')).trim());
+				const lysJoined = flytAvsnitt(((lysPpt.visLeddtitler && head ? head + '\n' : '') + lysLinjer.join('\n')).trim(), { beholdLinjer: true });
 				const grupper = delPptSegs(roleSegments(lysJoined), lysPpt.storrelse, { beholdBrudd: true });
 				const hopp = (lysPpt.visLeddtitler && head ? 1 : 0) + ((showInstr ?? true) && it.instr ? it.instr.split('\n').length : 0); // allerede tegnet
 				grupper.forEach((grp, gi) => {
@@ -1094,7 +1100,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 				});
 			} else {
 				if (lys && lys.length && !lysTegnet) tegnLysTall(lys[0].n);
-				skrivSegmenter(roleSegments(it.type === 'salme' ? flytAvsnitt(tekst, { beholdLinjer: true }) : flytAvsnitt(tekst)), { size: S(10.5, 'tekst') });
+				skrivSegmenter(roleSegments(flytAvsnitt(tekst, { beholdLinjer: true })), { size: S(10.5, 'tekst') });
 			}
 			y += (hefte ? 1.8 : 3) * afEtter;
 		}

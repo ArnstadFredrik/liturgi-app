@@ -1,16 +1,35 @@
+/** Plassholdertekster som aldri skal rendres i eksport/visning: de faste
+ *  redigerings-plassholdrene og bibeltekst-plassholderne ([Første Lesetekst] osv.),
+ *  som nå styres via malinnstillingene for bibeltekster. */
+const PLACEHOLDER_RE = /^\[\s*(?:Skriv tekst her|Velg alternativ|Salme: settes inn|F\u00f8rste(?: |\u00a0)?(?:Lesetekst|Lesning)|Andre(?: |\u00a0)?(?:Lesetekst|Lesning)|Tredje(?: |\u00a0)?(?:Lesetekst|Lesning)|Lesetekst|Lesning|Evangelium|Prekentekst)\s*\]$/i;
+export function erPlassholderTekst(t) {
+	return PLACEHOLDER_RE.test((t ?? '').trim());
+}
+
 /** Komponert tekst for et ledd: innledning (introAlts) + fast innledning (it.text ved ledd
  *  med alts) + valgt alternativ + avslutning. De faste leddene er gyldig liturgi som arves
  *  fra malen og skal vises i redigeringen og følge med i eksporten. */
 export function leddTekst(it) {
 	const deler = [];
-	if (it.introAlts?.length) deler.push(it.introAlts[it.selIntro ?? 0]?.text ?? '');
+	if (it.introAlts?.length) {
+		const intro = it.introAlts[it.selIntro ?? 0]?.text ?? '';
+		if (!erPlassholderTekst(intro)) deler.push(intro); // bibel-plassholdere ([Første Lesetekst] osv.) skal ikke rendres
+	}
 	if (it.alts?.length) {
 		if (it.text && it.text.trim()) deler.push(it.text);   // fast innledning
 		deler.push(it.alts[it.selAlt ?? 0]?.text ?? '');
 	} else {
 		deler.push(it.text ?? '');
 	}
-	if (it.avslutningAlts?.length) deler.push(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '');
+	if (it.avslutningAlts?.length) {
+		// avslutningen skal ikke dobbeltes: hvis den komponerte teksten allerede
+		// slutter med samme linje (bibelteksten har egen avslutningslinje), hopp over
+		const norm = (s) => (s ?? '').replace(/\{\{\/r\}\}/g, '').replace(/\{\{r\}\}/g, '').replace(/\s+/g, ' ').trim().replace(/\.+$/, '');
+		const avsl = it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '';
+		const forrige = deler[deler.length - 1] ?? '';
+		// sammenlign SLUTTEN av forrige del (teksten kan være lang)
+		if (avsl && !norm(forrige).endsWith(norm(avsl))) deler.push(avsl);
+	}
 	return deler.filter((s) => s && s.trim()).join('\n\n');
 }
 
