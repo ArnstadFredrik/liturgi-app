@@ -421,7 +421,23 @@
 	function nokkel(si, ii) { return si + ':' + ii; }
 
 	/** Skjerm-profilen deler utvalg med Menighet — endringer gjelder begge. */
-	function valgProfil() { return aktiv === 'Skjerm' ? 'Menighet' : aktiv; }
+	function valgProfil() { return aktiv; }
+
+	/** Valgene for en profil. Skjerm arver hovedboks-valg som den ikke har egne
+	 *  verdier for fra det delte Menighet-utvalget (startpunkt), men egne
+	 *  Skjerm-valg vinner alltid. Del-nøklene (:t/:i/:a/:br) arves ikke. */
+	function lesValg(p) {
+		if (p !== 'Skjerm') return valg[p] ?? o?.eksportValg?.[p];
+		const egen = valg['Skjerm'] ?? o?.eksportValg?.['Skjerm'];
+		const delt = valg['Menighet'] ?? o?.eksportValg?.['Menighet'];
+		if (!egen) return delt;
+		if (!delt) return egen;
+		const sammensatt = { ...egen };
+		for (const k of Object.keys(delt)) {
+			if (/^\d+:\d+$/.test(k) && sammensatt[k] === undefined) sammensatt[k] = delt[k];
+		}
+		return sammensatt;
+	}
 
 	function erLesning(it) { return LESNING_RE.test(it.heading || ''); }
 
@@ -472,7 +488,7 @@
 
 	/** Er leddet med i den aktive profilen? */
 	function erMed(si, ii, it) {
-		const v = valg[valgProfil()]?.[nokkel(si, ii)];
+		const v = lesValg(valgProfil())?.[nokkel(si, ii)];
 		if (v !== undefined) return v;
 		return standard(it);
 	}
@@ -484,20 +500,16 @@
 
 	/** Skal leddets innhold være med? (default ja, lagres med «:t»-nøkkel) */
 	function visTekstDel(si, ii) {
-		const v = valg[valgProfil()]?.[nokkel(si, ii) + ':t'];
-		if (v !== undefined) return v;
-		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(si, ii) + ':t'];
-		return lagret !== undefined ? lagret : true;
+		const v = lesValg(valgProfil())?.[nokkel(si, ii) + ':t'];
+		return v !== undefined ? v : true;
 	}
 
 	/** Skal leddets innledning ('i') eller avslutning ('a') være med?
  *  Skjerm/Menighet-profilene kan velge bort deler pr. ledd (lagres med «:i»/«:a»). */
 	function visDel(si, ii, d) {
 		if (aktiv !== 'Skjerm' && aktiv !== 'Menighet') return true;
-		const v = valg[valgProfil()]?.[nokkel(si, ii) + ':' + d];
-		if (v !== undefined) return v;
-		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(si, ii) + ':' + d];
-		return lagret !== undefined ? lagret : true;
+		const v = lesValg(valgProfil())?.[nokkel(si, ii) + ':' + d];
+		return v !== undefined ? v : true;
 	}
 
 	/** leddTekst med dele-valget (innledning/avslutning borte når valgt bort). */
@@ -936,7 +948,7 @@
 		// lagrede valg i filen går foran øktens midlertidige valg.
 		// brProfil (pptx → Skjerm): SKJERM-profilens visning er styrende for
 		// alle per-ledd valg (hovedboks, innhold, innledning/avslutning, bibelref)
-		const lagret = brProfil ? (valg[brProfil] ?? o?.eksportValg?.[brProfil]) : (valg[profil] ?? o?.eksportValg?.[profil]);
+		const lagret = brProfil ? lesValg(brProfil) : lesValg(profil);
 		const brLagret = lagret;
 		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
 		kopi.__visTittel = getInnst('tittel', true);
