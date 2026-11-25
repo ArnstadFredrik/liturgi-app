@@ -176,7 +176,32 @@
 		return null;
 	});
 
-	onMount(() => { if (window.liturgi?.isElectron) startTekstCacheBakgrunn(); });
+	onMount(() => {
+		if (!window.liturgi?.isElectron) return;
+		startTekstCacheBakgrunn();
+		// salmeregistreringer gjort offline kjres nr appen kommer online;
+		// markeringen 'Ikke registrert' p salmeleddene tmmes nr ken er utfrt
+		const tmmSalmeMarkeringer = () => {
+			for (const sec of app.current?.sections ?? []) {
+				for (const it of sec.items ?? []) {
+					if (it.salmeIkkeRegistrert) it.salmeIkkeRegistrert = false;
+				}
+			}
+		};
+		const flush = async () => {
+			const r = await window.liturgi.salmeFlushKo?.();
+			if (r?.ok && r.registrert > 0) {
+				tmmSalmeMarkeringer();
+				toast.success(r.registrert === 1 ? 'Salmen er registrert mot gudstjeneste.no' : r.registrert + ' salmer er registrert mot gudstjeneste.no');
+			}
+		};
+		window.addEventListener('online', flush);
+		window.liturgi.onSalmeKoFlushet?.((data) => {
+			if (!data?.registrert) return;
+			tmmSalmeMarkeringer();
+			toast.success(data.registrert === 1 ? 'Salmen er registrert mot gudstjeneste.no' : data.registrert + ' salmer er registrert mot gudstjeneste.no');
+		});
+	});
 </script>
 
 
