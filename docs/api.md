@@ -189,6 +189,10 @@ buildPdfBase64(svc, instr, valg) ─┬─→ base64 → lagrePdf()   (PDF-ekspo
 
 ---
 
+### Bakgrunnscaching av kirkeårsbibeltekster
+
+Ved oppstart (`tekstcache.js`, planlegging i `tekstcache-plan.js`) bygges en prioritert oppgaveliste fra kirkeårspakken: kommende kirkeårsdag → resten av det gjeldende kirkeåret → tidligere dager → dager med annen tekststruktur (festdager/unntak) → de to nabokirkeårene (de andre tekstrekkene) → merkedager. Hentingen er sekvensiell med 1,4 s hvile (lengre pause hvert 15. kall), alt asynkront i bakgrunnen. Tekstene lagres per dag i db-nøkkelen `kirkeaarTekster` (samme cache som appen bruker ved henting), noe som gjør prosessen gjenopptakbar: dager som ligger i cachen hoppes over ved neste oppstart. Indikatoren vises i Kirkeåret-modulen via `app.tekstCache`.
+
 ## Konvertering og LLM-skill
 
 - **Innebygd konvertering** (Maler-siden → «Konverter Word/PDF …»): `electron/konverter.cjs` kjører offline i hovedprosessen og oversetter docx/pdf til `.limal`. Regler: hoveddeler fra overskriftstiler, rolleprefiks → `{{r}}…{{/r}}`, bibelreferanser → `BIBELREF |`, rubrikker → `@NOTAT`, salmelinjer → salmeledd, Eller/enten-varianter → alternativgrupper. Heuristisk resultat — etterkontroll i editoren.

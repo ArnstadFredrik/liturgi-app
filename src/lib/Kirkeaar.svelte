@@ -6,6 +6,7 @@
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 	import { app } from '$lib/store.svelte.js';
+	import { startTekstCacheBakgrunn } from '$lib/tekstcache.js';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -356,6 +357,15 @@
 			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() }
 		]); }}>
 	<div class="ka-hoved">
+	{#if app.tekstCache.gaar}
+		<div class="tekstcache-indikator" role="status">
+			<span class="tekstcache-spinner" aria-hidden="true"></span>
+			<span>Cacher bibeltekster: {app.tekstCache.fase} — {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
+			<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
+		</div>
+	{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
+		<div class="tekstcache-indikator tekstcache-ferdig" role="status">Bibeltekstene for kirkeåret er cachet ({app.tekstCache.totalt} dager)</div>
+	{/if}
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
 			<span class="ka-nett" class:off={!online}>{online ? 'Online — bibeltekster hentes fra bibel.no' : 'Offline — viser kun referanser'}</span>

@@ -1,6 +1,7 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Modulfaner from '$lib/Modulfaner.svelte';
+	import { onMount } from 'svelte';
 	import { app, veksleSidebar, veksleToc, loadStore, huskFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import Editor from '$lib/Editor.svelte';
@@ -13,6 +14,7 @@
 	import MalAlternativer from '$lib/MalAlternativer.svelte';
 	import Innstillinger from '$lib/Innstillinger.svelte';
 	import Handbok from '$lib/Handbok.svelte';
+	import { startTekstCacheBakgrunn } from '$lib/tekstcache.js';
 
 	/** ⌥⌘@ veksler dokumentpanelet (høyremenyen). e.code === 'Backslash' er den
 	 *  FYSISKE @-tasten på norsk tastatur (layout-uavhengig) — Electron-menyens
@@ -172,6 +174,8 @@
 		}
 		return null;
 	});
+
+	onMount(() => { if (window.liturgi?.isElectron) startTekstCacheBakgrunn(); });
 </script>
 
 

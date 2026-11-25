@@ -1983,3 +1983,36 @@ sub { font-size: 0.75em; }
 
 
 
+
+.tekstcache-indikator {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.45rem 0.9rem;
+	margin-bottom: 0.8rem;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--panel2);
+	color: var(--muted-foreground);
+	font-size: 0.82rem;
+}
+.tekstcache-indikator progress {
+	flex: 0 0 130px;
+	height: 6px;
+}
+.tekstcache-spinner {
+	width: 12px;
+	height: 12px;
+	border: 2px solid var(--border);
+	border-top-color: var(--accent);
+	border-radius: 50%;
+	animation: tekstcache-rot 0.9s linear infinite;
+}
+@keyframes tekstcache-rot {
+	to {
+		transform: rotate(360deg);
+	}
+}
+.tekstcache-ferdig {
+	color: var(--accent);
+}

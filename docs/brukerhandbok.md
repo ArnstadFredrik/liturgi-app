@@ -112,6 +112,10 @@ Bibeltekstene krever innlogging hos bibel.no (lagres i appens innstillinger); te
 
 ---
 
+### Bakgrunnscaching av bibeltekster
+
+Ved oppstart henter appen i bakgrunnen bibeltekstene for hele kirkeåret og de andre tekstrekkene (den kommende kirkeårsdagen først, så resten av kirkeåret, deretter nabokirkeårene og til slutt merkedagene). Hentingen er rolig og sekvensiell med hvile mellom hver forespørsel til bibel.no, og kjører helt i bakgrunnen. Kirkeåret-modulen viser en fremdriftsindikator mens hentingen pågår. Tekstene lagres i databasen og gjenbrukes for evig — etter første henting fungerer alt offline. Lukker du appen midt i hentingen, fortsetter den der den slapp ved neste oppstart.
+
 ## Redigeringsvisningen
 
 Redigeringsvisningen viser gudstjenesten ledd for ledd, seksjon for seksjon. Alt redigeres ved klikk – appen skiller mellom visning (ferdig rendret tekst) og redigering (kildetekst med «Vis kildekode»).

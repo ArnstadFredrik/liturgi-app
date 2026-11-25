@@ -23,6 +23,7 @@ export const app = $state({
 	recentServices: [], // Electron: siste gudstjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
 	innFane: 'generelt', // Innstillinger: aktiv undermodul (styres fra modul-fane-stripen)
+	tekstCache: { gaar: false, ferdig: 0, totalt: 0, fase: '' }, // bakgrunnscaching av bibeltekster
 	malFavoritter: [], // malnavn merket med stjerne i malmodulen
 	maalformer: ['bokmål', 'nynorsk', 'engelsk'], // kjente målformer (utvides fra maalform-modalen)
 	åpneTjenester: [], // åpne denne økten: {obj, name, path}
