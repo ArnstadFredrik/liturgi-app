@@ -16,8 +16,8 @@
 	let forbModul = $state(false); // Kirkeårets generering + prekenforberedelse-knappen
 	let forbRediger = $state(false); // modulen i sidemenyen (redigeringsmodulen)
 	let vimAktiv = $state(false); // global vim-modus
-	let versjon = '';
-	let bygg = '';
+	let versjon = $state(''); // $state: onMount-oppdateringen må trigge re-render (runes-modus)
+	let bygg = $state('');
 
 	onMount(async () => {
 		if (!isElectron) return;
