@@ -127,11 +127,13 @@ export function bibelBok(ref, sprak = 'nb') {
 
 /** Referansen som alminnelig tekst for innledninger: «1 Mos 3,15-20» → «Første Mosebok, kapittel 3».
  *  Ukjent referanse returneres uendret. For evangelietekst er bokens navn uten
- *  «Evangeliet etter» (innledningen har «evangeliet etter» forfra). */
+ *  «Evangeliet etter» (innledningen har «evangeliet etter» forfra) og kapittelet
+ *  føyes til med «i» («Matteus i kapittel 5» — liturgisk form for evangelielesning). */
 export function innledningsNavn(ref, sprak = 'nb', evangelium = false) {
 	const bok = bibelBok(ref, sprak);
 	if (!bok) return ref;
 	let navn = bok.navn;
 	if (evangelium) navn = navn.replace(/^Evangeliet etter /, '');
-	return bok.kapittel ? navn + ', kapittel ' + bok.kapittel : navn;
+	if (!bok.kapittel) return navn;
+	return evangelium ? navn + ' i kapittel ' + bok.kapittel : navn + ', kapittel ' + bok.kapittel;
 }

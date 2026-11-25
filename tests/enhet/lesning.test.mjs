@@ -32,7 +32,7 @@ test('lesning med malens struktur: bibeltekst i hoveddelen, referanse i innledni
 test('evangelium: referanse inn i «etter ...»', () => {
   const it = { introAlts: [{ label: 'Innledning', text: '{{r}}L | {{/r}}Det står skrevet i evangeliet etter ...' }], avslutningAlts: [{ label: 'Avslutning', text: '{{r}}L |{{/r}} Slik lyder det Hellige evangelium' }] };
   fyllLesning(it, 'Luk 4,16-22a', TEKST, true);
-  assert.equal(it.introAlts[0].text, '{{r}}L | {{/r}}Det står skrevet i evangeliet etter Lukas, kapittel 4:');
+  assert.equal(it.introAlts[0].text, '{{r}}L | {{/r}}Det står skrevet i evangeliet etter Lukas i kapittel 4:');
 });
 
 test('gjenbruk: eksisterende referanse erstattes ved ny henting, idempotent ellers', () => {

@@ -28,10 +28,12 @@ test('referanse til alminnelig tekst: nynorsk', () => {
 	assert.equal(innledningsNavn('Op 5,1-5', 'nn'), "Johannes' openberring, kapittel 5");
 });
 
-test('evangelium: navn uten «Evangeliet etter» (innledningen har det forfra)', () => {
-	assert.equal(innledningsNavn('Luk 4,16-22a', 'nb', true), 'Lukas, kapittel 4');
-	assert.equal(innledningsNavn('Matt 5,1-12', 'nb', true), 'Matteus, kapittel 5');
-	assert.equal(innledningsNavn('Joh 15,9-12', 'nb', true), 'Johannes, kapittel 15');
+test('evangelium: navn uten «Evangeliet etter», kapittel med «i»', () => {
+	assert.equal(innledningsNavn('Luk 4,16-22a', 'nb', true), 'Lukas i kapittel 4');
+	assert.equal(innledningsNavn('Matt 5,1-12', 'nb', true), 'Matteus i kapittel 5');
+	assert.equal(innledningsNavn('Joh 15,9-12', 'nb', true), 'Johannes i kapittel 15');
+	assert.equal(innledningsNavn('Lukas 2,41-52', 'nb', true), 'Lukas i kapittel 2');
+	assert.equal(innledningsNavn('Johannes 18,33–37', 'nb', true), 'Johannes i kapittel 18');
 });
 
 test('flertydige forkortelser: lengste vinner, ordgrense respekteres', () => {
@@ -58,8 +60,6 @@ test('alias: fullt navn som referanse', () => {
 
 test('alias: evangeliene uten «Evangeliet etter»', () => {
 	assert.equal(innledningsNavn('Lukas 2,41-52'), 'Evangeliet etter Lukas, kapittel 2');
-	assert.equal(innledningsNavn('Lukas 2,41-52', 'nb', true), 'Lukas, kapittel 2');
-	assert.equal(innledningsNavn('Johannes 18,33–37', 'nb', true), 'Johannes, kapittel 18');
 });
 
 test('punktum-former («1. Kor.», «Matt.»)', () => {
