@@ -37,10 +37,20 @@ const dokumenter = [
 ];
 
 const deler = ['/** GENERATED AV scripts/handbok-html.mjs (pandoc) - ikke rediger for hånd. */', ''];
-for (const [id, fil] of dokumenter) {
-	const md = stripToc(fs.readFileSync(path.join(rot, fil), 'utf-8'));
-	const html = execFileSync('pandoc', ['-f', 'gfm', '-t', 'html'], { input: md, encoding: 'utf-8', maxBuffer: 20 * 1024 * 1024 });
-	deler.push('export const ' + id.replace(/-/g, '_') + 'Html = ' + JSON.stringify(html) + ';');
+try {
+	for (const [id, fil] of dokumenter) {
+		const md = stripToc(fs.readFileSync(path.join(rot, fil), 'utf-8'));
+		const html = execFileSync('pandoc', ['-f', 'gfm', '-t', 'html'], { input: md, encoding: 'utf-8', maxBuffer: 20 * 1024 * 1024 });
+		deler.push('export const ' + id.replace(/-/g, '_') + 'Html = ' + JSON.stringify(html) + ';');
+	}
+} catch {
+	// pandoc ikke installert (f.eks. i CI): behold den commitete genererte fila
+	if (fs.existsSync(utFil)) {
+		console.log('pandoc ikke funnet - beholder eksisterende handbok-html.js');
+		process.exit(0);
+	}
+	console.error('Verken pandoc eller en generert handbok-html.js finnes');
+	process.exit(1);
 }
 fs.mkdirSync(path.dirname(utFil), { recursive: true });
 fs.writeFileSync(utFil, deler.join('\n') + '\n');
