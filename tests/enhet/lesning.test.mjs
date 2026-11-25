@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fyllLesning, referanseIInnledning } from '/Users/fredrikarnstad/05 projects/liturgi-app/src/lib/lit.js';
+import { fyllLesning, referanseIInnledning } from '../../src/lib/lit.js';
 
 const MAL = {
   introAlts: [

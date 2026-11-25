@@ -1,7 +1,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { byggSlidePlan } from '/Users/fredrikarnstad/05 projects/liturgi-app/src/lib/export.js';
+import { byggSlidePlan } from '../../src/lib/export.js';
 
 const svc = {
   name: 'T', sections: [{ title: 'I', items: [

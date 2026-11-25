@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BOKER_TABELL, bibelBok, innledningsNavn } from '/Users/fredrikarnstad/05 projects/liturgi-app/src/lib/bibelboeker.js';
+import { BOKER_TABELL, bibelBok, innledningsNavn } from '../../src/lib/bibelboeker.js';
 
 test('75 bøker (66 kanoniske + 9 deuterokanoniske) i begge målformene, unike forkortelser', () => {
 	assert.equal(BOKER_TABELL.length, 75);
