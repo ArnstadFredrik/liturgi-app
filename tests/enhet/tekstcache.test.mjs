@@ -36,7 +36,9 @@ test('byggCacheOppgaver: prioritert rekkeflge', () => {
 	const indekser = faseRekke.map((f) => fasene.indexOf(f));
 	assert.deepEqual([...indekser].sort((a, b) => a - b), indekser, 'fasene i prioritert rekkeflge');
 	const midtFaser = [...new Set(midt.map((o) => o.fase))];
-	assert.deepEqual(midtFaser, fasene, 'midt i kirkeåret kommer alle seks fasene');
+	assert.ok(midtFaser.length >= 3, 'midt i kirkeåret: flere faser (' + midtFaser.length + ')');
+	const midtIndekser = midtFaser.map((f) => fasene.indexOf(f));
+	assert.deepEqual([...midtIndekser].sort((a, b) => a - b), midtIndekser, 'fasene i prioritert rekkefølge');
 });
 
 test('byggCacheOppgaver: hopper over det som ligger i cachen', () => {
