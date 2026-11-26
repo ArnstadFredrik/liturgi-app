@@ -362,31 +362,44 @@ button.wide { width: 100%; }
 /* Mal-tabell: alle maler i én sortbar tabell */
 /* eksperimentell-merke (Innstillinger, redigeringsmodulen for prekenforberedelse) */
 .inn-eks-merke { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; background: #b08b57; color: #fff; border-radius: 4px; padding: 1px 6px; vertical-align: 2px; margin-left: 5px; }
-/* prekenforberedelse: fil-listen i Innstillinger */
-.inn-rad-kolonne { display: block; }
-.forb-filer { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+/* prekenforberedelse: filmalen */
+.inn-rad.inn-rad-kolonne { display: block; }
+/* ikke.md-listen i samme kort som beskrivelsen, med skille mellom teksten og listen */
+.forb-filer { margin: 12px 16px 16px 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--panel, transparent); }
+.forb-fil-rad { display: flex; align-items: center; gap: 8px; padding: 7px 10px; transition: background 0.12s ease; }
+.forb-fil-rad + .forb-fil-rad { border-top: 1px solid var(--border); }
+.forb-fil-rad:hover { background: var(--hover, rgba(128,128,128,0.08)); }
+.forb-fil-navn { flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.forb-fil-rad input.forb-fil-navn { background: transparent; border: none; outline: none; color: inherit; padding: 0; flex: 1; }
+.forb-fil-rad input.forb-fil-navn:focus { box-shadow: 0 0 0 2px var(--accent-soft, rgba(59,130,246,0.25)); border-radius: 4px; }
+.forb-fil-rad input.forb-fil-input { flex: 1; min-width: 0; width: auto; font-size: 12px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: inherit; }
+.forb-fil-rad input.forb-fil-input:focus { box-shadow: 0 0 0 2px var(--accent-soft, rgba(59,130,246,0.25)); outline: none; }
+.inn-liten { font-size: 11px; line-height: 1.4; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted, var(--text)); cursor: pointer; transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease; }
+.inn-liten:hover { background: var(--accent-soft, var(--hover)); color: var(--text); }
+.inn-liten:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent-soft, rgba(59,130,246,0.25)); }
+.inn-liten-fare { color: var(--danger, #c0392b); }
+.inn-liten-fare:hover { background: var(--danger, #c0392b); color: #fff; border-color: var(--danger, #c0392b); }
+
 /* prekenforberedelse: underside for malredigering */
 .inn-seksjon-topp { display: flex; align-items: center; gap: 10px; }
 .inn-seksjon-topp .inn-seksjon-tittel { margin: 0; }
-
-.forb-fil-rad { display: flex; align-items: center; gap: 6px; }
-.forb-fil-navn { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-.forb-fil-input { font-size: 12px; padding: 3px 6px; border: 1px solid var(--border, #ccc); border-radius: 4px; background: transparent; color: inherit; width: 200px; }
-.inn-liten { font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border, #bbb); background: transparent; color: inherit; cursor: pointer; }
-.inn-liten:hover { background: var(--hover, rgba(128,128,128,0.12)); }
-.inn-liten-fare:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+/* ikke.md-kortet (i samme inn-kort som knapperaden) */
+.forb-maler-rad { align-items: flex-start; }
+.forb-maler-rad .forb-filer { margin-top: 14px; }
 
 /* prekenforberedelse: filformat + mal-dusesj (punkt 2-3) */
 .inn-format { display: flex; gap: 8px; }
-/* to dynamiske kolonner: redigering + visning - skaleres og bryter etter plass */
-.forb-mal-kolonner { display: flex; gap: 14px; align-items: stretch; }
-.forb-mal-kol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
-.forb-mal-kol-tittel { font-size: 11px; font-weight: 600; opacity: 0.75; margin-bottom: 5px; }
-.forb-mal-tekst { width: 100%; height: 100%; min-height: 380px; flex: 1 1 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; padding: 8px; border: 1px solid var(--border, #ccc); border-radius: 6px; background: transparent; color: inherit; resize: vertical; box-sizing: border-box; }
+/* to dynamiske kolonner: redigering + visning - skaleres altid side om side */
+.forb-mal-kolonner { display: flex; gap: 14px; align-items: stretch; width: 100%; }
+.forb-mal-kol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel, transparent); }
+.forb-mal-kol-tittel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
+.forb-mal-tekst { width: 100%; height: 100%; min-height: 340px; flex: 1 1 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: inherit; resize: vertical; box-sizing: border-box; }
+.forb-mal-tekst:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft, rgba(59,130,246,0.25)); }
 .forb-mal-handlinger { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-.forb-mal-hjelp { font-size: 11px; opacity: 0.75; line-height: 1.5; margin-bottom: 10px; }
-.forb-mal-vis { flex: 1 1 auto; height: 100%; min-height: 380px; overflow: auto; font-size: 11px; line-height: 1.45; white-space: pre-wrap; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 6px; padding: 10px; margin: 0; box-sizing: border-box; }
-.forb-mal-tom { min-height: 380px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0.6; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 6px; }/* WIP-merke på uverifiserte maler (mal-tabellen) */
+.forb-mal-hjelp { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+.forb-mal-hjelp strong { color: var(--text); }
+.forb-mal-vis { flex: 1 1 auto; height: 100%; min-height: 340px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 8px; border: 1px solid var(--border); padding: 10px; margin: 0; box-sizing: border-box; }
+.forb-mal-tom { min-height: 340px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); background: var(--panel2, rgba(128,128,128,0.06)); border-radius: 8px; }/* WIP-merke på uverifiserte maler (mal-tabellen) */
 .wip-merke {
 	display: inline-block;
 	font-size: 10px;

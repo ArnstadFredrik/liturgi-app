@@ -489,7 +489,7 @@ function settForbModul(v) {
 					</div>
 				</div>
 
-				<div class="inn-rad inn-rad-kolonne">
+				<div class="inn-rad inn-rad-kolonne forb-maler-rad">
 					<div class="inn-rad-tekst">
 						<div class="inn-rad-tittel">Filer som genereres</div>
 						<div class="inn-rad-beskriv">Liste over filene som opprettes i dagens mappe. Nye egendefinerte filer startes tomme; filer uten .md får endelsen automatisk.</div>
