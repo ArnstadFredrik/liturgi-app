@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import church from 'church-year';
-	import { lookupKirkeaar, hentTekster, lesTeksterCache } from '$lib/kirkeaar.js';
+	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
@@ -263,7 +263,6 @@
 	}
 
 	/** Prekenforberedelse: opprett prosjekt for valgt dag og åpne modulen. */
-	const REKKE_NAVN = { I: 'Første', II: 'Andre', III: 'Tredje' };
 	function datoTekst(iso) {
 		const d = new Date(iso + 'T12:00:00');
 		const dager = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
@@ -325,7 +324,7 @@
 			}
 		} else return;
 		const start = church_startYear(valgtDag.date) ?? new Date(valgtDag.date).getFullYear();
-		const rekke = REKKE_NAVN[valgtDag.series] ?? (valgtDag.series || 'Første');
+		const rekke = forbRekkeForDag(valgtDag, alleKirkeaarsDager);
 		const aaMappe = start + '-' + (start + 1) + ' - ' + rekke + ' Rekke';
 		const r = await window.liturgi.forbLagProsjekt({
 			mappe,
@@ -337,6 +336,11 @@
 			}
 		});
 		if (!r?.ok) return;
+		// redigeringsmodulen av: bare generer filene, ikke åpner redigeringsvisningen
+		if (!app.forbRediger) {
+			toast.info('Filene er generert i ' + r.sti);
+			return;
+		}
 		app.forbAapneSti = r.sti + '/notat.md';
 		app.current = null;
 		app.kind = null;

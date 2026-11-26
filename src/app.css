@@ -360,6 +360,8 @@ button.wide { width: 100%; }
 .malgruppe { margin: 18px 0 0; display: flex; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); padding: 10px 12px; }
 .malgruppe .sidehead { margin-bottom: 4px; }
 /* Mal-tabell: alle maler i én sortbar tabell */
+/* eksperimentell-merke (Innstillinger, redigeringsmodulen for prekenforberedelse) */
+.inn-eks-merke { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; background: #b08b57; color: #fff; border-radius: 4px; padding: 1px 6px; vertical-align: 2px; margin-left: 5px; }
 /* WIP-merke på uverifiserte maler (mal-tabellen) */
 .wip-merke {
 	display: inline-block;

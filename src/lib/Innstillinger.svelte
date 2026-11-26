@@ -314,7 +314,7 @@ function settForbModul(v) {
 				</div>
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Redigeringsmodulen</div>
+						<div class="inn-rad-tittel">Redigeringsmodulen <span class="inn-eks-merke">Eksperimentell</span></div>
 						<div class="inn-rad-beskriv">
 							Viser «Prekenforberedelse» i sidemenyen, med redigering av
 							notat, preken og tekster. Krever at modulen er på.

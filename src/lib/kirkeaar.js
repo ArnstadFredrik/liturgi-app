@@ -53,7 +53,27 @@ export function kirkeaarDager(dateISO) {
 }
 
 /**
- * Hent selve bibeltekstene fra bibel.no for en kirkeårsdag.
+ /**
+ * Rekke-navn for prekenforberedelse-mappen. Hovedrekker (I/II/III) mappe direkte;
+ * alternative dager (Julaften m.m. som kun har rekke A/F) legger seg i rekke-mappen
+ * til nærmeste kirkeårsdag med en hovedrekke — samme startår-sluttår-struktur.
+ */
+export function forbRekkeForDag(dag, dager) {
+	const HOVED = { I: 'Første', II: 'Andre', III: 'Tredje' };
+	const s = dag?.series ?? '';
+	if (HOVED[s]) return HOVED[s];
+	const dato = dag?.date ?? '';
+	if (!dato || !Array.isArray(dager)) return HOVED.I;
+	let best = null;
+	for (const d of dager) {
+		if (d?.date === dato || !HOVED[d?.series]) continue;
+		const avstand = Math.abs(Date.parse(d.date) - Date.parse(dato));
+		if (!Number.isNaN(avstand) && (best === null || avstand < best.avstand)) best = { avstand, series: d.series };
+	}
+	return best ? HOVED[best.series] : HOVED.I;
+}
+
+ /** Hent selve bibeltekstene fra bibel.no for en kirkeårsdag.
  * URL-mønster: /nettbibelen/kirkearets-tekster/nb-2024/{startår}/{dag-id}
  * Returnerer { E, L1, L2, F } der hver er { ref, title, text } – eller null.
  */
