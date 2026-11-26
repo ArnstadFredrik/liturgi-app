@@ -177,6 +177,9 @@ function settForbModul(v) {
 	let forbMalRedigerer = $state(''); // filnavn med malen pen
 	let forbMalTekst = $state('');
 	let forbMalForhandsvis = $state('');
+	let forbMalBredde = $state(0); // bind:clientWidth p kolonnebeholderen
+	let forbMalVisVis = $state(false); // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
+	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
 
 
 	onMount(async () => {
@@ -225,6 +228,16 @@ function settForbModul(v) {
 		}
 	}
 
+	function byttForbMalVis() {
+		forbMalVisVis = !forbMalVisVis;
+		if (forbMalVisVis) forhandsvisForbMal(); // friske utdata ved visning
+	}
+
+	$effect(() => {
+		// ut av smal modus: til redigeringskolonnen
+		if (!forbMalSmal) forbMalVisVis = false;
+	});
+
 	async function tilbakestillForbMal(navn) {
 		const maler = { ...(app.forbMaler ?? {}) };
 		const fikk = navn in maler;
@@ -267,7 +280,7 @@ function settForbModul(v) {
 	}
 </script>
 
-<div id="innstillinger">
+<div id="innstillinger" class:inn-mal-side={app.innFane === 'prekenforberedelse' && !!forbMalRedigerer}>
 	{#if versjon}
 		<p class="inn-versjon">Versjon {versjon}{bygg ? ` · bygg ${bygg}` : ''}</p>
 	{/if}
@@ -402,26 +415,34 @@ function settForbModul(v) {
 						<button class="inn-handling" onclick={lukkForbMal}>{mdi('chevron.left')} Tilbake</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
 						<div class="forb-mal-handlinger">
+							{#if forbMalSmal}
+								<button class="inn-handling" class:av={!forbMalVisVis} onclick={byttForbMalVis}>{forbMalVisVis ? 'Redigeringsfelt' : 'Forhåndsvisning'}</button>
+							{:else}
+								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
+							{/if}
 							<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
-							<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
 							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
 						</div>
 					</div>
 					<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
 					<div class="inn-kort">
-						<div class="forb-mal-kolonner">
-							<div class="forb-mal-kol">
-								<div class="forb-mal-kol-tittel">Redigering</div>
-								<textarea class="forb-mal-tekst" bind:value={forbMalTekst} spellcheck="false"></textarea>
-							</div>
-							<div class="forb-mal-kol">
-								<div class="forb-mal-kol-tittel">Forhåndsvisning (Julaften)</div>
-								{#if forbMalForhandsvis}
-									<pre class="forb-mal-vis">{forbMalForhandsvis}</pre>
-								{:else}
-									<div class="forb-mal-tom">Klikk «Forhåndsvisning» for å se utdata.</div>
-								{/if}
-							</div>
+						<div class="forb-mal-kolonner" bind:clientWidth={forbMalBredde}>
+							{#if !forbMalSmal || !forbMalVisVis}
+								<div class="forb-mal-kol">
+									<div class="forb-mal-kol-tittel">Redigering</div>
+									<textarea class="forb-mal-tekst" bind:value={forbMalTekst} spellcheck="false"></textarea>
+								</div>
+							{/if}
+							{#if !forbMalSmal || forbMalVisVis}
+								<div class="forb-mal-kol">
+									<div class="forb-mal-kol-tittel">Forhåndsvisning (Julaften)</div>
+									{#if forbMalForhandsvis}
+										<pre class="forb-mal-vis">{forbMalForhandsvis}</pre>
+									{:else}
+										<div class="forb-mal-tom">Klikk «Forhåndsvisning» for å se utdata.</div>
+									{/if}
+								</div>
+							{/if}
 						</div>
 					</div>
 				</div>

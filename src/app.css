@@ -438,6 +438,7 @@ button.wide { width: 100%; }
 .maler-tom { color: var(--muted); font-size: 0.9em; margin: 4px 0; }
 /* Innstillinger — mac System Settings-stil: seksjonstittel + kort med rader */
 #innstillinger { max-width: 620px; margin: 40px auto 80px; padding: 0 24px; }
+#innstillinger.inn-mal-side { max-width: 1100px; }
 #innstillinger h2 { color: var(--text); margin-bottom: 4px; }
 .inn-versjon { color: var(--muted); font-size: 12px; margin: 0 0 22px; }
 .inn-seksjon { margin: 0 0 26px; }
