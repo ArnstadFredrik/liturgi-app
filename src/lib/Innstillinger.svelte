@@ -6,6 +6,7 @@
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
 	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, renderForbMal } from '$lib/forb-maler.js';
+	import { malsprakHtml } from '$lib/handbok.js';
 	import { toast } from 'svelte-sonner';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -205,9 +206,9 @@ function settForbModul(v) {
 		forhandsvisForbMal(); // visningsskolonnen fyres med en gang
 	}
 
+	let malDokVis = $state(false);
 	function aapneMalDok() {
-		app.handbokFane = 'malsprak';
-		app.visning = 'handbok';
+		malDokVis = true;
 	}
 
 	function lukkForbMal() {
@@ -415,8 +416,8 @@ function settForbModul(v) {
 			{#if forbMalRedigerer}
 				<div class="inn-seksjon">
 					<div class="inn-seksjon-topp">
-						<button class="inn-handling" onclick={lukkForbMal}>{mdi('chevron.left')} Tilbake</button>
-						<button class="inn-handling" title="Åpner  Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{mdi('book-open-variant')} Malvariabler</button>
+						<button class="inn-handling" onclick={lukkForbMal}>{@html mdi('chevron-left', 15)} Tilbake</button>
+						<button class="inn-handling" title="Åpner  Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{@html mdi('book-open-variant', 15)} Malvariabler</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
 						<div class="forb-mal-handlinger">
 							{#if forbMalSmal}
@@ -545,4 +546,18 @@ function settForbModul(v) {
 		</div>
 			{/if}
 		{/if}
+
+	{#if malDokVis}
+		<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+		<div class="skjerm-lag" role="presentation" onclick={() => (malDokVis = false)}>
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<div class="forb-dok-modal" role="dialog" aria-modal="true" aria-label="Malspråket" onclick={(e) => e.stopPropagation()}>
+				<div class="forb-dok-topp">
+					<div class="forb-dok-tittel">Malspråket for prekenforberedelse</div>
+					<button class="inn-handling" onclick={() => (malDokVis = false)}>Lukk</button>
+				</div>
+				<div class="forb-dok-innhold handbok-innhold">{@html malsprakHtml}</div>
+			</div>
+		</div>
+	{/if}
 	</div>

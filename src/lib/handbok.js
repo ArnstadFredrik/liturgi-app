@@ -22,3 +22,7 @@ export const handbokDokumenter = [
 	{ id: 'limal-format', tittel: 'Limal-format', html: byttBildeSrcer(limal_formatHtml) },
 	{ id: 'malsprak', tittel: 'Malspråket', html: byttBildeSrcer(malsprakHtml) },
 ];
+
+/** Re-eksport: mal-siden i Innstillinger viser dokumentasjonen i modal. */
+export { malsprakHtml };
+
