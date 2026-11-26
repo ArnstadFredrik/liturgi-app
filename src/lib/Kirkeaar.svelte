@@ -328,6 +328,11 @@
 			filer
 		});
 		if (!r?.ok) return;
+		// Eksisterende filer på disk blir aldri overskrevet av genereringen.
+		if (r.eksisterende === Object.keys(filer).length) {
+			toast.info('Alle filene finnes allerede i ' + r.sti + ' — ingenting ble overskrevet.');
+			return;
+		}
 		// redigeringsmodulen av: bare generer filene, ikke åpner redigeringsvisningen
 		if (!app.forbRediger || fmt === 'docx') {
 			// docx støtter foreløpig kun generering (redigering er md-kun)

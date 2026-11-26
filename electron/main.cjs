@@ -317,7 +317,8 @@ ipcMain.handle('forb:lag-prosjekt', (_e, { mappe, dagNavn, filer }) => {
 				laget.push(navn);
 			}
 		}
-		return { ok: true, sti: dagMappe, laget };
+		const eksisterende = Object.keys(filer ?? {}).length - laget.length;
+		return { ok: true, sti: dagMappe, laget, eksisterende };
 	} catch (err) {
 		return { ok: false, error: String(err?.message ?? err) };
 	}
