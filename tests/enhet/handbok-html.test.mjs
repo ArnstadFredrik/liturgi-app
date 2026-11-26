@@ -10,7 +10,7 @@ const genFil = path.join(rot, 'src', 'lib', 'generated', 'handbok-html.js');
 test('generert pandoc-HTML finnes for alle dokumentene', () => {
 	assert.ok(fs.existsSync(genFil), 'src/lib/generated/handbok-html.js mangler - kjr npm run handbok');
 	const gen = fs.readFileSync(genFil, 'utf-8');
-	for (const navn of ['brukerhandbokHtml', 'apiHtml', 'limal_formatHtml']) {
+	for (const navn of ['brukerhandbokHtml', 'apiHtml', 'limal_formatHtml', 'malsprakHtml']) {
 		const m = gen.match(new RegExp('export const ' + navn + ' = "(.*)";'));
 		assert.ok(m, navn + ' mangler i generert fil');
 		assert.ok(m[1].length > 5000, navn + ' ser tom ut');

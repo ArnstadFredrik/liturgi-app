@@ -33,7 +33,8 @@ function stripToc(md) {
 const dokumenter = [
 	['brukerhandbok', 'docs/brukerhandbok.md'],
 	['api', 'docs/api.md'],
-	['limal-format', 'docs/limal-format.md']
+	['limal-format', 'docs/limal-format.md'],
+	['malsprak', 'docs/malsprak.md']
 ];
 
 const deler = ['/** GENERATED AV scripts/handbok-html.mjs (pandoc) - ikke rediger for hånd. */', ''];

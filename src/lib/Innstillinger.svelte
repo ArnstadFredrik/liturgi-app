@@ -181,7 +181,6 @@ function settForbModul(v) {
 	let forbMalVisVis = $state(false); // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
 	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
 
-
 	onMount(async () => {
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('forbFiler');
@@ -192,8 +191,7 @@ function settForbModul(v) {
 		try { app.forbMaler = JSON.parse(rm?.value || '{}'); } catch { app.forbMaler = {}; }
 	});
 
-	const MALVARIABLER = 'dag.navn, dag.dato, dag.datoTekst, dag.farge, dag.rekke, dag.periode, dag.bonn; tekster.E / L1 / L2 med .ref, .tittel, .tekst, .harInnhold; kirkeaar.start, .slutt, .rekke. Seksjoner med 2 klamrer ({{#tekster.E}}...{{/tekster.E}}) gøør nokklene (ref, tittel, tekst, harInnhold) relative. Tre klamrer = rå tekst, to = escaper';;
-	async function settForbFmt(v) {
+		async function settForbFmt(v) {
 		forbFmt = v;
 		app.forbFmt = v;
 		await window.liturgi.dbSet('forbFmt', v).catch(() => {});
@@ -205,6 +203,11 @@ function settForbModul(v) {
 		forbMalRedigerer = navn;
 		forbMalTekst = app.forbMaler?.[navn] ?? FORB_STANDARD_MALER[navn] ?? '';
 		forhandsvisForbMal(); // visningsskolonnen fyres med en gang
+	}
+
+	function aapneMalDok() {
+		app.handbokFane = 'malsprak';
+		app.visning = 'handbok';
 	}
 
 	function lukkForbMal() {
@@ -413,6 +416,7 @@ function settForbModul(v) {
 				<div class="inn-seksjon">
 					<div class="inn-seksjon-topp">
 						<button class="inn-handling" onclick={lukkForbMal}>{mdi('chevron.left')} Tilbake</button>
+						<button class="inn-handling" title="Åpner  Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{mdi('book-open-variant')} Malvariabler</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
 						<div class="forb-mal-handlinger">
 							{#if forbMalSmal}
@@ -424,7 +428,6 @@ function settForbModul(v) {
 							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
 						</div>
 					</div>
-					<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
 					<div class="inn-kort">
 						<div class="forb-mal-kolonner" bind:clientWidth={forbMalBredde}>
 							{#if !forbMalSmal || !forbMalVisVis}

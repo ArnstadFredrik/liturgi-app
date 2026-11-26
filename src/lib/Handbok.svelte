@@ -9,7 +9,7 @@
 	import { handbokDokumenter } from './handbok.js';
 	import { mdi } from './mdi.js';
 
-	let valgt = $state('brukerhandbok');
+	let valgt = $state(app.handbokFane || 'brukerhandbok'); // kan ppnes direkte p et dokument (f.eks. Malsprket fra mal-redigeringen)
 	const dok = $derived(handbokDokumenter.find((d) => d.id === valgt) ?? handbokDokumenter[0]);
 	const html = $derived(dok.html);
 	// sidekolonne: alle h2-overskrifter med anker

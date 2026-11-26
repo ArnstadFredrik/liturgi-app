@@ -3,7 +3,7 @@
  * HTML-en genereres ved build (scripts/handbok-html.mjs, se prebuild i
  * package.json) og er commit-et, slik at appen fungerer offline uten pandoc.
  */
-import { brukerhandbokHtml, apiHtml, limal_formatHtml } from './generated/handbok-html.js';
+import { brukerhandbokHtml, apiHtml, limal_formatHtml, malsprakHtml } from './generated/handbok-html.js';
 
 /** Skjermbilder i docs/bilder/: vite pakker dem inn, s src-ene peker riktig i appen. */
 const bilder = import.meta.glob('../assets/bilder/*', { eager: true, query: '?url', import: 'default' });
@@ -20,4 +20,5 @@ export const handbokDokumenter = [
 	{ id: 'brukerhandbok', tittel: 'Brukerhåndbok', html: byttBildeSrcer(brukerhandbokHtml) },
 	{ id: 'api', tittel: 'Utviklerdokumentasjon', html: byttBildeSrcer(apiHtml) },
 	{ id: 'limal-format', tittel: 'Limal-format', html: byttBildeSrcer(limal_formatHtml) },
+	{ id: 'malsprak', tittel: 'Malspråket', html: byttBildeSrcer(malsprakHtml) },
 ];
