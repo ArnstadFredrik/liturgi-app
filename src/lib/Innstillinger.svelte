@@ -209,7 +209,7 @@ function settForbModul(v) {
 		await window.liturgi.dbSet('forbFmt', v).catch(() => {});
 	}
 
-	// innholdsmaler (punk 3): en tekst per fil, mustache
+	// innholdsmaler (punkt 3): en tekst per fil, ekte EJS
 	function apneForbMal(navn) {
 		if (forbMalRedigerer === navn) { lukkForbMal(); return; }
 		forbMalRedigerer = navn;

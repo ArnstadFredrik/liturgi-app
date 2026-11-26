@@ -1,18 +1,16 @@
-import Mustache from 'mustache';
+import ejs from 'ejs';
 
-/** Mal-engine for prekenforberedelse-filene (punkt 3).
- *  Malsprøk: mustache-lignende klammemaler (i Jinja/EJS-familien, men trygg
- *  i både webview og node-tester). Tre klamrer = rå tekst, to klamrer
- *  escaper; seksjoner + ^ og /. Seksjonene tekster.E/L1/L2 gjoer nokklene
- *  (ref, tittel, tekst, harInnhold) relative inni seg.
- *  Maler lagres i db (økkel 'forbMaler') per filnavn (kanonisk .md-navn);
- *  manglende mal = den innebygde standarden under. */
+/** Malmotor for prekenforberedelse-filene: ekte EJS (npm-pakken, browser-bygget).
+ *  <% %> er kode, <%= %> escaper utdata, <%- %> gir rå tekst.
+ *  Konteksten ligger i with-scope, så dag.navn o.l. kan brukes direkte.
+ *  Maler lagres i db (nøkkel 'forbMaler') per filnavn (kanonisk .md-navn);
+ *  manglende mal = en av standardmalene under. Eldre mustache-maler
+ *  ({{{ }}}, {{# }}) migreres automatisk ved rendering. */
 
-/** E/L1/L2: kirkeårsdagens felt er referansen; tekstcachen gir tittel+tekst. */
 function del(ref, txt) {
 	return {
 		ref: ref || '',
-		refVis: ref || '—',
+		refVis: ref || '\u2014',
 		tittel: txt?.title || '',
 		tekst: txt?.text || '',
 		harInnhold: !!(txt && (txt.text || txt.title))
@@ -30,8 +28,8 @@ export function byggForbKontekst(dag, tekster, kirkeaar) {
 			navn: dag?.name || '',
 			dato: dag?.date || '',
 			datoTekst,
-			farge: dag?.color || 'æ',
-			rekke: dag?.series || 'æ',
+			farge: dag?.color || '—',
+			rekke: dag?.series || '—',
 			periode: dag?.periodInfo || '',
 			bonn: (dag?.prayer || '').trim()
 		},
@@ -44,27 +42,80 @@ export function byggForbKontekst(dag, tekster, kirkeaar) {
 	};
 }
 
-const IKKE_HENTET = "*Teksten er ikke hentet -- åpne Kirkeåret med nettforbindelse og prøv igjen.*";
+/** Migrer gamle mustache-merker til EJS. Lesning-seksjonene
+ *  (tekster.E/L1/L2) pakkes inn i en funksjon slik at de relative feltnavnene
+ *  (ref, tittel, tekst, harInnhold) fortsatt virker inne i malen. */
+export function migrerForbMal(mal) {
+	if (!mal || !mal.includes('{{')) return mal;
+	const TEKSTLESNING = ['tekster.E', 'tekster.L1', 'tekster.L2'];
+	let ut = '';
+	let i = 0;
+	const n = mal.length;
+	const lukkSti = [];
+	while (i < n) {
+		const start = mal.indexOf('{{', i);
+		if (start < 0) { ut += mal.slice(i); break; }
+		ut += mal.slice(i, start);
+		const slutt = mal.indexOf('}}', start);
+		if (slutt < 0) { ut += mal.slice(start); break; }
+		const token = mal.slice(start + 2, slutt);
+		i = slutt + 2;
+		if (token.startsWith('{')) i++; // trippelklammer: ekstra '}' etter tokenet
+		if (token.startsWith('{{')) {
+			// trippelklammer {{{ x }}}: rå utdata
+			ut += '<%= ' + token.replace(/\{|\}/g, '') + ' %>';
+			continue;
+		}
+		if (token.startsWith('#')) {
+			const sti = token.slice(1).trim();
+			if (TEKSTLESNING.includes(sti)) {
+				const k = 't' + lukkSti.length;
+				lukkSti.push(sti);
+				ut += '<% (function (tt) { const ' + k + ' = tt, ref = tt.ref, tittel = tt.tittel, tekst = tt.tekst, harInnhold = tt.harInnhold; %>';
+				continue;
+			}
+			ut += '<% if (' + sti + ') { %>';
+			continue;
+		}
+		if (token.startsWith('^')) {
+			ut += '<% if (!(' + token.slice(1).trim() + ')) { %>';
+			continue;
+		}
+		if (token.startsWith('/')) {
+			const sti = token.slice(1).trim();
+			if (TEKSTLESNING.includes(sti) && lukkSti.length) {
+				ut += '<% })(' + lukkSti.pop() + '); %>';
+				continue;
+			}
+			ut += '<% } %>';
+			continue;
+		}
+		ut += '<%= ' + token.replace(/\{|\}/g, '').trim().replace(/\}+$/, '') + ' %>';
+	}
+	return ut;
+}
+
+const IKKE_HENTET = "*Teksten er ikke hentet — åpne Kirkeåret med nettforbindelse og prøv igjen.*";
 
 export const FORB_STANDARD_MALER = {
 	'notat.md': [
-		"# {{{dag.navn}}}",
+		"# <%= dag.navn %>",
 		"",
-		"- **Dato:** {{{dag.datoTekst}}}",
-		"- **Liturgisk farge:** {{{dag.farge}}}",
-		"- **Tekstrekke:** {{{dag.rekke}}}{{#dag.periode}} · {{{dag.periode}}}{{/dag.periode}}",
+		"- **Dato:** <%= dag.datoTekst %>",
+		"- **Liturgisk farge:** <%= dag.farge %>",
+		"- **Tekstrekke:** <%= dag.rekke %><% if (dag.periode) { %> · <%= dag.periode %><% } %>",
 		"",
 		"## Tekster",
-		"- **Første lesning:** {{{tekster.L1.refVis}}}",
-		"- **Andre lesning:** {{{tekster.L2.refVis}}}",
-		"- **Evangelium:** {{{tekster.E.refVis}}}",
+		"- **Første lesning:** <%= tekster.L1.refVis %>",
+		"- **Andre lesning:** <%= tekster.L2.refVis %>",
+		"- **Evangelium:** <%= tekster.E.refVis %>",
 		"",
-		"{{#dag.bonn}}",
+		"<% if (dag.bonn) { %>",
 		"## Dagens bønn",
 		"",
-		"{{{dag.bonn}}}",
+		"<%= dag.bonn %>",
 		"",
-		"{{/dag.bonn}}",
+		"<% } %>",
 		"## Salmer",
 		"",
 		"| Nr | Tittel | Liturgi |",
@@ -75,22 +126,24 @@ export const FORB_STANDARD_MALER = {
 		""
 	].join('\n'),
 	'tekstmeditasjon.md': [
-		"# Tekstmeditasjon æ {{{dag.navn}}}",
+		"# Tekstmeditasjon — <%= dag.navn %>",
 		"",
-		"{{#tekster.E}}## Evangelium{{#ref}} æ {{{ref}}}{{/ref}}",
+		"<% const lesninger = [[\"Evangelium\", tekster.E], [\"Første lesning\", tekster.L1], [\"Andre lesning\", tekster.L2]]; %>",
+		"<% for (const [navn, t] of lesninger) { %>",
+		"## <%= navn %><% if (t.ref) { %> — <%= t.ref %><% } %>",
 		"",
-		"{{#harInnhold}}{{#tittel}}**{{{tittel}}}**{{/tittel}}\n{{{tekst}}}{{/harInnhold}}{{^harInnhold}}*Teksten er ikke hentet -- åpne Kirkeåret med nettforbindelse og prøv igjen.*{{/harInnhold}}{{/tekster.E}}",
+		"<% if (t.harInnhold) { %><% if (t.tittel) { %>**<%= t.tittel %>**",
 		"",
-		"{{#tekster.L1}}## Første lesning{{#ref}} æ {{{ref}}}{{/ref}}",
+		"<% } %><%= t.tekst %><% } else { %>",
+		"*Teksten er ikke hentet — åpne Kirkeåret med nettforbindelse og prøv igjen.*",
 		"",
-		"{{#harInnhold}}{{#tittel}}**{{{tittel}}}**{{/tittel}}\n{{{tekst}}}{{/harInnhold}}{{^harInnhold}}*Teksten er ikke hentet -- åpne Kirkeåret med nettforbindelse og prøv igjen.*{{/harInnhold}}{{/tekster.L1}}",
-		"",
-		"{{#tekster.L2}}## Andre lesning{{#ref}} æ {{{ref}}}{{/ref}}",
-		"",
-		"{{#harInnhold}}{{#tittel}}**{{{tittel}}}**{{/tittel}}\n{{{tekst}}}{{/harInnhold}}{{^harInnhold}}*Teksten er ikke hentet -- åpne Kirkeåret med nettforbindelse og prøv igjen.*{{/harInnhold}}{{/tekster.L2}}",
-		""
+		"<% } %>",
+		"<% } %>"
 	].join('\n'),
-	'preken.md': ["# Preken æ {{{dag.navn}}}\n\n", ''].join('\n')
+	'preken.md': [
+		"# Preken — <%= dag.navn %>",
+		""
+	].join('\n')
 };
 
 /** Eksempelkontekst (Julaften) for forhåndsvisning i Innstillinger og tester. */
@@ -111,14 +164,14 @@ export const FORB_KONTEKST_SAMPLE = byggForbKontekst(
 	{ start: '2026', slutt: '2027', rekke: 'Andre' }
 );
 
-/** Render en mal (streng) mot kontekst. Kaster ved feil i malen. */
+/** Render en EJS-mal (streng) mot kontekst. Kaster ved feil i malen. */
 export function renderForbMal(mal, kontekst) {
-	return Mustache.render(mal, kontekst, undefined, { strict: true });
+	return ejs.render(migrerForbMal(mal), kontekst);
 }
 
 /** Filinnholdet for ett filnavn (kanonisk .md-navn): brukermal > standardmal > tom. */
 export function forbInnhold(navn, maler, kontekst) {
-	const kilde = maler?.[navn] ?? FORB_STANDARD_MALER[navn] ?? '';
+	const kilde = migrerForbMal(maler?.[navn] ?? FORB_STANDARD_MALER[navn] ?? '');
 	if (!kilde) return '';
 	return renderForbMal(kilde, kontekst);
 }
