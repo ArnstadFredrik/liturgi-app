@@ -407,6 +407,7 @@ function settForbModul(v) {
 							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
 						</div>
 					</div>
+					<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
 					<div class="inn-kort">
 						<div class="forb-mal-kolonner">
 							<div class="forb-mal-kol">
@@ -422,7 +423,6 @@ function settForbModul(v) {
 								{/if}
 							</div>
 						</div>
-						<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
 					</div>
 				</div>
 			{:else}
