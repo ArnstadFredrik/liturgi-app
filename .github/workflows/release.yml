@@ -46,6 +46,11 @@ jobs:
       - name: Valider (tester) på plattformen
         run: npm test
 
+      # Release-bygg viser bare versjonsnummeret - byggnr (tidsstempel) er for manuelle bygg
+      - name: Fjern byggnr får release-bygget
+        shell: bash
+        run: rm -f electron/byggnr.txt
+
       - name: Bygg SvelteKit + Electron
         shell: bash
         run: npm run build && npx electron-builder --${{ matrix.platform }} --publish always

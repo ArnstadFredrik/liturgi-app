@@ -19,7 +19,7 @@ ipcMain.on('app:dirty', (e, v) => {
 ipcMain.handle('app:info', () => {
 	const bygg = fs.existsSync(path.join(__dirname, 'byggnr.txt'))
 		? fs.readFileSync(path.join(__dirname, 'byggnr.txt'), 'utf8').trim()
-		: 'dev';
+		: ''; // mangler = release-bygg: vis bare versjonsnummeret
 	return { versjon: app.getVersion(), bygg };
 });
 
