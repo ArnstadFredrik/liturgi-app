@@ -548,7 +548,12 @@ ipcMain.on('tema:naativ', (_e, t) => {
 
 // «Åpne mappe»: vis gudstjenestefilen i Finder
 ipcMain.handle('apne:mappe', (_e, p) => {
-	if (typeof p === 'string' && p) shell.showItemInFolder(p);
+	if (typeof p === 'string' && p) {
+		// res: { ok } s rendereren kan falle tilbake til mindre spesifikke mapper
+		if (!fs.existsSync(p)) return { ok: false };
+		shell.showItemInFolder(p);
+		return { ok: true };
+	}
 });
 
 // ---------- DEV: malredigeringsverktøy (aldri med i pakkede bygg) ----------

@@ -272,12 +272,28 @@
 		const mnd = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
 		return dager[d.getDay()] + ' ' + d.getDate() + '. ' + mnd[d.getMonth()] + ' ' + d.getFullYear();
 	}
-	/** Åpne prekenforberedelse-mappen i Finder (hvis den er valgt). */
+	/** Åpne prekenforberedelse-mappen i Finder. Ved valgt dag åpnes mappen
+ *  for aktuell kirkeårsdag hvis den finnes (ellers åremappen/rotmappen). */
 	async function apneForbMappe() {
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
 		const mappe = r?.ok ? (r.value ?? '') : '';
 		if (!mappe) { toast.info('Velg mappe for prekenforberedelser i Innstillinger først'); return; }
+		if (valgtDag) {
+			const start = church_startYear(valgtDag.date) ?? new Date(valgtDag.date).getFullYear();
+			const rekke = forbRekkeForDag(valgtDag, alleKirkeaarsDager);
+			const aaMappe = start + '-' + (start + 1) + ' - ' + rekke + ' Rekke';
+			const kandidater = [
+				mappe + '/' + aaMappe + '/' + valgtDag.name,
+				mappe + '/' + aaMappe,
+				mappe
+			];
+			for (const sti of kandidater) {
+				const res = await window.liturgi.apneMappe(sti);
+				if (res?.ok) return;
+			}
+			return;
+		}
 		await window.liturgi.apneMappe(mappe);
 	}
 
