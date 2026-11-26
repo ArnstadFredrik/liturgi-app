@@ -396,6 +396,30 @@ function settForbModul(v) {
 	</div>
 
 	{:else}
+			{#if forbMalRedigerer}
+				<div class="inn-seksjon">
+					<div class="inn-seksjon-topp">
+						<button class="inn-handling" onclick={lukkForbMal}>{mdi('chevron.left')} Tilbake</button>
+						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
+					</div>
+					<div class="inn-kort">
+						<div class="inn-rad inn-rad-kolonne">
+							<textarea class="forb-mal-tekst" bind:value={forbMalTekst} rows="16" spellcheck="false"></textarea>
+							<div class="forb-mal-handlinger">
+								<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
+								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
+								<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
+							</div>
+							<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
+							{#if forbMalForhandsvis}
+								<div class="forb-mal-forhandsvis"><strong>Forhåndsvisning (Julaften):</strong>
+									<pre>{forbMalForhandsvis}</pre>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
+			{:else}
 		<div class="inn-seksjon">
 			<div class="inn-seksjon-tittel">Prekenforberedelse</div>
 			<div class="inn-kort">
@@ -474,8 +498,8 @@ function settForbModul(v) {
 								{:else}
 									<span class="forb-fil-navn">{navn}</span>
 								{/if}
-								<button class="inn-liten" title="Rediger malen for denne filen" onclick={() => apneForbMal(navn)}>Mal</button>
-							<button class="inn-liten" title="Endre navn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Endre'}</button>
+								<button class="inn-liten inn-liten-hall" title="Endre malen for denne filen" onclick={() => apneForbMal(navn)}>Endre</button>
+							<button class="inn-liten" title="Endre filnavn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Navn'}</button>
 								<button class="inn-liten inn-liten-fare" title="Slett filen fra listen" onclick={() => slettForbFil(ix)}>Slett</button>
 							</div>
 						{/each}
@@ -485,29 +509,10 @@ function settForbModul(v) {
 							<button class="inn-liten" onclick={leggTilForbFil}>Legg til</button>
 						</div>
 					</div>
-
-					{#if forbMalRedigerer}
-						<div class="forb-mal-panel">
-							<div class="forb-mal-topp">Mal: <code>{forbMalRedigerer}</code> {forbMalRedigerer in (app.forbMaler ?? {}) ? '' : '(standard)'}</div>
-							<textarea class="forb-mal-tekst" bind:value={forbMalTekst} rows="14" spellcheck="false"></textarea>
-							<div class="forb-mal-handlinger">
-								<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
-								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvis</button>
-								<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
-								<button class="inn-handling" class:av={true} onclick={lukkForbMal}>Lukk</button>
-							</div>
-							<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}, to for HTML-escapet.</div>
-							{#if forbMalForhandsvis}
-								<div class="forb-mal-forhandsvis"><strong>Forhåndsvisning (Julaften):</strong>
-									<pre>{forbMalForhandsvis}</pre>
-								</div>
-							{/if}
-						</div>
-					{/if}
 				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
+			{/if}
+		{/if}
 	</div>
-
-	{/if}
-</div>

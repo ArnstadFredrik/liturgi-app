@@ -365,6 +365,10 @@ button.wide { width: 100%; }
 /* prekenforberedelse: fil-listen i Innstillinger */
 .inn-rad-kolonne { display: block; }
 .forb-filer { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+/* prekenforberedelse: underside for malredigering */
+.inn-seksjon-topp { display: flex; align-items: center; gap: 10px; }
+.inn-seksjon-topp .inn-seksjon-tittel { margin: 0; }
+
 .forb-fil-rad { display: flex; align-items: center; gap: 6px; }
 .forb-fil-navn { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 .forb-fil-input { font-size: 12px; padding: 3px 6px; border: 1px solid var(--border, #ccc); border-radius: 4px; background: transparent; color: inherit; width: 200px; }
