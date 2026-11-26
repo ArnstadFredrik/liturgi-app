@@ -122,6 +122,8 @@ Innholdet **kopieres** inn i filen – dokumentet forblir delbart uten referanse
 
 Ved oppstart henter appen i bakgrunnen bibeltekstene for hele kirkeåret og de andre tekstrekkene (den kommende kirkeårsdagen først, så resten av kirkeåret, deretter nabokirkeårene og til slutt merkedagene). Hentingen er rolig og sekvensiell med hvile mellom hver forespørsel til bibel.no, og kjører helt i bakgrunnen. Kirkeåret-modulen viser en fremdriftsindikator mens hentingen pågår. Etter første henting fungerer alt offline. Lukker du appen midt i hentingen, fortsetter den der den slapp ved neste oppstart.
 
+![Kirkeåret: dagens bønn, bibeltekster og tekstcache-indikator](bilder/kirkeaar.webp)
+
 ## Redigeringsvisningen
 
 ![Redigering: hvert ledd er et kort med verktøylinje og alternativer](bilder/redigering.webp)
