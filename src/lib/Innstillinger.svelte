@@ -7,6 +7,7 @@
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
 	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, renderForbMal } from '$lib/forb-maler.js';
 	import { malsprakHtml } from '$lib/handbok.js';
+	import { mdHtml } from '$lib/md.js';
 	import { toast } from 'svelte-sonner';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
@@ -177,10 +178,20 @@ function settForbModul(v) {
 	let forbFmt = $state('md'); // 'md' | 'docx'
 	let forbMalRedigerer = $state(''); // filnavn med malen pen
 	let forbMalTekst = $state('');
-	let forbMalForhandsvis = $state('');
-	let forbMalBredde = $state(0); // bind:clientWidth p kolonnebeholderen
-	let forbMalVisVis = $state(false); // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
+	let forbMalBredde = $state(0);
+	let forbMalVisHtml = $state(''); // live HTML av malens utdata (md-motoren) // bind:clientWidth p kolonnebeholderen
+	let forbMalVisOn = $state(false); // bryteren for forhåndsvisning (vis/skjul) // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
 	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
+
+	// live: visningen oppdateresforløpende fr det skrives
+	$effect(() => {
+		void forbMalTekst;
+		try {
+			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE));
+		} catch (e) {
+			forbMalVisHtml = '<p><em><strong>Feil i malen:</strong> ' + (e?.message ?? e) + '</em></p>';
+		}
+	});
 
 	onMount(async () => {
 		if (!isElectron) return;
@@ -214,7 +225,7 @@ function settForbModul(v) {
 	function lukkForbMal() {
 		forbMalRedigerer = '';
 		forbMalTekst = '';
-		forbMalForhandsvis = '';
+		forbMalVisHtml = '';
 	}
 
 	async function lagreForbMal() {
@@ -226,20 +237,17 @@ function settForbModul(v) {
 
 	function forhandsvisForbMal() {
 		try {
-			forbMalForhandsvis = renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE);
+			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE));
 		} catch (e) {
-			forbMalForhandsvis = 'Feil i malen: ' + (e?.message ?? e);
+			forbMalVisHtml = '<p><em><strong>Feil i malen:</strong> ' + (e?.message ?? e) + '</em></p>';
 		}
 	}
 
-	function byttForbMalVis() {
-		forbMalVisVis = !forbMalVisVis;
-		if (forbMalVisVis) forhandsvisForbMal(); // friske utdata ved visning
-	}
-
+	// live: forhandsvisningen oppdateres fortlpende mens det skrives
 	$effect(() => {
-		// ut av smal modus: til redigeringskolonnen
-		if (!forbMalSmal) forbMalVisVis = false;
+		if (!forbMalRedigerer) return;
+		void forbMalTekst;
+		forhandsvisForbMal();
 	});
 
 	async function tilbakestillForbMal(navn) {
@@ -420,29 +428,28 @@ function settForbModul(v) {
 						<button class="inn-handling" title="Åpner  Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{@html mdi('book-open-variant', 15)} Malvariabler</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
 						<div class="forb-mal-handlinger">
-							{#if forbMalSmal}
-								<button class="inn-handling" class:av={!forbMalVisVis} onclick={byttForbMalVis}>{forbMalVisVis ? 'Redigeringsfelt' : 'Forhåndsvisning'}</button>
-							{:else}
-								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
-							{/if}
+							<button class="inn-handling" class:av={forbMalVisOn} onclick={() => (forbMalVisOn = !forbMalVisOn)}>
+								{#if forbMalVisOn}{@html mdi('pencil', 14)} Redigeringsmal{:else}{@html mdi('file-document-outline', 15)} Forhåndsvisning{/if}
+							</button>
 							<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
 							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
 						</div>
 					</div>
 					<div class="inn-kort">
 						<div class="forb-mal-kolonner" bind:clientWidth={forbMalBredde}>
-							{#if !forbMalSmal || !forbMalVisVis}
+							{#if forbMalSmal ? !forbMalVisOn : true}
 								<div class="forb-mal-kol">
 									<div class="forb-mal-kol-tittel">Redigering</div>
 									<textarea class="forb-mal-tekst" bind:value={forbMalTekst} spellcheck="false"></textarea>
 								</div>
 							{/if}
-							{#if !forbMalSmal || forbMalVisVis}
+							{#if forbMalSmal ? forbMalVisOn : !forbMalVisOn}
 								<div class="forb-mal-kol">
 									<div class="forb-mal-kol-tittel">Forhåndsvisning (Julaften)</div>
-									{#if forbMalForhandsvis}
-										<pre class="forb-mal-vis">{forbMalForhandsvis}</pre>
+									{#if forbMalVisHtml}
+										<div class="forb-mal-vis hb-md">{@html forbMalVisHtml}</div>
 									{:else}
+										<div class="forb-mal-tom">Klikk «Forhåndsvisning» når du vil se utdata.</div>
 										<div class="forb-mal-tom">Klikk «Forhåndsvisning» for å se utdata.</div>
 									{/if}
 								</div>
