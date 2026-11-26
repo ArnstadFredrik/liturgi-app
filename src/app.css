@@ -376,15 +376,17 @@ button.wide { width: 100%; }
 .inn-liten:hover { background: var(--hover, rgba(128,128,128,0.12)); }
 .inn-liten-fare:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
 
-/* prekenforberedelse: filformat + malpanel (punkt 2-3) */
+/* prekenforberedelse: filformat + mal-dusesj (punkt 2-3) */
 .inn-format { display: flex; gap: 8px; }
-.forb-mal-panel { margin-top: 10px; padding: 10px; border: 1px solid var(--border, #ccc); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
-.forb-mal-topp { font-size: 12px; font-weight: 600; }
-.forb-mal-topp code { font-size: 11px; opacity: 0.8; }
-.forb-mal-tekst { width: 100%; min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; padding: 8px; border: 1px solid var(--border, #ccc); border-radius: 6px; background: transparent; color: inherit; resize: vertical; }
-.forb-mal-handlinger { display: flex; gap: 8px; flex-wrap: wrap; }
-.forb-mal-hjelp { font-size: 11px; opacity: 0.75; line-height: 1.5; }
-.forb-mal-forhandsvis pre { font-size: 11px; line-height: 1.45; white-space: pre-wrap; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 6px; padding: 8px; margin: 4px 0 0; }/* WIP-merke på uverifiserte maler (mal-tabellen) */
+/* to dynamiske kolonner: redigering + visning - skaleres og bryter etter plass */
+.forb-mal-kolonner { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+.forb-mal-kol { flex: 1 1 300px; min-width: 240px; max-width: 100%; display: flex; flex-direction: column; }
+.forb-mal-kol-tittel { font-size: 11px; font-weight: 600; opacity: 0.75; margin-bottom: 5px; }
+.forb-mal-tekst { width: 100%; height: 100%; min-height: 380px; flex: 1 1 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; padding: 8px; border: 1px solid var(--border, #ccc); border-radius: 6px; background: transparent; color: inherit; resize: vertical; box-sizing: border-box; }
+.forb-mal-handlinger { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.forb-mal-hjelp { font-size: 11px; opacity: 0.75; line-height: 1.5; margin-top: 10px; }
+.forb-mal-vis { flex: 1 1 auto; height: 100%; min-height: 380px; overflow: auto; font-size: 11px; line-height: 1.45; white-space: pre-wrap; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 6px; padding: 10px; margin: 0; box-sizing: border-box; }
+.forb-mal-tom { min-height: 380px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0.6; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 6px; }/* WIP-merke på uverifiserte maler (mal-tabellen) */
 .wip-merke {
 	display: inline-block;
 	font-size: 10px;

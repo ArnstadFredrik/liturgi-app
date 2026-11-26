@@ -201,7 +201,7 @@ function settForbModul(v) {
 		if (forbMalRedigerer === navn) { lukkForbMal(); return; }
 		forbMalRedigerer = navn;
 		forbMalTekst = app.forbMaler?.[navn] ?? FORB_STANDARD_MALER[navn] ?? '';
-		forbMalForhandsvis = '';
+		forhandsvisForbMal(); // visningsskolonnen fyres med en gang
 	}
 
 	function lukkForbMal() {
@@ -401,22 +401,28 @@ function settForbModul(v) {
 					<div class="inn-seksjon-topp">
 						<button class="inn-handling" onclick={lukkForbMal}>{mdi('chevron.left')} Tilbake</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
+						<div class="forb-mal-handlinger">
+							<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
+							<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
+							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
+						</div>
 					</div>
 					<div class="inn-kort">
-						<div class="inn-rad inn-rad-kolonne">
-							<textarea class="forb-mal-tekst" bind:value={forbMalTekst} rows="16" spellcheck="false"></textarea>
-							<div class="forb-mal-handlinger">
-								<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
-								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvisning</button>
-								<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
+						<div class="forb-mal-kolonner">
+							<div class="forb-mal-kol">
+								<div class="forb-mal-kol-tittel">Redigering</div>
+								<textarea class="forb-mal-tekst" bind:value={forbMalTekst} spellcheck="false"></textarea>
 							</div>
-							<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
-							{#if forbMalForhandsvis}
-								<div class="forb-mal-forhandsvis"><strong>Forhåndsvisning (Julaften):</strong>
-									<pre>{forbMalForhandsvis}</pre>
-								</div>
-							{/if}
+							<div class="forb-mal-kol">
+								<div class="forb-mal-kol-tittel">Forhåndsvisning (Julaften)</div>
+								{#if forbMalForhandsvis}
+									<pre class="forb-mal-vis">{forbMalForhandsvis}</pre>
+								{:else}
+									<div class="forb-mal-tom">Klikk «Forhåndsvisning» for å se utdata.</div>
+								{/if}
+							</div>
 						</div>
+						<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}</div>
 					</div>
 				</div>
 			{:else}
