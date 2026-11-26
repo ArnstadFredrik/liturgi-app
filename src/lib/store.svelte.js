@@ -1,6 +1,7 @@
 import { BUILTIN_TEMPLATES } from './data.js';
 import { fyllLesning } from './lit.js';
 import { lookupKirkeaar, hentTekster, lesTeksterCache } from './kirkeaar.js';
+import { lesForbFiler } from './forb-filer.js';
 
 const LS_KEY = 'liturgi-store-v1';
 const THEME_KEY = 'liturgi-theme';
@@ -35,6 +36,7 @@ export const app = $state({
 	portalToc: false, // en modul (Forberedelse) viser innhold i høyre sidemeny
 	forbModul: false, // prekenforberedelse-modulen (Kirkeåret kan generere mapper/filer) — standard AV
 	forbRediger: false, // prekenforberedelse-modulen i sidemenyen (redigeringsmodulen) — standard AV
+	forbFiler: null, // fil-listen som genereres per dag (null = standard) — leses fra db ved oppstart
 	vimModus: false, // global vim-binding i redigeringsfeltene
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
@@ -287,6 +289,9 @@ export function loadStore() {
 	});
 	window.liturgi?.dbGet?.('forbRediger')?.then?.((r) => {
 		app.forbRediger = (r?.value ?? '0') === '1';
+	});
+	window.liturgi?.dbGet?.('forbFiler')?.then?.((r) => {
+		app.forbFiler = lesForbFiler(r?.value);
 	});
 	window.liturgi?.dbSet?.('prekenforberedelseAktiv', null)?.catch?.(() => {}); // gammel nøkkel ryddes
 	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {

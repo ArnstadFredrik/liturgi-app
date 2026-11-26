@@ -4,6 +4,7 @@
 	import { valgModal } from '$lib/modal.svelte.js';
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -164,6 +165,48 @@ function settForbModul(v) {
 		} else {
 			salmeStatusTekst = 'Klarte ikke logge ut: ' + (r?.error ?? 'ukjent feil');
 		}
+	}
+	// fil-listen for prekenforberedelses-prosjekter (db 'forbFiler')
+	let forbFilListe = $state([]); // navn p filene som genereres
+	let forbFilRedigerer = $state(-1); // indeks som endres (inline omdping)
+	let forbFilNyttNavn = $state('');
+	let forbFilNy = $state(false); // 'Legg til fil'-raden
+
+	onMount(async () => {
+		if (!isElectron) return;
+		const r = await window.liturgi.dbGet('forbFiler');
+		forbFilListe = lesForbFiler(r?.value);
+	});
+
+	async function lagreForbFiler(liste) {
+		forbFilListe = liste;
+		app.forbFiler = liste;
+		await window.liturgi.dbSet('forbFiler', JSON.stringify(liste)).catch(() => {});
+	}
+
+	function leggTilForbFil() {
+		const n = normaliserForbFiler([...forbFilListe, forbFilNy], { standardHvisTom: false });
+		forbFilNy = '';
+		if (n.length > forbFilListe.length) lagreForbFiler(n);
+	}
+
+	function slettForbFil(i2) {
+		lagreForbFiler(forbFilListe.filter((_, ix) => ix !== i2));
+	}
+
+	function ferdigForbFilRediger() {
+		if (forbFilRedigerer < 0) return;
+		const liste = forbFilListe.map((n, ix) => (ix === forbFilRedigerer ? forbFilNyttNavn : n));
+		const n = normaliserForbFiler(liste, { standardHvisTom: false });
+		forbFilRedigerer = -1;
+		forbFilNyttNavn = '';
+		// omdping som kolliderte med et eksisterende navn gir uendret liste
+		if (n.length === liste.length) lagreForbFiler(n);
+	}
+
+	function startForbFilRediger(i2) {
+		forbFilRedigerer = i2;
+		forbFilNyttNavn = forbFilListe[i2];
 	}
 </script>
 
@@ -346,6 +389,33 @@ function settForbModul(v) {
 						</div>
 					</div>
 					<button class="inn-handling" onclick={velgForbMappe} disabled={forbJobber}>{forbJobber ? 'Lagrer …' : 'Velg mappe …'}</button>
+				</div>
+
+				<div class="inn-rad inn-rad-kolonne">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Filer som genereres</div>
+						<div class="inn-rad-beskriv">Liste over filene som opprettes i dagens mappe. Nye egendefinerte filer startes tomme; filer uten .md får endelsen automatisk.</div>
+					</div>
+					<div class="forb-filer">
+						{#each forbFilListe as navn, ix}
+							<div class="forb-fil-rad">
+								{#if forbFilRedigerer === ix}
+									<input class="forb-fil-input" bind:value={forbFilNyttNavn}
+										onkeydown={(e) => { if (e.key === 'Enter') ferdigForbFilRediger(); if (e.key === 'Escape') { forbFilRedigerer = -1; } }}
+										onblur={ferdigForbFilRediger} />
+								{:else}
+									<span class="forb-fil-navn">{navn}</span>
+								{/if}
+								<button class="inn-liten" title="Endre navn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Endre'}</button>
+								<button class="inn-liten inn-liten-fare" title="Slett filen fra listen" onclick={() => slettForbFil(ix)}>Slett</button>
+							</div>
+						{/each}
+						<div class="forb-fil-rad">
+							<input class="forb-fil-input" placeholder="ny-fil.md" bind:value={forbFilNy}
+								onkeydown={(e) => { if (e.key === 'Enter') leggTilForbFil(); }} />
+							<button class="inn-liten" onclick={leggTilForbFil}>Legg til</button>
+						</div>
+					</div>
 				</div>
 			{/if}
 		</div>

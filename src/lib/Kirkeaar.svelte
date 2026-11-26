@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
+	import { lesForbFiler } from '$lib/forb-filer.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
@@ -326,14 +327,18 @@
 		const start = church_startYear(valgtDag.date) ?? new Date(valgtDag.date).getFullYear();
 		const rekke = forbRekkeForDag(valgtDag, alleKirkeaarsDager);
 		const aaMappe = start + '-' + (start + 1) + ' - ' + rekke + ' Rekke';
+		const f = app.forbFiler?.length ? app.forbFiler : lesForbFiler(null);
+		const filer = {};
+		for (const navn of f) {
+			if (navn === 'notat.md') filer[navn] = byggNotat(valgtDag);
+			else if (navn === 'tekstmeditasjon.md') filer[navn] = byggMeditasjon(valgtDag, valgtTekster);
+			else if (navn === 'preken.md') filer[navn] = '# Preken — ' + valgtDag.name + '\n\n';
+			else filer[navn] = ''; // egendefinerte filer startes tomme (punk 3: maler kommer)
+		}
 		const r = await window.liturgi.forbLagProsjekt({
 			mappe,
 			dagNavn: aaMappe + '/' + valgtDag.name,
-			filer: {
-				'notat.md': byggNotat(valgtDag),
-				'preken.md': '# Preken — ' + valgtDag.name + '\n\n',
-				'tekstmeditasjon.md': byggMeditasjon(valgtDag, valgtTekster)
-			}
+			filer
 		});
 		if (!r?.ok) return;
 		// redigeringsmodulen av: bare generer filene, ikke åpner redigeringsvisningen
