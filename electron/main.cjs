@@ -308,7 +308,12 @@ ipcMain.handle('forb:lag-prosjekt', (_e, { mappe, dagNavn, filer }) => {
 		for (const [navn, innhold] of Object.entries(filer ?? {})) {
 			const full = path.join(dagMappe, navn);
 			if (!fs.existsSync(full)) {
-				fs.writeFileSync(full, innhold, 'utf8');
+				// base64-innhold (Word-filer fra renderer) skrives binrt
+				if (innhold && typeof innhold === 'object' && typeof innhold.base64 === 'string') {
+					fs.writeFileSync(full, Buffer.from(innhold.base64, 'base64'));
+				} else {
+					fs.writeFileSync(full, String(innhold ?? ''), 'utf8');
+				}
 				laget.push(navn);
 			}
 		}

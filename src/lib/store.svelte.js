@@ -37,6 +37,8 @@ export const app = $state({
 	forbModul: false, // prekenforberedelse-modulen (Kirkeåret kan generere mapper/filer) — standard AV
 	forbRediger: false, // prekenforberedelse-modulen i sidemenyen (redigeringsmodulen) — standard AV
 	forbFiler: null, // fil-listen som genereres per dag (null = standard) — leses fra db ved oppstart
+	forbFmt: 'md', // filformat for genereringen: 'md' eller 'docx'
+	forbMaler: null, // innholdsmaler per filnavn (mustache) — null = standardmaler
 	vimModus: false, // global vim-binding i redigeringsfeltene
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
@@ -292,6 +294,12 @@ export function loadStore() {
 	});
 	window.liturgi?.dbGet?.('forbFiler')?.then?.((r) => {
 		app.forbFiler = lesForbFiler(r?.value);
+	});
+	window.liturgi?.dbGet?.('forbFmt')?.then?.((r) => {
+		app.forbFmt = r?.value === 'docx' ? 'docx' : 'md';
+	});
+	window.liturgi?.dbGet?.('forbMaler')?.then?.((r) => {
+		try { app.forbMaler = JSON.parse(r?.value || '{}'); } catch { app.forbMaler = {}; }
 	});
 	window.liturgi?.dbSet?.('prekenforberedelseAktiv', null)?.catch?.(() => {}); // gammel nøkkel ryddes
 	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {

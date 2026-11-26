@@ -107,6 +107,7 @@
     "docx": "^9.0.0",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.2",
+    "mustache": "^4.2.0",
     "pdfjs-dist": "^4.10.38",
     "pptxgenjs": "^4.0.1",
     "svelte-sonner": "^1.2.3"

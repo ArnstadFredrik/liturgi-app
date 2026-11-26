@@ -3,6 +3,8 @@
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { lesForbFiler } from '$lib/forb-filer.js';
+	import { byggForbKontekst, forbInnhold, forbEkstern } from '$lib/forb-maler.js';
+	import { mdTilDocxBase64 } from '$lib/md-til-docx.js';
 	import { litHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
@@ -270,37 +272,6 @@
 		const mnd = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
 		return dager[d.getDay()] + ' ' + d.getDate() + '. ' + mnd[d.getMonth()] + ' ' + d.getFullYear();
 	}
-	function byggNotat(dag) {
-		const linjer = [
-			'# ' + dag.name,
-			'',
-			'- **Dato:** ' + datoTekst(dag.date),
-			'- **Liturgisk farge:** ' + (dag.color || '—'),
-			'- **Tekstrekke:** ' + (dag.series || '—') + (dag.periodInfo ? ' · ' + dag.periodInfo : ''),
-			'',
-			'## Tekster',
-			'- **Første lesning:** ' + (dag.L1 || '—'),
-			'- **Andre lesning:** ' + (dag.L2 || '—'),
-			'- **Evangelium:** ' + (dag.E || '—'),
-			''
-		];
-		if (dag.prayer) linjer.push('## Dagens bønn', '', dag.prayer, '');
-		linjer.push('## Salmer', '', '| Nr | Tittel | Liturgi |', '|----|--------|---------|', '|    |        |         |', '', '## Notater', '');
-		return linjer.join('\n');
-	}
-	function byggMeditasjon(dag, t) {
-		const linjer = ['# Tekstmeditasjon — ' + dag.name, ''];
-		const del = (tittel, ref, txt) => {
-			// tekstene er objekter { title, text } (hentTekster) — ikke rå strenger
-			const ren = txt ? ((txt.title ? '**' + txt.title + '**\n' : '') + (txt.text ?? '')) : '';
-			linjer.push('## ' + tittel + (ref ? ' — ' + ref : ''), '');
-			linjer.push(ren || '*Teksten er ikke hentet — åpne Kirkeåret med nettforbindelse og prøv igjen.*', '');
-		};
-		del('Evangelium', dag.E, t?.E);
-		del('Første lesning', dag.L1, t?.L1);
-		del('Andre lesning', dag.L2, t?.L2);
-		return linjer.join('\n');
-	}
 	/** Åpne prekenforberedelse-mappen i Finder (hvis den er valgt). */
 	async function apneForbMappe() {
 		if (!isElectron) return;
@@ -328,12 +299,28 @@
 		const rekke = forbRekkeForDag(valgtDag, alleKirkeaarsDager);
 		const aaMappe = start + '-' + (start + 1) + ' - ' + rekke + ' Rekke';
 		const f = app.forbFiler?.length ? app.forbFiler : lesForbFiler(null);
+		const kontekst = byggForbKontekst(valgtDag, valgtTekster, {
+			start: String(start),
+			slutt: String(start + 1),
+			rekke
+		});
+		const fmt = app.forbFmt === 'docx' ? 'docx' : 'md';
 		const filer = {};
+		const malFeil = [];
 		for (const navn of f) {
-			if (navn === 'notat.md') filer[navn] = byggNotat(valgtDag);
-			else if (navn === 'tekstmeditasjon.md') filer[navn] = byggMeditasjon(valgtDag, valgtTekster);
-			else if (navn === 'preken.md') filer[navn] = '# Preken — ' + valgtDag.name + '\n\n';
-			else filer[navn] = ''; // egendefinerte filer startes tomme (punk 3: maler kommer)
+			let innhold;
+			try {
+				innhold = forbInnhold(navn, app.forbMaler ?? {}, kontekst);
+			} catch (e) {
+				// feil i en mal: filen genereres tom (ikke blokkerer prosjektet), feilen meldes
+				innhold = '';
+				malFeil.push(navn + ': ' + (e?.message ?? e));
+			}
+			if (fmt === 'docx') {
+				filer[forbEkstern(navn, fmt)] = { base64: await mdTilDocxBase64(innhold) };
+			} else {
+				filer[navn] = innhold;
+			}
 		}
 		const r = await window.liturgi.forbLagProsjekt({
 			mappe,
@@ -342,8 +329,9 @@
 		});
 		if (!r?.ok) return;
 		// redigeringsmodulen av: bare generer filene, ikke åpner redigeringsvisningen
-		if (!app.forbRediger) {
-			toast.info('Filene er generert i ' + r.sti);
+		if (!app.forbRediger || fmt === 'docx') {
+			// docx støtter foreløpig kun generering (redigering er md-kun)
+			toast.info(fmt === 'docx' ? 'Word-filene er generert i ' + r.sti : 'Filene er generert i ' + r.sti);
 			return;
 		}
 		app.forbAapneSti = r.sti + '/notat.md';

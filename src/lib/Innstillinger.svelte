@@ -5,6 +5,8 @@
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
+	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, renderForbMal } from '$lib/forb-maler.js';
+	import { toast } from 'svelte-sonner';
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 
@@ -170,13 +172,68 @@ function settForbModul(v) {
 	let forbFilListe = $state([]); // navn p filene som genereres
 	let forbFilRedigerer = $state(-1); // indeks som endres (inline omdping)
 	let forbFilNyttNavn = $state('');
-	let forbFilNy = $state(false); // 'Legg til fil'-raden
+	let forbFilNy = $state(''); // nytt filnavn i Legg til-feltet
+	let forbFmt = $state('md'); // 'md' | 'docx'
+	let forbMalRedigerer = $state(''); // filnavn med malen pen
+	let forbMalTekst = $state('');
+	let forbMalForhandsvis = $state('');
+
 
 	onMount(async () => {
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('forbFiler');
 		forbFilListe = lesForbFiler(r?.value);
+		const rf = await window.liturgi.dbGet('forbFmt');
+		forbFmt = rf?.value === 'docx' ? 'docx' : 'md';
+		const rm = await window.liturgi.dbGet('forbMaler');
+		try { app.forbMaler = JSON.parse(rm?.value || '{}'); } catch { app.forbMaler = {}; }
 	});
+
+	const MALVARIABLER = 'dag.navn, dag.dato, dag.datoTekst, dag.farge, dag.rekke, dag.periode, dag.bonn; tekster.E / L1 / L2 med .ref, .tittel, .tekst, .harInnhold; kirkeaar.start, .slutt, .rekke. Seksjoner med 2 klamrer ({{#tekster.E}}...{{/tekster.E}}) gøør nokklene (ref, tittel, tekst, harInnhold) relative. Tre klamrer = rå tekst, to = escaper';;
+	async function settForbFmt(v) {
+		forbFmt = v;
+		app.forbFmt = v;
+		await window.liturgi.dbSet('forbFmt', v).catch(() => {});
+	}
+
+	// innholdsmaler (punk 3): en tekst per fil, mustache
+	function apneForbMal(navn) {
+		if (forbMalRedigerer === navn) { lukkForbMal(); return; }
+		forbMalRedigerer = navn;
+		forbMalTekst = app.forbMaler?.[navn] ?? FORB_STANDARD_MALER[navn] ?? '';
+		forbMalForhandsvis = '';
+	}
+
+	function lukkForbMal() {
+		forbMalRedigerer = '';
+		forbMalTekst = '';
+		forbMalForhandsvis = '';
+	}
+
+	async function lagreForbMal() {
+		const maler = { ...(app.forbMaler ?? {}), [forbMalRedigerer]: forbMalTekst };
+		app.forbMaler = maler;
+		await window.liturgi.dbSet('forbMaler', JSON.stringify(maler)).catch(() => {});
+		toast.info('Malen er lagret for ' + forbMalRedigerer);
+	}
+
+	function forhandsvisForbMal() {
+		try {
+			forbMalForhandsvis = renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE);
+		} catch (e) {
+			forbMalForhandsvis = 'Feil i malen: ' + (e?.message ?? e);
+		}
+	}
+
+	async function tilbakestillForbMal(navn) {
+		const maler = { ...(app.forbMaler ?? {}) };
+		const fikk = navn in maler;
+		delete maler[navn];
+		app.forbMaler = maler;
+		await window.liturgi.dbSet('forbMaler', JSON.stringify(maler)).catch(() => {});
+		if (forbMalRedigerer === navn) forbMalTekst = FORB_STANDARD_MALER[navn] ?? '';
+		toast.info(fikk ? 'Malen er tilbakestilt til standard for ' + navn : navn + ' bruker allerede standardmalen');
+	}
 
 	async function lagreForbFiler(liste) {
 		forbFilListe = liste;
@@ -391,6 +448,17 @@ function settForbModul(v) {
 					<button class="inn-handling" onclick={velgForbMappe} disabled={forbJobber}>{forbJobber ? 'Lagrer …' : 'Velg mappe …'}</button>
 				</div>
 
+				<div class="inn-rad">
+					<div class="inn-rad-tekst">
+						<div class="inn-rad-tittel">Filformat</div>
+						<div class="inn-rad-beskriv">Word-filene kan ikke redigeres i modulen (kun generering); markdown-filene redigeres som vanlig.</div>
+					</div>
+					<div class="inn-format">
+						<button class="inn-handling" class:av={forbFmt !== 'md'} onclick={() => settForbFmt('md')}>Markdown (.md)</button>
+						<button class="inn-handling" class:av={forbFmt !== 'docx'} onclick={() => settForbFmt('docx')}>Word (.docx)</button>
+					</div>
+				</div>
+
 				<div class="inn-rad inn-rad-kolonne">
 					<div class="inn-rad-tekst">
 						<div class="inn-rad-tittel">Filer som genereres</div>
@@ -406,7 +474,8 @@ function settForbModul(v) {
 								{:else}
 									<span class="forb-fil-navn">{navn}</span>
 								{/if}
-								<button class="inn-liten" title="Endre navn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Endre'}</button>
+								<button class="inn-liten" title="Rediger malen for denne filen" onclick={() => apneForbMal(navn)}>Mal</button>
+							<button class="inn-liten" title="Endre navn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Endre'}</button>
 								<button class="inn-liten inn-liten-fare" title="Slett filen fra listen" onclick={() => slettForbFil(ix)}>Slett</button>
 							</div>
 						{/each}
@@ -416,6 +485,25 @@ function settForbModul(v) {
 							<button class="inn-liten" onclick={leggTilForbFil}>Legg til</button>
 						</div>
 					</div>
+
+					{#if forbMalRedigerer}
+						<div class="forb-mal-panel">
+							<div class="forb-mal-topp">Mal: <code>{forbMalRedigerer}</code> {forbMalRedigerer in (app.forbMaler ?? {}) ? '' : '(standard)'}</div>
+							<textarea class="forb-mal-tekst" bind:value={forbMalTekst} rows="14" spellcheck="false"></textarea>
+							<div class="forb-mal-handlinger">
+								<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
+								<button class="inn-handling" onclick={forhandsvisForbMal}>Forhåndsvis</button>
+								<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
+								<button class="inn-handling" class:av={true} onclick={lukkForbMal}>Lukk</button>
+							</div>
+							<div class="forb-mal-hjelp"><strong>Malens variabler:</strong> {MALVARIABLER}, to for HTML-escapet.</div>
+							{#if forbMalForhandsvis}
+								<div class="forb-mal-forhandsvis"><strong>Forhåndsvisning (Julaften):</strong>
+									<pre>{forbMalForhandsvis}</pre>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
