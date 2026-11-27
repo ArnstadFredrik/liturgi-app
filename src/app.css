@@ -2190,3 +2190,10 @@ sub { font-size: 0.75em; }
 .ka-tekstoverskrift { display: flex; align-items: center; gap: 8px; }
 .ka-tekstoverskrift .ka-spinner { flex: none; width: 12px; height: 12px; margin: 0 2px; }
 .ka-ingen-tekst { padding: 10px 0 2px; }
+
+/* Bibliotek: sk-felt med tom-knapp + tom-tilstand-CTA */
+.biblio-sok-felt { display: flex; align-items: center; gap: 6px; position: relative; }
+.biblio-sok-felt input { padding-right: 30px; }
+.biblio-sok-tom { position: absolute; right: 8px; padding: 2px; border: none; background: none; color: var(--muted); cursor: pointer; }
+.biblio-sok-tom:hover { color: var(--text); }
+.biblio-tom-cta { display: flex; align-items: center; gap: 12px; justify-content: center; flex-direction: column; padding: 28px; border: 1px dashed var(--border); border-radius: 12px; margin: 6px 0 14px; }
