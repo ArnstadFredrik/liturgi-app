@@ -7,6 +7,17 @@
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const MAX_RECENT = 5;
+	/** Global nettstatus — gjelder hele appen, ikke enkeltmoduler. */
+	let online = $state(true);
+
+	$effect(() => {
+		online = navigator.onLine;
+		const opp = () => (online = navigator.onLine);
+		window.addEventListener('online', opp);
+		window.addEventListener('offline', opp);
+		return () => { window.removeEventListener('online', opp); window.removeEventListener('offline', opp); };
+	});
+	import { onMount } from 'svelte';
 
 	/** Undertittel: dato + kirkeårsdag. Tjenesteobjekt (kirkeaar = objekt) eller
 	 *  recent-rad fra databasen (kirkeaar = ren streng). */
@@ -218,5 +229,9 @@
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
 			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}
 		</button>
+		<div class="nett-status" title={online ? 'Online: bibeltekster og salmer hentes fra nettet' : 'Offline: viser det som ligger i mellomlageret'}>
+		<span class="nett-dot" class:off={!online} aria-hidden="true"></span>
+		{online ? 'Online' : 'Offline'}
 	</div>
+</div>
 </aside>

@@ -92,9 +92,10 @@
 
 	/** Side-TOC: delene på hovedsiden (Dagens bønn + lesningene) for rask navigering
 	 *  når tekstene er lastet og siden må scrolles. Offline er alt på én side — ingen TOC. */
-	/** G til dags dato i hyrepanelet (valg + teksthent). */
-	function gaTilIDag() {
-		const d = alleKirkeaarsDager.find((x) => x.date === iDag);
+	/** N-knappen: velg frste kommende kirkeårsdag (i dag hvis den er en).
+	 * I dag alene er ubrukelig de fleste dager: søndager og merkedager har egne dager. */
+	function gaTilNaa() {
+		const d = alleKirkeaarsDager.find((x) => x.date >= iDag) ?? null;
 		if (d) hentDag(d);
 	}
 
@@ -177,7 +178,8 @@
 		const id = dag.date + dag.name; // anrop-identitet: rask klikking i sekvens
 		valgtTekster = null;
 		valgtHenter = true;
-		aapne = { L1: false, L2: false, E: false };
+		// folden er reserveslsning: tekster som finnes (cachet) pner automatisk
+		aapne = { L1: null, L2: null, E: null };
 		let t = null;
 		if (online) {
 			try { t = await hentTekster(dag.day, await lesTeksterCache(), dag.series); } catch { t = null; }
@@ -185,6 +187,12 @@
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
 		valgtTekster = t;
 		valgtHenter = false;
+		// pner tekster som ligger i cache (tekster som m hentes forblir lukket til de kommer):
+		aapne = {
+			L1: !!(t && t.L1),
+			L2: !!(t && t.L2),
+			E: !!(t && t.E)
+		};
 	}
 
 	/** Velg en dag: alt unntatt selve bibelteksten vises umiddelbart fra church-year-data. */
@@ -387,29 +395,8 @@
 			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() }
 		]); }}>
 	<div class="ka-hoved">
-	{#if app.tekstCache.gaar}
-		<div class="tekstcache-indikator" role="status">
-			<span class="tekstcache-spinner" aria-hidden="true"></span>
-			<span>Henter bibeltekster: {app.tekstCache.fase} — {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
-			<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
-		</div>
-	{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
-		<div class="tekstcache-indikator tekstcache-ferdig" role="status">
-			Bibeltekstene for kirkeåret er mellomlagret ({app.tekstCache.totalt} dager)
-			<button class="ka-cache-oppdater" title="Henter det som mangler i mellomlageret" onclick={() => startTekstCacheBakgrunn()}>Oppdater</button>
-		</div>
-	{/if}
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
-			<span class="ka-nett" class:off={!online}>{online ? 'Online — bibeltekster hentes fra bibel.no' : 'Offline — viser kun referanser'}</span>
-			{#if app.forbModul}
-				<button class="ka-forberedelse" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>
-					{@html mdi('pencil', 14)} Prekenforberedelse
-				</button>
-			{/if}
-			<button class="ka-forberedelse" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>
-				{@html mdi('folder-open-outline', 14)} Åpne mappe
-			</button>
 		</div>
 
 		<div class="ka-sok">
@@ -451,6 +438,12 @@
 			<div class="ka-valgt">
 				<h3 class="ka-tittel">{valgtDag.name}</h3>
 				<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
+				<div class="ka-valgt-handlinger">
+					{#if app.forbModul}
+					<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag.name}" onclick={prekenforberedelse}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
+					{/if}
+					<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
+				</div>
 				{#if valgtDag.prayer}
 					<h4 data-seksjon="boenn">Bønn for {valgtDag ? valgtDag.date : ''}</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
@@ -493,7 +486,7 @@
 	<aside class="ka-panel">
 		<div class="ka-panel-topp">
 			<h3>Kirkeåret</h3>
-			<button type="button" class="ka-idag-knapp" title="Gå til dags dato" onclick={gaTilIDag}>I dag</button>
+			<button type="button" class="ka-idag-knapp" title="Gå til dags dato" onclick={gaTilNaa}>Nå</button>
 			<button type="button" class="avpaa" role="checkbox" aria-checked={visMerkedager} title="Inkluder merkedager" onclick={() => lagreInnstilling(!visMerkedager)}>
 				<span class="avpaa-tekst">Merkedager</span>
 				<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
@@ -529,6 +522,15 @@
 					</button>
 				{/if}
 			{/each}
+			<div class="ka-cache-status" role="status">
+			{#if app.tekstCache.gaar}
+				<span>Henter tekster {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
+				<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
+			{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
+				<span class="ka-cache-info">Mellomlager: {app.tekstCache.totalt} dager</span>
+				<button class="ka-cache-oppdater" title="Henter det som mangler i mellomlageret" onclick={() => startTekstCacheBakgrunn()}>Oppdater</button>
+			{/if}
 		</div>
+	</div>
 	</aside>
 </div>
