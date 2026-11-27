@@ -5,7 +5,7 @@
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
-	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal, migrerForbMal } from '$lib/forb-maler.js';
+	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal, migrerForbMal, forbEkstern } from '$lib/forb-maler.js';
 	import { kirkeaarDager, lesTeksterCache, hentTekster, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { uthev } from '$lib/highlight.js';
 	import { malsprakHtml } from '$lib/handbok.js';
@@ -312,9 +312,16 @@ function settForbModul(v) {
 	}
 
 	function leggTilForbFil() {
-		const n = normaliserForbFiler([...forbFilListe, forbFilNy], { standardHvisTom: false });
+		const base = forbFilNy.replace(/\.(md|docx)$/i, '');
+		const n = normaliserForbFiler([...forbFilListe, base ? base + '.md' : forbFilNy], { standardHvisTom: false });
 		forbFilNy = '';
 		if (n.length > forbFilListe.length) lagreForbFiler(n);
+	}
+
+	/** Kanonisk lager-nøkkel: alltid .md (maler er nøklet på dette navnet). */
+	function forbKanonNavn(n) {
+		const s = String(n || '').replace(/\.(md|docx)$/i, '').trim();
+		return s ? s + '.md' : '';
 	}
 
 	function slettForbFil(i2) {
@@ -323,17 +330,28 @@ function settForbModul(v) {
 
 	function ferdigForbFilRediger() {
 		if (forbFilRedigerer < 0) return;
-		const liste = forbFilListe.map((n, ix) => (ix === forbFilRedigerer ? forbFilNyttNavn : n));
-		const n = normaliserForbFiler(liste, { standardHvisTom: false });
+		const i2 = forbFilRedigerer;
+		const gammel = forbFilListe[i2];
+		const nytt = forbKanonNavn(forbFilNyttNavn);
 		forbFilRedigerer = -1;
 		forbFilNyttNavn = '';
-		// omdping som kolliderte med et eksisterende navn gir uendret liste
-		if (n.length === liste.length) lagreForbFiler(n);
+		if (!nytt || nytt === gammel) return; // tomt eller uendret
+		if (forbFilListe.includes(nytt)) { toast.info(nytt + ' finnes allerede i listen'); return; }
+		// malen følger filen (nøkkelen bytter navn) — ellers bytter malene «rundt»
+		if (gammel in (app.forbMaler ?? {})) {
+			const maler = { ...app.forbMaler };
+			maler[nytt] = maler[gammel];
+			delete maler[gammel];
+			app.forbMaler = maler;
+			window.liturgi.dbSet('forbMaler', JSON.stringify(maler)).catch(() => {});
+		}
+		lagreForbFiler(forbFilListe.map((n, ix) => (ix === i2 ? nytt : n)));
 	}
 
 	function startForbFilRediger(i2) {
 		forbFilRedigerer = i2;
-		forbFilNyttNavn = forbFilListe[i2];
+		forbFilNyttNavn = forbEkstern(forbFilListe[i2], forbFmt);
+		setTimeout(() => document.querySelector('.forb-fil-input-rediger')?.focus(), 0);
 	}
 </script>
 
@@ -571,17 +589,16 @@ function settForbModul(v) {
 				<div class="inn-rad inn-rad-kolonne forb-maler-rad">
 					<div class="inn-rad-tekst">
 						<div class="inn-rad-tittel">Filer som genereres</div>
-						<div class="inn-rad-beskriv">Liste over filene som opprettes i dagens mappe. Nye egendefinerte filer startes tomme; filer uten .md får endelsen automatisk.</div>
+						<div class="inn-rad-beskriv">Liste over filene som opprettes i dagens mappe. Endelsen flger filformatet du velger over (.md/.docx). Nye egendefinerte filer startes tomme.</div>
 					</div>
 					<div class="forb-filer">
 						{#each forbFilListe as navn, ix}
 							<div class="forb-fil-rad">
 								{#if forbFilRedigerer === ix}
-									<input class="forb-fil-input" bind:value={forbFilNyttNavn}
-										onkeydown={(e) => { if (e.key === 'Enter') ferdigForbFilRediger(); if (e.key === 'Escape') { forbFilRedigerer = -1; } }}
-										onblur={ferdigForbFilRediger} />
+									<input class="forb-fil-input forb-fil-input-rediger" bind:value={forbFilNyttNavn}
+										onkeydown={(e) => { if (e.key === 'Enter') ferdigForbFilRediger(); if (e.key === 'Escape') { forbFilRedigerer = -1; forbFilNyttNavn = ''; } }} />
 								{:else}
-									<span class="forb-fil-navn">{navn}</span>
+									<span class="forb-fil-navn">{forbEkstern(navn, forbFmt)}</span>
 								{/if}
 								<button class="inn-liten inn-liten-hall" title="Endre malen for denne filen" onclick={() => apneForbMal(navn)}>Endre</button>
 							<button class="inn-liten" title="Endre filnavn" onclick={() => (forbFilRedigerer === ix ? ferdigForbFilRediger() : startForbFilRediger(ix))}>{forbFilRedigerer === ix ? 'Lagre' : 'Navn'}</button>
@@ -589,7 +606,7 @@ function settForbModul(v) {
 							</div>
 						{/each}
 						<div class="forb-fil-rad">
-							<input class="forb-fil-input" placeholder="ny-fil.md" bind:value={forbFilNy}
+							<input class="forb-fil-input" placeholder="ny-fil" bind:value={forbFilNy}
 								onkeydown={(e) => { if (e.key === 'Enter') leggTilForbFil(); }} />
 							<button class="inn-liten" onclick={leggTilForbFil}>Legg til</button>
 						</div>
