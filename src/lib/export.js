@@ -743,6 +743,15 @@ return plan;
 export function lysbildeTallFor(plan, manuscript, ppt = null) {
 	const tall = {};
 	if (!manuscript?.sections || !plan?.posisjoner) return tall;
+	// planens gruppe-tekster per ledd (tekstmatch for manustall):
+	const planTekst = {};
+	for (const s of (plan ?? [])) {
+		if (s.nokkel == null || s.blank) continue;
+		const txt = (typeof s.segs === 'string' ? s.segs : (s.segs ?? []).map((x) => x.text).join('')).replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 60);
+		if (!txt) continue;
+		(planTekst[s.nokkel] ??= []).push({ n: s.nr, tekst: txt, del: s.del ?? 0 });
+	}
+	Object.defineProperty(tall, 'planTekst', { value: planTekst, enumerable: false });
 	// pptx-delingsparametere følger med kartet (non-enumerable: påvirker ikke
 	// nøkkeltellingen eller JSON-persistering)
 	if (ppt) Object.defineProperty(tall, 'lysPpt', { value: ppt, enumerable: false });
@@ -951,10 +960,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		return ut;
 	};
 	/** Tegn lysbildenummer i venstre marg på nåværende linje (høyrestilt). */
-	const tegnLysTall = (n, yPaa) => {
+	const tegnLysTall = (n, yPaa, xPaa) => {
 		if (!lysTall || n == null) return;
 		// blå sirkel med blått tall i — i den opprinnelige venstre margen
-		const cx = Math.max(3.5, margin - 6);
+		const cx = xPaa ?? Math.max(3.5, margin - 6);
 		const cy = (yPaa ?? y) + 2.1;
 		doc.setDrawColor(37, 99, 235);
 		doc.setLineWidth(0.5);
@@ -967,7 +976,13 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 	/** Tegn en stakk av lysbildenumre i margen (5 mm mellomrom) — teksten påvirkes ikke. */
 	const tegnLysStakk = (nrs, yBasis) => {
 		if (!nrs?.length) return; // NB: tegnes også i trang marg (lysMargin = 0)
-		nrs.forEach((n, k) => tegnLysTall(n, yBasis + k * 5));
+		// SIDELANGS, 2 per rad (5 mm radavstand) — aldri tall over/under hverandre
+		const x0Lys = Math.max(3.5, margin - 6);
+		nrs.forEach((n, k) => {
+			const kol = k % 2;
+			const rad = Math.floor(k / 2);
+			tegnLysTall(n, (yBasis ?? y) + rad * 5, x0Lys + kol * 4.7);
+		});
 	};
 
 	const skrivLinjer = (text, opts = {}) => {
@@ -1177,11 +1192,20 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					grupper.forEach((grp, gi) => {
 						starts.push(p);
 						const liste = [];
-						if (gi === 0) liste.push(...ledende); // blanke slides før leddet (skjult innledning)
-						if (egne[gi]) liste.push(egne[gi].n);
-						if (gi === grupper.length - 1) liste.push(...avsluttende); // blanke slides etter leddet
-						numre.push(liste.length === 1 ? liste[0] : (liste.length ? liste : null));
-						p += grp.map((s) => s.text).join('').length;
+						// tall flger TEKSTEN: planens slide med samme gruppe-tekst, s
+						// innledning/avslutning-valgene forskutterer ikke tallene
+						const gtekst = String(grp.map((s) => s.text).join('')).replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 44);
+						const planDel = (valg.lysbildeTall?.planTekst?.[nokkel] ?? []).map((e) => ({ nr: e.n, tekst: e.tekst }));
+						const treff = gtekst ? planDel.find((s) => {
+							const pt = String(s.tekst ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+							return pt && (pt.startsWith(gtekst.slice(0, 36)) || gtekst.startsWith(pt.slice(0, 30)));
+						}) : null;
+						if (treff) liste.push(treff.nr);
+						else if (egne[gi]) liste.push(egne[gi].n);
+					if (gi === 0) liste.push(...ledende);
+					if (gi === grupper.length - 1) liste.push(...avsluttende);
+					numre.push(liste.length === 1 ? liste[0] : (liste.length ? liste : null));
+					p += grp.map((s) => s.text).join('').length;
 					});
 				}
 				// gruppe-starts i overskriften/instruksjonen: tall der (vanligvis bare gruppe 0)
