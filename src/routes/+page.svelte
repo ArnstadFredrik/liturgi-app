@@ -314,17 +314,6 @@
 		{#if app.current}
 			<DokInsp />
 		{/if}
-		{#if app.visning === 'eksport' && app.current}
-			<hr class="side-skiller" />
-			<div class="toc-avsnitt">
-				<div class="sidehead">Eksport</div>
-				<label class="lys-manus-valg" title="Genererer et lysbildemanus (medarbeiderutvalg) med lysbildenummer i venstre marg sammen med PowerPoint-eksporten. Lagres per profil (Skjerm).">
-					<input type="checkbox" checked={app.current?.eksportInnst?.Skjerm?.lysManus ?? false}
-						onchange={(e) => { app.current.eksportInnst = { ...(app.current.eksportInnst ?? {}), Skjerm: { ...(app.current.eksportInnst?.Skjerm ?? {}), lysManus: e.currentTarget.checked } }; }} />
-					Lysbildemanus
-				</label>
-			</div>
-		{/if}
 	</aside>
 </div>
 

@@ -399,7 +399,8 @@
 	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
 	function portal(node, target) {
 		const host = document.querySelector(target);
-		host?.appendChild(node);
+		// prepend: Profiler/Format/handlinger vises fr AVSNITT-listen (arbeidsflyten)
+		host?.prepend(node);
 		return { destroy() { node.remove(); } };
 	}
 
@@ -1537,11 +1538,12 @@
 			</div>
 
 			<div class="biblio-kort">
-				<div class="biblio-kort-hode"><span class="sidehead">Eksportformat</span></div>
+				<div class="biblio-kort-hode"><span class="sidehead">Format</span></div>
 				<div class="eksport-innst-gruppe">
 					<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
+					<label class="eksport-chk" title="Slideplanen som manus (Word/PDF) - følger Eksportår-knappen"><input type="checkbox" checked={getInnst('lysManus', false)} onchange={(e) => setInnst('lysManus', e.currentTarget.checked)} /> Lysbildemanus</label>
 					{#if formater.pptx}
 						<label class="eksport-chk"><span>Blanke sider </span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 							<option value="av">Ingen</option>
@@ -1549,7 +1551,7 @@
 							<option value="smart">Smart</option>
 						</select></label>
 					{/if}
-					<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
+					<button class="wide link-btn" title="Lagre formatvalgene som app-standard (blir med i nye gudstjenester)" onclick={lagreStandardFormater}>Sett som standard</button>
 				</div>
 			</div>
 			<div class="biblio-kort">
