@@ -1,16 +1,19 @@
 <script>
-	/** Felles fane-stripe for undermoduler (designplanen: «én navigasjons-
-	 *  grammatikk»). Gjenbruker segmentkontrollen .fb-visning-velger slik at
-	 *  Bibliotek/Innstillinger/Editor/Salmer/Eksport ser identiske ut. */
+	import { Tabs, TabsList, TabsTab } from '@ui-sdk/svelte/tabs';
+
+	/** Felles fane-stripe for undermoduler. Bygget på ui-sdk Tabs:
+	 *  piltaster, roving tabindex og aria-selected kommer gratis.
+	 *  Panelene ('modul-faner') rendres av forelderen. */
 	export let faner = []; // [{ id, navn, velg }]
 	export let aktiv = '';
 </script>
 
 <nav class="mod-faner">
-	<div class="fb-visning-velger" role="tablist">
-		{#each faner as f (f.id)}
-			<button role="tab" aria-selected={aktiv === f.id} class:sel={aktiv === f.id}
-				onclick={() => f.velg?.()}>{f.navn}</button>
-		{/each}
-	</div>
+	<Tabs value={aktiv} onValueChange={(v) => faner.find((f) => f.id === v)?.velg?.()}>
+		<TabsList class="fb-visning-velger" aria-label="Moduler">
+			{#each faner as f (f.id)}
+				<TabsTab value={f.id} class={aktiv === f.id ? 'sel' : ''}>{f.navn}</TabsTab>
+			{/each}
+		</TabsList>
+	</Tabs>
 </nav>
