@@ -1,0 +1,123 @@
+# UI/UX-gjennomgang — liturgi-app
+
+Gjennomgang av hele appen med fokus på styling og brukervennlighet.
+Metode: skjermbilder av alle visninger (mørkt + lyst tema, CDP mot test-db) +
+kildegjennomgang (`src/app.css`, modulene, `+page.svelte`), med **ui-sdk som
+referanse** (hodeuavhengige komponenter med innbygd tastatur/ARIA/fokus, se
+`node_modules/@ui-sdk/svelte/docs/`).
+
+---
+
+## Hovedfunn
+
+### 1. Fire ulike knappestiler blandes — knapptypene er ikke et system
+Fylt rød (fanen «Eksport», aktivt kort, «Eksportér alle profilene»), omriss
+(«Eksportér kun «Prest»», visningsvalg-chips), ghost (inaktive chips) og hvite
+kort («Lagre ▾»). Navigasjon (fane) ser identisk ut med primærhandling (knapp);
+chips ser ut som knapper men virker som brytere; «Sett som standard» og
+«+ Ny profil» er bare tekst.
+**→ Definer 4 knapptyper i app.css (primær / sekundær / ghost / fare) + én
+chip-stil per kontrolltype, og erstatt ad-hoc-stylingene. Differensier faner
+fra knapper (fane = understreket/lys bakgrunn, aldri fylt primærfarge).**
+
+### 2. Kontrast og tekststørrelse under WCAG AA i mesteparten av sekundærtekst
+57 steder bruker 10–11 px. Grå metadata («SIST BRUKT · SISTE 5», datoer,
+«Lilla · II», «1/16», «162 %»), small-caps-seksjonstitler («AVSNITT»,
+«EKSPORT», «GENERELT») og kode-chips ligger trolig under 4,5:1 på krem —
+spesielt i lyst tema. Previewet står i 162 % zoom som standard: teksten er
+for liten.
+**→ Hev minstetekst til 12,5–13 px, mørkne «muted»-fargen, verifiser
+kontrasten på faner/chips mot 4,5:1 (liturgirøden `#c0392b` på creme
+`#f6f1e7` er fin for store elementer, men grensetilfelle for liten tekst).**
+
+### 3. Tastatur- og skjermleser-støtte er ufullstendig
+`:focus-visible` finnes bare i app.css + Malverkøy; `aria-label` bare i
+6 moduler; kun 24 `aria-pressed/-checked/-expanded` i hele koden. Ikonknapper
+uten navn: panelkollaps, nullstill (↺), «Aa»-merket, zoom −/+. Ingen synlig
+fokus på chips/faner, ingen «hopp til innhold», leddkortets kombinasjon
+(avkryssning + chip + tittel + dra) mangler gruppering.
+**→ Bygg kontrollene på ui-sdk-komponentene (Switch, Checkbox, TabList,
+Dialog, Menu, Tooltip) — tastatur, ARIA og fokus følger med. Definer én
+global fokusring-token og `:focus-visible`-regel.**
+
+### 4. Informasjonsarkitekturen i eksportmodulen står «på hodet»
+Arbeidsflyten er: velg profil → velg format → eksporter — men panelet viser:
+AVSNITT → EKSPORT (én avkrysningsboks) → PROFILER → EKSPORTFORMAT → knapper.
+«Lysbildemanus» hører inn under formatvalget (Word/PDF/PPTX/slideplan);
+«Sett som standard» gjelder hele profilen, ikke bare formatet. Primærknappene
+ligger nederst, trolig under folden.
+**→ Rekkefølge i panelet: PROFILER → FORMAT (4 formater) → AVSNITT (;»
+eksportknappene fast nederst, alltid synlige. Slå EKSPORT + EKSPORTFORMAT
+sammen i ett «Format»-panel.**
+
+### 5. Duplikater og navneblanding i sidebaren
+«Bakke - Gudstjeneste» vises både under Åpne og Sist brukt; «2026-11-22 …
+Kristi kongedag» to ganger; «Mørkt utseende» (en handling) ligger blant
+navigasjonslenkene; «Diff» / «Malverktøy» er utviklerverktøy uten avstand
+fra brukerfunksjonene.
+**→ Dedupliser «Sist brukt» mot åpne filer; flytt temabryteren ut av
+navigasjonen (ikonknapp i topplinjen); grupper Diff/Malverktøy under en
+diskret «Utvikler»-seksjon som kan skjules.**
+
+---
+
+## Konkret plan (prioritert)
+
+### P1 — Grunnlag: tokens + kontrollsystem (FERDIG, commits d7b49f4–08ab902)
+1. **Designtokens i app.css**: farger (liturgirød / mørkrød / success / danger /
+   dempet), mellomrom (4 nivåer), radius, skriftstørrelser (lt/md/lg),
+   fokusring. Refaktorer ad-hoc-verdier til var()-bruk.
+2. **Knapptyper + chip-stil** (hovedfunn 1) som globale klasser.
+3. **ui-sdk-utskifting, runde 1** (størst gevinst fra ferdig tilgjengelighet):
+   - Kontekstmenyene (15 høyreklikk-steder) → ui-sdk **Menu**
+   - Dialogene (Modal.svelte, KonverterModal) → ui-sdk **Dialog**
+   - Fanene (Redigering/Oversikt/Salmer/Eksport; Bibliotek/Maler;
+     Innstillinger) → ui-sdk **TabList**
+   - Visningsvalg-chips → ui-sdk **ToggleGroup** (holder orden på
+     aria-pressed og multiple)
+
+### P2 — Eksportmodulen (viktigste arbeidsflate)
+4. Rekkefølge og gruppering i høyre panel (hovedfunn 4); eksportknappene
+   fast nederst og alltid synlige.
+5. «EKSPORT» + «EKSPORTFORMAT» → ett «Format»-panel; «Lysbildemanus» som
+   fjerde format; «Sett som standard» flyttes til profilseksjonen;
+   «Blanke sider» inn under formatvalget.
+6. Zoomkontrollen fast i forhåndsvisningslinjen (ikke flytende over
+   innholdet); slå «1/16» og sidechipen sammen til én indikator.
+7. «Lagre» ut av verktøylinjen (oppleves som instruksjonsknapp klemt mellom
+   innstillinger); vurder lagre-hint i sidebaren.
+8. Funksjonsforklaringer for visuelle statusmerker: «Menighet»-deaktivering
+   får forklaring via tittel/hint, «Innhold med» får tydelig Rolle.
+
+### P3 — De øvrige visningene
+9. **Salmer**: layout + «Format»-panelets mønster.
+10. **Kirkeåret**: fargedots får tekst og tooltip (liturgisk fargenavn),
+    ukedag i datolisten, sesonginndeling i kalenderen, «I dag»-knapp,
+    cachingbanneret får «Oppdater»-knapp. «Dagens bønn» → «Bønn for
+    {dato}». Korrekturles navn (stavemåter over hele linjen).
+11. **Bibliotek**: vis original-resultater i tom-tilstanden i stedet for
+    død sone; «Etter type» → eksplisitt filterknapp med aktivmerke +
+    «nullstill»; tag-/mappenavigasjon av ressursbanken.
+12. **Innstillinger**: skill hjelp / lagring / konto i egne grupper (h3);
+    «Regenerer» / «Logg ut» får egen destruktiv knappestil + bekreftelse
+    (ui-sdk Dialog); versjonslinjen flyttes til foten.
+13. **Sidebar**: dedupe (hovedfunn 5), ett fokus- og klikkmål per element.
+
+### P4 — Finpuss
+14. Kontrast- og størrelsespass over alle 10–11 px-tekster (hovedfunn 2).
+15. Synlig fokus globalt via `:focus-visible`-token.
+16. Mikrospråk: «cachet» → «mellomlagret»; konsist datonormal
+    («søndag 29. november 2026») overalt; anførselsteg ok.
+17. Eksport-teksttrekk (delPptSegs-delepunkter og margtallstøtten er nylig
+    fixet — ingen endringer her utover oppfølgingsverifisering).
+
+---
+
+## Estimert omfang
+- P1: tokens + knapper + 4 ui-sdk-komponenter (ca. én økt)
+- P2: eksportmodulen (én økt; røyktest + CDP-verifisering)
+- P3: per visning småpuljer (3–5 endringer hver)
+- P4: én kort finpusset bolk (kontrast/fokus/språk)
+
+Anbefaler P1 → P2 i rekkefølge; verifisering hver gang med røyktestene og
+CDP-skjermbilder.
