@@ -197,6 +197,38 @@ export function nlDate(d) {
 	});
 }
 
+/** Ordnet matching av manus-avsnitt mot plan-slidene (lysblidemanus): pekeren
+ *  gr bare FREMOVER siden manus og plan flger samme rekkeflge gjennom
+ *  leddet. Slides kan vre gruppert annerledes enn manus-avsnittene (planen
+ *  slr sammen/flytter grenser nr innledning/avslutning skjules for Skjerm),
+ *  s treffet godtas bde Coupe og -innehold. Avsnitt som ikke finnes i planen
+ *  (f.eks. innledning/avslutning som Skjerm-visningen ikke tar med) fr intet
+ *  tall - i stedeet for neste slides nummer (feilplasseringen).
+ *  Returnerer { nr, tomPlan }: nr = slide-nummer eller null; tomPlan =
+ *  planTekst-mangler (ekstern produsent) - da skal kallet beholde sin
+ *  sekvensielle fallback. */
+function lagGruppeMapper() {
+	const peker = new Map();
+	return (nokkel, gt, planDel) => {
+		if (!gt || !planDel?.length) return { nr: null, tomPlan: !planDel?.length };
+		const st = peker.get(nokkel) ?? { idx: 0 };
+		peker.set(nokkel, st);
+		const lik = (pt, g) => {
+			if (!pt) return false;
+			return pt.startsWith(g.slice(0, 30)) || g.startsWith(pt.slice(0, 24))
+				|| (g.length > 12 && pt.includes(g.slice(0, 24)))
+				|| (pt.length > 12 && g.includes(pt.slice(0, 24)));
+		};
+		// skann fra pekeren og FREMOVER: manus-avsnitt som ikke er i skjermen
+		// (etiketter, innledning/avslutning skjult for Skjerm) gr ut uten  spise
+		// noen plan-slide - pekeren stryr bare fremover med vellykkede treff
+		for (let i = st.idx; i < planDel.length; i++) {
+			if (lik(planDel[i].tekst, gt)) { st.idx = i + 1; return { nr: planDel[i].nr, tomPlan: false }; }
+		}
+		return { nr: null, tomPlan: false };
+	};
+}
+
 /** Flat oversikt for eksport: [{heading, text, instr, empty}]
  *  valg.visAvsnittstitler === false → hoveddel-overskriftene (h2) utelates. */
 export function buildOutline(svc, showInstr, valg = {}) {
@@ -206,12 +238,17 @@ export function buildOutline(svc, showInstr, valg = {}) {
 	// innledning/avslutning-valgene i visningen ikke forskjutter tallene
 	const planTekstMap = valg.lysbildeTall?.lysPpt?.planTekst ?? null;
 	const norm = (s) => String(s ?? '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 60);
+	// ordnet matcher: manuses tekstdeling presenteres sekvensielt, og skal matche
+	// planens slides i samme rekkeflge (pekeren hindrer feilplasserte tall nr
+	// innledning/avslutning skiller seg mellom manuset og Skjerm-visningen)
+	const matchGruppe = lagGruppeMapper();
 	const finnSlideNr = (nokkel, gruppe) => {
 		if (!planTekstMap || !planTekstMap[nokkel]) return null;
 		const g = norm(gruppe);
 		if (!g) return null;
-		const treff = planTekstMap[nokkel].find((p) => p.tekst.startsWith(g.slice(0, 50)) || g.startsWith(p.tekst.slice(0, 40)));
-		return treff ? treff.n : null;
+		const planDel = planTekstMap[nokkel].map((p) => ({ nr: p.n, tekst: p.tekst }));
+		const m = matchGruppe(nokkel, g, planDel);
+		return m.nr ?? null; // intet tall for manuselement som ikke er p skjermen
 	};
 	if (svc.__visTittel !== false) {
 		out.push({ heading: 'h1', text: svc.name });
@@ -227,6 +264,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 		for (let ii = 0; ii < sec.items.length; ii++) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
+			const nokkel = si + ':' + ii;
 			const lys = valg.lysbildeTall ? valg.lysbildeTall[si + ':' + ii] ?? null : null;
 			const ppt = valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt ?? null;
 			const gruppeFlyt = it.type !== 'salme' && lys && lys.length && ppt && !!it.text;
@@ -272,7 +310,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 								if (vi === 0 && gi === 0 && overskrift) t = t.split('\n').slice(1).join('\n'); // overskriften er eget avsnitt
 								t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // som over
 								if (!t.trim()) return;
-								const n = finnSlideNr(nokkel, t) ?? lys[li] ?? null;
+								const n = finnSlideNr(nokkel, t) ?? (planTekstMap ? null : lys[li] ?? null); // plan finnes: vers uten treff = ikke p skjermen
 								li++;
 								out.push({ text: t, __lys: n ? [n.n] : null, __siste: gi === grupper.length - 1 }); // hvert vers' siste gruppe får etter-avstand (vers-skillet)
 							});
@@ -284,7 +322,11 @@ export function buildOutline(svc, showInstr, valg = {}) {
 				else {
 					// stale selAlt etter sletting av alternativer: klem til gyldig område
 					it.selAlt = Math.min(it.selAlt, it.alts.length - 1);
-					if (it.introAlts?.length && !erPlassholderTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '')) out.push({ text: visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '') });
+					if (it.introAlts?.length && !erPlassholderTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '')) {
+					const introT = visTekst(it.introAlts[it.selIntro ?? 0]?.text ?? '');
+					// innledningen fr lysbildetall bare hvis den er med i skjermplanen
+					out.push({ text: introT, __lys: (lys && lys.length && ppt) ? finnSlideNr(nokkel, introT) : null });
+				}
 					// fast innledning (it.text) er kun et mal-felt og vises ikke i gudstjenesteredigeringen —
 					// kun innledning + valgt alternativ + avslutning følger med i eksporten
 					const a = it.alts[it.selAlt];
@@ -307,11 +349,14 @@ export function buildOutline(svc, showInstr, valg = {}) {
 								if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
 								t = t.replace(/^\n+/, '');
 								if (!t.trim()) return;
-								out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa)) return [m]; return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
+								out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa && m === (lys ?? []).filter((x) => !x.tom)[0]?.n)) return [m]; if (planTekstMap) return (gi === 0 ? (lys ?? []).filter((x) => x.tom && x.del !== -1).map((x) => x.n) : null); return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
 							});
 						} else out.push({ text: at });
 					}
-					if (it.avslutningAlts?.length) out.push({ text: visTekst(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '') });
+					if (it.avslutningAlts?.length) {
+					const avslT = visTekst(it.avslutningAlts[it.selAvsl ?? 0]?.text ?? '');
+					out.push({ text: avslT, __lys: (lys && lys.length && ppt) ? finnSlideNr(nokkel, avslT) : null });
+				}
 				}
 			} else if (it.text) {
 				const bt = visTekst(it.text);
@@ -329,7 +374,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 						if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
 						t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // avsnittskift ved grensen = nytt avsnitt; blanklinjen beholdes som første tomme linje
 						if (!t.trim()) return;
-						out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa)) return [m]; return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
+						out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa && m === (lys ?? []).filter((x) => !x.tom)[0]?.n)) return [m]; if (planTekstMap) return (gi === 0 ? (lys ?? []).filter((x) => x.tom && x.del !== -1).map((x) => x.n) : null); return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
 					});
 				} else out.push({ text: bt });
 			}
@@ -1175,6 +1220,9 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			y = linjeY + (hefte ? 1 : 1.5);
 		}
 		let forsteLedd = true;
+		// ordnet manus-til-plan-gruppe-matching: pekeren gr bare fremover s feilplasserte
+		// tall unngs nr manuset og Skjerm-planen grupperer teksten ulikt
+		const matchGruppe = lagGruppeMapper();
 		for (let ii = 0; ii < sec.items.length; ii++) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
@@ -1249,11 +1297,11 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 						// innledning/avslutning-valgene forskutterer ikke tallene
 						const gtekst = String(grp.map((s) => s.text).join('')).replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 44);
 						const planDel = (valg.lysbildeTall?.planTekst?.[nokkel] ?? []).map((e) => ({ nr: e.n, tekst: e.tekst }));
-						const treff = gtekst ? planDel.find((s) => {
-							const pt = String(s.tekst ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
-							return pt && (pt.startsWith(gtekst.slice(0, 36)) || gtekst.startsWith(pt.slice(0, 30)));
-						}) : null;
-						if (treff) liste.push(treff.nr);
+						const ref = gtekst ? matchGruppe(nokkel, gtekst, planDel) : { nr: null, tomPlan: !planDel.length };
+						if (ref.nr != null) liste.push(ref.nr);
+						// intet treff + plan finnes: avsnittet er ikke p skjermen (f.eks. innledning/
+						// avslutning som Skjerm ikke viser) - intet tall i stedet for feil slide-nummer
+						else if (!ref.tomPlan) { /* intet nummer */ }
 						else if (egne[gi]) liste.push(egne[gi].n);
 					if (gi === 0) liste.push(...ledende);
 					if (gi === grupper.length - 1) liste.push(...avsluttende);
