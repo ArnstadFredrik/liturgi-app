@@ -536,10 +536,54 @@ export function delPptSider(tekst, fs) {
 	return grupper.map((g) => g.join('\n').trim().replace(/\n{3,}/g, '\n\n')).filter(Boolean);
 }
 
+/** Delepunkt for lysbildetekst: helst setningsslutt, ellers komma/semikolon/
+ *  kolon, ellers bindeord (og/at/men/for/så/eller/enten/når/som/fordi …), sist
+ *  ett mellomrom — aldri hardt midt i et ord når et bedre brudd finnes. Med
+ *  restvokt (standard): kuttet bakes tilbake hvis RESTEN (det som kommer på
+ *  neste slide) ville blitt ett enslig ord — siste ordet skal aldri stå alene.
+ *  Returnerer kuttindex (slice(0, kutt) = første del). */
+export function finnDelPunkt(t, maksl, opts = {}) {
+	const maks = Math.min(maksl, t.length);
+	if (maks <= 0) return 0;
+	// siste kandidatposisjon ≤ maks (kutt ETER treffet, evt. foran bindeordet)
+	const sist = (re, foran = false) => {
+		let best = -1, m;
+		re.lastIndex = 0;
+		while ((m = re.exec(t)) && m.index < maks) {
+			const k = foran ? m.index : m.index + m[0].length;
+			if (k > 0) best = k;
+		}
+		return best;
+	};
+	const setning = sist(/[.!?…][»”’")\]]* /g);                 // etter setningsslutt
+	const komma = sist(/[,;:][»”’")\]]* /g);                    // etter komma/semikolon/kolon
+	const bindeord = sist(/\b(og|at|men|for|så|eller|enten|anten|når|som|fordi|derfor)\s/gi, true); // foran bindeordet
+	const mellomrom = sist(/ /g);
+	// terskler: et brudd må sitte så nært pakkegrensen — et setnings-/kommakutt
+	// langt bak gir en nesten tom slide (verre enn å dele midt i et langt ledd)
+	const minTegn = Math.max(6, Math.floor(maks * 0.3));
+	const minBind = Math.max(8, Math.floor(maks * 0.45));
+	let kutt = -1;
+	for (const [k, min] of [[setning, minTegn], [komma, minTegn], [bindeord, minBind], [mellomrom, 1]]) {
+		if (k >= min) { kutt = k; break; }
+	}
+	if (kutt < 0) kutt = maks; // ingen naturlig brudd — hardt klipp
+	if (opts.taMedRest !== false && kutt > 0) {
+		// restvakt: resten må ikke bli ett enslig (kort) ord på neste slide
+		const r = t.slice(kutt).trim().replace(/^[»”’")\]]+/, '');
+		if (r && !/\s/.test(r) && r.length < 24) {
+			const tidligere = [setning, komma, bindeord, mellomrom].filter((k) => k > 0 && k < kutt);
+			if (tidligere.length) kutt = Math.max(...tidligere);
+		}
+	}
+	return kutt;
+}
+
 /** Del roleSegments-output i slides UTEN å miste formatering: segmentene
  *  (fet/kursiv/rød) følger teksten, så markdown-par kan aldri bli delt midt i.
  *  Kapasitet per slide = cpl × maxLinjer (samme mål som delPptSider). Siste side
- *  balanseres mot nest siste hvis den blir spinkel. */
+ *  balanseres mot nest siste hvis den blir spinkel. Kuttene følger setninger/ 
+ *  kommaer/bindeord (finnDelPunkt) — siste ordet står aldri alene på en slide. */
 export function delPptSegs(segs, fs, opts = {}) {
 	const beholdBrudd = !!opts.beholdBrudd; // manuset: behold avsnittskift ved gruppegrenser
 	const cpl = Math.max(20, Math.floor(634 / (fs * 0.5)));
@@ -556,9 +600,9 @@ export function delPptSegs(segs, fs, opts = {}) {
 				const igjen = maksl - brukt;
 				if (igjen <= 0) return pos > 0 ? pos : Math.min(t.length, cpl);
 				const tegn = Math.min(linje.length, igjen * cpl);
-				const ord = linje.slice(0, tegn);
-				const siste = ord.lastIndexOf(' ');
-				return pos + (siste > 0 ? siste : tegn);
+				// kutt i linjen: setning/komma/bindeord fremfor vilkårlig mellomrom
+				// (restvakten skjøtes på i hovedløkken, der hele resten er synlig)
+				return pos + finnDelPunkt(linje, tegn, { taMedRest: false });
 			}
 			brukt += wl; pos += linje.length + 1;
 		}
@@ -584,6 +628,14 @@ export function delPptSegs(segs, fs, opts = {}) {
 				const supStart = rest.lastIndexOf('^{', kutt);
 				const supSlutt = rest.indexOf('}', supStart);
 				if (supStart > 0 && supSlutt !== -1 && supSlutt >= kutt) kutt = supStart;
+				// restvakt: det som havner på neste slide må ikke bli ett enslig
+				// ord (siste ordet i en setning skal aldri stå alene på en side)
+				const resten = rest.slice(kutt).replace(/^\n+/, '').trim().replace(/^[»”’)\]]+/, '');
+				if (kutt > 0 && resten && !/\s/.test(resten) && resten.length < 24) {
+						// bak kuttet til forrige delepunkt så minst to ord følger med over
+						const tidligere = finnDelPunkt(rest.slice(0, kutt).trimEnd(), kutt - 1, { taMedRest: false });
+						if (tidligere > 0) kutt = tidligere;
+				}
 				grp.push({ ...s, text: rest.slice(0, kutt) });
 				linjer += linjerITekst(rest.slice(0, kutt));
 				rest = beholdBrudd ? rest.slice(kutt) : rest.slice(kutt).replace(/^\n+/, '');
@@ -605,9 +657,10 @@ export function delPptSegs(segs, fs, opts = {}) {
 			for (const s of alle) {
 				if (l1 >= halv) { g2.push(s); continue; }
 				if (l1 + s.text.length <= halv) { g1.push(s); l1 += s.text.length; continue; }
-				// segmentet spenner over delepunktet — del teksten (samme formatering)
-				let k = s.text.lastIndexOf(' ', halv - l1);
-				if (k < (halv - l1) * 0.5) k = halv - l1;
+				// segmentet spenner over delepunktet — del ved setning/komma/bindeord,
+				// aldri så en enslig ordbit blir alene på en av sidene
+				let k = finnDelPunkt(s.text, Math.max(1, halv - l1));
+				if (k <= 0) k = Math.max(1, halv - l1);
 				g1.push({ ...s, text: s.text.slice(0, k) });
 				g2.push({ ...s, text: s.text.slice(k).replace(/^\s+/, '') });
 				l1 += s.text.length;
