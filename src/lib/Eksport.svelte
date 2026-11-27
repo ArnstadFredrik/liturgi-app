@@ -417,7 +417,9 @@
 			});
 			window.__eksSecSider = kart;
 			window.__eksLeddSider = leddKart;
-			if (rendrerStatus !== 'oppdatert') rendrerStatus = 'oppdatert';
+			rendrerStatus = 'oppdatert';
+			// NB: ingen les av rendrerStatus her - det gjorde banneret til en effekt-
+			// avhengighet: timeout-nsullet loekte re-render + banner permanent.
 			clearTimeout(statusTimer);
 			statusTimer = setTimeout(() => { rendrerStatus = ''; statusTimer = null; }, 1500);
 		} catch (e) {
