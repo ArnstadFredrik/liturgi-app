@@ -1,5 +1,7 @@
 <script>
 	import '../app.css';
+	// ui-sdk: standardstiler importeres ved app-inngangen
+	import '@ui-sdk/core/web.css';
 	import { initTheme, app } from '$lib/store.svelte.js';
 	import { Toaster } from 'svelte-sonner';
 	import ContextMenu from '$lib/ContextMenu.svelte';

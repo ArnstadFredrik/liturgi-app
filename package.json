@@ -102,6 +102,8 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
+    "@ui-sdk/core": "^0.1.0-beta.17",
+    "@ui-sdk/svelte": "^0.1.0-beta.17",
     "better-sqlite3": "^13.0.3",
     "church-year": "^0.2.61",
     "docx": "^9.0.0",
