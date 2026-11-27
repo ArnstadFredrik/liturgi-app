@@ -1,4 +1,5 @@
 <script>
+	import { slide } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
@@ -30,6 +31,7 @@
 	let online = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 	let visMerkedager = $state(true); // innstilling — persistent i liturgi.db (nøkkel 'kirkeaarMerkedager')
 	let sok = $state(''); // fritekst: navn ELLER dato (åååå-mm-dd, dd.mm, dd/mm)
+	let simulerHenting = $state(false); // dev: viser overgangen bibelref -> tekster
 	let alleKirkeaarsDager = $state([]); // hele kirkeåret + neste (til søk og høyrepanel)
 
 	const lesninger = [
@@ -168,8 +170,6 @@
 		panelDager = idx === -1 ? [...alle, markor] : [...alle.slice(0, idx), markor, ...alle.slice(idx)];
 	}
 
-	/** Utfoldede lesninger (nøkkles per dag i hentTeksterBakgrunn). */
-	let aapne = $state({ L1: false, L2: false, E: false });
 
 	/** Hent bibeltekstene for en dag I BAKGRUNNEN — dato/navn/farge/bønn/referanser vises umiddelbart.
 	 *  Tekstene ligger BAK folden — brukeren åpner dem via lesnings-overskriften. */
@@ -178,21 +178,19 @@
 		const id = dag.date + dag.name; // anrop-identitet: rask klikking i sekvens
 		valgtTekster = null;
 		valgtHenter = true;
-		// folden er reserveslsning: tekster som finnes (cachet) pner automatisk
-		aapne = { L1: null, L2: null, E: null };
 		let t = null;
 		if (online) {
+			if (simulerHenting) {
+				// dev: vis overgangen — overskriftsvisningen i 2,6 s fr teksten kommer
+				simulerHenting = false;
+				await new Promise((r) => setTimeout(r, 2600));
+				if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return;
+			}
 			try { t = await hentTekster(dag.day, await lesTeksterCache(), dag.series); } catch { t = null; }
 		}
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
 		valgtTekster = t;
 		valgtHenter = false;
-		// pner tekster som ligger i cache (tekster som m hentes forblir lukket til de kommer):
-		aapne = {
-			L1: !!(t && t.L1),
-			L2: !!(t && t.L2),
-			E: !!(t && t.E)
-		};
 	}
 
 	/** Velg en dag: alt unntatt selve bibelteksten vises umiddelbart fra church-year-data. */
@@ -294,6 +292,17 @@
 	}
 	/** Åpne prekenforberedelse-mappen i Finder. Ved valgt dag åpnes mappen
  *  for aktuell kirkeårsdag hvis den finnes (ellers åremappen/rotmappen). */
+	/** Portaler dagsoversikten inn i den innfødte høyre sidemenyen (#toc-side). */
+	function portal(node, target) {
+		document.querySelector(target)?.appendChild(node);
+		return { destroy() { node.remove(); } };
+	}
+
+	$effect(() => {
+		app.portalToc = true; // vis høyre sidemeny mens modulen er åpen
+		return () => { app.portalToc = false; };
+	});
+
 	async function apneForbMappe() {
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
@@ -392,7 +401,8 @@
 
 <div id="kirkeaar-modul" oncontextmenu={(e) => { e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
 			{ label: 'Prekenforberedelse', action: () => prekenforberedelse(), disabled: !valgtDag },
-			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() }
+			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() },
+			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
 	<div class="ka-hoved">
 		<div class="ka-topp">
@@ -449,28 +459,17 @@
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
 				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
-					<h4>Bibeltekster</h4>
+					<h4 class="ka-tekstoverskrift">Bibeltekster{#if valgtHenter}<span class="ka-spinner" aria-label="Henter tekster" role="status"></span>{/if}</h4>
 					<div class="ka-lesninger">
-						{#each lesninger as L}
+						{#each lesninger as L (L.key)}
 							{#if valgtDag[L.key]}
+								{@const tekst = valgtTekster?.[L.key]}
 								<div class="ka-lesning-item" data-seksjon={L.key}>
-									<button
-										type="button"
-										class="ka-lesning"
-										class:klar={!!valgtTekster?.[L.key]}
-										onclick={() => { if (valgtTekster?.[L.key]) aapne = { ...aapne, [L.key]: !aapne[L.key] }; }}
-										aria-expanded={aapne[L.key]}
-										title={valgtTekster?.[L.key] ? 'Vis/skjul teksten' : (valgtHenter ? 'Henter teksten …' : 'Ingen tekst' + (online ? '' : ' (offline)'))}
-									>
-										<span class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</span>
-										{#if valgtHenter && !valgtTekster?.[L.key]}
-											<span class="ka-spinner" aria-hidden="true"></span>
-										{:else if valgtTekster?.[L.key]}
-											<span class="ka-chevron" class:aapen={aapne[L.key]} aria-hidden="true">▾</span>
-										{/if}
-									</button>
-									{#if aapne[L.key] && valgtTekster?.[L.key]}
-										<div class="lit-text ka-lesning-tekst">{@html visTekst(valgtDag[L.key], valgtTekster[L.key])}</div>
+									<h5 class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</h5>
+									{#if tekst}
+										<div class="lit-text ka-lesning-tekst" in:slide={{ duration: 220 }}>{@html visTekst(valgtDag[L.key], tekst)}</div>
+									{:else if !valgtHenter}
+										<p class="ka-muted ka-ingen-tekst">Ingen tekst{online ? '' : ' (offline)'}</p>
 									{/if}
 								</div>
 							{/if}
@@ -483,7 +482,7 @@
 		{/if}
 	</div>
 
-	<aside class="ka-panel">
+	<aside class="ka-panel" use:portal={'#toc-side'}>
 		<div class="ka-panel-topp">
 			<h3>Kirkeåret</h3>
 			<button type="button" class="ka-idag-knapp" title="Gå til dags dato" onclick={gaTilNaa}>Nå</button>

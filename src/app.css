@@ -1804,7 +1804,9 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .ka-chevron.aapen { transform: rotate(180deg); }
 
 /* Høyrepanel: hele kirkeåret som klikkbar liste */
-.ka-panel { flex: 0 0 clamp(280px, 21vw, 330px); display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+.ka-panel { flex: 0 0 clamp(280px, 24vw, 360px); width: 100%; display: flex; flex-direction: column; min-height: 300px; max-height: calc(100vh - 80px); overflow: hidden; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+#toc-side .ka-panel { min-height: 0; height: 100%; max-height: none; border: none; border-radius: 0; padding-top: 6px; }
+
 .ka-panel-topp { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 .ka-panel-topp h3 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
 .ka-panel-topp .avpaa-tekst { font-size: 11px; }
@@ -2180,6 +2182,11 @@ sub { font-size: 0.75em; }
 .ka-cache-status progress { width: 90px; height: 6px; }
 
 /* Global nettstatus i sidebar-foten */
-.nett-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.nett-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 12px; margin-top: 4px; }
 .nett-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success, #2e7d45); }
 .nett-dot.off { background: var(--danger); }
+
+/* Kirkeåret artikkel: tittel-spinner (inline ved Bibeltekster-overskriften) */
+.ka-tekstoverskrift { display: flex; align-items: center; gap: 8px; }
+.ka-tekstoverskrift .ka-spinner { flex: none; width: 12px; height: 12px; margin: 0 2px; }
+.ka-ingen-tekst { padding: 10px 0 2px; }
