@@ -1433,7 +1433,7 @@ textarea {
 	color: var(--muted); cursor: pointer; white-space: nowrap;
 }
 .eks-toggle:hover { border-color: var(--muted); }
-.eks-toggle.paa { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); font-weight: 500; }
+.eks-toggle[data-pressed] { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); font-weight: 500; }
 .eks-toggle svg { vertical-align: -0.2em; }
 
 .list li.empty {

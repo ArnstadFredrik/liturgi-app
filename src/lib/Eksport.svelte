@@ -1,5 +1,6 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
+	import { Toggle } from '@ui-sdk/svelte/toggle';
 	import { saveCurrent, saveCurrentToFile } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, byggSlidePlan, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt, stripNotat, lysbildeTallFor } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
@@ -1244,17 +1245,17 @@
 			</div>
 			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onclick={() => { setInnst('leddtitler', !getInnst('leddtitler', false)); }}>{@html mdi('format-title', 14)} Leddtitler</button>
+					<Toggle class="eks-toggle" pressed={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onPressedChange={(v) => setInnst('leddtitler', v)}>{@html mdi('format-title', 14)} Leddtitler</Toggle>
 					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 						<option value="av">Ingen</option>
 						<option value="alle">Alle</option>
 						<option value="smart">Smart</option>
 					</select></div>
-					<button class="eks-toggle" class:paa={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onclick={() => { setInnst('visTittel', !getInnst('visTittel', true)); }}>{@html mdi('presentation', 14)} Tittelslide</button>
-					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { setInnst('instr', !getInnst('instr', true)); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
-					<button class="eks-toggle" class:paa={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { setInnst('lysBakgrunn', !getInnst('lysBakgrunn', false)); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
-					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
+					<Toggle class="eks-toggle" pressed={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onPressedChange={(v) => setInnst('visTittel', v)}>{@html mdi('presentation', 14)} Tittelslide</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onPressedChange={(v) => { setInnst('instr', v); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onPressedChange={(v) => setInnst('lysBakgrunn', v)}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</Toggle>
+					<Toggle class="eks-toggle" pressed={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onPressedChange={(v) => (visNotater = v)}>{@html mdi('script-text-outline', 14)} Notater</Toggle>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
 				</div>
 			</div>
@@ -1290,11 +1291,11 @@
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onclick={() => setInnst('tittel', !getInnst('tittel', true))}>{@html mdi('tag-outline', 14)} Vis navn</button>
-					<button class="eks-toggle" class:paa={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onclick={() => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true))}>{@html mdi('format-header-2', 14)} Hovedtitler</button>
-					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { setInnst('instr', !getInnst('instr', true)); }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
-					<button class="eks-toggle" class:paa={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onclick={() => setInnst('korteTitler', !getInnst('korteTitler', false))}>{@html mdi('format-title', 14)} Korte titler</button>
+					<Toggle class="eks-toggle" pressed={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onPressedChange={(v) => setInnst('tittel', v)}>{@html mdi('tag-outline', 14)} Vis navn</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onPressedChange={(v) => setInnst('visAvsnittstitler', v)}>{@html mdi('format-header-2', 14)} Hovedtitler</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onPressedChange={(v) => setInnst('instr', v)}>{@html mdi('text', 14)} Instruksjoner</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onPressedChange={(v) => setInnst('korteTitler', v)}>{@html mdi('format-title', 14)} Korte titler</Toggle>
 				</div>
 			</div>
 			{/if}
