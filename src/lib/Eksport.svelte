@@ -359,6 +359,15 @@
 		}
 	}
 
+	/** Kontekstmeny pr profil: deaktiver/aktiver for denne gudstjenesten. */
+	function profilMeny(x, y, p) {
+		const av = !!o?.eksProfilerAv?.[p]; // capture-first: ls verdien FR menyen  pnes
+		openContextMenu(x, y, [
+			{ label: av ? 'Aktiver profilen for denne gudstjenesten' : 'Deaktiver profilen for denne gudstjenesten',
+			  action: () => window.__eksMeny('eks:profAv:' + p) }
+		]);
+	}
+
 	window.__eksMeny = (id) => {
 		// format 'eks:<nokkel>' (bryter) eller 'eks:<nokkel>:<verdi>' (valg)
 		const [, nk, v] = id.split(':');
@@ -376,6 +385,7 @@
 		else if (nk === 'lys') { setInnst('lysBakgrunn', !getInnst('lysBakgrunn', false)); }
 		else if (nk === 'lysbmanus') { setInnst('lysManus', !getInnst('lysManus', false)); }
 		else if (nk === 'justering') { setInnst('justering', v); }
+		else if (nk === 'profAv') { settProfil(v, !profilAv(v)); }
 	};
 	// menylinje-tilstand: valgene (sjekkbokser/radioer i Eksportvalg-menyen)
 	$effect(() => {
@@ -915,6 +925,24 @@
 		return true;
 	}
 
+
+	/** Profiler kan deaktiveres for DENNE gudstjenesten (hoyreklikk p profilen):
+ *  deaktiverte profiler tas ikke med i eksportn alle profilene.
+ *  Lagres i dokumentet (o.eksProfilerAv) og flger .liturgi-filen. */
+	let profilerAv = $derived(o?.eksProfilerAv ?? {});
+	function profilAv(p) { return !!profilerAv?.[p]; }
+	function settProfil(p, av) {
+		if (!o) return;
+		const nv = { ...(o.eksProfilerAv ?? {}) };
+		if (av) nv[p] = true; else delete nv[p];
+		o.eksProfilerAv = nv;
+		markDirty();
+		if (av && aktiv === p) {
+			const neste = profiler.find((x) => !nv[x]);
+			if (neste) byttProfil(neste);
+		}
+	}
+
 	/** Kopi av gudstjenesten med bare valgte ledd aktivert for en profil. */
 	function klonMedValg(svc, profil, brProfil = null) {
 		const kopi = JSON.parse(JSON.stringify(svc));
@@ -1156,6 +1184,7 @@
 		try {
 			let n = 0;
 			for (const p of profiler) {
+				if (o.eksProfilerAv?.[p]) continue; // deaktivert for denne gudstjenesten
 				if (p === 'Skjerm' && !formater.pptx) continue; // PPTX kun når formatet er valgt
 				n += await eksporterProfil(p);
 			}
@@ -1494,7 +1523,10 @@
 				<div class="biblio-kort-hode"><span class="sidehead">Profiler</span></div>
 				<div class="eksport-profiler">
 					{#each profiler as p (p)}
-						<button class="eksport-profil" class:sel={aktiv === p} onclick={() => byttProfil(p)}>{p}</button>
+						<button class="eksport-profil" class:sel={aktiv === p} class:prof-av={profilerAv[p]}
+							title={profilerAv[p] ? "Deaktivert for denne gudstjenesten - høyreklikk for å aktivere på ny" : "Høyreklikk for å deaktivere profilen for denne gudstjenesten"}
+							onclick={() => byttProfil(p)}
+							oncontextmenu={(e) => { e.preventDefault(); e.stopPropagation(); profilMeny(e.clientX, e.clientY, p); }}>{p}</button>
 						{#if !INNBYGGET.includes(p)}
 							<button class="eksport-profil-slett" title="Slett profilen" onclick={() => slettEgenProfil(p)}>×</button>
 						{/if}

@@ -596,6 +596,9 @@ button.m-fare:disabled { opacity: 0.45; }
 .eksport-profiler { display: flex; gap: 6px; margin: 16px 0 8px; flex-wrap: wrap; align-items: center; }
 .eksport-profil { border-radius: 999px; padding: 6px 14px; }
 .eksport-profil.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
+/* Deaktivert profil for denne gudstjenesten (høgreklikk på profilen): svak, strikethrough */
+.eksport-profil.prof-av { opacity: 0.45; text-decoration: line-through; color: var(--muted); }
+.eksport-profil.prof-av.sel { opacity: 0.65; }
 .eksport-profil-slett { border: none; background: none; color: var(--muted); font-size: 15px; padding: 2px 6px; }
 .eksport-profil-slett:hover { color: var(--danger); }
 .eksport-nyprofil { display: flex; gap: 6px; margin-bottom: 18px; }
