@@ -89,7 +89,7 @@ diskret «Utvikler»-seksjon som kan skjules.**
 8. Funksjonsforklaringer for visuelle statusmerker: «Menighet»-deaktivering
    får forklaring via tittel/hint, «Innhold med» får tydelig Rolle.
 
-### P3 — De øvrige visningene — DELVIS FERDIG (10, 12, 13 levert i cfaf044; 9 og 11 gjenstår)
+### P3 — De øvrige visningene — FERDIG (10/12/13 i cfaf044, Kirkeåret-runde 2 i 05f2f8a/4179f2b, Salmer+11 i 296d9db)
 9. **Salmer**: layout + «Format»-panelets mønster.
 10. **Kirkeåret**: fargedots får tekst og tooltip (liturgisk fargenavn),
     ukedag i datolisten, sesonginndeling i kalenderen, «I dag»-knapp,
