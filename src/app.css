@@ -244,6 +244,12 @@ button {
 	padding: 6px 12px; cursor: pointer; font-size: 13px;
 }
 button:hover { border-color: var(--accent); }
+/* Knapptyper: standard = omriss, primary = liturgirød (fylt), ghost = rammeøs,
+   danger-solid = destruktiv handling. */
+button.ghost, button.ghost:focus-visible { background: none; border-color: transparent; }
+button.ghost:hover { background: var(--sidebar-hover); border-color: transparent; }
+button.danger-solid { background: var(--danger); border-color: var(--danger); color: #fdf6ec; }
+button.danger-solid:hover { filter: brightness(1.06); }
 /* Primærhandling: liturgirød (designplanen — rød som handling, oker som valg) */
 button.primary { background: var(--role); border-color: var(--role); color: #fdf6ec; }
 button.primary:hover { filter: brightness(1.06); }
@@ -1906,11 +1912,12 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .fb-filnavn { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fb-dirty { font-size: 10px; font-weight: 600; color: #c0392b; border: 1px solid #c0392b; border-radius: 8px; padding: 1px 7px; }
 .fb-visning-velger { display: inline-flex; gap: 4px; background: var(--panel2, var(--border)); border-radius: 9px; padding: 3px; }
-.fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 12px; padding: 5px 14px; cursor: pointer; border-radius: 7px; }
+.fb-visning-velger button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; padding: 5px 14px; cursor: pointer; border-radius: 7px; }
 .m-deler-faner { margin-bottom: 10px; }
 /* fanene arver fb-visning-velger-segmenteringen: rund beholder + runde
- * knapper i alle hjørner (samme uttrykk som øvrige undernavigasjoner) */
-.fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
+ * knapper i alle hjørner. Fane (valgt) = myk bakgrunn + aksent-tekst —
+ * aldri fylt primærfarge, så navigasjon ikke forveksles med knapper. */
+.fb-visning-velger button.sel { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
 .fb-visning-velger button:not(.sel):hover { color: var(--text); }
 /* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler
    (Gudstjeneste: Redigering/Salmer/Eksport · Bibliotek: Bibliotek/Maler ·
