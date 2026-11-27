@@ -46,6 +46,18 @@
 		return FARGE_HEX[(code || '').toLowerCase()] ?? null;
 	}
 
+	/** Sesongsnavn for period-kodene fra church-year (til kalendergrupperingen). */
+	const SESONG_NAVN = {
+		advent: 'Advent',
+		christmas: 'Jul',
+		epiphany: 'Åpenbaringstiden',
+		lent: 'Fastetiden',
+		easter: 'Påsketiden',
+		pentacost: 'Pinsetiden',
+		trinity: 'Den trefoldige tid',
+		commemorative: 'Merkedager'
+	};
+
 	/** Kort ukedag (kort navn) for listene — ISO-datoen folk m lese selv. */
 	function ukedag(iso) {
 		try { return new Date(iso + 'T12:00:00').toLocaleDateString('nb-NO', { weekday: 'short' }); }
@@ -162,6 +174,13 @@
 			...churchYearFiltered(church_startYear(soendag), iDag, '9999-12-31', visMerkedager),
 			...churchYearFiltered(church_startYear(soendag) + 1, '2000-01-01', '9999-12-31', visMerkedager)
 		].sort((a, b) => a.date.localeCompare(b.date));
+		// markr: frste dag i hver ny sesong (til sejonsgrensen i listen)
+		let forrige = '';
+		for (const d of alle) {
+			// merkedager inngår i sesongen de ligger i: bryter ikke sesonggrensen
+			d.startSesong = d.period !== 'commemorative' && d.period !== forrige;
+			if (d.period !== 'commemorative') forrige = d.period;
+		}
 		if (!iDag) { panelDager = alle; return; }
 		if (alle.some((d) => d.date === iDag)) { panelDager = alle; return; }
 		// sett inn markør før første dag ETTER i dag
@@ -506,6 +525,9 @@
 				{#if dag.iDagMarkor}
 					<div class="ka-i-dag-markor"><span>I dag · {dag.date}</span></div>
 				{:else}
+					{#if dag.startSesong}
+					<div class="ka-sesong">{SESONG_NAVN[dag.period] ?? ''}</div>
+					{/if}
 					<button
 						class="ka-liste-dag"
 						title="Liturgisk farge: {dag.color || dag.colorCode || 'ukjent'}"
