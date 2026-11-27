@@ -1,57 +1,76 @@
 <script>
+	import {
+		createMenuController,
+		Menu,
+		MenuContent,
+		MenuItem,
+		MenuSeparator,
+		MenuSub,
+		MenuSubContent,
+		MenuSubTrigger
+	} from '@ui-sdk/svelte/menu';
+	import { untrack } from 'svelte';
 	import { app } from '$lib/store.svelte.js';
 	import { closeContextMenu } from '$lib/contextmenu.svelte.js';
 
-	const m = $derived(app.contextMenu);
-	let openSub = $state(-1);
+	/** Kontekstmenyitt på ui-sdk Menu: piltaster, Escape, fokus og
+	 *  plasseringskollisjon kommer fra sdk-et. */
+	const meny = createMenuController();
+	let anker; // usynlig 1×1-punkt som holder menyen ved museposisjonen
 
-	// hold menyen innenfor vinduet
-	const pos = $derived.by(() => {
-		if (!m) return { x: 0, y: 0 };
-		const w = 200, h = m.items.length * 34 + 12;
-		return {
-			x: Math.min(m.x, window.innerWidth - w - 8),
-			y: Math.min(m.y, window.innerHeight - h - 8)
-		};
+	const m = $derived(app.contextMenu);
+
+	$effect(() => {
+		const men = m;
+		if (!men || !anker) return;
+		anker.style.left = men.x + 'px';
+		anker.style.top = men.y + 'px';
+		untrack(() =>
+			meny.open({ anchor: anker, payload: men.items }).then(() => {
+
+			// bare lukk hvis det fortsatt er denne menyen som gjelder (raskt høyre-klikk i rekke)
+				// bare lukk hvis det fortsatt er denne menyen som gjelder (raskt høyre-klikk i rekke)
+				if (app.contextMenu === men) closeContextMenu();
+			})
+		);
 	});
 
-	function run(item) {
-		if (item.submenu) { openSub = openSub === m.items.indexOf(item) ? -1 : m.items.indexOf(item); return; }
+	function kjor(item) {
 		closeContextMenu();
+		meny.close();
 		item.action();
-	}
-
-	function runSub(sub) {
-		closeContextMenu();
-		sub.action();
 	}
 </script>
 
-{#if m}
-	<div class="ctx-overlay" onclick={closeContextMenu} oncontextmenu={(e) => { e.preventDefault(); closeContextMenu(); }}>
-		<div class="ctx-menu" style="left:{pos.x}px; top:{pos.y}px" onclick={(e) => e.stopPropagation()}>
-			{#each m.items as item, i (i)}
-				{#if item === 'sep'}
-					<div class="ctx-sep"></div>
-				{:else if item.submenu}
-					<button class="ctx-item ctx-sub" class:apen={openSub === i} onclick={() => run(item)}>
-						{item.label}<span class="ctx-pil">▸</span>
-					</button>
-					{#if openSub === i}
-						<div class="ctx-submenu">
-							{#each item.submenu as sub, j (j)}
-								<button class="ctx-item" onclick={() => runSub(sub)}>{sub.checked ? '✓ ' : ''}{sub.label}</button>
-							{/each}
-						</div>
+<div bind:this={anker} class="ctx-anker" aria-hidden="true"></div>
+<Menu controller={meny} onOpenChange={(open) => { untrack(() => { if (!open && app.contextMenu) closeContextMenu(); }); }}>
+	<MenuContent class="ctx-menu" side="bottom" align="start" collisionPadding={8}>
+		{#snippet children()}
+			{#if m}
+				{#each m.items as item, i (i)}
+					{#if item === 'sep'}
+						<MenuSeparator class="ctx-sep" />
+					{:else if item.submenu}
+						<MenuSub>
+							<MenuSubTrigger class="ctx-item ctx-sub" disabled={item.disabled}>
+								{item.label}<span class="ctx-pil">▸</span>
+							</MenuSubTrigger>
+							<MenuSubContent class="ctx-menu">
+								{#each item.submenu as sub, j (j)}
+									<MenuItem class="ctx-item" onSelect={() => kjor(sub)}>
+										{sub.checked ? '✓ ' : ''}{sub.label}
+									</MenuItem>
+								{/each}
+							</MenuSubContent>
+						</MenuSub>
+					{:else}
+						<MenuItem class="ctx-item {item.danger ? 'danger' : ''}" disabled={item.disabled}
+							onSelect={() => kjor(item)}>
+							{item.checked ? '✓ ' : ''}{item.label}
+						</MenuItem>
 					{/if}
-				{:else}
-					<button class="ctx-item" class:danger={item.danger} disabled={item.disabled} onclick={() => run(item)}>
-						{item.checked ? '✓ ' : ''}{item.label}
-					</button>
-				{/if}
-			{/each}
-		</div>
-	</div>
-{/if}
-
-<svelte:window onkeydown={(e) => { if (e.key === 'Escape' && m) closeContextMenu(); }} />
+				{/each}
+			{/if}
+		{/snippet}
+	</MenuContent>
+</Menu>

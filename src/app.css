@@ -1302,11 +1302,16 @@ textarea {
 
 /* ---------- Kontekstmeny ---------- */
 .ctx-overlay { position: fixed; inset: 0; z-index: 200; }
+/* ui-sdk Menu som kontekstmeny: droppe UA-rammen, beholde vårt eget uttrykk */
 .ctx-menu {
-	position: fixed; min-width: 200px;
-	background: var(--panel); border: 1px solid var(--border);
+	background: var(--panel) !important; border: 1px solid var(--border);
 	border-radius: 8px; box-shadow: var(--shadow);
 	padding: 6px; display: flex; flex-direction: column; gap: 1px;
+	outline: none; z-index: 200;
+	box-sizing: border-box; min-width: 200px; width: max-content;
+}
+.ctx-anker {
+	position: fixed; width: 1px; height: 1px; pointer-events: none; z-index: 199;
 }
 .ctx-item {
 	text-align: left; border: none; background: none; color: var(--text);
