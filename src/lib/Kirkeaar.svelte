@@ -44,6 +44,12 @@
 		return FARGE_HEX[(code || '').toLowerCase()] ?? null;
 	}
 
+	/** Kort ukedag (kort navn) for listene — ISO-datoen folk m lese selv. */
+	function ukedag(iso) {
+		try { return new Date(iso + 'T12:00:00').toLocaleDateString('nb-NO', { weekday: 'short' }); }
+		catch { return ''; }
+	}
+
 	/** Neste søndag (i dag medregnet helt til dagen er passert). */
 	function nesteSoendag() {
 		const d = new Date();
@@ -86,10 +92,16 @@
 
 	/** Side-TOC: delene på hovedsiden (Dagens bønn + lesningene) for rask navigering
 	 *  når tekstene er lastet og siden må scrolles. Offline er alt på én side — ingen TOC. */
+	/** G til dags dato i hyrepanelet (valg + teksthent). */
+	function gaTilIDag() {
+		const d = alleKirkeaarsDager.find((x) => x.date === iDag);
+		if (d) hentDag(d);
+	}
+
 	function seksjoner() {
 		if (!online || !valgtDag) return [];
 		const s = [];
-		if (valgtDag.prayer) s.push({ nokkel: 'boenn', navn: 'Dagens bønn' });
+		if (valgtDag.prayer) s.push({ nokkel: 'boenn', navn: 'Bønn for dagens dato' });
 		for (const L of lesninger) {
 			if (valgtDag[L.key]) s.push({ nokkel: L.key, navn: L.tittel + ' · ' + valgtDag[L.key] });
 		}
@@ -378,11 +390,14 @@
 	{#if app.tekstCache.gaar}
 		<div class="tekstcache-indikator" role="status">
 			<span class="tekstcache-spinner" aria-hidden="true"></span>
-			<span>Cacher bibeltekster: {app.tekstCache.fase} — {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
+			<span>Henter bibeltekster: {app.tekstCache.fase} — {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
 			<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
 		</div>
 	{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
-		<div class="tekstcache-indikator tekstcache-ferdig" role="status">Bibeltekstene for kirkeåret er cachet ({app.tekstCache.totalt} dager)</div>
+		<div class="tekstcache-indikator tekstcache-ferdig" role="status">
+			Bibeltekstene for kirkeåret er mellomlagret ({app.tekstCache.totalt} dager)
+			<button class="ka-cache-oppdater" title="Henter det som mangler i mellomlageret" onclick={() => startTekstCacheBakgrunn()}>Oppdater</button>
+		</div>
 	{/if}
 		<div class="ka-topp">
 			<h2>Kirkeåret</h2>
@@ -425,7 +440,7 @@
 				{#each mellomDager as dag (dag.date + dag.name)}
 					<button class="ka-dag" class:erSoendag={dag.erSoendag} class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
 						<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
-						<span class="ka-dag-dato">{dag.date}</span>
+						<span class="ka-dag-dato">{dag.date} · {ukedag(dag.date)}</span>
 						<span class="ka-dag-navn">{dag.name}</span>
 					</button>
 				{/each}
@@ -437,7 +452,7 @@
 				<h3 class="ka-tittel">{valgtDag.name}</h3>
 				<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
 				{#if valgtDag.prayer}
-					<h4 data-seksjon="boenn">Dagens bønn</h4>
+					<h4 data-seksjon="boenn">Bønn for {valgtDag ? valgtDag.date : ''}</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
 				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
@@ -478,6 +493,7 @@
 	<aside class="ka-panel">
 		<div class="ka-panel-topp">
 			<h3>Kirkeåret</h3>
+			<button type="button" class="ka-idag-knapp" title="Gå til dags dato" onclick={gaTilIDag}>I dag</button>
 			<button type="button" class="avpaa" role="checkbox" aria-checked={visMerkedager} title="Inkluder merkedager" onclick={() => lagreInnstilling(!visMerkedager)}>
 				<span class="avpaa-tekst">Merkedager</span>
 				<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
@@ -500,6 +516,7 @@
 				{:else}
 					<button
 						class="ka-liste-dag"
+						title="Liturgisk farge: {dag.color || dag.colorCode || 'ukjent'}"
 						class:i-dag={dag.date === iDag}
 						class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name}
 						onclick={() => hentDag(dag)}
@@ -507,7 +524,7 @@
 						<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
 						<span class="ka-liste-tekst">
 							<span class="ka-liste-navn">{dag.name}</span>
-							<span class="ka-liste-dato">{dag.date}</span>
+							<span class="ka-liste-dato">{dag.date} · {ukedag(dag.date)}</span>
 						</span>
 					</button>
 				{/if}

@@ -28,7 +28,8 @@
 		}
 	});
 
-	const recent = $derived(app.recentServices.slice(0, MAX_RECENT));
+	// «Sist brukt» viser ikke filer som allerede er i åpne gudstjenester (ingen duplikater).
+	const recent = $derived(app.recentServices.filter((s) => !app.åpneTjenester.some((x) => x.path === s.path)).slice(0, MAX_RECENT));
 	const åpne = $derived(app.åpneTjenester);
 
 	/** Vis navnet fra objektet (følger omdøping). */
