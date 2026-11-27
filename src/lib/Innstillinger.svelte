@@ -7,6 +7,7 @@
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
 	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal } from '$lib/forb-maler.js';
 	import { kirkeaarDager, lesTeksterCache, hentTekster, forbRekkeForDag } from '$lib/kirkeaar.js';
+	import { uthev } from '$lib/highlight.js';
 	import { malsprakHtml } from '$lib/handbok.js';
 	import { mdHtml } from '$lib/md.js';
 	import { toast } from 'svelte-sonner';
@@ -184,6 +185,13 @@ function settForbModul(v) {
 	let forbEksempel = $state(null); // ekte kontekst: nårmeste såndag + cachete bibeltekster (faller tilbake til examplekonteksten) // live HTML av malens utdata (md-motoren) // bind:clientWidth p kolonnebeholderen
 	let forbMalVisOn = $state(false); // bryteren for forhåndsvisning (vis/skjul) // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
 	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
+	const forbMalUthevet = $derived(uthev(forbMalTekst, 'ejs'));
+	let forbMalEditEl = $state(null);
+	function syUthevScroll() {
+		const lag = forbMalEditEl?.querySelector('.forb-mal-lag');
+		const ta = forbMalEditEl?.querySelector('textarea');
+		if (lag && ta) { lag.scrollTop = ta.scrollTop; lag.scrollLeft = ta.scrollLeft; }
+	}
 
 	// live: visningen oppdateresforløpende fr det skrives
 	$effect(() => {
@@ -465,7 +473,10 @@ function settForbModul(v) {
 							{#if forbMalSmal ? !forbMalVisOn : true}
 								<div class="forb-mal-kol">
 									<div class="forb-mal-kol-tittel">Redigering</div>
-									<textarea class="forb-mal-tekst" bind:value={forbMalTekst} spellcheck="false"></textarea>
+									<div class="forb-mal-edit" bind:this={forbMalEditEl}>
+										<pre class="forb-mal-lag" aria-hidden="true">{@html forbMalUthevet}\n</pre>
+										<textarea class="forb-mal-tekst forb-mal-tekst-gjennomsiktig" bind:value={forbMalTekst} spellcheck="false" onscroll={syUthevScroll}></textarea>
+									</div>
 								</div>
 							{/if}
 							{#if forbMalSmal ? forbMalVisOn : !forbMalVisOn}
@@ -474,7 +485,6 @@ function settForbModul(v) {
 									{#if forbMalVisHtml}
 										<div class="forb-mal-vis hb-md">{@html forbMalVisHtml}</div>
 									{:else}
-										<div class="forb-mal-tom">Klikk «Forhåndsvisning» når du vil se utdata.</div>
 										<div class="forb-mal-tom">Klikk «Forhåndsvisning» for å se utdata.</div>
 									{/if}
 								</div>

@@ -110,6 +110,7 @@
     "jszip": "^3.10.2",
     "pdfjs-dist": "^4.10.38",
     "pptxgenjs": "^4.0.1",
+    "prismjs": "^1.30.0",
     "svelte-sonner": "^1.2.3"
   },
   "allowScripts": {
