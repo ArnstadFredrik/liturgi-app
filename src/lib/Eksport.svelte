@@ -948,6 +948,7 @@
 				const erB = erBibel(it);
 				// per-ledd dele-valg (Skjerm/Menighet): innledning/avslutning kan tas bort.
 				// Merkene brukes av Smart-modusen: skjulte deler gir blank side.
+				const innholdBorte = (!erB && lagret?.[nokkel(si, ii) + ':t'] === false);
 				if (lagret?.[nokkel(si, ii) + ':i'] === false) { it.introAlts = []; it.__skjultIntro = true; }
 				if (lagret?.[nokkel(si, ii) + ':a'] === false) { it.avslutningAlts = []; it.__skjultAvsl = true; }
 				it.__visOverskrift = it.enabled;
