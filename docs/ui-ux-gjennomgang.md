@@ -120,3 +120,20 @@ diskret «Utvikler»-seksjon som kan skjules.**
 
 Anbefaler P1 → P2 i rekkefølge; verifisering hver gang med røyktestene og
 CDP-skjermbilder.
+
+
+---
+
+## P5 — Responsiv layout (startet, `890fb77`/`2a0da6f`)
+
+Tre bruddpunkter i app.css:
+- **1240 px** — trangere vindu (eks-ekstra-gruppen skjules — eksisterende regel)
+- **1080 px** — sidebar i ikon-modus (56 px, kun ikoner); bibliotek stables
+  (master over detalj); Kirkeåret-artikkelen full bredde; eksport: liste
+  over forhåndsvisningen
+- **840 px** — høyre sidemeny blir uttrekk (drawer over innholdet, box-shadow);
+  sidebar smalere (48 px); eksport-verktøylinjene stables radvis;
+  salmeradene stables; Bibliotek søkefeltet wrap
+- Electron: `minWidth` 900  620 px, sø vinduet kan bli spisst av andre apper
+- Verifisert med CDP-simulering av narrow-regler på Eksport/Bibliotek/
+  Innstillinger/Kirkeåret (skudd i ui-shots10)
