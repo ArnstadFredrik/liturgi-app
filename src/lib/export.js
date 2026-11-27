@@ -1058,11 +1058,19 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		return ut;
 	};
 	/** Tegn lysbildenummer i venstre marg på nåværende linje (høyrestilt). */
+	let sistLysPos = null; // [x, y, side] — anti-kollisjon for margtall
 	const tegnLysTall = (n, yPaa, xPaa) => {
 		if (!lysTall || n == null) return;
 		// blå sirkel med blått tall i — i den opprinnelige venstre margen
-		const cx = xPaa ?? Math.max(3.5, margin - 6);
-		const cy = (yPaa ?? y) + 2.1;
+		const baseX = Math.max(3.5, margin - 6);
+		let cx = xPaa ?? baseX;
+		let cy = (yPaa ?? y) + 2.1;
+		// to numre p samme visuelle linje (gruppegrense midt i linjen): forskyv sidelengs - aldri opp hverandre; ny rad ved 3+
+		const side = (typeof doc.getCurrentPageInfo === 'function') ? doc.getCurrentPageInfo().pageNumber : 1;
+		if (sistLysPos && side === sistLysPos[2] && Math.abs(cy - sistLysPos[1]) < 3) {
+			cx = sistLysPos[0] + 4.9;
+			if (cx > baseX + 5.5) { cx = baseX; cy = sistLysPos[1] + 5; }
+		}
 		doc.setDrawColor(37, 99, 235);
 		doc.setLineWidth(0.5);
 		doc.circle(cx, cy, 2.2, 'S');
@@ -1070,6 +1078,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		doc.setFontSize(8.5);
 		doc.setTextColor(37, 99, 235);
 		doc.text(String(n), cx, cy + 1.15, { align: 'center' });
+		sistLysPos = [cx, cy, side];
 	};
 	/** Tegn en stakk av lysbildenumre i margen (5 mm mellomrom) — teksten påvirkes ikke. */
 	const tegnLysStakk = (nrs, yBasis) => {
