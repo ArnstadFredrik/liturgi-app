@@ -13,10 +13,22 @@
 	--role: #d05245;           /* liturgirød, lysnet for mørk bunn */
 	--warn: #c9803f;
 	--danger: #d05245;
+	--success: #6ca47a;
+	--focus: #e0a45f;          /* fokusring — lysnet oker for synlighet på mørkt */
 	--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
 	--radius: 8px;
 	--radius-kort: 12px;
 	--radius-modal: 14px;
+	--sp-xs: 4px;              /* mellomromstokener: XS/S/M/L */
+	--sp-s: 8px;
+	--sp-m: 14px;
+	--sp-l: 22px;
+	--fs-2xl: 20px;
+	--fs-xl: 16.5px;
+	--fs-lg: 15px;
+	--fs-md: 14px;
+	--fs-sm: 13px;
+	--fs-xs: 12.5px;           /* minste UI-tekst: aldri under dette */
 	color-scheme: dark;
 }
 [data-theme='light'] {
@@ -28,16 +40,28 @@
 	--sidebar-line: rgba(43, 38, 34, 0.13);
 	--border: #e6ddcf;
 	--text: #2b2622;
-	--muted: #8a7f72;
+	--muted: #6f6458;          /* mørknet fra #8a7f72: metadatatekst mot 4,5:1 */
 	--accent: #a34e2a;         /* varm oker-rød — valgt/aktiv */
 	--accent-dim: #f0e4d7;     /* myk valgt-bakgrunn */
 	--role: #b23a2e;           /* liturgirød */
 	--warn: #9a6b0f;
 	--danger: #b23a2e;
+	--success: #2e6b45;
+	--focus: #a34e2a;          /* fokusring — aksentfargen, avstandsregelen gir synlighet */
 	--shadow: 0 1px 2px rgba(80, 60, 30, 0.06), 0 8px 24px rgba(80, 60, 30, 0.12);
 	--radius: 8px;
 	--radius-kort: 12px;
 	--radius-modal: 14px;
+	--sp-xs: 4px;
+	--sp-s: 8px;
+	--sp-m: 14px;
+	--sp-l: 22px;
+	--fs-2xl: 20px;
+	--fs-xl: 16.5px;
+	--fs-lg: 15px;
+	--fs-md: 14px;
+	--fs-sm: 13px;
+	--fs-xs: 12.5px;
 	color-scheme: light;
 }
 * { box-sizing: border-box; accent-color: var(--accent); }
@@ -56,6 +80,8 @@ h1, h2, h3, #sidebar h1, .sec-title, .item-title, .item-eyebrow, .sidehead,
 	font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 button { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }
+/* Global fokusring: synlig tastaturfokus på alle interaktive elementer */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 #app { display: flex; height: 100vh; }
 #main { flex: 1; overflow-y: auto; }
 #app:has(#malverktoy) #main { overflow: hidden; display: flex; flex-direction: column; }
@@ -1885,7 +1911,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* fanene arver fb-visning-velger-segmenteringen: rund beholder + runde
  * knapper i alle hjørner (samme uttrykk som øvrige undernavigasjoner) */
 .fb-visning-velger button.sel { background: var(--accent); color: #fff; font-weight: 600; }
-.fb-visning-velger button:not(.sel):hover { color: var(--foreground); }
+.fb-visning-velger button:not(.sel):hover { color: var(--text); }
 /* Modul-fane-stripe: samme plassering og stil i alle moduler med undermoduler
    (Gudstjeneste: Redigering/Salmer/Eksport · Bibliotek: Bibliotek/Maler ·
    Innstillinger: Generelt/Prekenforberedelse) */
