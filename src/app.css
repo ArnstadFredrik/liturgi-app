@@ -390,7 +390,7 @@ button.wide { width: 100%; }
 /* prekenforberedelse: filformat + mal-dusesj (punkt 2-3) */
 .inn-format { display: flex; gap: 8px; }
 /* to dynamiske kolonner: redigering + visning - skaleres altid side om side */
-.forb-mal-kolonner { display: flex; gap: 14px; align-items: stretch; width: 100%; }
+.forb-mal-kolonner { display: flex; gap: 16px; align-items: stretch; width: 100%; padding: 14px; }
 .forb-mal-kol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel, transparent); }
 .forb-mal-kol-tittel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
 /* EJS-overlaget: uthevet <pre> bak en gjennomsiktig textarea (samme metrikker) */
@@ -426,6 +426,11 @@ button.wide { width: 100%; }
 .forb-mal-hjelp { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 .forb-mal-hjelp strong { color: var(--text); }
 .forb-mal-vis.hb-md { flex: 1 1 auto; height: 100%; min-height: 340px; overflow: auto; font-size: 12.5px; line-height: 1.55; background: var(--panel2, rgba(128,128,128,0.08)); border-radius: 8px; border: 1px solid var(--border); padding: 12px 14px; margin: 0; box-sizing: border-box; }
+.forb-mal-vis.hb-md .md-frontmatter { background: var(--panel2, rgba(128,128,128,0.08)); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.55; }
+.forb-mal-vis.hb-md .md-fm-rad { white-space: pre-wrap; }
+.forb-mal-vis.hb-md .md-fm-nkkel { color: var(--role, #c0392b); font-weight: 600; margin-right: 6px; }
+.token.frontmatter { opacity: 0.92; }
+.token.frontmatter .token.punctuation { font-weight: 600; color: var(--muted); }
 .forb-mal-vis.hb-md h1 { font-size: 1.25em; margin: 0.2em 0 0.5em; }
 .forb-mal-vis.hb-md h2 { font-size: 1.12em; margin: 0.9em 0 0.4em; }
 .forb-mal-vis.hb-md h3 { font-size: 1.03em; margin: 0.8em 0 0.35em; }

@@ -7,6 +7,7 @@ import 'prismjs/components/prism-javascript.js';
 import 'prismjs/components/prism-json.js';
 import 'prismjs/components/prism-css.js';
 import 'prismjs/components/prism-bash.js';
+import 'prismjs/components/prism-yaml.js';
 
 /** Kodeutheving for appen (PrismJS — én pakke for alle kodespråkene:
  *  EJS-maler, markdown, javascript, json, css og bash-skal-kommandoer).
@@ -29,10 +30,23 @@ const SPRAK = {
 /** Uthev `kode` i sprket `sprak` (f.eks. 'ejs'). Feiler aldri: ved ukjent
  *  sprk eller Prism-feil returneres escaped tekst uten farger. */
 export function uthev(kode, sprak) {
-	const grammatikk = Prism.languages[SPRAK[sprak] ?? sprak];
+	const sprakNavn = SPRAK[sprak] ?? sprak;
+	const grammatikk = Prism.languages[sprakNavn];
 	if (!grammatikk) return escapeHtml(String(kode ?? ''));
 	try {
-		return Prism.highlight(String(kode ?? ''), grammatikk, SPRAK[sprak] ?? sprak);
+		// markdown med frontmatter: vildedelen utheves som yaml
+		if (sprakNavn === 'markdown') {
+			const fm = /^---\n([\s\S]*?)\n---(?:\n|$)/.exec(String(kode ?? ''));
+			if (fm && Prism.languages.yaml) {
+				return (
+					'<span class="token frontmatter"><span class="token punctuation">---</span>\n'
+					+ Prism.highlight(fm[1], Prism.languages.yaml, 'yaml')
+					+ '\n<span class="token punctuation">---</span>\n</span>'
+					+ Prism.highlight(String(kode).slice(fm[0].length), grammatikk, 'markdown')
+				);
+			}
+		}
+		return Prism.highlight(String(kode ?? ''), grammatikk, sprakNavn);
 	} catch {
 		return escapeHtml(String(kode ?? ''));
 	}

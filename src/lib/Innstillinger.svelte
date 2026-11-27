@@ -186,6 +186,8 @@ function settForbModul(v) {
 	let forbMalVisOn = $state(false); // bryteren for forhåndsvisning (vis/skjul) // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
 	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
 	const forbMalUthevet = $derived(uthev(forbMalTekst, 'ejs'));
+	// visningsnavnet i kolonne-tittelen: dagen forhåndsvisningen faktisk viser
+	const forbVisDagNavn = $derived(forbEksempel?.dag?.navn || '');
 	let forbMalEditEl = $state(null);
 	function syUthevScroll() {
 		const lag = forbMalEditEl?.querySelector('.forb-mal-lag');
@@ -511,7 +513,7 @@ function settForbModul(v) {
 							{/if}
 							{#if forbMalSmal ? forbMalVisOn : !forbMalVisOn}
 								<div class="forb-mal-kol">
-									<div class="forb-mal-kol-tittel">Forhåndsvisning (Julaften)</div>
+									<div class="forb-mal-kol-tittel">Forhåndsvisning{forbVisDagNavn ? ' · ' + forbVisDagNavn : ''}</div>
 									{#if forbMalVisHtml}
 										<div class="forb-mal-vis hb-md">{@html forbMalVisHtml}</div>
 									{:else}

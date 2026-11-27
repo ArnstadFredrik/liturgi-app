@@ -15,6 +15,13 @@ test('uthev: markdown og javascript finnes i samme pakke', () => {
 	assert.ok(js.includes('token'), js);
 });
 
+test('uthev: markdown med frontmatter utheves som yaml', () => {
+	const html = uthev('---\ntittel: Jul\n---\n\n# Salme', 'markdown');
+	assert.ok(html.includes('token frontmatter'), html);
+	assert.ok(html.includes('tittel'), html);
+	assert.ok(html.startsWith('<span class="token frontmatter">'), html);
+});
+
 test('uthev: ukjent sprk og feiler aldri (escaped tekst tilbake)', () => {
 	const u = uthev('<b>hei', 'ruby');
 	assert.equal(u, '&lt;b&gt;hei');

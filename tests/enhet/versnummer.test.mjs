@@ -36,3 +36,18 @@ test('hevede versnummer blir ekte Word-superscript i docx-omformer', async () =>
 	assert.ok(xml.includes('<w:vertAlign w:val="superscript"/>'), 'mangler superscript-run');
 	assert.ok(xml.includes('>12<'), 'mangler versnummerteksten');
 });
+
+test('frontmatter vises som metadata-kort i forhåndsvisningen', () => {
+	const html = mdHtml('---\ntittel: 4. s\u00f8ndag i fasten\n---\n\n# Innhold');
+	assert.ok(html.includes('md-frontmatter'), html);
+	assert.ok(html.includes('md-fm-nkkel') && html.includes('tittel'));
+	assert.ok(!html.startsWith('<hr'), 'frontmatter ble hr');
+});
+
+test('docx: frontmatter-kortet bruker creme + Georgia + sidetall-footer', async () => {
+	const b64 = await mdTilDocxBase64('---\nfortelling: jul\n---\n\nBr\u00f8dtekst.');
+	const xml = docxXml(b64);
+	assert.ok(xml.toUpperCase().includes('F6F1E7'), 'mangler creme');
+	assert.ok(xml.includes('Georgia'), 'mangler Georgia');
+	assert.ok(xml.includes('w:footerReference') || xml.toUpperCase().includes('PAGE'), 'mangler sidetall-footer');
+});

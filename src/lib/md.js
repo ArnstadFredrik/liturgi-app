@@ -203,10 +203,30 @@ function listerHtml(linjer) {
 	return bygg(0, 0)[0];
 }
 
-/** Full render: blokkene + fotnoter på slutten. */
+/** Frontmatter (YAML mellom --- i starten) som metadata-kort. */
+function mdFrontmatterHtml(fm) {
+	const rader = [];
+	for (const linje of String(fm).split('\n')) {
+		const l = linje.trim();
+		if (!l || l.startsWith('#')) continue;
+		const m = /^([\w][\w -]*?):\s*(.*)$/.exec(l);
+		if (m) rader.push('<div class="md-fm-rad"><span class="md-fm-nkkel">' + m[1] + '</span>' + m[2] + '</div>');
+		else rader.push('<div class="md-fm-rad">' + l + '</div>');
+	}
+	return '<div class="md-frontmatter">' + rader.join('') + '</div>';
+}
+
+/** Full render: blokkene + fotnoter p slutten. */
 export function mdHtml(tekst) {
-	const { blokker, fotnoter } = mdParse(tekst);
-	let html = blokker.map((b) => b.html).join('');
+	let restTekst = String(tekst ?? '');
+	let fmHtml = '';
+	const fmMatch = /^---\n([\s\S]*?)\n---(?:\n|$)/.exec(restTekst);
+	if (fmMatch) {
+		fmHtml = mdFrontmatterHtml(fmMatch[1]);
+		restTekst = restTekst.slice(fmMatch[0].length);
+	}
+	const { blokker, fotnoter } = mdParse(restTekst);
+	let html = fmHtml + blokker.map((b) => b.html).join('');
 	if (fotnoter.length) {
 		html += `<hr class="md-hr"><div class="md-fotnoter">${fotnoter.map((f, i) => `<div class="md-fotnote"><span class="md-fotnote-nr">${i + 1}.</span> ${mdInlineFull(f)}</div>`).join('')}</div>`;
 	}
