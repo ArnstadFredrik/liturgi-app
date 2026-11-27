@@ -1429,6 +1429,16 @@ html:not(.electron) #toc-side { padding-top: 36px; }
 }
 html.electron .toc-avsnitt { background: color-mix(in srgb, var(--panel2, var(--panel)) 94%, transparent); backdrop-filter: blur(10px); }
 #toc-side .list { display: flex; flex-direction: column; gap: 2px; }
+/* TOC-chevrons: seksjonene lukket som standard; chevron pner ledd-listen */
+#toc-side .list li.toc-sec { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 3px 6px; }
+#toc-side .list li.toc-sec > .toc-chev { flex: 0 0 auto; border: none; background: none; padding: 2px; cursor: pointer; color: var(--muted); border-radius: 4px; display: inline-flex; }
+#toc-side .list li.toc-sec > .toc-chev:hover { color: var(--accent); background: var(--sidebar-hover); }
+#toc-side .list li.toc-sec > .nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#toc-side .toc-ledd { flex: 1 0 100%; list-style: none; margin: 2px 0 2px 22px; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+#toc-side .toc-ledd li { padding: 3px 8px; font-size: 11.5px; font-weight: 400; color: var(--muted); border-radius: 6px; }
+#toc-side .toc-ledd li:hover { background: var(--sidebar-hover); color: var(--text); }
+#toc-side .toc-ledd li.toc-tom { color: var(--muted); opacity: 0.7; cursor: default; }
+#toc-side .toc-ledd li.toc-tom:hover { background: none; }
 #toc-side .list li { padding: 6px 10px; font-size: 12.5px; border-radius: 7px; cursor: pointer; font-weight: 500; transition: background 0.12s ease; }
 #toc-side .list li:hover { background: var(--sidebar-hover); }
 #toc-side .list li.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; box-shadow: inset -3px 0 0 0 var(--accent); }

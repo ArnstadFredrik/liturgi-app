@@ -23,26 +23,17 @@
 	})());
 	let valg = $state({});           // per profil per dokument: { nokkel: bool }
 	let visInnhold = $derived(app.eksVisInnhold);
-	// vis instruksjoner: per dokument (o.visInstr), default på. Menighetsprofilen
-	// tar ALDRI med instruksjoner (hardkodet i Word/PDF-undermodulen).
-	let visInstrValg = $state(true);
-	// vis salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer): per dokument (o.visSalmeinfo), default på
-	let visSalmeinfoValg = $state(true);
 	// PPTX-forhåndsvisning (undermodul): slidene som HTML
 	let pptSlides = $state([]); // [{ big, tekstStorrelse, tittelStorrelse, deler }]
 	let formater = $state({ word: true, pptx: false, pdf: false });
 	let appFormater = $state({ word: true, pptx: false, pdf: false }); // app-standard (DB)
-	let tomSlideModus = $state('av'); // 'av' | 'alle' | 'smart' — blanke sider mellom ledd
-	// PowerPoint-innstillinger (følger Menighet-profilen, men har egen konfigurasjon)
-	let pptVisTittel = $state(true);
-	let pptTekstSkala = $state(1);      // skala på brødtekst-slides (24 pt grunn)
-	let pptTittelSkala = $state(1);     // skala på tittelsliden (40 pt grunn)
-	let pptEkstra = $state([]);         // ekstra sider: { tittel, innhold }
-	let pptLeddtitler = $state(false);  // leddtitler på slidene (standard av)
-	let pptLys = $state(false);         // lys bakgrunn på slidene (standard mørk)
-	let pptJustering = $state('center');  // tekstjustering: left | center | right (standard senter)
-	// lysbildemanus: valget ligger i høyre sidemeny (checkbox) — følger dokumentet
-	const pptLysManus = $derived(!!app.current?.eksportPptx?.lysManus);
+	// ALLE eksportinnstillingene lagres per profil i o.eksportInnst[profil]
+	// (instr, salmeinfo, tomSlide, visTittel, tekstSkala, tittelSkala, ekstra,
+	// leddtitler, lysBakgrunn, justering, lysManus + de gamle: tittel,
+	// visAvsnittstitler, storrelse, kolonner, marger, avstand, korteTitler).
+	// Leses med getInnst()/setInnst() nedenfor - ingen egne $state-er. Skjerm-
+	// profilens ppt-valg ligger under 'Skjerm'. Redigeringsmodulens visnings-
+	// valg (o.visInstr/o.visSalmeinfo/o.visRoles) gjelder KUN redigeringen.
 	let pptVersjon = $state(0);         // økes ved utvalgsendring — live-oppdaterer slidevisningen
 	let visNotater = $state(false);     // notatvisning: notatfelt ved siden av hver slide
 	let pptZoom = $state(1);            // zoom på lysbildevisningen (localStorage ppt-zoom)
@@ -258,21 +249,45 @@
 			});
 		}
 		if (o) {
-			tomSlideModus = o.eksportTomSlideModus ?? (o.eksportTomSlide ? 'alle' : 'av'); // gammel boolsk verdi migreres
-			visInstrValg = o.visInstr ?? true;
-			visSalmeinfoValg = o.visSalmeinfo ?? true;
-			// PowerPoint-innstillinger (per dokument, serialiseres med .liturgi-filen)
-			pptVisTittel = o.eksportPptx?.visTittel ?? true;
-			pptTekstSkala = o.eksportPptx?.tekstSkala ?? 1;
-			pptTittelSkala = o.eksportPptx?.tittelSkala ?? 1;
-			pptEkstra = JSON.parse(JSON.stringify(o.eksportPptx?.ekstra ?? []));
-			pptLeddtitler = o.eksportPptx?.leddtitler ?? false;
-			pptLys = o.eksportPptx?.lysBakgrunn ?? false;
-			pptJustering = o.eksportPptx?.justering ?? 'center';
 			// dokumentets egne formater-valg, ellers app-standard
 			const egne = o.eksportFormater;
 			formater = egne ?? { ...appFormater };
-			// lagrede leddvalg per profil (persistert i .liturgi-filen)
+			// MIGRERING V2: alle innstillingene per profil + leddvalg per ledd-id
+			if (!o.eksportInnstV2) {
+				const seed = {};
+				for (const p of profiler) seed[p] = { instr: o.visInstr ?? true, salmeinfo: o.visSalmeinfo ?? true };
+				const sk = o.eksportPptx ?? {};
+				seed.Skjerm = {
+					...seed.Skjerm,
+					visTittel: sk.visTittel ?? true,
+					tekstSkala: sk.tekstSkala ?? 1,
+					tittelSkala: sk.tittelSkala ?? 1,
+					ekstra: JSON.parse(JSON.stringify(sk.ekstra ?? [])),
+					leddtitler: sk.leddtitler ?? false,
+					lysBakgrunn: sk.lysBakgrunn ?? false,
+					justering: sk.justering ?? 'center',
+					lysManus: sk.lysManus ?? false,
+					tomSlide: o.eksportTomSlideModus ?? (o.eksportTomSlide ? 'alle' : 'av')
+				};
+				o.eksportInnst = { ...(o.eksportInnst ?? {}) };
+				for (const p of Object.keys(seed)) o.eksportInnst[p] = { ...seed[p], ...(o.eksportInnst[p] ?? {}) };
+				// leddvalg: gammel indeks-nkkel ('si:ii') -> id-nkkel (posisjon i NVERENDE
+				// struktur; nyere endringer i dokumentet tyr da ikke lenger utvalget)
+				const migrer = (mappe) => {
+					const ut = {};
+					for (const k of Object.keys(mappe ?? {})) {
+						const m = /^(\d+):(\d+)(:.*)?$/.exec(k);
+						if (!m) { ut[k] = mappe[k]; continue; }
+						const it = o.sections?.[+m[1]]?.items?.[+m[2]];
+						if (it?.id) ut[it.id + (m[3] ?? '')] = mappe[k];
+					}
+					return ut;
+				};
+				o.eksportValg = Object.fromEntries(Object.entries(o.eksportValg ?? {}).map(([p, v]) => [p, migrer(v)]));
+				o.eksportInnstV2 = true;
+				markDirty();
+			}
+			// lagrede leddvalg per profil (persistert i .liturgi-filen, nklet p ledd-id)
 			if (o.eksportValg) valg = JSON.parse(JSON.stringify(o.eksportValg));
 		}
 		// hurtigeksport fra høyremenyen
@@ -301,17 +316,17 @@
 		const chk = (b) => !!b;
 		if (aktiv === 'Skjerm') {
 			openContextMenu(x, y, [
-				{ label: 'Leddtitler', checked: chk(pptLeddtitler), action: () => window.__eksMeny('eks:leddtitler') },
-				{ label: 'Tittelslide', checked: chk(pptVisTittel), action: () => window.__eksMeny('eks:tittelslide') },
-				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
-				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
-				{ label: 'Lys bakgrunn', checked: chk(pptLys), action: () => window.__eksMeny('eks:lys') },
-					{ label: 'Lysbildemanus', checked: chk(pptLysManus), action: () => window.__eksMeny('eks:lysbmanus') },
+				{ label: 'Leddtitler', checked: chk(getInnst('leddtitler', false)), action: () => window.__eksMeny('eks:leddtitler') },
+				{ label: 'Tittelslide', checked: chk(getInnst('visTittel', true)), action: () => window.__eksMeny('eks:tittelslide') },
+				{ label: 'Instruksjoner', checked: chk(getInnst('instr', true)), action: () => window.__eksMeny('eks:instr') },
+				{ label: 'Salmeinfo', checked: chk(getInnst('salmeinfo', true)), action: () => window.__eksMeny('eks:salmeinfo') },
+				{ label: 'Lys bakgrunn', checked: chk(getInnst('lysBakgrunn', false)), action: () => window.__eksMeny('eks:lys') },
+					{ label: 'Lysbildemanus', checked: chk(getInnst('lysManus', false)), action: () => window.__eksMeny('eks:lysbmanus') },
 				'sep',
 				{ label: 'Justering', submenu: [
-					{ label: 'Venstrejustert', checked: pptJustering === 'left', action: () => window.__eksMeny('eks:justering:left') },
-					{ label: 'Sentrert', checked: pptJustering === 'center', action: () => window.__eksMeny('eks:justering:center') },
-					{ label: 'Høyrejustert', checked: pptJustering === 'right', action: () => window.__eksMeny('eks:justering:right') }
+					{ label: 'Venstrejustert', checked: getInnst('justering', 'center') === 'left', action: () => window.__eksMeny('eks:justering:left') },
+					{ label: 'Sentrert', checked: getInnst('justering', 'center') === 'center', action: () => window.__eksMeny('eks:justering:center') },
+					{ label: 'Høyrejustert', checked: getInnst('justering', 'center') === 'right', action: () => window.__eksMeny('eks:justering:right') }
 				] }
 			]);
 		} else {
@@ -319,8 +334,8 @@
 				{ label: 'Vis navn', checked: chk(getInnst('tittel', true)), action: () => window.__eksMeny('eks:tittel') },
 				{ label: 'Hovedtitler', checked: chk(getInnst('visAvsnittstitler', true)), action: () => window.__eksMeny('eks:avsnitt') },
 				{ label: 'Korte titler', checked: chk(getInnst('korteTitler', false)), action: () => window.__eksMeny('eks:korteTitler') },
-				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
-				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
+				{ label: 'Instruksjoner', checked: chk(getInnst('instr', true)), action: () => window.__eksMeny('eks:instr') },
+				{ label: 'Salmeinfo', checked: chk(getInnst('salmeinfo', true)), action: () => window.__eksMeny('eks:salmeinfo') },
 				'sep',
 				{ label: 'Format', submenu: [
 					{ label: 'A4', checked: getInnst('storrelse', 'A5') === 'A4', action: () => window.__eksMeny('eks:format:A4') },
@@ -350,25 +365,25 @@
 		if (nk === 'tittel') setInnst('tittel', !getInnst('tittel', true));
 		else if (nk === 'avsnitt') setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true));
 		else if (nk === 'korteTitler') setInnst('korteTitler', !getInnst('korteTitler', false));
-		else if (nk === 'instr') { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }
-		else if (nk === 'salmeinfo') { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }
+		else if (nk === 'instr') setInnst('instr', !getInnst('instr', true));
+		else if (nk === 'salmeinfo') setInnst('salmeinfo', !getInnst('salmeinfo', true));
 		else if (nk === 'format') setInnst('storrelse', v);
 		else if (nk === 'kolonner') setInnst('kolonner', +v);
 		else if (nk === 'marger') setInnst('marger', v);
 		else if (nk === 'avstand') setInnst('avstand', v);
-		else if (nk === 'leddtitler') { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }
-			else if (nk === 'tittelslide') { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }
-		else if (nk === 'lys') { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }
-		else if (nk === 'lysbmanus') { setPptx('lysManus', !pptLysManus); }
-		else if (nk === 'justering') { pptJustering = v; setPptx('justering', pptJustering); }
+		else if (nk === 'leddtitler') { setInnst('leddtitler', !getInnst('leddtitler', false)); }
+			else if (nk === 'tittelslide') { setInnst('visTittel', !getInnst('visTittel', true)); }
+		else if (nk === 'lys') { setInnst('lysBakgrunn', !getInnst('lysBakgrunn', false)); }
+		else if (nk === 'lysbmanus') { setInnst('lysManus', !getInnst('lysManus', false)); }
+		else if (nk === 'justering') { setInnst('justering', v); }
 	};
 	// menylinje-tilstand: valgene (sjekkbokser/radioer i Eksportvalg-menyen)
 	$effect(() => {
 		app.eksMenyTilstand = aktiv === 'Skjerm'
-			? { skjerm: true, leddtitler: pptLeddtitler, blank: tomSlideModus !== 'av', tittelslide: pptVisTittel, instr: visInstrValg, salmeinfo: visSalmeinfoValg, lys: pptLys, justering: pptJustering }
-			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), korteTitler: getInnst('korteTitler', false), instr: visInstrValg, salmeinfo: visSalmeinfoValg, format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
+			? { skjerm: true, leddtitler: getInnst('leddtitler', false), blank: getInnst('tomSlide', 'av') !== 'av', tittelslide: getInnst('visTittel', true), instr: getInnst('instr', true), salmeinfo: getInnst('salmeinfo', true), lys: getInnst('lysBakgrunn', false), justering: getInnst('justering', 'center') }
+			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), korteTitler: getInnst('korteTitler', false), instr: getInnst('instr', true), salmeinfo: getInnst('salmeinfo', true), format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
 	});
-	$effect(() => () => { window.__eksMeny = null; });
+	$effect(() => () => { window.__eksMeny = null; window.__eksTilLedd = null; });
 
 	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
 	function portal(node, target) {
@@ -393,7 +408,7 @@
 			const valg = { storrelse: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', aktiv === 'Menighet' ? 2 : 1), marger: getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal'), tittel: getInnst('tittel', true), visAvsnittstitler: getInnst('visAvsnittstitler', true), avstand: getInnst('avstand', 'normal'), skriftSkala: { hoveddel: 1, ledd: 1, tekst: 1, ...skrift } };
 			// NB: les RESULTATET, aldri pdfSider-state her — effekten skriver pdfSider,
 			// så å lese den i samme effekt gir en uendelig effekt-loop.
-			const sider = byggPdfSider(klonMedValg(o, aktiv), aktiv === 'Menighet' ? false : visInstrValg, valg).sider;
+			const sider = byggPdfSider(klonMedValg(o, aktiv), aktiv === 'Menighet' ? false : getInnst('instr', true), valg).sider;
 			pdfSider = sider;
 			// Avsnitt → side-kartlegging (brukes av Avsnitt-listen i høyremenyen)
 			const kart = {};
@@ -428,7 +443,11 @@
 		}
 	});
 
-	function nokkel(si, ii) { return si + ':' + ii; }
+	/** Valg-nkkel: leddets ID (stabil ved innsetting/sletting/flytting av ledd -
+	 *  indeks-nkler ble overstyrte nr brukeren la til ledd i starten). */
+	function nokkel(it) { return it?.id ?? ''; }
+	/** DOM-/plan-slot: 'si:ii' (rad-anker og pptx-plan-internt). */
+	function slot(si, ii) { return si + ':' + ii; }
 
 	/** Skjerm-profilen deler utvalg med Menighet — endringer gjelder begge. */
 	function valgProfil() { return aktiv; }
@@ -498,7 +517,7 @@
 
 	/** Er leddet med i den aktive profilen? */
 	function erMed(si, ii, it) {
-		const v = lesValg(valgProfil())?.[nokkel(si, ii)];
+		const v = lesValg(valgProfil())?.[nokkel(it)];
 		if (v !== undefined) return v;
 		return standard(it);
 	}
@@ -509,8 +528,8 @@
 	}
 
 	/** Skal leddets innhold være med? (default ja, lagres med «:t»-nøkkel) */
-	function visTekstDel(si, ii) {
-		const v = lesValg(valgProfil())?.[nokkel(si, ii) + ':t'];
+	function visTekstDel(it) {
+		const v = lesValg(valgProfil())?.[nokkel(it) + ':t'];
 		return v !== undefined ? v : true;
 	}
 
@@ -519,14 +538,14 @@
 	function visDel(si, ii, d, it) {
 		if (aktiv !== 'Skjerm' && aktiv !== 'Menighet') return true;
 		if (it && !visInnholdStatus(si, ii, it)) return false;
-		const v = lesValg(valgProfil())?.[nokkel(si, ii) + ':' + d];
+		const v = lesValg(valgProfil())?.[nokkel(it) + ':' + d];
 		return v !== undefined ? v : true;
 	}
 
 	/** Er leddets innhold (broteksten) med? Bibelref-modus teller som uten innhold. */
 	function visInnholdStatus(si, ii, it) {
 		if (erBibel(it) && visBibel(si, ii, it)) return false; // bare referanse
-		return visTekstDel(si, ii);
+		return visTekstDel(it);
 	}
 
 	/** leddTekst med dele-valget (innledning/avslutning borte når valgt bort). */
@@ -552,13 +571,13 @@
 	function visBibel(si, ii, it) {
 		if (aktiv === 'Skjerm') {
 			// Skjerm: full bibeltekst som standard; egne endringer lagres separat (eksportValg.Skjerm)
-			const v = valg['Skjerm']?.[nokkel(si, ii) + ':br'];
+			const v = valg['Skjerm']?.[nokkel(it) + ':br'];
 			if (v !== undefined) return v;
-			return o?.eksportValg?.Skjerm?.[nokkel(si, ii) + ':br'] ?? false;
+			return o?.eksportValg?.Skjerm?.[nokkel(it) + ':br'] ?? false;
 		}
-		const v = valg[valgProfil()]?.[nokkel(si, ii) + ':br'];
+		const v = valg[valgProfil()]?.[nokkel(it) + ':br'];
 		if (v !== undefined) return v;
-		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(si, ii) + ':br'];
+		const lagret = o?.eksportValg?.[valgProfil()]?.[nokkel(it) + ':br'];
 		if (lagret !== undefined) return lagret;
 		return aktiv === 'Menighet' && erBibel(it);
 	}
@@ -569,7 +588,7 @@
 		const ref = !visBibel(si, ii, it);
 		if (aktiv === 'Skjerm') {
 			if (!valg['Skjerm']) valg['Skjerm'] = {};
-			valg['Skjerm'][nokkel(si, ii) + ':br'] = ref;
+			valg['Skjerm'][nokkel(it) + ':br'] = ref;
 			if (o) {
 				o.eksportValg = o.eksportValg ?? {};
 				o.eksportValg.Skjerm = { ...valg['Skjerm'] };
@@ -578,7 +597,7 @@
 			markDirty();
 			return;
 		}
-		settDel(si, ii, ':br', ref);
+		settDel(it, ':br', ref);
 	}
 
 	/** Referansen som skal vises i overskriften (valgt alternativ eller leddteksten). */
@@ -588,10 +607,10 @@
 		return Array.isArray(r) ? (r[it.selAlt ?? 0] || r[0] || '') : r;
 	}
 
-	function settDel(si, ii, del, v) {
+	function settDel(it, del, v) {
 		const vp = valgProfil();
 		if (!valg[vp]) valg[vp] = {};
-		valg[vp][nokkel(si, ii) + del] = v;
+		valg[vp][nokkel(it) + del] = v;
 		if (o) {
 			o.eksportValg = o.eksportValg ?? {};
 			o.eksportValg[vp] = { ...valg[vp] };
@@ -600,10 +619,10 @@
 		markDirty();
 	}
 
-	function sett(si, ii, m) {
+	function sett(it, m) {
 		const vp = valgProfil();
 		if (!valg[vp]) valg[vp] = {};
-		valg[vp][nokkel(si, ii)] = m;
+		valg[vp][nokkel(it)] = m;
 		if (o) {
 			o.eksportValg = o.eksportValg ?? {};
 			o.eksportValg[vp] = { ...valg[vp] };
@@ -650,43 +669,34 @@
 	}
 
 	function settTomSlideModus(m) {
-		tomSlideModus = m;
-		if (o) { o.eksportTomSlideModus = m; }
+		setInnst('tomSlide', m);
 		pptVersjon++;
-		markDirty();
 	}
 
-	/** PowerPoint-innstillinger per dokument. */
-	function setPptx(k, v) {
-		if (!o) return;
-		o.eksportPptx = { ...(o.eksportPptx ?? {}), [k]: v };
-		pptVersjon++;
-		markDirty();
-	}
 
 	/** Bygg slidene (samme logikk som exportPptx) til HTML-forhåndsvisning. */
 	function byggPptSlides() {
 		if (!o) { pptSlides = []; return; }
-		const tekstStorrelse = Math.round((pptTekstSkala ?? 1) * 38); // grunn 38 pt
-		const tittelStorrelse = Math.round((pptTittelSkala ?? 1) * 40);
+		const tekstStorrelse = Math.round((getInnst('tekstSkala', 1) ?? 1) * 38); // grunn 38 pt
+		const tittelStorrelse = Math.round((getInnst('tittelSkala', 1) ?? 1) * 40);
 		const slides = [];
-		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, lys: pptLys, tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
+		const push = (segs, big = false, blank = false, notat = '', notatSlot = '', leddStart = false) => slides.push({ big, blank, notat, notatSlot, leddStart, lys: getInnst('lysBakgrunn', false), tekstStorrelse, tittelStorrelse, deler: blank ? [] : (typeof segs === 'string' ? [{ text: segs }] : segs) });
 		pptSlidePos = {};
 		pptSlotVed = [];
 		// Forhåndsvisningen konsumerer SAMME plan som pptx-eksporten (byggSlidePlan)
 		// — fordeling av ledd og blanke sider blir da identisk, alltid.
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const plan = byggSlidePlan(kopi, {
-			tomSlideModus,
-			showInstr: visInstrValg,
-			tekstSkala: pptTekstSkala,
-			tittelSkala: pptTittelSkala,
-			ekstra: pptEkstra,
-			visLeddtitler: pptLeddtitler
+			tomSlideModus: getInnst('tomSlide', 'av'),
+			showInstr: getInnst('instr', true),
+			tekstSkala: getInnst('tekstSkala', 1),
+			tittelSkala: getInnst('tittelSkala', 1),
+			ekstra: getInnst('ekstra', []),
+			visLeddtitler: getInnst('leddtitler', false)
 		});
 		plan.forEach((s, idx) => {
 			if (s.blank) { push(null, false, true); return; }
-			if (s.big && !pptVisTittel) return; // tittelsliden kan skrus av
+			if (s.big && !getInnst('visTittel', true)) return; // tittelsliden kan skrus av
 			const slot = s.nokkel ?? '';
 			if (slot && pptSlidePos[slot] == null) {
 				pptSlidePos[slot] = slides.length;
@@ -699,7 +709,7 @@
 	// bygg forhåndsvisningen når Skjerm-profilen er aktiv eller noe endres (live)
 	$effect(() => {
 		if (aktiv !== 'Skjerm') return;
-		pptTekstSkala; pptTittelSkala; pptVisTittel; pptLeddtitler; pptJustering; tomSlideModus; pptEkstra.length; pptVersjon; o?.name; o?.date;
+		getInnst('tekstSkala', 1); getInnst('tittelSkala', 1); getInnst('visTittel', true); getInnst('leddtitler', false); getInnst('justering', 'center'); getInnst('tomSlide', 'av'); getInnst('ekstra', []).length; pptVersjon; o?.name; o?.date;
 		Promise.resolve().then(() => {
 			try { byggPptSlides(); } catch (e) { console.error('PPTX-forhåndsvisning:', e); window.__pptErr = e?.message + '\n' + (e?.stack ?? '').slice(0, 300); }
 		});
@@ -709,18 +719,18 @@
 	let pptSlidePos = {};
 	const regnNokler = () => {
 		const n = [];
-		o?.sections?.forEach((sec, si) => sec.items?.forEach((it, ii) => { if (it.enabled !== false) n.push(nokkel(si, ii)); }));
+		o?.sections?.forEach((sec, si) => sec.items?.forEach((it, ii) => { if (it.enabled !== false) n.push(slot(si, ii)); }));
 		return n;
 	};
 
 	/** Egne slides for en plassering: [{ i, e }] med originalindeks (each-nøkkel). */
 	function ekstraEtter(slot) {
-		return (pptEkstra ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
+		return (getInnst('ekstra', []) ?? []).map((e, i) => ({ e, i })).filter(({ e }) => (e.etter ?? '') === slot);
 	}
 
 	/** Flytt egne slide ei én plass opp (-1) eller ned (+1) i layouten. */
 	function flyttEkstra(ei, retning) {
-		const ekstra = [...pptEkstra];
+		const ekstra = [...getInnst('ekstra', [])];
 		const e = ekstra[ei];
 		if (!e) return;
 		const nokler = regnNokler();
@@ -746,19 +756,18 @@
 				else return; // nederst
 			}
 		}
-		pptEkstra = ekstra;
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', ekstra);
 	}
 
 	/** Drag-drop: plasser egna slide ei etter et ledd (slot) eller etter en annen egna slide. */
 	let dragEkstra = null;
 	function flyttEkstraTil(ei, mal) {
-		const ekstra = [...pptEkstra];
+		const ekstra = [...getInnst('ekstra', [])];
 		const e = ekstra[ei];
 		if (!e) return;
 		if (mal.type === 'item') {
 			e.etter = mal.slot;
-			setPptx('ekstra', pptEkstra);
+			setInnst('ekstra', getInnst('ekstra', []));
 			return;
 		}
 		// manuell målt: samme slot som målet, rett etter den i rekkefølgen
@@ -767,18 +776,16 @@
 		const [x] = ekstra.splice(ei, 1);
 		const pos = malIdx > ei ? malIdx : malIdx + 1;
 		ekstra.splice(pos, 0, x);
-		pptEkstra = ekstra;
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', ekstra);
 	}
 
 	/** Ny manuell side rett over/under en eksisterende manuell side (samme plassering i rekkefølgen). */
 	function nyPptSideNær(ei, plass) {
-		const ekstra = [...(pptEkstra ?? [])];
+		const ekstra = [...(getInnst('ekstra', []) ?? [])];
 		const e = ekstra[ei];
 		if (!e) return;
 		ekstra.splice(plass === 'over' ? ei : ei + 1, 0, { tittel: '', innhold: '', etter: e.etter ?? '' });
-		pptEkstra = ekstra;
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', ekstra);
 	}
 	/** Ny manuell side over/under et ledd (slot) — «over» plasserer den etter forrige ledd. */
 	function nyPptSideVed(slot, plass) {
@@ -788,8 +795,7 @@
 			const idx = nokler.indexOf(slot);
 			etter = idx <= 0 ? '' : nokler[idx - 1];
 		}
-		pptEkstra = [...(pptEkstra ?? []), { tittel: '', innhold: '', etter }];
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', [...(getInnst('ekstra', []) ?? []), { tittel: '', innhold: '', etter }]);
 	}
 
 	/** Høyreklikkmeny for en manuell side: flytting + ny side over/under + fjern. */
@@ -810,8 +816,8 @@
 		if (aktiv !== 'Skjerm') return;
 		e.preventDefault();
 		openContextMenu(e.clientX, e.clientY, [
-			{ label: 'Ny side over leddet', action: () => nyPptSideVed(nokkel(si, ii), 'over') },
-			{ label: 'Ny side under leddet', action: () => nyPptSideVed(nokkel(si, ii), 'under') }
+			{ label: 'Ny side over leddet', action: () => nyPptSideVed(slot(si, ii), 'over') },
+			{ label: 'Ny side under leddet', action: () => nyPptSideVed(slot(si, ii), 'under') }
 		]);
 	}
 
@@ -846,6 +852,8 @@
 		kobletLås = Date.now() + 900;
 		rullTil(document.querySelector('.eksport-liste [data-slot="' + slot + '"]'));
 	}
+	// dokumentpanelet (TOC) kan navigere direkte til et ledd
+	window.__eksTilLedd = (nok) => { try { visListeRad(nok); } catch {} };
 
 	/** Klikk på et ledd i oversikten → scroll forhåndsvisningen til slidet. */
 	let pptSlotVed = []; // slideindeks → slot (fylles i byggPptSlides)
@@ -884,16 +892,13 @@
 	}
 
 	function leggTilPptSide() {
-		pptEkstra = [...pptEkstra, { tittel: '', innhold: '' }];
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', [...getInnst('ekstra', []), { tittel: '', innhold: '' }]);
 	}
 	function fjernPptSide(i) {
-		pptEkstra = pptEkstra.filter((_, idx) => idx !== i);
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', getInnst('ekstra', []).filter((_, idx) => idx !== i));
 	}
 	function oppdaterPptSide(i, k, v) {
-		pptEkstra = pptEkstra.map((e, idx) => idx === i ? { ...e, [k]: v } : e);
-		setPptx('ekstra', pptEkstra);
+		setInnst('ekstra', getInnst('ekstra', []).map((e, idx) => idx === i ? { ...e, [k]: v } : e));
 	}
 
 	/** Standardmarkering uavhengig av aktiv fane (brukes ved kloning). */
@@ -921,7 +926,7 @@
 		// tittelen (navn + dato) styres av profilinnstillingen «tittel»
 		kopi.__visTittel = getInnst('tittel', true);
 		// salmeinfo (@COPYRIGHT-linjer: T/M/O-hode og ©-linjer) kan ekskluderes per dokument
-		const visSalmeinfo = visSalmeinfoValg;
+		const visSalmeinfo = getInnst('salmeinfo', true);
 		const stripSalmeinfo = (t) => !t ? t
 			// NB: kollaps ikke \n\n her — tomme linjer mellom salmevers skal overleve
 		: t.replace(/^@(?:COPYRIGHT|copyright|c)\b ?\|? ?.*$\n?/gm, '')
@@ -935,7 +940,7 @@
 					it.text = stripSalmeinfo(it.text);
 					if (it.alts?.length) it.alts.forEach((a) => { a.text = stripSalmeinfo(a.text); });
 				}
-				const v = lagret?.[nokkel(si, ii)];
+				const v = lagret?.[it.id];
 				it.enabled = v !== undefined ? v : standardFor(brProfil ?? profil, it);
 				// «Korte titler»: salmetittelen vises uten leddets navn (f.eks. uten
 				// 'Inngangssalme:') - frst og fremst for plass i 2-kolonne-visningen.
@@ -950,15 +955,15 @@
 				const erB = erBibel(it);
 				// per-ledd dele-valg (Skjerm/Menighet): innledning/avslutning kan tas bort.
 				// Merkene brukes av Smart-modusen: skjulte deler gir blank side.
-				const innholdBorte = (!erB && lagret?.[nokkel(si, ii) + ':t'] === false);
-				if (lagret?.[nokkel(si, ii) + ':i'] === false) { it.introAlts = []; it.__skjultIntro = true; }
-				if (lagret?.[nokkel(si, ii) + ':a'] === false) { it.avslutningAlts = []; it.__skjultAvsl = true; }
+				const innholdBorte = (!erB && lagret?.[it.id + ':t'] === false);
+				if (lagret?.[it.id + ':i'] === false) { it.introAlts = []; it.__skjultIntro = true; }
+				if (lagret?.[it.id + ':a'] === false) { it.avslutningAlts = []; it.__skjultAvsl = true; }
 				it.__visOverskrift = it.enabled;
-				it.__visInnhold = (!erB && lagret?.[nokkel(si, ii) + ':t'] !== undefined) ? lagret[nokkel(si, ii) + ':t'] : true;
+				it.__visInnhold = (!erB && lagret?.[it.id + ':t'] !== undefined) ? lagret[it.id + ':t'] : true;
 				// per-ledd bibelreferanse: er Bibelreferanse-valgt, skift innholdet til referansen
 				// og legg referansen til overskriften
-				const bref = brProfil ? (brLagret?.[nokkel(si, ii) + ':br'] ?? false)
-					: (lagret?.[nokkel(si, ii) + ':br'] !== undefined ? lagret[nokkel(si, ii) + ':br'] : (profil === 'Menighet' && erBibel(it)));
+				const bref = brProfil ? (brLagret?.[it.id + ':br'] ?? false)
+					: (lagret?.[it.id + ':br'] !== undefined ? lagret[it.id + ':br'] : (profil === 'Menighet' && erBibel(it)));
 				if (bref) {
 					const r = bibelref(it);
 					if (r) {
@@ -1030,7 +1035,7 @@
 		const base = baseNavn(profil);
 		let n = 0;
 		// Menighetsprogrammet har aldri instruksjoner (uansett bryteren)
-		const instr = profil === 'Menighet' ? false : visInstrValg;
+		const instr = profil === 'Menighet' ? false : getInnst('instr', true);
 		if (formater.word) {
 			let kopi = klonMedValg(o, profil);
 			const res = await exportWord(kopi, instr, base + '.docx', {
@@ -1071,15 +1076,15 @@
 		const kopi = klonMedValg(o, 'Menighet', 'Skjerm');
 		const res = await exportPptx(kopi, {
 			filnavn: baseNavn('Skjerm') + '.pptx',
-			tomSlideModus,
-			showInstr: visInstrValg,
-			tekstSkala: pptTekstSkala,
-			tittelSkala: pptTittelSkala,
-			ekstra: pptEkstra,
-			visTittel: pptVisTittel,
-			visLeddtitler: pptLeddtitler,
-			justering: pptJustering,
-			lysBakgrunn: pptLys
+			tomSlideModus: getInnst('tomSlide', 'av'),
+			showInstr: getInnst('instr', true),
+			tekstSkala: getInnst('tekstSkala', 1),
+			tittelSkala: getInnst('tittelSkala', 1),
+			ekstra: getInnst('ekstra', []),
+			visTittel: getInnst('visTittel', true),
+			visLeddtitler: getInnst('leddtitler', false),
+			justering: getInnst('justering', 'center'),
+			lysBakgrunn: getInnst('lysBakgrunn', false)
 		}, isElectron);
 		if (res) {
 			const r = await window.liturgi.lagrePdf(res.base64, res.filnavn, o.filePath);
@@ -1090,9 +1095,9 @@
 			let n = r.ok ? 1 : 0;
 			const vilWord = !!formater.word, vilPdf = !!formater.pdf;
 			const lysFormater = vilWord || vilPdf ? { word: vilWord, pdf: vilPdf || !vilWord } : { word: false, pdf: true };
-			if (pptLysManus && res.plan && (lysFormater.word || lysFormater.pdf)) {
+			if (getInnst('lysManus', false) && res.plan && (lysFormater.word || lysFormater.pdf)) {
 				const medKopi = klonMedValg(o, 'Medarbeider');
-				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(pptTekstSkala * 38), visLeddtitler: pptLeddtitler });
+				const tall = lysbildeTallFor(res.plan, medKopi, { storrelse: Math.round(getInnst('tekstSkala', 1) * 38), visLeddtitler: getInnst('leddtitler', false) });
 				// planens slidegrupper per ledd: kilden til tall-plasseringen i manuset
 				const planGrupper = {};
 				for (const s of res.plan) {
@@ -1114,7 +1119,7 @@
 				// filnavnet: profilen (Medarbeider) byttes ut med «Lysbildemanus»
 				const base = safeName([o?.date ?? '', o?.name ?? '', 'Lysbildemanus'].filter(Boolean).join(' - '));
 				const innst = {
-					tomSlideModus,
+					tomSlideModus: getInnst('tomSlide', 'av'),
 					storrelse: getInnstP('Medarbeider', 'storrelse', 'A5'),
 					kolonner: getInnstP('Medarbeider', 'kolonner', 1),
 					marger: getInnstP('Medarbeider', 'marger', 'normal'),
@@ -1125,13 +1130,13 @@
 					lysbildeTall: tall
 				};
 				if (lysFormater.pdf && isElectron) {
-					const { base64 } = buildPdfBase64(medKopi, visInstrValg, innst);
+					const { base64 } = buildPdfBase64(medKopi, getInnst('instr', true), innst);
 					const rp = await window.liturgi.lagrePdf(base64, base + '.pdf', o.filePath);
 					if (rp.ok) { toast.success('Lysbildemanus (PDF) → ' + rp.filePath); n++; }
 					else toast.error('Klarte ikke lagre manuset: ' + (rp.error ?? 'ukjent feil'));
 				}
 				if (lysFormater.word) {
-					const rw = await exportWord(medKopi, visInstrValg, base + '.docx', innst, isElectron);
+					const rw = await exportWord(medKopi, getInnst('instr', true), base + '.docx', innst, isElectron);
 					if (rw) {
 						const rd = await window.liturgi.lagrePdf(rw.base64, rw.filnavn, o.filePath);
 						if (rd.ok) { toast.success('Lysbildemanus (Word) → ' + rd.filePath); n++; }
@@ -1199,9 +1204,9 @@
 			{#if aktiv === 'Skjerm'}
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(pptTekstSkala * 38)} onchange={(e) => { pptTekstSkala = +e.currentTarget.value / 38; setPptx('tekstSkala', pptTekstSkala); }} /></label>
-					<label class="eks-felt eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt)"><span>Tittel</span><input type="number" min="20" max="90" step="any" value={Math.round(pptTittelSkala * 40)} onchange={(e) => { pptTittelSkala = +e.currentTarget.value / 40; setPptx('tittelSkala', pptTittelSkala); }} /></label>
-					<div class="eks-felt" title="Tekstjustering på slidene"><span>Justering</span><select value={pptJustering} onchange={(e) => { pptJustering = e.currentTarget.value; setPptx('justering', pptJustering); }}>
+					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(getInnst('tekstSkala', 1) * 38)} onchange={(e) => { setInnst('tekstSkala', +e.currentTarget.value / 38); }} /></label>
+					<label class="eks-felt eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt)"><span>Tittel</span><input type="number" min="20" max="90" step="any" value={Math.round(getInnst('tittelSkala', 1) * 40)} onchange={(e) => { setInnst('tittelSkala', +e.currentTarget.value / 40); }} /></label>
+					<div class="eks-felt" title="Tekstjustering på slidene"><span>Justering</span><select value={getInnst('justering', 'center')} onchange={(e) => { setInnst('justering', e.currentTarget.value); }}>
 						<option value="left">Venstrejustert</option>
 						<option value="center">Sentrert</option>
 						<option value="right">Høyrejustert</option>
@@ -1210,17 +1215,16 @@
 			</div>
 			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={pptLeddtitler} title="Leddtitler med på slidene (standard uten)" onclick={() => { pptLeddtitler = !pptLeddtitler; setPptx('leddtitler', pptLeddtitler); }}>{@html mdi('format-title', 14)} Leddtitler</button>
-					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={tomSlideModus} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
+					<button class="eks-toggle" class:paa={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onclick={() => { setInnst('leddtitler', !getInnst('leddtitler', false)); }}>{@html mdi('format-title', 14)} Leddtitler</button>
+					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 						<option value="av">Ingen</option>
 						<option value="alle">Alle</option>
 						<option value="smart">Smart</option>
 					</select></div>
-					<button class="eks-toggle" class:paa={pptVisTittel} title="Tittelslide med navn og dato" onclick={() => { pptVisTittel = !pptVisTittel; setPptx('visTittel', pptVisTittel); }}>{@html mdi('presentation', 14)} Tittelslide</button>
-					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
-					<button class="eks-toggle" class:paa={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onclick={() => setInnst('korteTitler', !getInnst('korteTitler', false))}>{@html mdi('format-title', 14)} Korte titler</button>
-					<button class="eks-toggle" class:paa={pptLys} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { pptLys = !pptLys; setPptx('lysBakgrunn', pptLys); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
+					<button class="eks-toggle" class:paa={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onclick={() => { setInnst('visTittel', !getInnst('visTittel', true)); }}>{@html mdi('presentation', 14)} Tittelslide</button>
+					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { setInnst('instr', !getInnst('instr', true)); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
+					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
+					<button class="eks-toggle" class:paa={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { setInnst('lysBakgrunn', !getInnst('lysBakgrunn', false)); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
 					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
 				</div>
@@ -1259,8 +1263,9 @@
 				<div class="eks-baand-rad">
 					<button class="eks-toggle" class:paa={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onclick={() => setInnst('tittel', !getInnst('tittel', true))}>{@html mdi('tag-outline', 14)} Vis navn</button>
 					<button class="eks-toggle" class:paa={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onclick={() => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true))}>{@html mdi('format-header-2', 14)} Hovedtitler</button>
-					<button class="eks-toggle" class:paa={visInstrValg} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={visSalmeinfoValg} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }}>{@html mdi('copyright', 14)} Salmeinfo</button>
+					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { setInnst('instr', !getInnst('instr', true)); }}>{@html mdi('text', 14)} Instruksjoner</button>
+					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
+					<button class="eks-toggle" class:paa={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onclick={() => setInnst('korteTitler', !getInnst('korteTitler', false))}>{@html mdi('format-title', 14)} Korte titler</button>
 				</div>
 			</div>
 			{/if}
@@ -1290,18 +1295,18 @@
 					{/each}
 				{#each o.sections as sec, si (si)}
 					<div class="sidehead eksport-seksjon" data-sec={si}>{sec.title}</div>
-					{#each sec.items as it, ii (nokkel(si, ii))}
+					{#each sec.items as it, ii (slot(si, ii))}
 						<div class="eksport-rad" class:med={erMed(si, ii, it)} class:deaktivert={it.enabled === false}
-						data-slot={nokkel(si, ii)}
-						onclick={(e) => { if (e.target.closest('button, input, label, textarea, select, a')) return; if (aktiv === 'Skjerm') visSlide(nokkel(si, ii)); else visSide(nokkel(si, ii)); }}
+						data-slot={slot(si, ii)}
+						onclick={(e) => { if (e.target.closest('button, input, label, textarea, select, a')) return; if (aktiv === 'Skjerm') visSlide(slot(si, ii)); else visSide(slot(si, ii)); }}
 						oncontextmenu={(e) => menyLedd(e, si, ii)}
 						ondragover={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) e.preventDefault(); }}
-						ondrop={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'item', slot: nokkel(si, ii) }); dragEkstra = null; } }}>
+						ondrop={(e) => { if (aktiv === 'Skjerm' && dragEkstra !== null) { e.preventDefault(); flyttEkstraTil(dragEkstra, { type: 'item', slot: slot(si, ii) }); dragEkstra = null; } }}>
 							{#if it.enabled === false}
 								<span class="eksport-fjernet-tag" title="Fjernet fra gudstjenesten i kontekstmenyen — kommer ikke med i eksport">fjernet</span>
 							{:else}
 								<label class="eksport-hovedchk" title="Leddet (inkl. overskriften) med i eksporten?">
-									<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(si, ii, e.currentTarget.checked)} />
+									<input type="checkbox" checked={erMed(si, ii, it)} onchange={(e) => sett(it, e.currentTarget.checked)} />
 									<span class="eksport-hoved-ikon">{@html mdi('format-title')}</span>
 								</label>
 							{/if}
@@ -1310,17 +1315,17 @@
 									<span class="eksport-rad-nm">{it.heading || it.type}{it.type === 'salme' && (it.salmeNr || it.salmeTittel) ? ': ' + [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ') : ''}{erBibel(it) && visBibel(si, ii, it) && bibelrefTxt(it) ? ' — ' + bibelrefTxt(it) : ''}</span>
 									<div class="eksport-rad-knapper">
 										{#if !visInnhold && !erBibel(it) && (leddTekst(it) || '').trim()}
-											<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(si, ii)}
-												title={visTekstDel(si, ii) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
-												onclick={() => settDel(si, ii, ':t', !visTekstDel(si, ii))}>
+											<button type="button" class="eksport-innhold-indi" class:av={!visTekstDel(it)}
+												title={visTekstDel(it) ? 'Innholdet er med i eksporten — klikk for å ta det bort' : 'Innholdet er ikke med i eksporten — klikk for å ta det med'}
+												onclick={() => settDel(it, ':t', !visTekstDel(it))}>
 												{@html mdi('table-of-contents')}
-												<span>{visTekstDel(si, ii) ? 'Innhold med' : 'Innhold uten'}</span>
+												<span>{visTekstDel(it) ? 'Innhold med' : 'Innhold uten'}</span>
 											</button>
 										{/if}
 										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
 											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'i', it)}
 												title={visDel(si, ii, 'i', it) ? 'Innledningen er med i eksporten — klikk for å ta den bort' : 'Innledningen er ikke med i eksporten — klikk for å ta den med'}
-												onclick={() => settDel(si, ii, ':i', !visDel(si, ii, 'i', it))}>
+												onclick={() => settDel(it, ':i', !visDel(si, ii, 'i', it))}>
 												{@html mdi('format-quote-open')}
 												<span>{visDel(si, ii, 'i', it) ? 'Innledning med' : 'Innledning uten'}</span>
 											</button>
@@ -1328,7 +1333,7 @@
 										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
 											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'a', it)}
 												title={visDel(si, ii, 'a', it) ? 'Avslutningen er med i eksporten — klikk for å ta den bort' : 'Avslutningen er ikke med i eksporten — klikk for å ta den med'}
-												onclick={() => settDel(si, ii, ':a', !visDel(si, ii, 'a', it))}>
+												onclick={() => settDel(it, ':a', !visDel(si, ii, 'a', it))}>
 												{@html mdi('account-voice')}
 												<span>{visDel(si, ii, 'a', it) ? 'Avslutning med' : 'Avslutning uten'}</span>
 											</button>
@@ -1352,7 +1357,7 @@
 							{/if}
 						</div>
 						{#if visInnhold && it.enabled !== false && erMed(si, ii, it) && ((leddTekst(it) || '').trim() || (erBibel(it) && bibelrefTxt(it)))}
-										<div class="eksport-innhold-rad" class:ut={!erBibel(it) && !visTekstDel(si, ii)}>
+										<div class="eksport-innhold-rad" class:ut={!erBibel(it) && !visTekstDel(it)}>
 											{#if erBibel(it)}
 <button type="button" class="eksport-innhold-indi" class:av={visBibel(si, ii, it)}
 	title={visBibel(si, ii, it) ? 'Hele bibelteksten brukes — klikk for bare bibelreferansen' : 'Hele bibelteksten'}
@@ -1368,18 +1373,18 @@
 	</button>
 											{:else}
 												<label class="eksport-del" title="Innholdet med i eksporten (overskriften styres av hovedboksen)">
-													<input type="checkbox" checked={visTekstDel(si, ii)} onchange={(e) => settDel(si, ii, ':t', e.currentTarget.checked)} />
+													<input type="checkbox" checked={visTekstDel(it)} onchange={(e) => settDel(it, ':t', e.currentTarget.checked)} />
 													{@html mdi('text')}
 												</label>
 											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
 												<label class="eksport-del" title={visDel(si, ii, 'i', it) ? 'Innledningen er med i eksporten' : 'Innledningen er ikke med i eksporten'}>
-													<input type="checkbox" checked={visDel(si, ii, 'i', it)} onchange={(e) => settDel(si, ii, ':i', e.currentTarget.checked)} />
+													<input type="checkbox" checked={visDel(si, ii, 'i', it)} onchange={(e) => settDel(it, ':i', e.currentTarget.checked)} />
 													{@html mdi('format-quote-open')}
 												</label>
 											{/if}
 											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
 												<label class="eksport-del" title={visDel(si, ii, 'a', it) ? 'Avslutningen er med i eksporten' : 'Avslutningen er ikke med i eksporten'}>
-													<input type="checkbox" checked={visDel(si, ii, 'a', it)} onchange={(e) => settDel(si, ii, ':a', e.currentTarget.checked)} />
+													<input type="checkbox" checked={visDel(si, ii, 'a', it)} onchange={(e) => settDel(it, ':a', e.currentTarget.checked)} />
 													{@html mdi('account-voice')}
 												</label>
 											{/if}
@@ -1388,7 +1393,7 @@
 										</div>
 									{/if}
 	{#if aktiv === 'Skjerm'}
-						{#each ekstraEtter(nokkel(si, ii)) as ee (ee.i)}
+						{#each ekstraEtter(slot(si, ii)) as ee (ee.i)}
 							<div class="eksport-rad eksport-egen" data-slot={'e' + ee.i}
 							draggable="true"
 							oncontextmenu={(e) => menyEkstra(e, ee.i)}
@@ -1423,7 +1428,7 @@
 								title={slide.leddStart ? 'Første side i leddet' + (slide.notat ? ': ' + slide.notat : '') : undefined}
 								onclick={() => { if (aktiv === 'Skjerm') { const slot = slotForSlide(si); if (slot) visListeRad(slot); } }}>
 								{#if !slide.blank}
-								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67 * pptZoom}px; text-align: {pptJustering}">
+								<div class="ppt-side-innhold" style="font-size: {(slide.big ? slide.tittelStorrelse : slide.tekstStorrelse) * 0.67 * pptZoom}px; text-align: {getInnst('justering', 'center')}">
 									{#each slide.deler as del}
 										<span class:ppt-red={del.red} class:ppt-demp={del.small} class:ppt-bold={del.bold} class:ppt-kursiv={del.italics} class:ppt-sup={del.sup}>{del.text}</span>
 									{/each}
@@ -1505,7 +1510,7 @@
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
 					{#if formater.pptx}
-						<label class="eksport-chk"><span>Blanke sider </span><select value={tomSlideModus} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
+						<label class="eksport-chk"><span>Blanke sider </span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 							<option value="av">Ingen</option>
 							<option value="alle">Alle</option>
 							<option value="smart">Smart</option>

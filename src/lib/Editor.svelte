@@ -160,6 +160,7 @@
 					{#if !(app.kind === 'service' && erSkriftlesningKilde(o, sec.title) && it.enabled === false)}
 					<!-- uvalgte skriftlesninger er skjult i gudstjenester — velges på nytt via «Velg tekster …» -->
 					<div
+						id={'ledd-' + it.id}
 						class="dnd-wrap"
 						class:drag-target={dragOver && dragOver.si === si && dragOver.ii === ii && dragOver.før}
 						class:drag-target-etter={dragOver && dragOver.si === si && dragOver.ii === ii && !dragOver.før}

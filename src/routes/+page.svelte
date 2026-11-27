@@ -62,6 +62,29 @@
 		});
 	}
 
+	/** TOC-chevrons: seksjonene er lukket som standard; chevronen pner ledd-listen
+	 *  og ledd-klikket navigerer direkte (redigering: scroll til leddet, eksport:
+	 *  rull leddoversikten/forhåndsvisningen). */
+	let tocAapen = $state({});
+	function leddNavn(it) {
+		const TYPE_LABEL = { tekst: 'Tekst', salme: 'Salme', instruks: 'Instruks', lesning: 'Lesning', bonn: 'Bnn' };
+		if (it.type === 'salme') {
+			const st = [it.salmeNr, it.salmeTittel].filter(Boolean).join(' ');
+			return (it.heading ? it.heading + ': ' : '') + (st || 'Salme');
+		}
+		return it.heading || TYPE_LABEL[it.type] || 'Ledd';
+	}
+	function gotoLedd(si, it) {
+		// eksportmodulen: rull leddoversikten til raden (og forhvisningen ved Skjerm)
+		if (document.querySelector('#eksport-side')) {
+			window.__eksTilLedd?.(si + ':' + (app.current?.sections?.[si]?.items ?? []).indexOf(it));
+			return;
+		}
+		const el = document.getElementById('ledd-' + it.id);
+		const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (el) el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+		else gotoSec(si);
+	}
 	function gotoSec(i) {
 		// i eksportmodulen ruller Avsnitt-listen forhåndsvisningen til seksjonens side
 		// (manuell scrollTop — scrollIntoView ville også forskjøvet foreldre-containerne)
@@ -262,7 +285,27 @@
 			<div class="sidehead">Avsnitt</div>
 			<ul class="list">
 				{#each app.current.sections as sec, i (i)}
-					<li onclick={() => gotoSec(i)}><span class="nm">{sec.title}</span></li>
+					{@const aapen = !!tocAapen[i]}
+					<li class="toc-sec" class:aapen>
+						<button class="toc-chev" title={aapen ? 'Skjul leddene' : 'Vis leddene i avsnittet'}
+							onclick={(e) => { e.stopPropagation(); tocAapen[i] = !tocAapen[i]; }}>
+							{@html mdi(aapen ? 'chevron-down' : 'chevron-right', 14)}
+						</button>
+						<span class="nm" onclick={() => gotoSec(i)} role="button" tabindex="0"
+							onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') gotoSec(i); }}>{sec.title}</span>
+						{#if aapen}
+							<ul class="toc-ledd">
+								{#each (sec.items ?? []).filter((it) => it.enabled !== false) as it (it.id)}
+									<li onclick={() => gotoLedd(i, it)} title="Gå til leddet">
+										<span class="nm">{leddNavn(it)}</span>
+									</li>
+								{/each}
+								{#if !(sec.items ?? []).some((it) => it.enabled !== false)}
+									<li class="toc-tom">(ingen ledd)</li>
+								{/if}
+							</ul>
+						{/if}
+					</li>
 				{/each}
 			</ul>
 			</div>
@@ -275,9 +318,9 @@
 			<hr class="side-skiller" />
 			<div class="toc-avsnitt">
 				<div class="sidehead">Eksport</div>
-				<label class="lys-manus-valg" title="Genererer et lysbildemanus (medarbeiderutvalg) med lysbildenummer i venstre marg sammen med PowerPoint-eksporten">
-					<input type="checkbox" checked={app.current?.eksportPptx?.lysManus ?? false}
-						onchange={(e) => { app.current.eksportPptx = { ...(app.current.eksportPptx ?? {}), lysManus: e.currentTarget.checked }; }} />
+				<label class="lys-manus-valg" title="Genererer et lysbildemanus (medarbeiderutvalg) med lysbildenummer i venstre marg sammen med PowerPoint-eksporten. Lagres per profil (Skjerm).">
+					<input type="checkbox" checked={app.current?.eksportInnst?.Skjerm?.lysManus ?? false}
+						onchange={(e) => { app.current.eksportInnst = { ...(app.current.eksportInnst ?? {}), Skjerm: { ...(app.current.eksportInnst?.Skjerm ?? {}), lysManus: e.currentTarget.checked } }; }} />
 					Lysbildemanus
 				</label>
 			</div>
