@@ -46,22 +46,27 @@ function tabellceller(l) {
 }
 
 function tabellBlokk(linjer) {
-	// første linje = hoderekk hvis neste er separator (---)
-	const rader = linjer.map(tabellceller).filter((c) => c.some((x) => !/^-+$/.test(x)));
+	// første linje = hoderekk hvis neste er separator (---); den SKAL rendres
 	const erSkille = (r) => r.every((c) => /^:?-+:?$/.test(c));
 	const sep = /^\|/ .test(linjer[1] ?? '') && tabelllinje(linjer[1] ?? '') && erSkille(tabellceller(linjer[1]));
-	const body = sep ? linjer.slice(2) : linjer;
+	const hoderekk = sep ? tabellceller(linjer[0]) : null;
+	const data = linjer.slice(sep ? 2 : 0)
+		.filter((r) => tabelllinje(r) && !erSkille(tabellceller(r)));
 	const kremBak = { type: ShadingType.CLEAR, fill: CREME };
-	const rows = body.filter((r) => !erSkille(tabellceller(r))).map((r, ri) => new TableRow({
-		children: tabellceller(r).map((text, ix) => new TableCell({
+	const antall = (sep ? hoderekk : data[0] ?? []).length || 3;
+	const rad = (celler, erHeader) => new TableRow({
+		children: celler.map((text, ix) => new TableCell({
 			children: [new Paragraph({
 				spacing: { after: 40, line: 280 },
-				children: runsFor(text, { font: SERIF, size: 20, color: TEKST, ...(sep && ri === 0 ? { bold: true, color: ROD } : {}) })
+				children: runsFor(text, { font: SERIF, size: 20, color: TEKST, ...(erHeader ? { bold: true, color: ROD } : {}) })
 			})],
-			width: { size: 100 / (tabellceller(body[0]).length || 3), type: WidthType.PERCENTAGE },
-			shading: sep && ri === 0 ? kremBak : undefined
+			width: { size: 100 / antall, type: WidthType.PERCENTAGE },
+			shading: erHeader ? kremBak : undefined
 		}))
-	}));
+	});
+	const rows = [];
+	if (hoderekk) rows.push(rad(hoderekk, true));
+	for (const d of data) rows.push(rad(tabellceller(d), false));
 	return new Table({
 		// fyll hele sidebredden
 		width: { size: 100, type: WidthType.PERCENTAGE },

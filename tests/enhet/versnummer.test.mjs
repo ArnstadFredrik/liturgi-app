@@ -57,9 +57,16 @@ test('docx: frontmatter-kortet bruker creme + Georgia + sidetall-footer', async 
 });
 
 test('docx: md-tabeller har bold header (creme) og full sidebredde', async () => {
-	const b64 = await mdTilDocxBase64('| Nr | Tittel |\n|----|--------|\n| 1 | x |');
+	const b64 = await mdTilDocxBase64('## Salmer\n\n| Nr | Tittel |\n|----|--------|\n| 1 | x |');
 	const xml = docxXml(b64);
 	assert.ok(/w:tblW[^/]*w:w="5000"/.test(xml), 'ikke 100 % bredde');
 	const tbl = xml.slice(xml.indexOf('<w:tbl>'));
 	assert.ok(tbl.includes('<w:b/>'), 'header-raden er ikke bold');
+	assert.ok(tbl.includes('>Nr<') && tbl.includes('>Tittel<'), 'header-teksten mangler');
+});
+
+test('docx: salme-tabellens header-renderes selv med tom datarad (standardmalen)', async () => {
+	const b64 = await mdTilDocxBase64('| Nr | Tittel | Liturgi |\n|----|--------|---------|\n|    |        |         |');
+	const xml = docxXml(b64);
+	assert.ok(xml.includes('>Nr<') && xml.includes('>Tittel<') && xml.includes('>Liturgi<'), 'headeren mangler');
 });
