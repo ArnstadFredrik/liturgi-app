@@ -1065,12 +1065,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		const baseX = Math.max(3.5, margin - 6);
 		let cx = xPaa ?? baseX;
 		let cy = (yPaa ?? y) + 2.1;
-		// to numre p samme visuelle linje (gruppegrense midt i linjen): forskyv sidelengs - aldri opp hverandre; ny rad ved 3+
+		// ett nummer per visuell linje: et nummer som lander p en linje som alt
+		// har nummer DROPES (brukerens regel - skjermoperatren frer teksten likevel)
 		const side = (typeof doc.getCurrentPageInfo === 'function') ? doc.getCurrentPageInfo().pageNumber : 1;
-		if (sistLysPos && side === sistLysPos[2] && Math.abs(cy - sistLysPos[1]) < 3) {
-			cx = sistLysPos[0] + 4.9;
-			if (cx > baseX + 5.5) { cx = baseX; cy = sistLysPos[1] + 5; }
-		}
+		if (sistLysPos && side === sistLysPos[2] && Math.abs(cy - sistLysPos[1]) < 3) return;
 		doc.setDrawColor(37, 99, 235);
 		doc.setLineWidth(0.5);
 		doc.circle(cx, cy, 2.2, 'S');
@@ -1147,6 +1145,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					// gir ingen ekstra avansering.
 					if (linjeTegnet || bruddSidenTekst > 0) nylinje();
 					bruddSidenTekst++;
+					del++;
 				}
 				if (!part) return;
 				// del på hevede versnummer ^{N} (tegnes mindre og hevet på samme linje)
@@ -1168,7 +1167,7 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 					if (maalPos) {
 						const linjeSlutt = segStart + del + l.length;
 						let fyrt = false;
-						while (maalNeste < maalPos.starts.length && maalPos.starts[maalNeste] < linjeSlutt) {
+						while (maalPos.starts && maalNeste < maalPos.starts.length && maalPos.starts[maalNeste] < linjeSlutt) {
 							maalPos.ved(maalNeste, y);
 							maalNeste++;
 							fyrt = true;
@@ -1187,9 +1186,17 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 							doc.setFontSize(supSize);
 							doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
 						}
+						// linje-hook: offset for den visuelle linjens frste tegn (margtall-k)
+						if (!linjeTegnet && maalPos?.linje) {
+							maalPos.linje(y);
+							doc.setFont(seg.mdH ? 'helvetica' : 'times', seg.bold && seg.italics ? 'bolditalic' : seg.bold ? 'bold' : seg.italics ? 'italic' : 'normal');
+							doc.setFontSize(supSize);
+							doc.setTextColor(...(seg.red ? RED : seg.small ? GRAY : [20, 20, 20]));
+						}
 						linjeTegnet = true;
 						bruddSidenTekst = 0;
 						doc.text(l, cx, y + (erSup ? 2.2 : 4));
+						maalPos?.tekst?.(l);
 						cx += doc.getTextWidth(l);
 						del += l.length + (rest.length - rest.slice(l.length).replace(/^ +/, '').length);
 						rest = rest.slice(l.length).replace(/^ +/, '');
@@ -1287,52 +1294,44 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 				const avsluttende = (lys ?? []).filter((e) => e.tom && e.del === -1).map((e) => e.n);
 				if (avsluttende.length) tegnLysStakk(avsluttende, y);
 			} else if (brukGrupper) {
-				// Øvrige ledd: teksten rendres NØYAKTIG som i prest-printen (samme flyt),
-				// tallene tegnes «flytende» i margen ved riktig lysbilde.
-				const overskrift = lysPpt.visLeddtitler && head ? head + '\n' : '';
-				const instrT = (showInstr ?? true) && it.instr ? it.instr.replace(/\{\{\/?r\}\}/g, '') : '';
-				const starts = []; const numre = [];
-				{
-					const joined = flytAvsnitt((overskrift + [instrT, tekst].filter(Boolean).join('\n')).trim(), { beholdLinjer: true });
-					const grupper = delPptSegs(roleSegments(joined), lysPpt.storrelse, { beholdBrudd: true });
-					let p = 0;
-					const egne = (lys ?? []).filter((e) => !e.tom);
-					const ledende = (lys ?? []).filter((e) => e.tom && e.del !== -1).map((e) => e.n);
-					const avsluttende = (lys ?? []).filter((e) => e.tom && e.del === -1).map((e) => e.n);
-					grupper.forEach((grp, gi) => {
-						starts.push(p);
-						const liste = [];
-						// tall flger TEKSTEN: planens slide med samme gruppe-tekst, s
-						// innledning/avslutning-valgene forskutterer ikke tallene
-						const gtekst = String(grp.map((s) => s.text).join('')).replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 44);
-						const planDel = (valg.lysbildeTall?.planTekst?.[nokkel] ?? []).map((e) => ({ nr: e.n, tekst: e.tekst }));
-						const ref = gtekst ? matchGruppe(nokkel, gtekst, planDel) : { nr: null, tomPlan: !planDel.length };
-						if (ref.nr != null) liste.push(ref.nr);
-						// intet treff + plan finnes: avsnittet er ikke p skjermen (f.eks. innledning/
-						// avslutning som Skjerm ikke viser) - intet tall i stedet for feil slide-nummer
-						else if (!ref.tomPlan) { /* intet nummer */ }
-						else if (egne[gi]) liste.push(egne[gi].n);
-					if (gi === 0) liste.push(...ledende);
-					if (gi === grupper.length - 1) liste.push(...avsluttende);
-					numre.push(liste.length === 1 ? liste[0] : (liste.length ? liste : null));
-					p += grp.map((s) => s.text).join('').length;
-					});
-				}
-				// gruppe-starts i overskriften/instruksjonen: tall der (vanligvis bare gruppe 0)
-				const hodeLen = overskrift ? flytAvsnitt(head + '\n', { beholdLinjer: true }).length : 0;
-				const instrLen = instrT ? flytAvsnitt(instrT, { beholdLinjer: true }).length + 1 : 0;
-				const bodyBase = hodeLen + instrLen;
-				const tegnNumre = (v, yP) => { if (v == null) return; if (Array.isArray(v)) { if (v.length) tegnLysStakk(v, yP); } else tegnLysTall(v, yP); };
-				for (let g = 0; g < starts.length; g++) {
-					if (starts[g] >= bodyBase) break;
-					tegnNumre(numre[g], (starts[g] < hodeLen ? hodeY : instrY) ?? y);
-				}
-				const forsteBody = starts.findIndex((s) => s >= bodyBase);
-				// kroppen: identisk flyt med prest-printen
-				skrivSegmenter(roleSegments(flytAvsnitt(tekst, { beholdLinjer: true })), {
+				// Margtall pr linje: nummeret for en slide tegnes p det VISUELLE LINJEN
+				// der slideteksten BEGYNNER (tekstmatch mot den renderte teksten). Deles
+				// - p samme linje - utsettes tallet til NESTE linje, eller droppes hvis
+				// ogs den er opptatt (brukerens regel: skjerm-operatron frer teksten).
+				const flatSegs = roleSegments(flytAvsnitt(tekst, { beholdLinjer: true }));
+				const planDel = (valg.lysbildeTall?.planTekst?.[nokkel] ?? [])
+					.map((e) => ({ nr: e.n, tekst: String(e.tekst ?? '').replace(/\s+/g, ' ').trim().toLowerCase() }))
+					.filter((e) => e.tekst.length > 8);
+				const ledende = (lys ?? []).filter((e) => e.tom && e.del !== -1).map((e) => e.n);
+				const avsluttende = (lys ?? []).filter((e) => e.tom && e.del === -1).map((e) => e.n);
+				let linjeY = null, linjeTekst = '', tallPaaLinje = false, sistNummer = null, nesteKue = 0, venteNr = null, ledTegnet = false;
+				const linjeAv = S(10.5, 'tekst') * 0.48 + 1.1;
+				const norm = (s) => s.toLowerCase().replace(/\s+/g, ' ');
+				skrivSegmenter(flatSegs, {
 					size: S(10.5, 'tekst'),
-					maalPos: { starts, numre, fra: forsteBody === -1 ? starts.length : forsteBody, base: bodyBase, ved: (gi, yP) => tegnNumre(numre[gi], yP) }
+					maalPos: {
+						linje: (y) => {
+							// ny visuell linje: utsatt nummer frst, s ledetall-reserve
+							linjeY = y; linjeTekst = ''; tallPaaLinje = false;
+							if (venteNr != null) { tegnLysTall(venteNr, y); sistNummer = venteNr; venteNr = null; tallPaaLinje = true; }
+							if (!tallPaaLinje && !ledTegnet && ledende.length) { tegnLysTall(ledende[0], y); tallPaaLinje = true; }
+							ledTegnet = true;
+						},
+						tekst: (t) => {
+							linjeTekst += t;
+							let p = planDel[nesteKue];
+							while (p && norm(linjeTekst).includes(p.tekst.slice(0, 16))) {
+								// slideteksten begynner i denne linjen: tegn her hvis linjen er
+								// ledig, ellers UTSETT til neste linje (kollisjon = droppes)
+								if (!tallPaaLinje) { tegnLysTall(p.nr, linjeY); tallPaaLinje = true; }
+								else if (venteNr == null) venteNr = p.nr;
+								nesteKue++;
+								p = planDel[nesteKue];
+							}
+						}					}
 				});
+				// avsluttende blanker (etter leddet) p leddets siste linje
+				if (avsluttende.length) tegnLysStakk(avsluttende, y - linjeAv);
 			} else if (!brukGrupper && it.type === 'salme' && lys && lys.length) {
 				// salme med lysbildetall uten pptx-parametere: vers-for-vers, sekvensielt
 				const vers = (tekst || '').split(/\n\s*\n/).map((v) => v.trim()).filter(Boolean);
