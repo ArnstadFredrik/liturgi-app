@@ -2200,3 +2200,69 @@ sub { font-size: 0.75em; }
 
 /* Kirkearet-listen: sesonggrense (Advent / Jul / Fastetiden ) */
 .ka-sesong { padding: 10px 12px 2px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--accent); }
+
+/* =====================================================================
+   P5 — RESPONSIV LAYOUT
+   Appen brukes pc-frst, men skal vre fullt brukbar ned til sm vinduer
+   (resse ved siden av andre apper og mobil-bredden). Tre bruddpunkter:
+    - 1240px: trang — hyre panel tar mer plass (eks-ekstra skjules),
+      smalere sidekolonner
+    - 1080px: sidebar gr til ikon-modus, bibliotek/kirkearet stables
+    - 840px: hyre sidemeny blir et uttrekk (drawer); sidebar kun ikoner
+   ===================================================================== */
+
+/* ---- 1240px: trangere vindu ---- */
+@media (max-width: 1240px) {
+	/* salmeradene strammes: nr + tittel p samme rad frst ved 720px */
+	.eks-forhvisning-side-v { display: block; }
+}
+
+/* ---- 1080px: ikon-sidebar + stablede flerkolonne-moduler ---- */
+@media (max-width: 1080px) {
+	/* sidebar: ikon-modus—tekstene skjules, knappene beholder treffflate */
+	#sidebar { width: 56px; min-width: 56px; padding: 10px 4px; align-items: center; }
+	#sidebar h1 { font-size: 11px; text-align: center; margin: 0 0 6px; }
+	#sidebar button.wide { text-align: center; padding: 8px 6px; }
+	#sidebar button.wide svg { margin: 0; display: block; width: 18px; height: 18px; }
+	#sidebar .nm, #sidebar .sidehead, #sidebar .sidefoot span,
+	#sidebar .under, #sidebar .fjern { display: none; }
+	#sidebar .sidefoot { width: 100%; padding: 8px 2px; }
+	/* bibliotek: master over detalj */
+	#biblio-kolonner { flex-direction: column; overflow-y: auto; }
+	#biblio-detalj { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 14px; min-height: 300px; }
+	#biblio-side:has(#biblio-kolonner) { max-width: none; margin-top: 6px; }
+	/* kirkearet: artikkel-hovedinnholdet fr full bredde */
+	#kirkeaar-modul { flex-wrap: wrap; }
+	.ka-hoved { max-width: none; }
+}
+
+/* ---- 1080-840 eksport-spesifikk: liste over preview ---- */
+@media (max-width: 1080px) {
+	.eksport-kolonner { flex-direction: column; overflow: visible; }
+	.eksport-liste { flex: none; width: 100%; max-width: 620px; max-height: 44vh; }
+	#eks-forhvisning { flex: 1 1 auto; min-height: 50vh; }
+	.eks-forh-inner { width: 100%; align-items: flex-start; }
+}
+
+/* ---- 840px: sm vinduer (ved siden av andre apper / mobil bredde) ---- */
+@media (max-width: 840px) {
+	/* hyre sidemeny = uttrekk over innholdet */
+	#toc-side {
+		position: fixed; right: 0; top: 0; bottom: 0; width: min(360px, 88vw);
+		z-index: 60; box-shadow: var(--shadow); padding-top: 40px;
+	}
+	#app.toc-skjult #toc-side { display: none; }
+	/* ikon-sidebar beholder knappene; trykkflate min 40px */
+	#sidebar { width: 48px; min-width: 48px; }
+	#sidebar button.wide { padding: 10px 4px; }
+	/* eksport: verktyslinjen stables og erfterte valgene ligger under hverandre */
+	.eks-baand-gruppe { border-right: none; padding: 0; flex-wrap: wrap; }
+	.eks-baand-rad { flex-direction: column; align-items: stretch; gap: 8px; }
+	.eks-felt { flex: 1; }
+	/* salmeradene: feltene under hverandre */
+	.sal-rad-felt { flex-wrap: wrap; }
+	.sal-rad-felt .tittel { flex: 1 1 100%; }
+	.sal-overhode { flex-direction: column; align-items: flex-start; gap: 8px; }
+	/* kirkearet: panel blir uttrekk (via #toc-side) — hovedinnholdet full bredde */
+	.ka-valgt-handlinger { flex-wrap: wrap; }
+}
