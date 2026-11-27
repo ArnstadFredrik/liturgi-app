@@ -76,7 +76,7 @@ diskret «Utvikler»-seksjon som kan skjules.**
    - Visningsvalg-chips → ui-sdk **ToggleGroup** (holder orden på
      aria-pressed og multiple)
 
-### P2 — Eksportmodulen (viktigste arbeidsflate)
+### P2 — Eksportmodulen (viktigste arbeidsflate) — FERDIG (d5e6416 → 497e894)
 4. Rekkefølge og gruppering i høyre panel (hovedfunn 4); eksportknappene
    fast nederst og alltid synlige.
 5. «EKSPORT» + «EKSPORTFORMAT» → ett «Format»-panel; «Lysbildemanus» som
@@ -89,7 +89,7 @@ diskret «Utvikler»-seksjon som kan skjules.**
 8. Funksjonsforklaringer for visuelle statusmerker: «Menighet»-deaktivering
    får forklaring via tittel/hint, «Innhold med» får tydelig Rolle.
 
-### P3 — De øvrige visningene
+### P3 — De øvrige visningene — DELVIS FERDIG (10, 12, 13 levert i cfaf044; 9 og 11 gjenstår)
 9. **Salmer**: layout + «Format»-panelets mønster.
 10. **Kirkeåret**: fargedots får tekst og tooltip (liturgisk fargenavn),
     ukedag i datolisten, sesonginndeling i kalenderen, «I dag»-knapp,
