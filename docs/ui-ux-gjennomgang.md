@@ -89,7 +89,7 @@ diskret «Utvikler»-seksjon som kan skjules.**
 8. Funksjonsforklaringer for visuelle statusmerker: «Menighet»-deaktivering
    får forklaring via tittel/hint, «Innhold med» får tydelig Rolle.
 
-### P3 — De øvrige visningene — FERDIG (10/12/13 i cfaf044, Kirkeåret-runde 2 i 05f2f8a/4179f2b, Salmer+11 i 296d9db)
+### P3 — De øvrige visningene — FERDIG (sesonginndeling i a96e101-/3c2f48c, strørelsespass i a96e101)
 9. **Salmer**: layout + «Format»-panelets mønster.
 10. **Kirkeåret**: fargedots får tekst og tooltip (liturgisk fargenavn),
     ukedag i datolisten, sesonginndeling i kalenderen, «I dag»-knapp,
@@ -103,8 +103,7 @@ diskret «Utvikler»-seksjon som kan skjules.**
     (ui-sdk Dialog); versjonslinjen flyttes til foten.
 13. **Sidebar**: dedupe (hovedfunn 5), ett fokus- og klikkmål per element.
 
-### P4 — Finpuss
-14. Kontrast- og størrelsespass over alle 10–11 px-tekster (hovedfunn 2).
+### P4 — Finpuss — FERDIG (kontrasspass a96e101; fokus-i-lytema verifisert; mikrosprk i tekstcache)14. Kontrast- og størrelsespass over alle 10–11 px-tekster (hovedfunn 2).
 15. Synlig fokus globalt via `:focus-visible`-token.
 16. Mikrospråk: «cachet» → «mellomlagret»; konsist datonormal
     («søndag 29. november 2026») overalt; anførselsteg ok.
