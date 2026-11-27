@@ -201,6 +201,18 @@ export function nlDate(d) {
  *  valg.visAvsnittstitler === false → hoveddel-overskriftene (h2) utelates. */
 export function buildOutline(svc, showInstr, valg = {}) {
 	const out = [];
+	// planens slide-tekster per ledd (Eksport legger dem p lysPpt.planTekst):
+	// nummermatching p innhold i stedet for gruppe-indeks, slik at
+	// innledning/avslutning-valgene i visningen ikke forskjutter tallene
+	const planTekstMap = valg.lysbildeTall?.lysPpt?.planTekst ?? null;
+	const norm = (s) => String(s ?? '').replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 60);
+	const finnSlideNr = (nokkel, gruppe) => {
+		if (!planTekstMap || !planTekstMap[nokkel]) return null;
+		const g = norm(gruppe);
+		if (!g) return null;
+		const treff = planTekstMap[nokkel].find((p) => p.tekst.startsWith(g.slice(0, 50)) || g.startsWith(p.tekst.slice(0, 40)));
+		return treff ? treff.n : null;
+	};
 	if (svc.__visTittel !== false) {
 		out.push({ heading: 'h1', text: svc.name });
 		if (svc.date) out.push({ heading: 'h3', text: nlDate(svc.date), muted: true });
@@ -260,7 +272,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 								if (vi === 0 && gi === 0 && overskrift) t = t.split('\n').slice(1).join('\n'); // overskriften er eget avsnitt
 								t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // som over
 								if (!t.trim()) return;
-								const n = lys[li];
+								const n = finnSlideNr(nokkel, t) ?? lys[li] ?? null;
 								li++;
 								out.push({ text: t, __lys: n ? [n.n] : null, __siste: gi === grupper.length - 1 }); // hvert vers' siste gruppe får etter-avstand (vers-skillet)
 							});
@@ -295,7 +307,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 								if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
 								t = t.replace(/^\n+/, '');
 								if (!t.trim()) return;
-								out.push({ text: t, __lys: (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null, __siste: gi === grupper.length - 1 });
+								out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa)) return [m]; return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
 							});
 						} else out.push({ text: at });
 					}
@@ -317,7 +329,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 						if (gi === 0) t = t.split('\n').slice(hopp).join('\n'); // overskrift + instr er allerede egne avsnitt
 						t = t.replace(/^\n\n+/, '\n').replace(/^\n/, ''); // avsnittskift ved grensen = nytt avsnitt; blanklinjen beholdes som første tomme linje
 						if (!t.trim()) return;
-						out.push({ text: t, __lys: (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null, __siste: gi === grupper.length - 1 });
+						out.push({ text: t, __lys: (() => { const m = finnSlideNr(nokkel, t); if (m != null && !(gi === 0 && harOverskriftNaa)) return [m]; return (gi > 0 || !harOverskriftNaa) && lys[gi] ? [lys[gi].n] : null; })(), __siste: gi === grupper.length - 1 });
 					});
 				} else out.push({ text: bt });
 			}
@@ -374,14 +386,16 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 			const lysRuns = lysListe != null
 				? [
 					...lysListe.flatMap((n, i) => [
-						...(i > 0 ? [new TextRun({ text: '', break: 1 })] : []),
-						new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round(22 * WF('ledd')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
+						// flere tall: mindre font og mellomrom mellom – de skal stå PÅ en linje
+						// i margen, aldri over/under hverandre
+						...(i > 0 ? [new TextRun({ text: ' ', size: Math.round(14 * WF('ledd')) })] : []),
+						new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round((lysListe.length > 1 ? 18 : 22) * WF('ledd')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
 					]),
 					new TextRun({ text: '\t' })
 				]
 				: [];
 			paras.push(new Paragraph({
-				...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
+				...(p.__lys != null ? { indent: { left: lysListe != null && lysListe.length > 1 ? 700 : 520, hanging: lysListe != null && lysListe.length > 1 ? 700 : 520 } } : {}),
 				heading: p.heading === 'h1' ? HeadingLevel.HEADING_1 : p.heading === 'h2' ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3,
 				// seksjonstitler får horisontal linje under (som i PDF-en/forhåndsvisningen)
 				...(spec.linjeUnder ? { border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: 'B4B4B4', space: 2 } } } : {}),

@@ -16,7 +16,11 @@
 	const LESNING_RE = /lesning|evangelium/i;
 
 	let egneProfiler = $state([]);   // egendefinerte profilnavn (i databasen)
-	let aktiv = $state('Prest');
+	// eksport-profilen huskes mellom undermodulene (og mellom skter): bytt gjerne
+	// tilbake til redigeringen - profilen du var i er fortsatt valgt nr du kommer tilbake
+	let aktiv = $state((() => {
+		try { return localStorage.getItem('eks-aktiv-profil') || 'Prest'; } catch { return 'Prest'; }
+	})());
 	let valg = $state({});           // per profil per dokument: { nokkel: bool }
 	let visInnhold = $derived(app.eksVisInnhold);
 	// vis instruksjoner: per dokument (o.visInstr), default på. Menighetsprofilen
@@ -249,6 +253,8 @@
 			});
 			window.liturgi.dbGet('eksportProfiler').then((r) => {
 				if (r?.ok && Array.isArray(r.value)) egneProfiler = r.value;
+				const alle = ['Prest', 'Medarbeider', 'Menighet', 'Skjerm', ...(r.value ?? [])];
+				if (!alle.includes(aktiv)) { aktiv = 'Prest'; try { localStorage.setItem('eks-aktiv-profil', 'Prest'); } catch {} }
 			});
 		}
 		if (o) {
@@ -312,6 +318,7 @@
 			openContextMenu(x, y, [
 				{ label: 'Vis navn', checked: chk(getInnst('tittel', true)), action: () => window.__eksMeny('eks:tittel') },
 				{ label: 'Hovedtitler', checked: chk(getInnst('visAvsnittstitler', true)), action: () => window.__eksMeny('eks:avsnitt') },
+				{ label: 'Korte titler', checked: chk(getInnst('korteTitler', false)), action: () => window.__eksMeny('eks:korteTitler') },
 				{ label: 'Instruksjoner', checked: chk(visInstrValg), action: () => window.__eksMeny('eks:instr') },
 				{ label: 'Salmeinfo', checked: chk(visSalmeinfoValg), action: () => window.__eksMeny('eks:salmeinfo') },
 				'sep',
@@ -342,6 +349,7 @@
 		const [, nk, v] = id.split(':');
 		if (nk === 'tittel') setInnst('tittel', !getInnst('tittel', true));
 		else if (nk === 'avsnitt') setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true));
+		else if (nk === 'korteTitler') setInnst('korteTitler', !getInnst('korteTitler', false));
 		else if (nk === 'instr') { visInstrValg = !visInstrValg; if (o) { o.visInstr = visInstrValg; markDirty(); } }
 		else if (nk === 'salmeinfo') { visSalmeinfoValg = !visSalmeinfoValg; if (o) { o.visSalmeinfo = visSalmeinfoValg; markDirty(); } innstVersjon++; }
 		else if (nk === 'format') setInnst('storrelse', v);
@@ -358,7 +366,7 @@
 	$effect(() => {
 		app.eksMenyTilstand = aktiv === 'Skjerm'
 			? { skjerm: true, leddtitler: pptLeddtitler, blank: tomSlideModus !== 'av', tittelslide: pptVisTittel, instr: visInstrValg, salmeinfo: visSalmeinfoValg, lys: pptLys, justering: pptJustering }
-			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), instr: visInstrValg, salmeinfo: visSalmeinfoValg, format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
+			: { tittel: getInnst('tittel', true), avsnitt: getInnst('visAvsnittstitler', true), korteTitler: getInnst('korteTitler', false), instr: visInstrValg, salmeinfo: visSalmeinfoValg, format: getInnst('storrelse', 'A5'), kolonner: getInnst('kolonner', 1), marger: getInnst('marger', 'normal'), avstand: getInnst('avstand', 'normal') };
 	});
 	$effect(() => () => { window.__eksMeny = null; });
 
@@ -506,18 +514,25 @@
 
 	/** Skal leddets innledning ('i') eller avslutning ('a') være med?
  *  Skjerm/Menighet-profilene kan velge bort deler pr. ledd (lagres med «:i»/«:a»). */
-	function visDel(si, ii, d) {
+	function visDel(si, ii, d, it) {
 		if (aktiv !== 'Skjerm' && aktiv !== 'Menighet') return true;
+		if (it && !visInnholdStatus(si, ii, it)) return false;
 		const v = lesValg(valgProfil())?.[nokkel(si, ii) + ':' + d];
 		return v !== undefined ? v : true;
+	}
+
+	/** Er leddets innhold (broteksten) med? Bibelref-modus teller som uten innhold. */
+	function visInnholdStatus(si, ii, it) {
+		if (erBibel(it) && visBibel(si, ii, it)) return false; // bare referanse
+		return visTekstDel(si, ii);
 	}
 
 	/** leddTekst med dele-valget (innledning/avslutning borte når valgt bort). */
 	function leddTekstValgt(it, si, ii) {
 		if (!it.introAlts?.length && !it.avslutningAlts?.length) return leddTekst(it);
 		const t = { ...it,
-			introAlts: visDel(si, ii, 'i') ? it.introAlts : [],
-			avslutningAlts: visDel(si, ii, 'a') ? it.avslutningAlts : [],
+			introAlts: visDel(si, ii, 'i', it) ? it.introAlts : [],
+			avslutningAlts: visDel(si, ii, 'a', it) ? it.avslutningAlts : [],
 		};
 		return leddTekst(t);
 	}
@@ -597,6 +612,7 @@
 
 	function byttProfil(p) {
 		aktiv = p;
+		try { localStorage.setItem('eks-aktiv-profil', p); } catch {}
 		const vp = valgProfil();
 		if (o?.eksportValg?.[vp]) valg[vp] = { ...o.eksportValg[vp] };
 		else delete valg[vp];
@@ -919,6 +935,13 @@
 				}
 				const v = lagret?.[nokkel(si, ii)];
 				it.enabled = v !== undefined ? v : standardFor(brProfil ?? profil, it);
+				// «Korte titler»: salmetittelen vises uten leddets navn (f.eks. uten
+				// 'Inngangssalme:') - frst og fremst for plass i 2-kolonne-visningen.
+				it.__kortTittel = false;
+				if (it.type === 'salme' && getInnstP(brProfil ?? profil, 'korteTitler', false)) {
+					it.__kortTittel = true;
+					it.heading = '';
+				}
 				// per-ledd valg: hovedboksen styrer overskriften; «:t» styrer innholdet.
 				// NB: «:t» er ikke eksponert for bibelledd (Hele teksten/Bibelref. erstatter den),
 				// så et stalte «:t»: false må ikke stripppe bibelteksten når «Hele teksten» er valgt.
@@ -948,6 +971,11 @@
 						if (it.__ref || r) it.heading = (it.heading || '').replace(/\s*—\s*[^—]*$/, '') + ' — ' + (Array.isArray(r) ? r[it.selAlt ?? 0] || r[0] || '' : r);
 						it.__visInnhold = false; // kun referansen i overskriften — ingen innholdsslides/avsnitt
 					}
+				}
+				// INNHOLDET OVERSTYRER innledning/avslutning: skjult innhold tar dem med seg ut
+				if (innholdBorte || it.__visInnhold === false) {
+					if (it.introAlts?.length) { it.introAlts = []; it.__skjultIntro = true; }
+					if (it.avslutningAlts?.length) { it.avslutningAlts = []; it.__skjultAvsl = true; }
 				}
 			});
 		});
@@ -1069,6 +1097,17 @@
 					(planGrupper[s.nokkel] ??= []).push(s.segs);
 				}
 				Object.defineProperty(tall.lysPpt, 'grupper', { value: planGrupper, enumerable: false });
+				// planens ren-tekst per slide (for tekstmatching ved margtall): gjr
+				// nummerplasseringen robust nr innledning/avslutning-valgene skiller
+				// seg mellom profilene (manus-gruppene matches p innhold, ikke index)
+				const planTekst = {};
+				for (const s of res.plan) {
+					if (s.nokkel == null || s.blank) continue;
+					const txt = (Array.isArray(s.segs) ? s.segs.map((x) => x.text).join('') : String(s.segs ?? '')).replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 60);
+					if (!txt) continue;
+					(planTekst[s.nokkel] ??= []).push({ n: s.nr, tekst: txt, del: s.del ?? 0 });
+				}
+				Object.defineProperty(tall.lysPpt, 'planTekst', { value: planTekst, enumerable: false });
 				// filnavnet: profilen (Medarbeider) byttes ut med «Lysbildemanus»
 				const base = safeName([o?.date ?? '', o?.name ?? '', 'Lysbildemanus'].filter(Boolean).join(' - '));
 				const innst = {
@@ -1275,19 +1314,19 @@
 											</button>
 										{/if}
 										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
-											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'i')}
-												title={visDel(si, ii, 'i') ? 'Innledningen er med i eksporten — klikk for å ta den bort' : 'Innledningen er ikke med i eksporten — klikk for å ta den med'}
-												onclick={() => settDel(si, ii, ':i', !visDel(si, ii, 'i'))}>
+											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'i', it)}
+												title={visDel(si, ii, 'i', it) ? 'Innledningen er med i eksporten — klikk for å ta den bort' : 'Innledningen er ikke med i eksporten — klikk for å ta den med'}
+												onclick={() => settDel(si, ii, ':i', !visDel(si, ii, 'i', it))}>
 												{@html mdi('format-quote-open')}
-												<span>{visDel(si, ii, 'i') ? 'Innledning med' : 'Innledning uten'}</span>
+												<span>{visDel(si, ii, 'i', it) ? 'Innledning med' : 'Innledning uten'}</span>
 											</button>
 										{/if}
 										{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
-											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'a')}
-												title={visDel(si, ii, 'a') ? 'Avslutningen er med i eksporten — klikk for å ta den bort' : 'Avslutningen er ikke med i eksporten — klikk for å ta den med'}
-												onclick={() => settDel(si, ii, ':a', !visDel(si, ii, 'a'))}>
+											<button type="button" class="eksport-innhold-indi" class:av={!visDel(si, ii, 'a', it)}
+												title={visDel(si, ii, 'a', it) ? 'Avslutningen er med i eksporten — klikk for å ta den bort' : 'Avslutningen er ikke med i eksporten — klikk for å ta den med'}
+												onclick={() => settDel(si, ii, ':a', !visDel(si, ii, 'a', it))}>
 												{@html mdi('account-voice')}
-												<span>{visDel(si, ii, 'a') ? 'Avslutning med' : 'Avslutning uten'}</span>
+												<span>{visDel(si, ii, 'a', it) ? 'Avslutning med' : 'Avslutning uten'}</span>
 											</button>
 										{/if}
 										{#if erBibel(it)}
@@ -1329,14 +1368,14 @@
 													{@html mdi('text')}
 												</label>
 											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.introAlts?.length}
-												<label class="eksport-del" title={visDel(si, ii, 'i') ? 'Innledningen er med i eksporten' : 'Innledningen er ikke med i eksporten'}>
-													<input type="checkbox" checked={visDel(si, ii, 'i')} onchange={(e) => settDel(si, ii, ':i', e.currentTarget.checked)} />
+												<label class="eksport-del" title={visDel(si, ii, 'i', it) ? 'Innledningen er med i eksporten' : 'Innledningen er ikke med i eksporten'}>
+													<input type="checkbox" checked={visDel(si, ii, 'i', it)} onchange={(e) => settDel(si, ii, ':i', e.currentTarget.checked)} />
 													{@html mdi('format-quote-open')}
 												</label>
 											{/if}
 											{#if (aktiv === 'Skjerm' || aktiv === 'Menighet') && it.avslutningAlts?.length}
-												<label class="eksport-del" title={visDel(si, ii, 'a') ? 'Avslutningen er med i eksporten' : 'Avslutningen er ikke med i eksporten'}>
-													<input type="checkbox" checked={visDel(si, ii, 'a')} onchange={(e) => settDel(si, ii, ':a', e.currentTarget.checked)} />
+												<label class="eksport-del" title={visDel(si, ii, 'a', it) ? 'Avslutningen er med i eksporten' : 'Avslutningen er ikke med i eksporten'}>
+													<input type="checkbox" checked={visDel(si, ii, 'a', it)} onchange={(e) => settDel(si, ii, ':a', e.currentTarget.checked)} />
 													{@html mdi('account-voice')}
 												</label>
 											{/if}
