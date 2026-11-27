@@ -352,7 +352,8 @@ function settForbModul(v) {
 
 	function startForbFilRediger(i2) {
 		forbFilRedigerer = i2;
-		forbFilNyttNavn = forbEkstern(forbFilListe[i2], forbFmt);
+		// endelsen er valgt i innstillingen (filformatet) - brukeren redigerer bare basenavnet
+		forbFilNyttNavn = forbEkstern(forbFilListe[i2], forbFmt).replace(/\.md$|\.docx$/i, '');
 		setTimeout(() => document.querySelector('.forb-fil-input-rediger')?.focus(), 0);
 	}
 </script>
