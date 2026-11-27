@@ -460,38 +460,45 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		const lysKant = { style: BorderStyle.SINGLE, size: 6, color: '2563EB', space: 3 }; // sirkeltall-rammen
 		// brødtekst: Times 10,5 pt, linjeavstand som PDF-en (size*0.48+1,1 mm ≈ 17,4 pt)
 		const lysListe = p.__lys == null ? null : (Array.isArray(p.__lys) ? p.__lys : [p.__lys]);
-		// linjeskift: '\n'-segmentene fra roleSegments blir EKTE linjeskift (break) —
-		// docx viser ellers rå \n som mellomrom, så avsnittene i visningen forsvinner
-		const runs = [];
-		for (const s of roleSegments(p.text)) {
-			// '\n' ligger ofte inni et tekstrun (push konsoliderer) — splitt og bruk
-			// ekte linjeskift (break), ellers viser Word rå \n som mellomrom
-			const deler = s.text.split('\n');
-			deler.forEach((d, i) => {
-				if (i > 0) runs.push(new TextRun({ text: '', break: 1 }));
-				if (!d) return;
-				runs.push(new TextRun({
-					text: d, italics: !!s.italics,
-					size: s.small ? Math.round(18 * WF('tekst')) : Math.round(21 * WF('tekst')),
-					font: s.mdH ? SANS : SERIF,
-					superScript: !!s.sup,
-					color: s.red ? ROLE_COLOR : s.small ? GRAY : BLACK,
-					bold: !!s.bold || (!!s.red && !s.small)
-				}));
-			});
-		}
-		paras.push(new Paragraph({
-			...(p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
-			children: lysListe != null
-				? [
-					...lysListe.flatMap((n, i) => [
-						...(i > 0 ? [new TextRun({ text: '', break: 1 })] : []),
-						new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round(21 * WF('tekst')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
-					]),
-					new TextRun({ text: '\t' }), ...runs]
-				: runs,
-			spacing: { after: Math.round(3 * afEtter * MM), line: 348 }
-		}));
+		// avsnittsgrenser (tomme linjer i kildeteksten) deles til EGNE avsnitt:
+		// ingen tomme linjer i docx - avstanden følger avstand-valget (får/etter)
+		const avsnittDeler = (p.text ?? '').split(/\n[ \t]*\n+/);
+		const runsFor = (kilde) => {
+			const runs = [];
+			for (const s of roleSegments(kilde)) {
+				const deler = s.text.split('\n');
+				deler.forEach((d, i) => {
+					if (i > 0) runs.push(new TextRun({ text: '', break: 1 }));
+					if (!d) return;
+					runs.push(new TextRun({
+						text: d, italics: !!s.italics,
+						size: s.small ? Math.round(18 * WF('tekst')) : Math.round(21 * WF('tekst')),
+						font: s.mdH ? SANS : SERIF,
+						superScript: !!s.sup,
+						color: s.red ? ROLE_COLOR : s.small ? GRAY : BLACK,
+						bold: !!s.bold || (!!s.red && !s.small)
+					}));
+				});
+			}
+			return runs;
+		};
+		// hvert avsnitt (delt p tomme linjer i kildeteksten - markdown-standard)
+		// fr sitt eget Paragraph; avstanden følger avstand-valget (får/etter)
+		// i stedet for å gjengi tomme linjer i eksporten
+		avsnittDeler.forEach((del, di) => {
+			paras.push(new Paragraph({
+				...(di === 0 && p.__lys != null ? { indent: { left: 520, hanging: 520 } } : {}),
+				children: di === 0 && lysListe != null
+					? [
+						...lysListe.flatMap((n, i) => [
+							...(i > 0 ? [new TextRun({ text: '', break: 1 })] : []),
+							new TextRun({ text: String(n), bold: true, color: '2563EB', size: Math.round(21 * WF('tekst')), font: SANS, border: { top: lysKant, bottom: lysKant, left: lysKant, right: lysKant } })
+						]),
+						new TextRun({ text: '\t' }), ...runsFor(del)]
+					: runsFor(del),
+				spacing: { after: Math.round(3 * afEtter * MM), line: 348 }
+			}));
+		});
 	}
 	// sidestørrelse og kolonner (A4: 11906×16838, A5: 8391×11907 twips)
 	const storrelse = valg.storrelse === 'A5' ? { width: 8391, height: 11907 } : { width: 11906, height: 16838 };
@@ -1126,6 +1133,10 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			y += baseSize * 0.48 + 1.1;
 		};
 		let forsteTekst = !vedForsteTekst;
+		// tomme linjer i kildeteksten = avsnittsgrense: neste linje får ekstra
+		// avsnittsavstand i stedet for en tom linje (følger avstand-valget)
+		let avsnittNeste = false;
+		const avsnittLuft = 2.2 * (valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luftig' ? 1.5 : 1);
 		// lysbildetall «flytende»: sporer tegn-offset og fyrr maalPos.ved(gruppe, y)
 		// naar en slidetekst begynner på en linje
 		let maalNeste = maalPos ? (maalPos.fra ?? 0) : 0;
@@ -1139,13 +1150,16 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 			const parts = seg.text.split('\n');
 			parts.forEach((part, pi) => {
 				if (pi > 0) {
-					// linjeskift: avanser hvis linja har innhold (linjeskift) eller hvis et
-					// brudd allerede er konsumert (andre bruddet i \n\n = blanklinjen).
-					// Ett enkelt brudd på en fersk linje (gruppegrense etter orddeling)
-					// gir ingen ekstra avansering.
-					if (linjeTegnet || bruddSidenTekst > 0) nylinje();
-					bruddSidenTekst++;
-					del++;
+					del++; // \n tegnes med i flat-offsetten (margtall-å-ben)
+					// TOM LINJE = avsnittsgrense: ingen tom linje i eksporten, kun
+					// avsnittsavstand (følger avstand-valget tett/normal/luftig)
+					if (!part.trim()) {
+						if (linjeTegnet) nylinje();
+						avsnittNeste = true;
+						return;
+					}
+					if (linjeTegnet) nylinje();
+					if (avsnittNeste) { y += avsnittLuft; nySideHvisNodvendig(14); avsnittNeste = false; }
 				}
 				if (!part) return;
 				// del på hevede versnummer ^{N} (tegnes mindre og hevet på samme linje)
