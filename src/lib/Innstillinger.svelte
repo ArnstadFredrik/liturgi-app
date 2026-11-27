@@ -5,7 +5,8 @@
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
-	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, renderForbMal } from '$lib/forb-maler.js';
+	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal } from '$lib/forb-maler.js';
+	import { kirkeaarDager, lesTeksterCache, hentTekster, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { malsprakHtml } from '$lib/handbok.js';
 	import { mdHtml } from '$lib/md.js';
 	import { toast } from 'svelte-sonner';
@@ -179,15 +180,17 @@ function settForbModul(v) {
 	let forbMalRedigerer = $state(''); // filnavn med malen pen
 	let forbMalTekst = $state('');
 	let forbMalBredde = $state(0);
-	let forbMalVisHtml = $state(''); // live HTML av malens utdata (md-motoren) // bind:clientWidth p kolonnebeholderen
+	let forbMalVisHtml = $state('');
+	let forbEksempel = $state(null); // ekte kontekst: nårmeste såndag + cachete bibeltekster (faller tilbake til examplekonteksten) // live HTML av malens utdata (md-motoren) // bind:clientWidth p kolonnebeholderen
 	let forbMalVisOn = $state(false); // bryteren for forhåndsvisning (vis/skjul) // smal skjerm: vis forhandsvisning i stedet for redigeringsfelten
 	const forbMalSmal = $derived(forbMalBredde > 0 && forbMalBredde < 700);
 
 	// live: visningen oppdateresforløpende fr det skrives
 	$effect(() => {
 		void forbMalTekst;
+		void forbEksempel;
 		try {
-			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE));
+			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, forbEksempel ?? FORB_KONTEKST_SAMPLE));
 		} catch (e) {
 			forbMalVisHtml = '<p><em><strong>Feil i malen:</strong> ' + (e?.message ?? e) + '</em></p>';
 		}
@@ -202,6 +205,27 @@ function settForbModul(v) {
 		const rm = await window.liturgi.dbGet('forbMaler');
 		try { app.forbMaler = JSON.parse(rm?.value || '{}'); } catch { app.forbMaler = {}; }
 	});
+
+	/** Ekte verdier i forhåndsvisningen: neste søndag fra kirkeåret +
+	 *  bibeltekster fra tekstcachen. Faller tilbake til eksempelkonteksten
+	 *  (Julaften) hvis kirkeåret ikke kan leses. */
+	async function byggForbEksempel() {
+		const pad = (n) => String(n).padStart(2, '0');
+		const d = new Date();
+		d.setDate(d.getDate() + (7 - d.getDay()) % 7);
+		const iso = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+		try {
+			const dager = kirkeaarDager(iso);
+			const dag = dager.find((x) => x.date === iso) ?? dager[0] ?? null;
+			if (!dag?.day) return;
+			const rekke = forbRekkeForDag(dag, dager);
+			const [start, slutt] = (dag.day?.years ?? '').split('-');
+			const tekster = await hentTekster(dag.day, await lesTeksterCache(), dag.series);
+			const c = byggForbKontekst(dag, tekster, { start: start ?? '', slutt: slutt ?? '', rekke });
+			if (c?.dag?.navn) forbEksempel = c;
+		} catch { /* behold eksempelkonteksten */ }
+	}
+	byggForbEksempel();
 
 		async function settForbFmt(v) {
 		forbFmt = v;
@@ -237,7 +261,7 @@ function settForbModul(v) {
 
 	function forhandsvisForbMal() {
 		try {
-			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, FORB_KONTEKST_SAMPLE));
+			forbMalVisHtml = mdHtml(renderForbMal(forbMalTekst, forbEksempel ?? FORB_KONTEKST_SAMPLE));
 		} catch (e) {
 			forbMalVisHtml = '<p><em><strong>Feil i malen:</strong> ' + (e?.message ?? e) + '</em></p>';
 		}
@@ -247,6 +271,7 @@ function settForbModul(v) {
 	$effect(() => {
 		if (!forbMalRedigerer) return;
 		void forbMalTekst;
+		void forbEksempel;
 		forhandsvisForbMal();
 	});
 
