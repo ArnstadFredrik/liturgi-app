@@ -50,4 +50,16 @@ test('docx: frontmatter-kortet bruker creme + Georgia + sidetall-footer', async 
 	assert.ok(xml.toUpperCase().includes('F6F1E7'), 'mangler creme');
 	assert.ok(xml.includes('Georgia'), 'mangler Georgia');
 	assert.ok(xml.includes('w:footerReference') || xml.toUpperCase().includes('PAGE'), 'mangler sidetall-footer');
+	// frontmatter er en EKTE tabell (nkkel/verdi), ikke avsnitt
+	const fmStart = xml.indexOf('<w:tbl>');
+	assert.ok(fmStart > 0, 'frontmatter er ikke tabell');
+	assert.ok(xml.slice(fmStart, fmStart + 3000).includes('jul'), 'frontmarkinnholdet mangler');
+});
+
+test('docx: md-tabeller har bold header (creme) og full sidebredde', async () => {
+	const b64 = await mdTilDocxBase64('| Nr | Tittel |\n|----|--------|\n| 1 | x |');
+	const xml = docxXml(b64);
+	assert.ok(/w:tblW[^/]*w:w="5000"/.test(xml), 'ikke 100 % bredde');
+	const tbl = xml.slice(xml.indexOf('<w:tbl>'));
+	assert.ok(tbl.includes('<w:b/>'), 'header-raden er ikke bold');
 });

@@ -51,14 +51,22 @@ function tabellBlokk(linjer) {
 	const erSkille = (r) => r.every((c) => /^:?-+:?$/.test(c));
 	const sep = /^\|/ .test(linjer[1] ?? '') && tabelllinje(linjer[1] ?? '') && erSkille(tabellceller(linjer[1]));
 	const body = sep ? linjer.slice(2) : linjer;
+	const kremBak = { type: ShadingType.CLEAR, fill: CREME };
 	const rows = body.filter((r) => !erSkille(tabellceller(r))).map((r, ri) => new TableRow({
 		children: tabellceller(r).map((text, ix) => new TableCell({
-			children: [new Paragraph({ children: runsFor(text, { font: SERIF, size: 20, color: TEKST }) })],
+			children: [new Paragraph({
+				spacing: { after: 40, line: 280 },
+				children: runsFor(text, { font: SERIF, size: 20, color: TEKST, ...(sep && ri === 0 ? { bold: true, color: ROD } : {}) })
+			})],
 			width: { size: 100 / (tabellceller(body[0]).length || 3), type: WidthType.PERCENTAGE },
-			shading: ri === 0 ? { type: ShadingType.CLEAR, fill: CREME } : undefined
+			shading: sep && ri === 0 ? kremBak : undefined
 		}))
 	}));
-	return new Table({ rows });
+	return new Table({
+		// fyll hele sidebredden
+		width: { size: 100, type: WidthType.PERCENTAGE },
+		rows
+	});
 }
 
 /** Overskrift: Georgia, liturgirød, hold omkring. */
@@ -72,31 +80,41 @@ function overskrift(niv, tekst) {
 	});
 }
 
-/** Frontmatter-blokken (--- ... ---): creme ramme + røde nøkler. */
+/** Frontmatter (--- ... ---) som EKTE tabell i Word (docx har ikke
+ *  frontmatter): to kolonner (nkkel/verdi), creme bakgrunn, sm rammer. */
 function frontmatterBlokker(yaml) {
-	const barn = [];
+	const rader = [];
 	for (const linje of String(yaml).split('\n')) {
 		const l = linje.trim();
 		if (!l || l.startsWith('#')) continue;
 		const m = /^([\w][\w -]*?):\s*(.*)$/.exec(l);
-		barn.push(m
-			? [new TextRun({ text: m[1] + ': ', bold: true, color: ROD, font: SERIF, size: 19 }), new TextRun({ text: m[2], color: TEKST, font: SERIF, size: 19 })]
-			: [new TextRun({ text: l, color: TEKST, font: SERIF, size: 19 })]);
+		rader.push([m ? m[1] : '', m ? m[2] : l]);
 	}
-	if (!barn.length) return [];
+	if (!rader.length) return [];
 	const ramme = { style: BorderStyle.SINGLE, size: 6, color: 'E4DCCB' };
-	const out = [
-		new Paragraph({ children: [new TextRun({ text: '', size: 6 })], shading: { type: ShadingType.CLEAR, fill: CREME }, border: { top: ramme, left: ramme, right: ramme }, spacing: { before: 120 } })
+	const rows = rader.map(([nokkel, verdi]) => new TableRow({
+		children: [
+			new TableCell({
+				width: { size: 30, type: WidthType.PERCENTAGE },
+				shading: { type: ShadingType.CLEAR, fill: CREME },
+				children: [new Paragraph({ children: [new TextRun({ text: nokkel, bold: true, color: ROD, font: SERIF, size: 19 })], spacing: { after: 40, line: 280 } })]
+			}),
+			new TableCell({
+				width: { size: 70, type: WidthType.PERCENTAGE },
+				shading: { type: ShadingType.CLEAR, fill: CREME },
+				children: [new Paragraph({ children: [new TextRun({ text: verdi, color: TEKST, font: SERIF, size: 19 })], spacing: { after: 40, line: 280 } })]
+			})
+		]
+	}));
+	return [
+		new Table({
+			width: { size: 100, type: WidthType.PERCENTAGE },
+			borders: { top: ramme, bottom: ramme, left: ramme, right: ramme, insideHorizontal: ramme, insideVertical: ramme },
+			rows
+		}),
+		// luft under tabellen
+		new Paragraph({ children: [new TextRun({ text: '', size: 2 })], spacing: { after: 200 } })
 	];
-	barn.forEach((runs, i) => {
-		out.push(new Paragraph({
-			shading: { type: ShadingType.CLEAR, fill: CREME },
-			border: i === barn.length - 1 ? { left: ramme, right: ramme, bottom: ramme } : { left: ramme, right: ramme },
-			spacing: { after: i === barn.length - 1 ? 260 : 40, line: 280 },
-			children: runs
-		}));
-	});
-	return out;
 }
 
 function avsnitt(md) {
