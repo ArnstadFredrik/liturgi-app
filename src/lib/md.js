@@ -6,7 +6,7 @@
  *   — blokkene dekker linjeområdene [fra, til]; linjer utenfor blokker er
  *     vanlige avsnitt/tekstlinjer.
  * mdInline(t) — inline-markdown (fet/kursiv/kode/lenker/bilder/strike/highlight/
- *   sub/fotnoter/autolink/escaping) for én tekststreng.
+ *   sub/fotnoter/hevede versnummer ^{N}/autolink/escaping) for én tekststreng.
  */
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -43,6 +43,8 @@ function mdInlineFull(t) {
 	s = s.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
 	s = s.replace(/==([^=\n]+)==/g, '<mark>$1</mark>');
 	s = s.replace(/(^|[^~\w])~([^~\n]+)~/g, '$1<sub>$2</sub>');
+	// hevede versnummer ^{N} (kirke rsdata + redigeringsmodulen)
+	s = s.replace(/\^\{([^}]+)\}/g, '<sup class="vers">$1</sup>');
 	// fotnotereferanser [^id]
 	s = s.replace(/\[\^([^\]\s]+)\]/g, '<sup class="md-fotnote-ref">$1</sup>');
 	// gjenopprett beskyttet kode og escapede tegn

@@ -6,15 +6,20 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, Ta
  *  Enkelt og godt nok for notatfiler; den finriserte liturgieksporten bruker
  *  fortsatt exportWord. */
 
+const RUNS_DELING = /(\*\*[^*]+\*\*|\*[^*]+\*|\^\{[^}]+\})/g;
+
 function runsFor(tekst) {
 	const out = [];
-	// dele p ** ** forst, s * * ** innenfor
-	const stykker = String(tekst).split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean);
+	// dele p ** ** frst, s * * og hevede versnummer ^{N} innenfor
+	const stykker = String(tekst).split(RUNS_DELING).filter(Boolean);
 	for (const s of stykker) {
 		if (s.startsWith('**') && s.endsWith('**') && s.length > 4) {
 			out.push(new TextRun({ text: s.slice(2, -2), bold: true }));
 		} else if (s.startsWith('*') && s.endsWith('*') && s.length > 2) {
 			out.push(new TextRun({ text: s.slice(1, -1), italics: true }));
+		} else if (s.startsWith('^{') && s.endsWith('}')) {
+			// hevet versnummer (samme notasjon som pptx-eksporten og redigeringsmodulen)
+			out.push(new TextRun({ text: s.slice(2, -1), superScript: true }));
 		} else {
 			out.push(new TextRun({ text: s }));
 		}
