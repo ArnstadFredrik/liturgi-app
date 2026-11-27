@@ -394,28 +394,34 @@ button.wide { width: 100%; }
 .forb-mal-kol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--panel, transparent); }
 .forb-mal-kol-tittel { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
 /* EJS-overlaget: uthevet <pre> bak en gjennomsiktig textarea (samme metrikker) */
-.forb-mal-edit { position: relative; flex: 1 1 auto; min-height: 340px; display: flex; }
+.forb-mal-edit { position: relative; flex: 1 1 auto; min-height: 360px; display: flex; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.forb-mal-edit:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 .forb-mal-lag { position: absolute; inset: 0; margin: 0; overflow: hidden; white-space: pre-wrap; word-wrap: break-word; pointer-events: none; }
 .forb-mal-tekst.forb-mal-tekst-gjennomsiktig { color: transparent; caret-color: var(--text); }
-.forb-mal-lag, .forb-mal-tekst-gjennomsiktig { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; padding: 8px 10px; white-space: pre-wrap; word-wrap: break-word; box-sizing: border-box; }
+.forb-mal-lag, .forb-mal-tekst-gjennomsiktig { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.6; padding: 10px 12px; white-space: pre-wrap; word-wrap: break-word; box-sizing: border-box; }
 .forb-mal-lag code, .forb-mal-lag span { font-family: inherit; font-size: inherit; }
 /* Prism-token-farger (ol brukes av .kode-uthev-klosser i hndboken ogs) */
 .kode-uthev, .forb-mal-lag { color: inherit; }
-.token.comment, .token.prolog, .token.cdata { color: #8c8c74; font-style: italic; }
-.token.punctuation { color: var(--muted-foreground, #767676); }
-.token.tag, .token.tag .token.punctuation, .token.keyword, .token.important, .token.atrule, .token.rule { color: #b34a3f; }
-.token.string, .token.char, .token.attr-value, .token.regex, .token.template-string { color: #4e7a3c; }
+.token.comment, .token.prolog, .token.cdata { color: var(--muted); font-style: italic; }
+.token.punctuation { color: var(--muted); opacity: 0.85; }
+.token.tag, .token.tag .token.punctuation, .token.keyword, .token.important, .token.atrule, .token.rule { color: var(--role); }
+.token.string, .token.char, .token.attr-value, .token.regex { color: #4e7a3c; }
+[data-theme='dark'] .token.string, [data-theme='dark'] .token.char, [data-theme='dark'] .token.attr-value, [data-theme='dark'] .token.regex { color: #7fae67; }
 .token.number, .token.boolean, .token.constant, .token.symbol { color: #8a6d3b; }
+[data-theme='dark'] .token.number, [data-theme='dark'] .token.boolean, [data-theme='dark'] .token.constant { color: #d59a4f; }
 .token.function, .token.class-name, .token.selector, .token.property { color: #3b6a94; }
+[data-theme='dark'] .token.function, [data-theme='dark'] .token.class-name, [data-theme='dark'] .token.selector { color: #6f9cc4; }
 .token.operator, .token.entity, .token.url, .token.variable { color: inherit; }
 .token.builtin, .token.attr-name { color: #7b4d96; }
-.token.deleted { color: #b34a3f; }
+[data-theme='dark'] .token.builtin, [data-theme='dark'] .token.attr-name { color: #b48ac9; }
+.token.deleted { color: var(--danger); }
 .token.inserted { color: #4e7a3c; }
 .token.bold { font-weight: bold; }
 .token.italic { font-style: italic; }
+.token.ejs .token.delimiter { font-weight: 600; }
 .code-uthev-tekst, pre.kode-uthev { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; overflow: auto; white-space: pre; margin: 0; }
-.forb-mal-tekst { width: 100%; height: 100%; min-height: 340px; flex: 1 1 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: inherit; resize: vertical; box-sizing: border-box; }
-.forb-mal-tekst:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft, rgba(59,130,246,0.25)); }
+.forb-mal-tekst { width: 100%; height: 100%; min-height: 360px; flex: 1 1 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.6; padding: 10px 12px; border: none; border-radius: 0; background: transparent; color: inherit; resize: none; box-sizing: border-box; }
+.forb-mal-tekst:focus { outline: none; box-shadow: none; }
 .forb-mal-handlinger { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .forb-mal-hjelp { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 .forb-mal-hjelp strong { color: var(--text); }

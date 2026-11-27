@@ -5,7 +5,7 @@
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
-	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal } from '$lib/forb-maler.js';
+	import { FORB_STANDARD_MALER, FORB_KONTEKST_SAMPLE, byggForbKontekst, renderForbMal, migrerForbMal } from '$lib/forb-maler.js';
 	import { kirkeaarDager, lesTeksterCache, hentTekster, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { uthev } from '$lib/highlight.js';
 	import { malsprakHtml } from '$lib/handbok.js';
@@ -212,6 +212,18 @@ function settForbModul(v) {
 		forbFmt = rf?.value === 'docx' ? 'docx' : 'md';
 		const rm = await window.liturgi.dbGet('forbMaler');
 		try { app.forbMaler = JSON.parse(rm?.value || '{}'); } catch { app.forbMaler = {}; }
+		// Konverter eventuelle gamle mustache-maler til ekte EJS (lagres tilbake
+		// etter frste endring - malene vises da direkte i EJS-syntaks).
+		const gamle = { ...app.forbMaler };
+		let endret = false;
+		for (const k of Object.keys(gamle)) {
+			const ny = migrerForbMal(gamle[k]);
+			if (ny !== gamle[k]) { gamle[k] = ny; endret = true; }
+		}
+		if (endret) {
+			app.forbMaler = gamle;
+			await window.liturgi.dbSet('forbMaler', JSON.stringify(gamle)).catch(() => {});
+		}
 	});
 
 	/** Ekte verdier i forhåndsvisningen: neste søndag fra kirkeåret +
@@ -458,13 +470,13 @@ function settForbModul(v) {
 				<div class="inn-seksjon">
 					<div class="inn-seksjon-topp">
 						<button class="inn-handling" onclick={lukkForbMal}>{@html mdi('chevron-left', 15)} Tilbake</button>
-						<button class="inn-handling" title="Åpner  Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{@html mdi('book-open-variant', 15)} Malvariabler</button>
+						<button class="inn-handling" title="Åpner Malspråket-siden i Brukerhåndboken" onclick={aapneMalDok}>{@html mdi('book-open-variant', 15)} Malvariabler</button>
 						<div class="inn-seksjon-tittel">Mal for {forbMalRedigerer}</div>
 						<div class="forb-mal-handlinger">
 							<button class="inn-handling" class:av={forbMalVisOn} onclick={() => (forbMalVisOn = !forbMalVisOn)}>
 								{#if forbMalVisOn}{@html mdi('pencil', 14)} Redigeringsmal{:else}{@html mdi('file-document-outline', 15)} Forhåndsvisning{/if}
 							</button>
-							<button class="inn-handling" onclick={lagreForbMal}>Lagre mal</button>
+							<button class="inn-handling primary" onclick={lagreForbMal}>Lagre mal</button>
 							<button class="inn-handling" onclick={() => tilbakestillForbMal(forbMalRedigerer)}>Tilbakestill</button>
 						</div>
 					</div>
