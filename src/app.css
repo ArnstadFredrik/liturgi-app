@@ -2304,3 +2304,17 @@ sub { font-size: 0.75em; }
 	.sidebar-toggle { z-index: 65; left: 12px; }
 	html.electron .sidebar-toggle { left: 12px; }
 }
+
+/* Innstillinger: luft mellom kortene i samme seksjon (n kort = ett kort) */
+.inn-seksjon .inn-kort:not(:first-child) { margin-top: 10px; }
+
+/* Oversikt: tabell-layout som malredigeringens hoveddeler (badge + type) */
+.ovr-liste { border: 1px solid var(--border); border-radius: var(--radius-kort, 12px); overflow: hidden; background: var(--panel2); }
+.ovr-seksjon { border-bottom: 1px solid var(--border); border-radius: 0; background: none; }
+.ovr-seksjon:last-child { border-bottom: none; }
+.ovr-sec-rad,
+.ovr-led { display: grid; grid-template-columns: 22px 1fr auto auto 30px; align-items: center; }
+.ovr-type-badge { justify-self: end; font-size: 11px; font-weight: 600; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; background: var(--panel); }
+.ovr-led { border-top: 1px dashed var(--sidebar-line); padding: 2px 8px 2px 2px; }
+
+.ovr-tabell-hode { display: grid; grid-template-columns: 22px 1fr auto auto 30px; padding: 6px 10px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); background: var(--panel); border-bottom: 1px solid var(--border); }

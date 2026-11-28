@@ -83,7 +83,11 @@
 		dragLed = null; overLed = null; overLedFor = false;
 	}
 
-	function leddTekst(it) {
+	/** Lemma-etikett (badge): typen til leddet på norsk. */
+const TYPE_ETIKETT = { salme: 'Salme', tekst: 'Tekst', bibel: 'Bibel', instr: 'Instruksjon', notat: 'Notat' };
+const typeEtikett = (it) => TYPE_ETIKETT[it?.type] ?? 'Tekst';
+
+function leddTekst(it) {
 		// leddtittelen (heading) først — f.eks. «* 2 Inngangssalme» → «2 Inngangssalme»
 		const h = (it?.heading ?? '').replace(/^[*=#\s]+/, '').trim();
 		if (h) return h;
@@ -305,6 +309,8 @@
 
 	{#if app.current?.sections?.length}
 		<div class="ovr-liste">
+			{#if visLed}<div class="ovr-tabell-hode" aria-hidden="true"><span></span><span>Ledd</span><span>Type</span><span></span><span></span></div>{/if}
+
 			{#each app.current.sections as sec, si (si)}
 				<div class="ovr-seksjon" class:deler-dragging={dragSeksjon === si}
 					class:drag-target={overSeksjon === si && overSeksjonFor && dragSeksjon !== null}
@@ -334,6 +340,7 @@
 										title="Dra for å flytte leddet">{@html mdi('drag-vertical', 13)}</span>
 									<span class="ovr-led-tekst" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 										onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{leddTekst(it)}</span>
+									<span class="ovr-type-badge">{typeEtikett(it)}</span>
 									{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
 								</div>
 							{/each}
