@@ -2330,6 +2330,7 @@ sub { font-size: 0.75em; }
 .ka-header-dag .ka-tittel { margin: 0; font-size: 17px; }
 .ka-header-dag .ka-kirkeaar { margin: 0; }
 #kirkeaar-modul .modul-topp .ka-valgt-handlinger { flex: none; margin: 0; }
+#kirkeaar-modul .modul-topp .ka-header-dag { flex: 0 1 auto; } /* innholdet grupperes sentrert, som modul-topp */
 .ka-hoved { max-width: 700px; margin: 0 auto; text-align: left; }
 .ka-hoved::-webkit-scrollbar { width: 8px; }
 /* **4** typografistruktur: seksjonstitler strre + jevn rytme */
