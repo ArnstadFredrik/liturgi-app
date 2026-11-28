@@ -2,7 +2,8 @@
 	/** DelerTabell — DELT komponent for alternativ-/variasjons-modulen:
 	 *  brukes både som undermodul-side (Alternativer) og som innhold i
 	 *  «Deler …»-modalen. Samme komponent = samme uttrykk begge steder. */
-	import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
+	import SlettKnap from '$lib/SlettKnap.svelte';
+import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
 import { erStyrt } from '$lib/deler-logikk.js';
 import { erOriginalMal } from '$lib/fileio.svelte.js';
 
@@ -327,7 +328,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			<div>
 				<p class="m-deler-adm-tittel">Alternativer</p>
 				{#each alternativer as t (t)}
-					<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)}>{@html mdi('delete-outline', 14)}</button></div>
+					<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><SlettKnap klasse="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)} /></div>
 				{/each}
 				{#if !alternativer.length}<p class="muted">Ingen alternativer ennå.</p>{/if}
 				<div class="m-dg-ny"><input placeholder="Nytt alternativ" bind:value={katNyAlt} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('alternativer', katNyAlt); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('alternativer', katNyAlt)}>Legg til</button></div>
@@ -335,7 +336,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			<div>
 				<p class="m-deler-adm-tittel">Variasjoner (del-grupper)</p>
 				{#each variasjoner as v (v)}
-					<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)}>{@html mdi('delete-outline', 14)}</button></div>
+					<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><SlettKnap klasse="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)} /></div>
 				{/each}
 				{#if !variasjoner.length}<p class="muted">Ingen variasjoner ennå.</p>{/if}
 				<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>

@@ -153,7 +153,7 @@ endring = null).
 | `Chevron.svelte` (vis/skjul-knapp) | levert | DelerTabell, Oversikt |
 | `DraHandel.svelte` (dra-håndtak) | levert | DelerTabell, Oversikt |
 | confirmBox | ferdig fra fr (modal.svelte.js sentral) | 8 moduler |
-| `SlettKnap.svelte` (ikon+slett-bekreftelse) | neste | 7 filer med `delete-outline` |
+| `SlettKnap.svelte` (søppelbøtte-ikonknapp) | levert | DelerTabell, Editor, Oversikt, Sidebar |
 | `IkonKnapp.svelte` (ikonknapp med aria-label) | vurderes | Eksport, Forberedelse m.fl. |
 | PanelHode (sidepanel-topper: toc-avsnitt / ka-panel-topp) | ikke startet | +page, Kirkeaar |
 

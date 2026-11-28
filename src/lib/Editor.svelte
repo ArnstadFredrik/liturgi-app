@@ -1,4 +1,5 @@
 <script>
+	import SlettKnap from '$lib/SlettKnap.svelte';
 	import { app, persist, markDirty, uid, closeEditor, insertSectionsFromTemplate, erSkriftlesningKilde } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { confirmBox, chooseSectionsModal, prompt, velgTeksterModal, skriftBokstav,  } from '$lib/modal.svelte.js';
@@ -152,7 +153,7 @@
 				{/if}
 				<button class="sec-flytt" title="Flytt avsnittet ned" onclick={() => flyttSeksjon(si, 1)} disabled={si === o.sections.length - 1}>{@html mdi("arrow-down", 13)}</button>
 				<button onclick={() => addItem(si)}>+ ledd</button>
-				<button class="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)}>{@html mdi("delete-outline", 14)}</button>
+				<SlettKnap klasse="del-sec" title="Slett hele avsnittet" onclick={() => delSection(si)} />
 				{/if}
 			</div>
 			<div class="sec-items">

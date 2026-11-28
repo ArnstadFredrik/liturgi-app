@@ -7,6 +7,7 @@
 	import { instantiate } from '$lib/store.svelte.js';
 	import { hentDelerModal, confirmBox } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import SlettKnap from '$lib/SlettKnap.svelte';
 	import Chevron from '$lib/Chevron.svelte';
 	import DraHandel from '$lib/DraHandel.svelte';
 
@@ -345,7 +346,7 @@ function leddTekst(it) {
 					<span></span>
 					<span></span>
 					<span class="m-deler-bryter-celle">
-						<button class="ovr-slett" title="Slett hoveddelen" onclick={() => slettSeksjon(si)}>{@html mdi('delete-outline', 14)}</button>
+						<SlettKnap klasse="ovr-slett" onclick={() => slettSeksjon(si)} />
 					</span>
 				</div>
 				{#if erApen(si)}

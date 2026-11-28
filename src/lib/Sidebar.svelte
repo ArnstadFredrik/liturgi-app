@@ -1,4 +1,5 @@
 <script>
+	import SlettKnap from '$lib/SlettKnap.svelte';
 	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty, hentFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { newServiceModal, valgModal, confirmBox } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
@@ -186,9 +187,7 @@
 							<span class="nm-t">{s.name}</span>
 							{#each underLinjer(s) as linje}<span class="under">{linje}</span>{/each}
 						</span>
-						<button class="fjern" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>
-							{@html mdi('delete-outline', 14)}
-						</button>
+						<SlettKnap klasse="fjern" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))} />
 					</li>
 				{/each}
 			{/if}
