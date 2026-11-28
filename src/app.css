@@ -2357,3 +2357,10 @@ sub { font-size: 0.75em; }
 .eks-gruppe-tittel { display: block; width: 100%; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); font-weight: 700; margin: 4px 0 0; }
 
 .skjult { display: none !important; }
+
+/* oppstart: inn-fade av hovedvinduet i cross-fade med splash-vinduet */
+#app { animation: oppstart-in 420ms ease-out both; }
+@keyframes oppstart-in {
+	from { opacity: 0; transform: translateY(5px); }
+	to   { opacity: 1; transform: none; }
+}

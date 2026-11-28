@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<title>Liturgi starter …</title>
+<style>
+	/* Liturgi-splash: krem #f6f1e7, rød #c0392b, Georgia, logo = liturgi-512.png */
+	:root {
+		--krem: #f6f1e7;
+		--rod: #c0392b;
+		--rod-dyp: #a53226;
+		--demmet: #8a7f6f;
+		--spor: #e6ddcb;
+	}
+	* { margin: 0; padding: 0; box-sizing: border-box; }
+	html, body { height: 100%; }
+	body {
+		background: transparent;
+		font-family: Georgia, 'Times New Roman', serif;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		transition: opacity 0.32s ease, transform 0.32s ease;
+	}
+	body.lukker { opacity: 0; transform: scale(1.03); }
+	.kort {
+		width: 360px;
+		padding: 34px 30px 26px;
+		background: var(--krem);
+		border: 1px solid #e0d7c4;
+		border-radius: 16px;
+		box-shadow: 0 18px 48px rgba(60, 36, 20, 0.28);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		animation: kort-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+	}
+	@keyframes kort-in {
+		from { opacity: 0; transform: translateY(10px) scale(0.96); }
+		to   { opacity: 1; transform: none; }
+	}
+	.logo-ramme { position: relative; width: 104px; height: 104px; margin-bottom: 18px; }
+	.logo-ring {
+		position: absolute; inset: -9px;
+		border: 2px solid var(--rod);
+		opacity: 0.24;
+		border-radius: 26px;
+		animation: ring-puls 2.1s ease-in-out infinite;
+	}
+	@keyframes ring-puls {
+		0%, 100% { transform: scale(1); opacity: 0.24; }
+		50% { transform: scale(1.045); opacity: 0.4; }
+	}
+	.logo {
+		width: 104px; height: 104px;
+		border-radius: 24px;
+		display: block;
+		animation: logo-in 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+	}
+	@keyframes logo-in {
+		from { opacity: 0; transform: scale(0.9); }
+		to   { opacity: 1; transform: none; }
+	}
+	h1 {
+		font-size: 25px;
+		font-weight: 400;
+		letter-spacing: 0.4px;
+		color: var(--rod);
+		margin-bottom: 14px;
+	}
+	.spor {
+		position: relative;
+		width: 210px;
+		height: 4px;
+		border-radius: 2px;
+		background: var(--spor);
+		overflow: hidden;
+		margin-bottom: 12px;
+	}
+	.loper {
+		position: absolute;
+		top: 0; left: 0; bottom: 0;
+		width: 34%;
+		border-radius: 2px;
+		background: linear-gradient(90deg, transparent, var(--rod) 30%, var(--rod-dyp));
+		animation: loep 1.25s ease-in-out infinite;
+		transition: width 0.3s ease, left 0.3s ease, opacity 0.4s ease;
+	}
+	.loper.fast { animation: none; left: 0; }
+	@keyframes loep {
+		from { left: -34%; }
+		to   { left: 100%; }
+	}
+	.fremdrift-tekst {
+		font-size: 13px;
+		font-style: italic;
+		color: var(--demmet);
+		min-height: 18px;
+		transition: opacity 0.25s ease;
+	}
+</style>
+</head>
+<body>
+	<div class="kort" id="kort">
+		<div class="logo-ramme">
+			<div class="logo-ring"></div>
+			<img class="logo" src="icons/liturgi-512.png" alt="Liturgi">
+		</div>
+		<h1>Liturgi</h1>
+		<div class="spor"><div class="loper" id="loper"></div></div>
+		<div class="fremdrift-tekst" id="tekst">Starter opp …</div>
+	</div>
+<script>
+	// faser fra hovedprosessen: {prosent 0-100, tekst} — uten meldinger: løpende indikator
+	const loper = document.getElementById('loper');
+	const tekst = document.getElementById('tekst');
+	window.liturgiFase = (prosent, t) => {
+		try {
+			if (typeof t === 'string' && t) tekst.textContent = t;
+			if (typeof prosent === 'number') {
+				loper.classList.add('fast');
+				loper.style.width = Math.max(4, Math.min(100, prosent)) + '%';
+			}
+		} catch {}
+	};
+	window.liturgiLukk = () => {
+		try { document.body.classList.add('lukker'); } catch {}
+	};
+	document.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.close(); });
+</script>
+</body>
+</html>

@@ -465,10 +465,9 @@ app.on('open-file', (_e, filePath) => {
 		if (!json) return;
 		// send både innhold og sti — filen åpnes der den ligger, ikke kopieres
 		const payload = JSON.stringify({ json, filePath });
-		const wins = BrowserWindow.getAllWindows();
-		if (wins.length && rendererReady) {
-			wins[0].webContents.send('liturgi:open-path', payload);
-			wins[0].show();
+		if (mainWin && !mainWin.isDestroyed() && rendererReady) {
+			mainWin.webContents.send('liturgi:open-path', payload);
+			mainWin.show();
 		} else {
 			pendingOpenPath = payload;
 		}
@@ -477,10 +476,62 @@ app.on('open-file', (_e, filePath) => {
 	}
 });
 
+// ---------- splash (oppstartsvindu) ----------
+// Rammeløst vindu med logo + fremdrift; lukkes (fade) når rendereren er klar.
+let splash = null;
+let mainWin = null;
+let splashStartTid = 0;
+let splashLuktLukke = false;
+function splashFase(prosent, tekst) {
+	if (!splash || splash.isDestroyed()) return;
+	splash.webContents.executeJavaScript(
+		`window.liturgiFase && window.liturgiFase(${JSON.stringify(prosent)}, ${JSON.stringify(tekst)})`
+	).catch(() => {});
+}
+function splashLukk(hurtig = false) {
+	if (!splash || splash.isDestroyed() || splashLuktLukke) return;
+	splashLuktLukke = true;
+	splashFase(100, 'Klar');
+	const gaatt = Date.now() - splashStartTid;
+	const vent = hurtig ? 0 : Math.max(0, 900 - gaatt); // min. visningstid så animasjonen oppleves
+	setTimeout(() => {
+		try { splash.webContents.executeJavaScript('window.liturgiLukk && window.liturgiLukk()').catch(() => {}); } catch {}
+		// cross-fade: hovedvinduet kommer frem mens splash-toner ut
+		try { if (mainWin && !mainWin.isDestroyed()) mainWin.show(); } catch {}
+		setTimeout(() => {
+			try { if (splash && !splash.isDestroyed()) splash.close(); } catch {}
+			splash = null;
+		}, 360);
+	}, vent);
+}
+function createSplash() {
+	if (splash) return;
+	console.log('[splash] opprettes');
+	splashStartTid = Date.now();
+	splash = new BrowserWindow({
+		width: 380,
+		height: 300,
+		frame: false,
+		transparent: true,
+		resizable: false,
+		movable: true,
+		center: true,
+		alwaysOnTop: true,
+		skipTaskbar: true,
+		hasShadow: false,
+		show: true,
+		webPreferences: { contextIsolation: true, sandbox: false }
+	});
+	// sikkerhetsnett: skal aldri henge igjen hvis noe feiler under oppstarten
+	setTimeout(() => splashLukk(true), 15000);
+	splash.loadFile(path.join(__dirname, 'splash.html'));
+	splashFase(8, 'Starter opp …');
+}
 // renderer melder fra når siden er lastet (og lytteren er registrert) — flush evt. kø
 let rendererReady = false;
 ipcMain.on('liturgi:renderer-ready', (e) => {
 	rendererReady = true;
+	splashLukk();
 	if (pendingOpenPath) {
 		e.sender.send('liturgi:open-path', pendingOpenPath);
 		pendingOpenPath = null;
@@ -492,7 +543,7 @@ function readLiturgiFile(p) {
 }
 
 app.on('second-instance', () => {
-	const w = BrowserWindow.getAllWindows()[0];
+	const w = mainWin && !mainWin.isDestroyed() ? mainWin : BrowserWindow.getAllWindows().find((x) => x !== splash);
 	if (w) { if (w.isMinimized()) w.restore(); w.focus(); }
 });
 
@@ -930,6 +981,7 @@ function createWindow(port) {
 		height: 900,
 		minWidth: 620,
 		minHeight: 600,
+		show: false, // vises av splashLukk (cross-fade) når rendereren er klar
 		title: 'Liturgi',
 		...(process.platform === 'darwin' ? {
 			titleBarStyle: 'hiddenInset',
@@ -957,6 +1009,7 @@ function createWindow(port) {
 		}
 	});
 	win.webContents.on('did-finish-load', () => {
+		splashFase(72, 'Laster visningen …');
 		win.webContents.executeJavaScript(`window.addEventListener('error', (e) => console.error('WINDOW-ERROR:', e.message, e.filename, e.lineno, e.colno, e.error && e.error.stack ? e.error.stack.slice(0, 3000) : '')); window.addEventListener('unhandledrejection', (e) => console.error('WINDOW-REJ:', String(e.reason && e.reason.stack || e.reason).slice(0, 3000)));`).catch(() => {});
 	});
 	win.webContents.on('render-process-gone', (_e, d) => {
@@ -964,6 +1017,7 @@ function createWindow(port) {
 	});
 
 	byggMeny(win);
+	mainWin = win;
 	win.loadURL(`http://localhost:${port}/`);
 	// merknad: filer som åpnes ved oppstart leveres når rendereren melder 'liturgi:renderer-ready'
 	// (did-finish-load fyrer før SPA-modulene har registrert lytteren)
@@ -1007,13 +1061,18 @@ function createWindow(port) {
 }
 
 app.whenReady().then(() => {
+	// splash vises med en gang; faser melder framgang mot 'Klar'
+	createSplash();
 	// prøv ønsket port, fall tilbake til senere porter hvis opptatt (f.eks. hvis appen allerede kjører)
 	let port = PORT;
 	server.on('error', () => {
 		port += 1;
 		server.listen(port, '127.0.0.1');
 	});
-	server.on('listening', () => createWindow(port));
+	server.on('listening', () => {
+		splashFase(38, 'Forbereder …');
+		createWindow(port);
+	});
 	server.listen(port, '127.0.0.1');
 	app.on('activate', () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow(port);

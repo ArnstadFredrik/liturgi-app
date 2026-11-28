@@ -40,7 +40,7 @@ try {
 		await sleep(1000);
 		try {
 			const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
-			const side = list.find((t) => t.type === 'page' && !t.url.startsWith('devtools'));
+			const side = list.find((t) => t.type === 'page' && !t.url.startsWith('devtools') && !t.url.startsWith('file:')); // file: = splash-vinduet
 			if (side?.webSocketDebuggerUrl) {
 				ws = new WebSocket(side.webSocketDebuggerUrl);
 				await new Promise((res, rej) => { ws.onopen = res; ws.onerror = () => rej(new Error('ws feil')); });
