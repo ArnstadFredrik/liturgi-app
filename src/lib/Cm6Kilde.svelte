@@ -6,7 +6,7 @@
 	 *    rollemerker "L |"/"ML |" (rød fet), BIBELREF `...` (blå)
 	 */
 	import { onMount, onDestroy } from 'svelte';
-	import { EditorView, keymap, lineNumbers, Decoration, ViewPlugin } from '@codemirror/view';
+	import { EditorView, keymap, lineNumbers, Decoration, ViewPlugin, drawSelection } from '@codemirror/view';
 	import { Compartment, RangeSetBuilder } from '@codemirror/state';
 	import { vim, Vim } from '@replit/codemirror-vim';
 	import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
@@ -39,6 +39,14 @@
 		return ut;
 	}
 
+	const merkePlugin = ViewPlugin.fromClass(
+		class {
+			constructor(v2) { this.sett = byggDekor(v2.state.doc.toString()); }
+			update(u) { if (u.docChanged || u.viewportChanged) this.sett = byggDekor(u.state.doc.toString()); }
+		},
+		{ decorations: (v2) => v2.sett }
+	);
+
 	function byggDekor(text) {
 		const b = new RangeSetBuilder();
 		for (const m of finnMerker(text)) {
@@ -60,10 +68,12 @@
 			doc: value,
 			parent: vert,
 			extensions: [
+				// vim() m inn fr andre keymaps (se README @replit/codemirror-vim)
 				vimRom.of(vimAktiv ? vim() : []),
 				lineNumbers(),
 				history(),
 				keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+				drawSelection(),
 				EditorView.lineWrapping,
 				merkePlugin,
 				EditorView.theme({
