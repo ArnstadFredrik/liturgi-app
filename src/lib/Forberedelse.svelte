@@ -116,7 +116,7 @@
 	function vimTast(e) {
 		if (!vim || visning !== 'kilde') return;
 		if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); kildeAngre(); return; }
-		if (vimKeydown(e, linjeTa, vimSt, { lagre, undo: kildeAngre })) e.preventDefault();
+		if (vimKeydown(e, linjeTa, vimSt, { lagre, undo: kildeAngre, palett: (f) => window.dispatchEvent(new CustomEvent('apen-palett', { detail: { forhand: f } })) })) e.preventDefault();
 		requestAnimationFrame(oppdaterMarkor);
 	}
 

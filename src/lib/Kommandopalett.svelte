@@ -84,9 +84,17 @@
 			if (k && k.enabled()) { lukk(); k.kjor(); }
 		}
 	}
+	/** apenMed: åpne paletten med forhåndsfylt søk (vim-modusens «:»). */
+	function apenMed(forhand = '') {
+		if (aapen) return;
+		aapen = true;
+		q = forhand;
+		valgt = 0;
+		setTimeout(() => inputEl?.focus());
+	}
 </script>
 
-<svelte:window onkeydown={tast} />
+<svelte:window onkeydown={tast} onapen-palett={(e) => apenMed(e.detail?.forhand ?? '')} />
 
 {#if aapen}
 	<div class="kp-bakgrunn" onclick={lukk}>

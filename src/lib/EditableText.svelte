@@ -346,7 +346,7 @@ function angre() {
 			focus() {}
 		};
 		trykkUndo();
-		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre, undo: angre });
+		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre, undo: angre, palett: (f) => window.dispatchEvent(new CustomEvent('apen-palett', { detail: { forhand: f } })) });
 		if (!konsumert) { undoStakk.pop(); return true; }
 		e.preventDefault();
 		const nyLinjer = shim._v.split('\n');

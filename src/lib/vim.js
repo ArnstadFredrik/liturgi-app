@@ -3,7 +3,7 @@
  * Moduser: normal, insert, visual (v), visual-line (V).
  * Motions: h l j k 0 ^ $ g_ gg G w b e { } % f F t T (+ piltaster).
  * Operators: d c y — med motion (dw, d$, dgg …), dobling (dd/yy/cc) og tellere (2d3w).
- * Export: nyVimTilstand(), vimKeydown(e, ta, st, { lagre }) → true hvis konsumert.
+ * Export: nyVimTilstand(), vimKeydown(e, ta, st, { lagre, palett }) → true hvis konsumert.
  */
 
 export function nyVimTilstand() {
@@ -344,6 +344,7 @@ export function vimKeydown(e, ta, st, ekstra = {}) {
 	}
 	if (K === ':') {
 		e.preventDefault();
+		if (ekstra.palett) { ekstra.palett(':'); return true; } // åpne kommandopaletten
 		st.teller = ''; st.operator = null; st.fVent = null; st.gVent = false;
 		st.kommando = ':';
 		return true;
@@ -372,7 +373,7 @@ export function vimKeydown(e, ta, st, ekstra = {}) {
 		if (K === 'v') { e.preventDefault(); st.modus = 'visual'; visOppdater(st, ta); return true; }
 		if (K === 'V') { e.preventDefault(); st.modus = 'vline'; visOppdater(st, ta); return true; }
 		if (K === 'Escape') { e.preventDefault(); const p = Math.min(st.vAnker, ta.selectionStart); ta.setSelectionRange(p, p); st.modus = 'normal'; return true; }
-		if (K === ':') { e.preventDefault(); st.kommando = ':'; return true; }
+		if (K === ':') { e.preventDefault(); if (ekstra.palett) { ekstra.palett(':'); return true; } st.kommando = ':'; return true; }
 		if (K.length === 1 && /[0-9]/.test(K)) { e.preventDefault(); st.teller += K; return true; }
 		if (K === 'u') { e.preventDefault(); if (ekstra.undo) ekstra.undo(); else document.execCommand('undo'); visOppdater(st, ta); return true; }
 		// bevegelse utvider utvalget
