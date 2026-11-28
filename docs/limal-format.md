@@ -114,6 +114,13 @@ eller `@NOTAT`-linjer i teksten:
 @NOTAT Her kan liturgen si noe kortfattet om den aktuelle dåpshandlingen.
 ```
 
+### Sideskift — `sideskift`
+
+Et ledd kan markeres med `"sideskift": true` (kontekstmenyen: «Sideskift
+før dette leddet»). I Word/PDF-eksporten starter leddet på en ny side;
+sidetallet fortsetter. PPTX er ikke berørt (hvert ledd er allerede egne
+slides).
+
 ### Opphavsrett — `@COPYRIGHT |`
 
 Salmeinfo/copyright-linjer: `@COPYRIGHT | Tekst/Melodi/© …` (kan fjernes

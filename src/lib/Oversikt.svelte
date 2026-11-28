@@ -366,7 +366,7 @@ function leddTekst(it) {
 							<span></span>
 							<span class="ovr-type-badge">{typeEtikett(it)}</span>
 							<span class="m-deler-bryter-celle">
-								{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
+								{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{:else if it.sideskift}<span class="ovr-led-ikke ss" title="Ny side i eksporten før dette leddet">sideskift</span>{/if}
 							</span>
 							<span></span>
 						</div>

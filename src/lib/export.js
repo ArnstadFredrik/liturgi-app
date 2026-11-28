@@ -264,6 +264,7 @@ export function buildOutline(svc, showInstr, valg = {}) {
 		for (let ii = 0; ii < sec.items.length; ii++) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
+			if (it.sideskift && !(si === 0 && ii === 0)) out.push({ heading: 'sideskift' });
 			const nokkel = si + ':' + ii;
 			const lys = valg.lysbildeTall ? valg.lysbildeTall[si + ':' + ii] ?? null : null;
 			const ppt = valg.lysbildeTall?.lysPpt ?? valg.lysbildePpt ?? null;
@@ -409,6 +410,7 @@ export async function exportWord(svc, showInstr, filnavn, valg = {}, tilDisk = f
 		// være uavhengig av avstandsvalget
 		const afFor = valg.avstand === 'tett' ? 0.75 : valg.avstand === 'luft' ? 1.5 : 1;
 		const afEtter = afFor;
+		if (p.heading === 'sideskift') { paras.push(new Paragraph({ children: [], pageBreakBefore: true })); continue; }
 		if (p.empty) { paras.push(new Paragraph({ children: [], spacing: { after: Math.round((p.tynn ? 0.8 : 2.2) * afEtter * MM) } })); continue; }
 		if (p.heading) {
 			// h1 tittel (sort Arial 16), h2 avsnitt (13, +5 mm før, +3,5 etter),
@@ -1256,6 +1258,8 @@ export function buildPdfBase64(svc, showInstr, valg = {}) {
 		for (let ii = 0; ii < sec.items.length; ii++) {
 			const it = sec.items[ii];
 			if (!it.enabled) continue;
+			// sideskift: ny side før leddet (Word-fanget i buildOutline-renderen)
+			if (it.sideskift && !(si === 0 && ii === 0)) { doc.addPage(); y = margin; col = 0; }
 			const nokkel = si + ':' + ii;
 			const lys = lysTall ? lysTall[nokkel] ?? null : null;
 			// pptx-delingsparametere: uten dem kan ikke manuset speile slidenes

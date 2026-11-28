@@ -318,6 +318,7 @@
 			{ label: 'Innledning', checked: introAltsLen > 0, action: () => introAltsLen ? fjernGruppe('introAlts', 'selIntro', 'Innledning') : opprettGruppe('introAlts', 'selIntro', 'Innledning') },
 			{ label: 'Avslutning', checked: avslAltsLen > 0, action: () => avslAltsLen ? fjernGruppe('avslutningAlts', 'selAvsl', 'Avslutning') : opprettGruppe('avslutningAlts', 'selAvsl', 'Avslutning') },
 			{ label: 'Skift type …', action: skiftType },
+			{ label: (it.sideskift ? '✓ Sideskift før dette leddet' : 'Sideskift før dette leddet'), action: () => { it.sideskift = it.sideskift ? undefined : true; markDirty(); } },
 			// instruksjonsfelt: vises kun når det har innhold — denne legger
 			// til et tomt redigerbart felt (' ') eller fjerner det igjen
 			{ label: (it.instr ?? '').trim() ? 'Fjern instruksjonsfelt' : 'Legg til instruksjonsfelt', action: () => { it.instr = (it.instr ?? '').trim() ? '' : ' '; markDirty(); } },
