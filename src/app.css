@@ -1087,6 +1087,8 @@ textarea {
  * hover-highlight, accent-fargede kontroller og myk åpne-animasjon
  * (Apple HIG: ugjennomsiktige menyer, ~10 px hjørner, markert valg). */
 .m-deler-tabell { border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; width: 100%; max-width: 1200px; }
+/* Oversikt gjenbruker DelerTabell-gridet, men har enveloperende kolonner: */
+.ovr-deler-tabell .m-deler-rad { grid-template-columns: 24px 1.6fr 64px 90px 64px 64px; }
 .m-deler-rad { display: grid; grid-template-columns: 24px 1.5fr 1.1fr 0.9fr 64px 64px; gap: 8px; align-items: center; padding: 6px 10px; position: relative; }
 .m-deler-rad + .m-deler-rad { border-top: 1px solid var(--border); }
 .m-deler-head { background: var(--panel2); border-radius: 9px 9px 0 0; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; }
@@ -2351,3 +2353,10 @@ sub { font-size: 0.75em; }
 #kirkeaar-modul .modul-topp.klebet .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
 #toc-side .ka-liste { scrollbar-width: none; }
 #toc-side .ka-liste::-webkit-scrollbar { display: none; }
+
+/* Oversikt i m-deler-tabell: klikkbare navn og leddradene */
+.ovr-deler-tabell .ovr-navn { cursor: pointer; }
+.ovr-deler-tabell .ovr-led .ovr-type-badge { justify-self: start; }
+.ovr-deler-tabell .ovr-antall { font-size: 12px; color: var(--muted); }
+.ovr-deler-tabell .ovr-sec-rad { background: var(--panel2); }
+.ovr-deler-tabell .ovr-sec-rad .ovr-drag { opacity: 0.65; }

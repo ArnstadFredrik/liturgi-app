@@ -1,14 +1,29 @@
 <script>
-	/** «Oversikt» — undermodul i gudstjenestemodulen: hierarkisk liste over
-	 *  hoveddeler med leddene som under-rader, med drag-and-drop på begge
-	 *  nivåer (omorganisering uten å forlate oversikten). Ingen
+	/** «Oversikt» — undermodul i gudstjenestemodulen: samme tabelltype som
+	 *  DelerTabell (m-deler-*): rad per hoveddel med chevron og ledd i
+	 *  under-rader, drag-and-drop på begge nivåer. Ingen
 	 *  alternativ-/variasjonskolonner — den detaljen ligger i «Deler …». */
 	import { app, markDirty, persist, uid, synkLenkedeSeksjoner } from '$lib/store.svelte.js';
 	import { instantiate } from '$lib/store.svelte.js';
 	import { hentDelerModal, confirmBox } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let visLed = $state(true);
+	let apenSet = $state(new Set()); // per-hoveddel chevron
+	let alleApne = $state(false);
+	function erApen(si) { return alleApne || apenSet.has(si); }
+	function veksleSek(si) {
+		const s = new Set(apenSet);
+		if (alleApne) {
+			alleApne = false;
+			for (let i = 0; i < app.current.sections.length; i++) if (i !== si) s.add(i);
+		} else if (s.has(si)) s.delete(si);
+		else s.add(si);
+		apenSet = s;
+	}
+	function veksleAlle() {
+		alleApne = !alleApne;
+		apenSet = new Set();
+	}
 
 	/* ---- Valgfrie ledd (fra malen) — legg til / fjern i denne gudstjenesten ---- */
 	const tpl = $derived(app.templates.find((t) => t.id === app.current?.templateId));
@@ -280,9 +295,9 @@ function leddTekst(it) {
 
 <div id="oversikt-side">
 	<div class="ovr-verktoy">
-		<button class="ovr-vis-led" onclick={() => { visLed = !visLed; }} title={visLed ? 'Skjul leddene' : 'Vis leddene'}>
-			{@html mdi(visLed ? 'chevron-up' : 'chevron-down', 14)}
-			<span>{visLed ? 'Skjul ledd' : 'Vis ledd'}</span>
+		<button class="ovr-vis-led" onclick={veksleAlle} title="Vis eller skjul leddene i alle hoveddelene">
+			{@html mdi(alleApne ? 'chevron-up' : 'chevron-down', 14)}
+			<span>{alleApne ? 'Skjul alle' : 'Åpne alle'}</span>
 		</button>
 		<span class="muted ovr-hint">Dra hoveddelene og leddene for å endre rekkefølgen. Klikk på en rad for å redigere.</span>
 		{#if valgLeddListe.length}
@@ -308,45 +323,54 @@ function leddTekst(it) {
 	</div>
 
 	{#if app.current?.sections?.length}
-		<div class="ovr-liste">
-			{#if visLed}<div class="ovr-tabell-hode" aria-hidden="true"><span></span><span>Ledd</span><span>Type</span><span></span><span></span></div>{/if}
-
+		<div class="m-deler-tabell ovr-deler-tabell">
+			<div class="m-deler-rad m-deler-head"><span></span><span>Hoveddel</span><span>Ledd</span><span>Type</span><span></span><span></span></div>
 			{#each app.current.sections as sec, si (si)}
-				<div class="ovr-seksjon" class:deler-dragging={dragSeksjon === si}
+				<div class="m-deler-rad ovr-sec-rad" class:deler-dragging={dragSeksjon === si}
 					class:drag-target={overSeksjon === si && overSeksjonFor && dragSeksjon !== null}
 					class:drag-target-etter={overSeksjon === si && !overSeksjonFor && dragSeksjon !== null}
 					ondragover={(e) => { if (dragLed) dragOverSeksjonLed(e, si); else dragOverSeksjon(e, si); }}
 					ondrop={(e) => { if (dragLed) droppLedPaaSeksjon(e, si); else droppSeksjon(e, si); }}>
-					<div class="ovr-sec-rad">
-						<span class="ovr-drag" class:aktiv={dragSeksjon !== null} draggable="true"
-							ondragstart={(e) => startDragSeksjon(e, si)} ondragend={nullstillDrag}
-							title="Dra for å endre rekkefølge på hoveddelen">{@html mdi('drag-vertical', 14)}</span>
-						<span class="ovr-navn" onclick={() => tilRedigering(si)} role="button" tabindex="0"
+					<span class="m-deler-drag ovr-drag" class:aktiv={dragSeksjon !== null} draggable="true"
+						ondragstart={(e) => startDragSeksjon(e, si)} ondragend={nullstillDrag}
+						title="Dra for å endre rekkefølge på hoveddelen">{@html mdi('drag-vertical', 14)}</span>
+					<span class="m-deler-navn">
+						<button type="button" class="m-deler-ekspander" title={erApen(si) ? 'Skjul leddene' : 'Vis leddene'} onclick={() => veksleSek(si)}>{@html mdi(erApen(si) ? 'chevron-down' : 'chevron-right', 14)}</button>
+						<span class="m-deler-navn-tekst ovr-navn" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 							onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{sec.title}</span>
 						{#if sec.__lenket}<span class="ovr-lenket" title="Koblet til malen — innholdet fornyes ved åpning">{@html mdi('link-variant', 11)} lenket</span>{/if}
-						<span class="ovr-antall">{sec.items?.length ?? 0} ledd</span>
+					</span>
+					<span class="ovr-antall">{sec.items?.length ?? 0} ledd</span>
+					<span></span>
+					<span></span>
+					<span class="m-deler-bryter-celle">
 						<button class="ovr-slett" title="Slett hoveddelen" onclick={() => slettSeksjon(si)}>{@html mdi('delete-outline', 14)}</button>
-					</div>
-					{#if visLed && sec.items?.length}
-						<div class="ovr-led-liste">
-							{#each sec.items as it, ii (ii)}
-								<div class="ovr-led" class:borte={it.enabled === false} class:deler-dragging={dragLed && dragLed.sec === si && dragLed.idx === ii}
-									class:drag-target={overLed && overLed.sec === si && overLed.idx === ii && overLedFor}
-									class:drag-target-etter={overLed && overLed.sec === si && overLed.idx === ii && !overLedFor}
-									ondragover={(e) => dragOverLed(e, si, ii)}
-									ondrop={(e) => droppLed(e, si, ii)}>
-									<span class="ovr-drag" class:aktiv={!!dragLed} draggable="true"
-										ondragstart={(e) => startDragLed(e, si, ii)} ondragend={nullstillDrag}
-										title="Dra for å flytte leddet">{@html mdi('drag-vertical', 13)}</span>
-									<span class="ovr-led-tekst" onclick={() => tilRedigering(si)} role="button" tabindex="0"
-										onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{leddTekst(it)}</span>
-									<span class="ovr-type-badge">{typeEtikett(it)}</span>
-									{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
-								</div>
-							{/each}
-						</div>
-					{/if}
+					</span>
 				</div>
+				{#if erApen(si)}
+					{#each sec.items ?? [] as it, ii (ii)}
+						<div class="m-deler-rad m-deler-ledd ovr-led" class:borte={it.enabled === false}
+							class:deler-dragging={dragLed && dragLed.sec === si && dragLed.idx === ii}
+							class:drag-target={overLed && overLed.sec === si && overLed.idx === ii && overLedFor}
+							class:drag-target-etter={overLed && overLed.sec === si && overLed.idx === ii && !overLedFor}
+							ondragover={(e) => dragOverLed(e, si, ii)}
+							ondrop={(e) => droppLed(e, si, ii)}>
+							<span class="m-deler-drag ovr-drag ovr-ledd-drag" class:aktiv={!!dragLed} draggable="true"
+								ondragstart={(e) => startDragLed(e, si, ii)} ondragend={nullstillDrag}
+								title="Dra for å flytte leddet">{@html mdi('drag-vertical', 13)}</span>
+							<span class="m-deler-navn m-deler-ledd-navn">
+								<span class="m-deler-navn-tekst ovr-led-tekst" onclick={() => tilRedigering(si)} role="button" tabindex="0"
+									onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{leddTekst(it)}</span>
+							</span>
+							<span></span>
+							<span class="ovr-type-badge">{typeEtikett(it)}</span>
+							<span class="m-deler-bryter-celle">
+								{#if it.enabled === false}<span class="ovr-led-ikke" title="Ledd er ikke tatt med">ikke med</span>{/if}
+							</span>
+							<span></span>
+						</div>
+					{/each}
+				{/if}
 			{/each}
 		</div>
 	{:else}
