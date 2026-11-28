@@ -22,7 +22,6 @@
 	// aktiv undermodul: app.innFane ('generelt' | 'prekenforberedelse') — styres fra modul-topp
 	let forbModul = $state(false); // Kirkeårets generering + prekenforberedelse-knappen
 	let forbRediger = $state(false); // modulen i sidemenyen (redigeringsmodulen)
-	let vimAktiv = $state(false); // global vim-modus
 	let versjon = $state(''); // $state: onMount-oppdateringen må trigge re-render (runes-modus)
 	let bygg = $state('');
 
@@ -35,8 +34,6 @@ const fm = await window.liturgi.dbGet('forbModul');
 			const fr = await window.liturgi.dbGet('forbRediger');
 			forbRediger = (fr?.value ?? '0') === '1';
 			app.forbRediger = forbRediger;
-			const vm = await window.liturgi.dbGet('vimModus');
-			vimAktiv = app.vimModus = (vm?.value ?? '0') === '1';
 		} catch { /* db utilgjengelig */ }
 		const list = await window.liturgi.listTemplates();
 		if (list.ok) {
@@ -105,11 +102,6 @@ const fm = await window.liturgi.dbGet('forbModul');
 		forbMappe = r?.ok ? (r.value ?? '') : '';
 	});
 
-	function settVim(v) {
-		vimAktiv = v;
-		app.vimModus = v;
-		window.liturgi.dbSet('vimModus', v ? '1' : '0').catch(() => {});
-	}
 
 function settForbModul(v) {
 		forbModul = v;
@@ -403,20 +395,6 @@ function settForbModul(v) {
 					</div>
 					<button class="inn-handling inn-fare" onclick={() => confirmBox('Regenerer biblioteket', 'Bygger opp bibliotekindeksen på nytt fra originalmalene. Ditt eget innhold berøres ikke.', () => byggPåNytt())} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer'}</button>
 				</div>
-				<div class="inn-rad">
-					<div class="inn-rad-tekst">
-						<div class="inn-rad-tittel">Vim-modus</div>
-						<div class="inn-rad-beskriv">
-							Vim-bindinger i alle redigeringsfelt (normal/insert, hj/k/l,
-							dd/yy/p osv.). Byttes også i menylinjen og kontekstmenyen.
-						</div>
-					</div>
-					<button class="inn-bryter" role="switch" aria-checked={vimAktiv}
-						title={vimAktiv ? 'Vim-modus er på' : 'Vim-modus er av'}
-						onclick={() => settVim(!vimAktiv)}>
-						<span class="inn-bryter-spore"><span class="inn-bryter-klump"></span></span>
-					</button>
-				</div>
 			{:else}
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">
@@ -542,7 +520,7 @@ function settForbModul(v) {
 						{forbModul ? 'På' : 'Av'}
 					</button>
 				</div>
-				<div class="inn-rad">
+				<div class="inn-rad" class:skjult={!app.devModus}>
 					<div class="inn-rad-tekst">
 						<div class="inn-rad-tittel">Redigeringsmodulen <span class="inn-eks-merke">Eksperimentell</span></div>
 						<div class="inn-rad-beskriv">

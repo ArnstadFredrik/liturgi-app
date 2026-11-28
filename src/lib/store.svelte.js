@@ -39,7 +39,6 @@ export const app = $state({
 	forbFiler: null, // fil-listen som genereres per dag (null = standard) — leses fra db ved oppstart
 	forbFmt: 'md', // filformat for genereringen: 'md' eller 'docx'
 	forbMaler: null, // innholdsmaler per filnavn (mustache) — null = standardmaler
-	vimModus: false, // global vim-binding i redigeringsfeltene
 	eksVisInnhold: false, // eksport: vis leddinnhold (delt med mac-menyen)
 	eksKoblet: true, // eksport: koblet rulling mellom leddliste og forhåndsvisning
 	devModus: false, // DEV: malredigeringsverktøy — settes fra main via devTilstand()
@@ -58,12 +57,6 @@ try {
 } catch {}
 
 const TOC_KEY = 'liturgi-toc';
-/** Global vim-modus: brukes av menylinjen, kontekstmenyen og innstillingene. */
-export function veksleVim() {
-	app.vimModus = !app.vimModus;
-	if (isElectron) window.liturgi?.dbSet?.('vimModus', app.vimModus ? '1' : '0');
-	else { try { localStorage.setItem('vim-modus', app.vimModus ? '1' : '0'); } catch {} }
-}
 
 export function veksleToc() {
 	app.tocSkjult = !app.tocSkjult;
@@ -302,9 +295,6 @@ export function loadStore() {
 		try { app.forbMaler = JSON.parse(r?.value || '{}'); } catch { app.forbMaler = {}; }
 	});
 	window.liturgi?.dbSet?.('prekenforberedelseAktiv', null)?.catch?.(() => {}); // gammel nøkkel ryddes
-	window.liturgi?.dbGet?.('vimModus')?.then?.((r) => {
-		app.vimModus = (r?.value ?? '0') === '1';
-	});
 	try { app.sisteFaner = JSON.parse(localStorage.getItem('liturgi-siste-faner') ?? '{}') ?? {}; } catch { app.sisteFaner = {}; }
 	if (isElectron) {
 		window.liturgi?.dbGet?.('sisteFaner')?.then?.((r) => {

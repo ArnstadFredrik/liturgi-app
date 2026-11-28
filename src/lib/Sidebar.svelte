@@ -203,7 +203,7 @@
 		<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'kirkeaar' ? 'hjem' : 'kirkeaar'; }}>
 			{@html mdi('calendar-edit')} Kirkeåret
 		</button>
-		{#if app.forbRediger}
+		{#if app.devModus && app.forbRediger}
 			<button class="wide" onclick={() => { app.current = null; app.kind = null; app.visning = app.visning === 'forberedelse' ? 'hjem' : 'forberedelse'; }}>
 				{@html mdi('pencil')} Prekenforberedelse
 			</button>

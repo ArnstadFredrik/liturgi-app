@@ -1963,23 +1963,13 @@ svg.sf-ikon { vertical-align: -0.35em; }
 #main.main-scrollt #kirkeaar-modul .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
 .modul-tittel { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; color: var(--text); }
 /* vim-bryter + modus-badge */
-.fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }
-.fb-vim.sel { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-.fb-vim-modus { font-size: 11.5px; font-weight: 600; letter-spacing: 0.4px; color: var(--accent); }
-.fb-vim-modus.ins { color: #4e7a3c; }
 /* kildemodus: linjenumre + editor */
 .fb-kilde-rad { display: flex; flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--background); }
-.fb-gutter { flex: 0 0 auto; padding: 12px 6px 12px 10px; background: var(--panel2, var(--border)); color: var(--muted); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.6; text-align: right; overflow: hidden; user-select: none; min-width: 34px; }
-.fb-linjenr { min-height: 19.2px; }
-.fb-linjenr.ins { color: var(--accent); }
 /* blokkmarkør (vim normal/visual) */
 .fb-kilde-innpakning { position: relative; flex: 1; min-width: 0; display: flex; }
 .fb-kilde-innpakning .fb-kilde { flex: 1; border: none; border-radius: 0; }
-.fb-kilde.vim-norm { caret-color: transparent; } /* blokkmarkøren er markøren */
-.fb-blok-markor { position: absolute; pointer-events: none; border-radius: 2px; }
 .fb-blok-markor.norm { background: color-mix(in srgb, var(--accent) 78%, transparent); mix-blend-mode: multiply; }
 .fb-blok-markor.vis { background: color-mix(in srgb, var(--accent) 30%, transparent); mix-blend-mode: multiply; }
-.fb-maal { position: absolute; visibility: hidden; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; top: 0; left: 0; pointer-events: none; box-sizing: content-box; padding: 12px; width: calc(100% - 24px); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; line-height: 1.55; }
 /* hybrid riktekst: chips/tags kun på markørlinjen */
 .fb-riktekst { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; background: var(--background); }
 .fb-riktekst .et-linje:not(.markor) .chip { visibility: hidden; }
@@ -2070,21 +2060,14 @@ sub { font-size: 0.75em; }
 	padding: 8px 0; background: var(--card, var(--panel)); }
 
 /* vim-statuslinje nederst i redigeringsvinduet */
-.fb-statuslinje { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 3px 10px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); background: color-mix(in srgb, var(--panel, var(--card)) 60%, transparent); }
 .fb-statuslinje .fb-vim-modus { background: var(--accent); color: var(--accent-fg, #fff); border-radius: 3px; padding: 1px 7px; font-weight: 600; }
 .fb-statuslinje .fb-vim-modus.ins { background: var(--ok, #3a7d44); }
-.fb-statuslinje .fb-status-fil { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* hybrid: merkene som redigerbar tekst (v3) */
+.fb-statuslinje /* hybrid: merkene som redigerbar tekst (v3) */
 .mrk { color: color-mix(in srgb, var(--muted) 78%, transparent); font-family: inherit; }
 .mrk::selection { background: var(--accent); color: var(--accent-fg, #fff); }
 
 /* vim i EditableText: blokkmarkør, statuslinje */
 .et-edit { position: relative; }
-.et-rik.et-vim-normal { caret-color: transparent; }
-.et-blokk { position: absolute; background: var(--accent); opacity: 0.4; border-radius: 2px; pointer-events: none; z-index: 5; }
-.et-statuslinje { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 2px 8px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); }
-.et-statuslinje .et-status-modus { background: var(--accent); color: var(--accent-fg, #fff); border-radius: 3px; padding: 0 6px; font-weight: 600; min-width: 18px; text-align: center; }
-.et-statuslinje .et-status-modus.ins { background: var(--ok, #3a7d44); }
 /* hybrid: formaterte tabellrader */
 .md-td { display: inline-block; border: 1px solid var(--border); padding: 1px 10px; margin: 1px 0; border-radius: 3px; }
 .md-td-sep { color: color-mix(in srgb, var(--muted) 60%, transparent); background: color-mix(in srgb, var(--border) 35%, transparent); }
@@ -2372,3 +2355,5 @@ sub { font-size: 0.75em; }
 
 /* Niv 4: Skjerm-profilens undergrupper */
 .eks-gruppe-tittel { display: block; width: 100%; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); font-weight: 700; margin: 4px 0 0; }
+
+.skjult { display: none !important; }

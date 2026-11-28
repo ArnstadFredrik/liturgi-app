@@ -1,11 +1,10 @@
 <script>
 	import { tick, untrack } from 'svelte';
-	import { nyVimTilstand, vimKeydown, visSpenn } from '$lib/vim.js';
 	import { markDirty } from '$lib/store.svelte.js';
 	import { litHtml, litEditHtml, litLinjeHtml, litLinjeMerkerHtml } from '$lib/lit.js';
 	import { mdi } from '$lib/mdi.js';
 
-	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false , vimAktiv = false, vimSt = null, vimLagre = null, mdModus = false } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
+	let { value = $bindable(''), kind = 'lit', plassholder = '[Klikk for å skrive]', startRedigering = false, visFerdig = true, dirty = true, hybrid = false, mdModus = false } = $props(); // hybrid: markdown-merker synlige på markørlinjen // kind: 'lit' | 'instr' | 'etikett'
 
 	let editing = $state(false);
 	$effect(() => {
@@ -209,55 +208,11 @@ function start() {
 		return value.split('\n')[linje]?.match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
 	}
 
-	// ---------- vim: blokkmarkør + visual-utheving + undo ----------
+	// ---------- markørlinje + undo ----------
 	let editEl = $state(null);   // .et-edit-omslaget (for blokkmarkørens koordinater)
-	let blokkVis = $state(null); // { venstre, topp, bredde, hoyde } — normal-modus-markøren
-	let visVent = null;          // { a, b, fremover } — visual-utvalg som gjenopprettes etter render
 	let undoStakk = [];          // { verdi, linje, kol } — egne snapshots (u / ⌘Z)
 
-	/** DOM-posisjon for (linje, kol) — kol = innholdsoffset uten prefiks/chips. */
-	function domPos(linje, kol) {
-		const le = rikel?.querySelector(`[data-linje="${linje}"]`);
-		if (!le) return null;
-		const w = document.createTreeWalker(le, NodeFilter.SHOW_TEXT, {
-			acceptNode: (n) => n.parentElement?.closest('.chip') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-		});
-		let n, acc = 0;
-		while ((n = w.nextNode())) {
-			if (acc + n.textContent.length >= kol) return { node: n, off: Math.max(0, Math.min(kol - acc, n.textContent.length)) };
-		}
-		// tom linje (ingen tekstnoder): posisjon i selve linje-div-en
-		return n ? { node: n, off: Math.max(0, Math.min(kol - acc, n.textContent.length)) } : { node: le, off: 0 };
-	}
 
-	/** Plasser blokkmarkøren (thick cursor) over tegnet ved caret'en i normal modus. */
-function plasserBlokk() {
-		blokkVis = null;
-		if (!vimAktiv || kilde || !editing || !rikel || !editEl) return;
-		if (!vimSt || vimSt.modus !== 'normal') return;
-const s = window.getSelection();
-		if (!s || s.rangeCount === 0 || !rikel.contains(s.anchorNode)) return;
-		const r0 = s.getRangeAt(0);
-		const node = r0.startContainer, off = r0.startOffset;
-		let rect = null;
-		if (node.nodeType === 3 && off < node.length) {
-			const r2 = document.createRange();
-			r2.setStart(node, off);
-			r2.setEnd(node, off + 1);
-			rect = r2.getBoundingClientRect();
-		} else {
-			const rects = r0.getClientRects();
-			rect = rects.length ? rects[rects.length - 1] : null;
-		}
-if (!rect || (!rect.width && !rect.height)) return;
-		const er = editEl.getBoundingClientRect();
-		blokkVis = {
-			venstre: rect.left - er.left,
-			topp: rect.top - er.top,
-			bredde: Math.max(rect.width, 5),
-			hoyde: Math.max(rect.height, 14)
-		};
-	}
 
 function trykkUndo() {
 		const v = value;
@@ -307,102 +262,8 @@ function angre() {
 		return true;
 	}
 
-	/** HYBRID + VIM: kjør vim-motoren mot råverdien via en shim
-	 *  (value/selectionStart/End) — map caret'en tilbake til (linje, kol). */
-	function hybridVim(e) {
-		if (!vimSt || !vimAktiv) return false;
-		const s = window.getSelection();
-		const node = s?.anchorNode;
-		const el = node && rikel.contains(node) ? (node.nodeType === 3 ? node.parentElement : node) : null;
-		const le = el?.closest('.et-linje') ?? null;
-		if (!le) return false;
-		const linje = +(le.dataset.linje ?? -1);
-		if (linje < 0) return false;
-		const verdiLinjer = value.split('\n');
-		const pre = document.createRange();
-		pre.selectNodeContents(le);
-		try { pre.setEnd(s.getRangeAt(0).startContainer, s.getRangeAt(0).startOffset); } catch { }
-		let off = pre.toString().length; // DOM-offset i linjen — inkluderer chip-tekst
-		// ledende chips («–»-punktmerket): tell dem + eventuelle mellomrom etter dem
-		// som DOM-forklaring; caret før/inni dem er verdiposisjon linjestart
-		let leadLen = 0;
-		for (const n of le.childNodes) {
-			if (n.nodeType === 1 && n.classList.contains('chip')) { leadLen += n.textContent.length; continue; }
-			if (n.nodeType === 3 && n.textContent.trim() === '' && leadLen > 0 && n.textContent.length > 0) { leadLen += n.textContent.length; continue; }
-			break;
-		}
-		const contentOff = Math.max(0, off - leadLen);
-		const abs = verdiLinjer.slice(0, linje).reduce((a, l) => a + l.length + 1, 0) + prefiksLen(linje) + contentOff;
-		const shim = {
-			_v: value, _p: abs,
-			get value() { return this._v; },
-			set value(v) { this._v = v; },
-			get selectionStart() { return this._p; },
-			set selectionStart(p) { this._p = p; },
-			get selectionEnd() { return this._p; },
-			set selectionEnd(p) { this._p = p; },
-			setSelectionRange(a, b, dir) { this._p = dir === 'backward' ? b : a; },
-			dispatchEvent() {},
-			focus() {}
-		};
-		trykkUndo();
-		const konsumert = vimKeydown(e, shim, vimSt, { lagre: vimLagre, undo: angre, palett: (f) => window.dispatchEvent(new CustomEvent('apen-palett', { detail: { forhand: f } })) });
-		if (!konsumert) { undoStakk.pop(); return true; }
-		e.preventDefault();
-		const nyLinjer = shim._v.split('\n');
-		let acc = 0, nl = 0, nk = 0, funnet = false;
-		for (let i = 0; i < nyLinjer.length; i++) {
-			const L = nyLinjer[i].length;
-			if (shim._p <= acc + L) { nl = i; nk = shim._p - acc; funnet = true; break; }
-			acc += L + 1;
-		}
-		if (!funnet) { nl = nyLinjer.length - 1; nk = nyLinjer[nl].length; }
-		const pl = nyLinjer[nl].match(/^(?:\s{0,3}#{1,6} |\s*(?:[-*+]|\d+[.)]) |BIBELREF \| |FOTNOTE \| |@NOTAT )/)?.[0]?.length ?? 0;
-		if (vimSt.modus === 'visual' || vimSt.modus === 'vline') {
-			// visual: vis utvalget i DOM (anker ↔ caret), ikke bare caret
-			const spenn = visSpenn(vimSt, shim._v, shim._p);
-			const linjer = shim._v.split('\n');
-			const tilLK = (pos) => {
-				let acc = 0;
-				for (let i = 0; i < linjer.length; i++) {
-					if (pos <= acc + linjer[i].length) return { linje: i, kol: pos - acc - Math.min(prefiksLen(i), pos - acc) };
-					acc += linjer[i].length + 1;
-				}
-				return { linje: linjer.length - 1, kol: 0 };
-			};
-			if (vimSt.modus === 'vline') {
-				// hele linjer: første linjes start → siste linjes slutt.
-				// slutt - 1: visSpenn inkluderer linjeskiftet (+1) — ellers lander
-				// slutt-mappingen på NESTE linje
-				const la = Math.min(tilLK(spenn.start).linje, tilLK(spenn.slutt - 1).linje);
-				const lb = Math.max(tilLK(spenn.start).linje, tilLK(spenn.slutt - 1).linje);
-				visVent = { a: { linje: la, kol: 0 }, b: { linje: lb, kol: 1e9 }, fremover: true };
-			} else {
-				visVent = { a: tilLK(spenn.start), b: tilLK(spenn.slutt), fremover: vimSt.vAnker < shim._p };
-			}
-			venterCaret = null;
-		} else {
-			venterCaret = { linje: nl, kol: nk - pl }; // negativ kol = inne i prefiks-merket (redigerbar tekst)
-			visVent = null;
-		}
-		// i visual/v-line fryses merkerIdx — å flytte merket re-rendrer html og sletter utvalget
-		if (vimSt.modus !== 'visual' && vimSt.modus !== 'vline') merkerIdx = nl;
-		value = shim._v;
-		sistSer = shim._v;
-		merkerVersjon++;
-		if (dirty) markDirty();
-		if (!hybrid) {
-			// riktekst: verdi-endringen må re-rendere html-en (hybrid gjør det via merkerVersjon)
-			html = litEditHtml(shim._v, -1);
-		}
-		return true;
-	}
-
 	function oppdaterMerkerLinje() {
 		if (!hybrid || kilde || !rikel || !editing) return;
-		// i visual/v-line: ingen merker-linje-swap — re-renderingen ellers SLETTER
-		// utvalget som nettopp ble plassert (vim-uthevingen overlever da)
-		if (vimAktiv && vimSt && (vimSt.modus === 'visual' || vimSt.modus === 'vline')) return;
 		const s = window.getSelection();
 		const node = s?.anchorNode;
 		const el = node && rikel.contains(node) ? (node.nodeType === 3 ? node.parentElement : node) : null;
@@ -428,31 +289,6 @@ function angre() {
 	$effect(() => {
 		if (kilde || !editing) return;
 		void merkerVersjon;
-		if (visVent) {
-			const v = visVent;
-			visVent = null;
-			// rAF-retry: utvalget må settes ETTER at {@html} er skrevet til DOM-en
-			const plasserUtvalg = (forsok) => {
-				try {
-				const a = domPos(v.a.linje, v.a.kol);
-				const b = domPos(v.b.linje, v.b.kol);
-				if (!a || !b) { if (forsok < 12) requestAnimationFrame(() => plasserUtvalg(forsok + 1)); return; }
-				const r = document.createRange();
-				if (v.fremover) { r.setStart(a.node, a.off); r.setEnd(b.node, b.off); }
-				else { r.setStart(b.node, b.off); r.setEnd(a.node, a.off); }
-				const s = window.getSelection();
-				s.removeAllRanges();
-				s.addRange(r);
-				if (r.collapsed && forsok < 12) {
-					requestAnimationFrame(() => plasserUtvalg(forsok + 1));
-					return;
-				}
-				plasserBlokk();
-				} catch { if (forsok < 12) requestAnimationFrame(() => plasserUtvalg(forsok + 1)); }
-			};
-			plasserUtvalg(0);
-			return;
-		}
 		if (!venterCaret) return;
 		const { linje, kol } = venterCaret;
 		venterCaret = null;
@@ -465,7 +301,6 @@ function angre() {
 
 
 	function oppdaterTilstand() {
-		plasserBlokk();
 		oppdaterMerkerLinje();
 		if (kilde || etikett) {
 			if (ta) sel = { s: ta.selectionStart ?? 0, e: ta.selectionEnd ?? 0 };
@@ -516,7 +351,7 @@ function angre() {
 		untrack(() => {
 			const ny = litEditHtml(value, hybrid ? merkerIdx : -1);
 			// identisk html → IKKE skriv: innerHTML-skrivingen sletter ellers utvalget
-			// (f.eks. vim-visual-uthevingen) selv om innholdet er uendret
+			// selv om innholdet er uendret
 			if (ny !== html) html = ny;
 		});
 	});
@@ -1072,23 +907,13 @@ function angre() {
 		{:else}
 			<div
 				class="et-rik lit-text"
-				class:et-vim-normal={vimAktiv && vimSt?.modus === 'normal'}
 				bind:this={rikel}
 				contenteditable="true"
 				spellcheck="false"
 				oninput={rikOppdatert}
 				onbeforeinput={rikBeforeInput}
-				onkeydown={(e) => { if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); angre(); return; } if (mdSnarvei(e)) return; if (!kilde && vimAktiv && hybridVim(e)) return; if (e.key === 'Escape') done(); }}
+				onkeydown={(e) => { if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); angre(); return; } if (mdSnarvei(e)) return; if (e.key === 'Escape') done(); }}
 			>{@html html}</div>
-		{/if}
-		{#if vimAktiv && !kilde && !etikett && vimSt}
-			<div class="et-statuslinje">
-				<span class="et-status-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'I' : vimSt.modus === 'visual' ? 'V' : vimSt.modus === 'vline' ? 'V-B' : 'N')}</span>
-				<span class="et-status-info">vim</span>
-			</div>
-		{/if}
-		{#if blokkVis}
-			<div class="et-blokk" style="left:{blokkVis.venstre}px;top:{blokkVis.topp}px;width:{blokkVis.bredde}px;height:{blokkVis.hoyde}px"></div>
 		{/if}
 	</div>
 {:else}

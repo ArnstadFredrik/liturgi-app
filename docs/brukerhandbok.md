@@ -133,7 +133,6 @@ Redigeringsvisningen viser gudstjenesten ledd for ledd, seksjon for seksjon. Alt
 ### Verktøylinjen
 
 - **Vis roller / Vis instruksjoner / Vis salmeinfo** – styrer visningen (og er grunnlaget for eksportens tilsvarende valg).
-- **Vim-modus** (valgfritt) – tastaturnavigasjon av leddene.
 
 ### Hvert ledd
 

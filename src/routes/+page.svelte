@@ -52,7 +52,7 @@
 
 	// mac-menylinjen: dokumenthandlinger av/på etter tilstand
 	$effect(() => {
-		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath, vim: app.vimModus, forbModul: app.forbModul, forbRediger: app.forbRediger, malKilde: app.kind === 'template' ? (app.current?.__devMal ? 'dev' : (erOriginalMal(app.current) ? 'original' : 'bruker')) : undefined, eks: app.eksMenyTilstand ? JSON.parse(JSON.stringify(app.eksMenyTilstand)) : undefined });
+		window.liturgi?.sendMenyTilstand?.({ dokumentÅpen: !!app.current, kind: app.kind, tema: app.theme, visning: app.visning, visInnhold: !!app.eksVisInnhold, koblet: app.eksKoblet !== false, harFil: !!app.current?.filePath, forbModul: app.forbModul, forbRediger: app.forbRediger, malKilde: app.kind === 'template' ? (app.current?.__devMal ? 'dev' : (erOriginalMal(app.current) ? 'original' : 'bruker')) : undefined, eks: app.eksMenyTilstand ? JSON.parse(JSON.stringify(app.eksMenyTilstand)) : undefined });
 	});
 
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)
@@ -274,7 +274,7 @@
 			<Eksport />
 		{:else if app.visning === 'kirkeaar'}
 			<Kirkeaar />
-		{:else if app.visning === 'forberedelse'}
+		{:else if app.visning === 'forberedelse' && app.devModus}
 			<Forberedelse />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
