@@ -1,11 +1,10 @@
 <script>
-	import { app as appStore, veksleVim } from '$lib/store.svelte.js';
+	import { app as appStore } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
 	import IkonKnapp from '$lib/IkonKnapp.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import EditableText from './EditableText.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
-	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount, untrack } from 'svelte';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 
@@ -46,93 +45,10 @@
 	let valgtRel = $state('');
 	// Obsidian-lignende visning: hybrid riktekst, delt (kilde + forhåndsvisning), kun kilde eller kun forhåndsvisning
 	let visning = $state('hybrid'); // riktekst | hybrid | kilde
-	// vim-binding (kilde-modus) — valget persisteres i localStorage
-	let vim = $derived(appStore.vimModus); // global bryter (menylinje/kontekstmeny/innstillinger)
-	let vimSt = $state(nyVimTilstand());
-	$effect(() => { if (appStore.vimModus) vimSt = nyVimTilstand(); });
-	let linjeTa = $state(null); // tekstfelt-element (scroll-synk for linjenumrene)
-	let gutterEl = $state(null);
-	let hlEl = $state(null); // syntax-highlight-laget bak tekstarealet
-	let hlHtml = $derived(uthev(tekst));
-	let blokkEl = $state(null); // blokkmarkør-overlay (normal/visual)
-	let maalEl = $state(null); // skjult speil for å måle markørposisjonen
-	let blokkPos = $state({ vis: false, x: 0, y: 0, w: 0, h: 0 });
-
-	/** Plasser blokkmarkøren over tegnet markøren står på (normal/visual). */
-	function oppdaterMarkor() {
-		if (!linjeTa || !maalEl) { blokkPos = { ...blokkPos, vis: false }; return; }
-		const aktiver = vim && visning === 'kilde' && vimSt.modus !== 'insert';
-		if (!aktiver) { blokkPos = { ...blokkPos, vis: false }; return; }
-		const ta = linjeTa;
-		const pos = Math.min(ta.selectionStart ?? 0, (ta.value ?? '').length);
-		// speil med identiske fonter/mål — tekst fram til markøren + merket tegn
-		const tegn = ta.value[pos] ?? ' ';
-		maalEl.style.width = Math.max(0, ta.clientWidth - 24) + 'px'; // 24 = textarea-padding
-		maalEl.textContent = '';
-		const foran = document.createTextNode(ta.value.slice(0, pos));
-		const merke = document.createElement('span');
-		merke.textContent = tegn === '\n' ? ' ' : tegn;
-		maalEl.appendChild(foran);
-		maalEl.appendChild(merke);
-		const boks = merke.getBoundingClientRect();
-		const maalBoks = maalEl.getBoundingClientRect();
-		blokkPos = {
-			vis: true,
-			x: boks.left - maalBoks.left - ta.scrollLeft,
-			y: boks.top - maalBoks.top - ta.scrollTop,
-			w: Math.max(boks.width, 8),
-			h: boks.height
-		};
-	}
-	let markorKlasse = $derived(vimSt.modus === 'insert' ? 'ins' : vimSt.modus === 'visual' || vimSt.modus === 'vline' ? 'vis' : 'norm');
-	let linjenumre = $derived(Array.from({ length: Math.max(1, (tekst ?? '').split('\n').length) }, (_, i) => i + 1));
-	$effect(() => { visning; vim; vimSt.modus; requestAnimationFrame(oppdaterMarkor); });
-	$effect(() => {
-		if (!vim || visning !== 'kilde') return;
-		const paa = (e) => requestAnimationFrame(oppdaterMarkor);
-		document.addEventListener('selectionchange', paa);
-		return () => document.removeEventListener('selectionchange', paa);
-	});
-
-	function synkGutter() {
-		if (linjeTa && gutterEl) gutterEl.scrollTop = linjeTa.scrollTop;
-	}
-	let kildeUndo = []; // forrige verdier (u / ⌘Z) — beforeinput fangerer den gamle
-	function kildeUndoTrykk() {
-		kildeUndo.push(tekst);
-		if (kildeUndo.length > 100) kildeUndo.shift();
-	}
-	function kildeAngre() {
-		const v = kildeUndo.pop();
-		if (v === undefined) return;
-		tekst = v;
-		requestAnimationFrame(() => {
-			if (!linjeTa) return;
-			const p = Math.min(linjeTa.value.length, linjeTa.value.length);
-			linjeTa.setSelectionRange(p, p);
-			oppdaterMarkor();
-		});
-	}
-	function vimTast(e) {
-		if (!vim || visning !== 'kilde') return;
-		if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); kildeAngre(); return; }
-		if (vimKeydown(e, linjeTa, vimSt, { lagre, undo: kildeAngre, palett: (f) => window.dispatchEvent(new CustomEvent('apen-palett', { detail: { forhand: f } })) })) e.preventDefault();
-		requestAnimationFrame(oppdaterMarkor);
-	}
 
 	let dirty = $derived(tekst !== lagretTekst);
 
 	onMount(async () => {
-		// vim-modus: persisteres i databasen
-		if (isElectron) {
-			try {
-				const r = await window.liturgi.dbGet('vimModus');
-				vim = (r?.value ?? '0') === '1';
-				vimSt = nyVimTilstand();
-			} catch { /* db utilgjengelig */ }
-		} else {
-			try { vim = localStorage.getItem('forb-vim') === '1'; } catch {}
-		}
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
 		mappe = r?.ok ? (r.value ?? '') : '';
@@ -260,52 +176,31 @@
 						<div class="fb-visning-velger">
 							<button class:sel={visning === 'riktekst'} onclick={() => visning = 'riktekst'} title="Riktekst: formater som i et tekstbehandler-program">Riktekst</button>
 							<button class:sel={visning === 'hybrid'} onclick={() => visning = 'hybrid'} title="Hybrid: markdown-kilderedigering med riktekst-styling; merkene synlige på linjen du redigerer">Hybrid</button>
-							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'} title="Kilde: ren markdown med syntax-highlight (vim: aktiver vim-bryteren)">Kilde</button>
+							<button class:sel={visning === 'kilde'} onclick={() => visning = 'kilde'} title="Kilde: ren markdown med syntax-highlight">Kilde</button>
 						</div>
 						<button class="fb-lagre" onclick={lagre} disabled={!dirty || jobber}>{@html mdi('content-save', 14)} {jobber ? 'Lagrer …' : 'Lagre'}</button>
 					</div>
 					{#if feil}<p class="fb-feil">{feil}</p>{/if}
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="fb-felter" oncontextmenu={(e) => { e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
-						{ label: appStore.vimModus ? 'Skru av vim-modus' : 'Skru på vim-modus', action: () => veksleVim() }
-					]); }}>
+						]); }}>
 						{#if visning !== 'kilde'}
-							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={appStore.vimModus} vimSt={vimSt} vimLagre={lagre} mdModus={true} />
+							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} mdModus={true} />
 						{:else}
 							<div class="fb-kilde-rad">
-								{#if vim}
-									<div class="fb-gutter" bind:this={gutterEl}>
-										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
-									</div>
-								{/if}
 								<div class="fb-kilde-innpakning">
 									<pre class="fb-hl" bind:this={hlEl} aria-hidden="true">{@html hlHtml}</pre>
 									<textarea
 										class="fb-kilde gjennomsiktig"
-										class:vim-norm={vim && vimSt.modus !== 'insert'}
 										bind:this={linjeTa}
 										bind:value={tekst}
 										spellcheck="false"
 										placeholder="Skriv her …"
-										onscroll={() => { synkGutter(); if (hlEl) hlEl.scrollTop = linjeTa.scrollTop; requestAnimationFrame(oppdaterMarkor); }}
-										onkeydown={vimTast}
-										oninput={() => requestAnimationFrame(oppdaterMarkor)}
-										onclick={() => requestAnimationFrame(oppdaterMarkor)}
+										onscroll={() => { if (hlEl) hlEl.scrollTop = linjeTa.scrollTop; }}
 									></textarea>
-									{#if blokkPos.vis}
-										<div class="fb-blok-markor {markorKlasse}" bind:this={blokkEl} style="left:{blokkPos.x}px; top:{blokkPos.y}px; width:{blokkPos.w}px; height:{blokkPos.h}px;"></div>
-									{/if}
-									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
 								</div>
 							</div>
 						{/if}
-					</div>
-				{/if}
-				{#if vim}
-					<div class="fb-statuslinje">
-						<span class="fb-vim-modus" class:ins={vimSt.modus === 'insert'}>{vimSt.kommando || (vimSt.modus === 'insert' ? 'INSERT' : vimSt.modus === 'visual' ? 'VISUAL' : vimSt.modus === 'vline' ? 'V-LINE' : 'NORMAL')}</span>
-						<span class="fb-status-fil">{valgtRel || '—'}</span>
-						<span class="fb-status-rom">markdown</span>
 					</div>
 				{/if}
 			</div>

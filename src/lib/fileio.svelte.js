@@ -1,4 +1,4 @@
-import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, veksleVim, setAutoLagreFn, synkLenkedeSeksjoner, hentFane, dokNoekkel } from './store.svelte.js';
+import { app, persist, uid, openService, openTemplate, registrerÅpenMal, malEntryFor, closeEditor, entryFor, syncDirty, veksleSidebar, veksleToc, toggleTheme, createService, setAutoLagreFn, synkLenkedeSeksjoner, hentFane, dokNoekkel } from './store.svelte.js';
 import { BUILTIN_TEMPLATES, WIP_TEMPLATES } from './data.js';
 import { prompt, lukkModal, closeModal, newServiceModal } from './modal.svelte.js';
 import { toast } from 'svelte-sonner';
@@ -1036,7 +1036,6 @@ export async function kjorMenyId(id) {
 		case 'kirkeaar': app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'innstillinger': app.current = null; app.kind = null; app.visning = 'innstillinger'; break;
 		case 'handbok': app.visning = 'handbok'; break;
-		case 'veksle-vim': veksleVim(); break;
 		case 'forb-modul': app.forbModul = true; app.current = null; app.kind = null; app.visning = 'kirkeaar'; break;
 		case 'forb-apne-mappe': {
 			const r = await window.liturgi?.dbGet?.('prekenforberedelseMappe');
