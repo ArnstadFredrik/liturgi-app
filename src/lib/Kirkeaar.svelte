@@ -33,16 +33,6 @@ import { onMount } from 'svelte';
 	let visMerkedager = $state(true); // innstilling — persistent i liturgi.db (nøkkel 'kirkeaarMerkedager')
 	let sok = $state(''); // fritekst: navn ELLER dato (åååå-mm-dd, dd.mm, dd/mm)
 	let simulerHenting = $state(false);
-	let spaltEl = $state(null); // rullespalten i hovedspalten (headerens forlder)
-	let headerLinje = $state(false); // sticky-versjonen: to linjer -> n
-	let skrullTimer = null;
-	function sporHeader() {
-		if (!spaltEl) return;
-		headerLinje = spaltEl.scrollTop > 90;
-		spaltEl.classList.add('triller');
-		clearTimeout(skrullTimer);
-		skrullTimer = setTimeout(() => spaltEl?.classList.remove('triller'), 750);
-	}
 	let alleKirkeaarsDager = $state([]); // hele kirkeåret + neste (til søk og høyrepanel)
 
 	const lesninger = [
@@ -434,8 +424,7 @@ import { onMount } from 'svelte';
 			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() },
 			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
-	<div class="ka-spalt" bind:this={spaltEl} onscroll={sporHeader}>
-		<ModulTopp tittel="Kirkeåret" klebet={headerLinje}>
+		<ModulTopp tittel="Kirkeåret">
 			{#snippet children()}
 				<div class="ka-header-dag">
 					{#if valgtDag}
@@ -451,6 +440,8 @@ import { onMount } from 'svelte';
 				</div>
 			{/snippet}
 		</ModulTopp>
+	<div class="ka-kropp">
+		<div class="ka-hoved">
 
 		{#if mellomDager.length > 1}
 			<div class="ka-mellom">
@@ -493,7 +484,7 @@ import { onMount } from 'svelte';
 		{:else}
 			<p class="ka-muted">Fant ingen kirkeårsdag.</p>
 		{/if}
-	</div>
+		</div>
 
 	<aside class="ka-panel" use:portal={'#toc-side'}>
 		<div class="ka-panel-topp">
@@ -570,4 +561,5 @@ import { onMount } from 'svelte';
 		</div>
 	</div>
 	</aside>
+	</div>
 </div>

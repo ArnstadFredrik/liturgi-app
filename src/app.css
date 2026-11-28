@@ -1759,11 +1759,9 @@ svg.sf-ikon { vertical-align: -0.35em; }
 .kp-bunn { padding: 7px 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px; }
 
 /* Kirkeåret-modulen */
-#app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
-#kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: 1000px; width: 100%; margin: 0 auto; padding: 0 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
-.ka-spalt { flex: 1 1 auto; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
-#kirkeaar-modul .ka-spalt > .ka-mellom,
-#kirkeaar-modul .ka-spalt > .ka-valgt { max-width: 700px; width: 100%; margin-left: auto; margin-right: auto; }
+#kirkeaar-modul { width: 100%; padding: 0 0 20px; box-sizing: border-box; }
+#kirkeaar-modul .ka-kropp { display: flex; gap: 18px; align-items: flex-start; justify-content: center; max-width: 1000px; width: 100%; margin: 0 auto; min-height: 0; padding: 0 20px; box-sizing: border-box; }
+.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 700px; }
 /* skrultbar hidde blir synlig synlig mens det skrolles (transient) */
 .ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
@@ -1960,6 +1958,7 @@ svg.sf-ikon { vertical-align: -0.35em; }
 }
 #main.main-scrollt .modul-tittel,
 #main .modul-topp.klebet .modul-tittel { font-size: 13.5px; }
+#main.main-scrollt #kirkeaar-modul .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
 .modul-tittel { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; color: var(--text); }
 /* vim-bryter + modus-badge */
 .fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }
@@ -2327,10 +2326,6 @@ sub { font-size: 0.75em; }
    med samme høyde som modulhoveden i gudstjeneste-visningen. */
 /* Kirkearet bruker den gjenbrukbare ModulTopp-komponenten (.modul-topp);
  * kun modulspesifikke tillegg her */
-#kirkeaar-modul .modul-topp {
-	position: sticky; top: 0; z-index: 30;
-	background: transparent; /* samme som hovedmodulen nr den ikke er klebet */
-}
 .ka-header-dag { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .ka-header-dag .ka-tittel { margin: 0; font-size: 17px; }
 .ka-header-dag .ka-kirkeaar { margin: 0; }
@@ -2350,9 +2345,6 @@ sub { font-size: 0.75em; }
 
 /* Kirkearet: fullbredde-header i spalten; transient scrollbar;
    sticky-samb sprang fra .ka-header, nv via ModulTopp-komponent. */
-.ka-spalt::-webkit-scrollbar-thumb { background: transparent; }
-.ka-spalt.triller::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-#kirkeaar-modul .modul-topp { width: 100%; }
 .ka-header-dag .ka-kirkeaar { transition: opacity 0.16s ease; }
 
 #kirkeaar-modul .modul-topp.klebet .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
