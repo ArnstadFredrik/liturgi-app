@@ -102,10 +102,15 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.44.2",
+    "@replit/codemirror-vim": "^6.4.0",
     "@ui-sdk/core": "^0.1.0-beta.17",
     "@ui-sdk/svelte": "^0.1.0-beta.17",
     "better-sqlite3": "^13.0.3",
     "church-year": "^0.2.61",
+    "codemirror": "^6.0.2",
     "docx": "^9.0.0",
     "ejs": "^7.0.2",
     "jspdf": "^4.2.1",

@@ -4,6 +4,7 @@
 	import IkonKnapp from '$lib/IkonKnapp.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import EditableText from './EditableText.svelte';
+	import Cm6Kilde from './Cm6Kilde.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
 	import { nyVimTilstand, vimKeydown } from '$lib/vim.js';
 	import { onMount, untrack } from 'svelte';
@@ -272,32 +273,10 @@
 						{#if visning !== 'kilde'}
 							<EditableText bind:value={tekst} startRedigering={true} visFerdig={false} dirty={false} plassholder="Skriv her …" hybrid={visning === 'hybrid'} vimAktiv={appStore.vimModus} vimSt={vimSt} vimLagre={lagre} mdModus={true} />
 						{:else}
-							<div class="fb-kilde-rad">
-								{#if vim}
-									<div class="fb-gutter" bind:this={gutterEl}>
-										{#each linjenumre as n (n)}<div class="fb-linjenr" class:ins={vimSt.modus === 'insert'}>{n}</div>{/each}
-									</div>
-								{/if}
-								<div class="fb-kilde-innpakning">
-									<pre class="fb-hl" bind:this={hlEl} aria-hidden="true">{@html hlHtml}</pre>
-									<textarea
-										class="fb-kilde gjennomsiktig"
-										class:vim-norm={vim && vimSt.modus !== 'insert'}
-										bind:this={linjeTa}
-										bind:value={tekst}
-										spellcheck="false"
-										placeholder="Skriv her …"
-										onscroll={() => { synkGutter(); if (hlEl) hlEl.scrollTop = linjeTa.scrollTop; requestAnimationFrame(oppdaterMarkor); }}
-										onkeydown={vimTast}
-										oninput={() => requestAnimationFrame(oppdaterMarkor)}
-										onclick={() => requestAnimationFrame(oppdaterMarkor)}
-									></textarea>
-									{#if blokkPos.vis}
-										<div class="fb-blok-markor {markorKlasse}" bind:this={blokkEl} style="left:{blokkPos.x}px; top:{blokkPos.y}px; width:{blokkPos.w}px; height:{blokkPos.h}px;"></div>
-									{/if}
-									<div class="fb-maal" bind:this={maalEl} aria-hidden="true"></div>
-								</div>
-							</div>
+							<!-- CM6-eksperiment: CodeMirror 6 erstatter textarea + Prism i
+							     kilde-modus (vim via @replit/codemirror-vim, liturgi-merker som
+							     dekorasjoner). Se docs/cm6-vurdering.md. -->
+							<Cm6Kilde bind:value={tekst} vimAktiv={appStore.vimModus} lagreHandler={lagre} endret={() => { dirty = true; }} />
 						{/if}
 					</div>
 				{/if}
