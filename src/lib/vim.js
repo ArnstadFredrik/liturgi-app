@@ -42,7 +42,7 @@ const PARANTEN = { '(': ')', '[': ']', '{': '}' };
 
 function ordTokene(v) {
 	const ut = [];
-	const re = /\w+|[^\w\s]+|\s+/g;
+	const re = /[\w\u00C0-\u00FF]+|[^\w\u00C0-\u00FF\s]+|\s+/gu;
 	let m;
 	while ((m = re.exec(v))) ut.push({ start: m.index, slutt: m.index + m[0].length, ws: /^\s+$/.test(m[0]) });
 	return ut;
@@ -305,10 +305,28 @@ export function visSpenn(st, v, pos) {
 	return { start, slutt };
 }
 
+/** Rått spenn for visual-operasjonene: markøren ligger allerede på
+ *  den utvidede enden etter visOppdater (+1 er bakt inn), så her skal det
+ *  IKKE legges til +1 en gang til (gav før én karakter for mye i vwd). */
+function visSpennRaa(st, v, pos) {
+	let start = Math.min(st.vAnker, pos);
+	let slutt = Math.max(st.vAnker, pos);
+	if (st.modus === 'vline') {
+		const linjer = v.split('\n');
+		const va = posTilLK(linjer, start);
+		const vb = posTilLK(linjer, slutt);
+		start = lOff(linjer, va.li);
+		slutt = lOff(linjer, vb.li) + (linjer[vb.li]?.length ?? 0);
+		if (vb.li < linjer.length - 1) slutt += 1;
+	}
+	return { start, slutt };
+};
+
 function visOppdater(st, ta) {
 	const v = ta.value;
 	const pos = ta.selectionStart;
 	const { start, slutt } = visSpenn(st, v, pos);
+	st.vMarkoer = pos; // r markr for visual-operasjonene (d/x/c/y) — shimen utvider +1
 	ta.setSelectionRange(start, slutt, st.vAnker < pos ? 'forward' : 'backward');
 }
 
@@ -355,7 +373,7 @@ export function vimKeydown(e, ta, st, ekstra = {}) {
 		if (K === 'd' || K === 'x' || K === 'y' || K === 'c') {
 			e.preventDefault();
 			const v = ta.value;
-			const { start, slutt } = visSpenn(st, v, ta.selectionStart);
+			const { start, slutt } = visSpennRaa(st, v, st.vMarkoer ?? ta.selectionStart);
 			st.reg = { tekst: v.slice(start, slutt), linewise: st.modus === 'vline' };
 			if (K === 'y') {
 				ta.setSelectionRange(start, start);
