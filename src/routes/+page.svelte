@@ -1,6 +1,7 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Modulfaner from '$lib/Modulfaner.svelte';
+	import ModulTopp from '$lib/ModulTopp.svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { app, veksleSidebar, veksleToc, loadStore, huskFane, dokNoekkel } from '$lib/store.svelte.js';
@@ -247,10 +248,7 @@
 	<Sidebar />
 	<main id="main" bind:this={mainEl}>
 		{#if modul}
-			<header class="modul-topp">
-				<span class="modul-tittel">{modul.tittel}</span>
-				<Modulfaner faner={modul.faner} aktiv={modul.aktiv} />
-			</header>
+			<ModulTopp tittel={modul.tittel} faner={modul.faner} aktiv={modul.aktiv} />
 		{/if}
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />

@@ -1950,14 +1950,16 @@ svg.sf-ikon { vertical-align: -0.35em; }
 }
 .modul-topp .modul-tittel { transition: font-size 0.18s ease; }
 /* ved rulling: bakgrunn som dekker innholdet + kompakt tittel */
-#main.main-scrollt .modul-topp {
+#main.main-scrollt .modul-topp,
+#main .modul-topp.klebet {
 	padding: 8px 24px;
 	background: color-mix(in srgb, var(--panel) 88%, transparent);
 	backdrop-filter: blur(14px);
 	-webkit-backdrop-filter: blur(14px);
 	box-shadow: 0 1px 0 var(--border);
 }
-#main.main-scrollt .modul-tittel { font-size: 13.5px; }
+#main.main-scrollt .modul-tittel,
+#main .modul-topp.klebet .modul-tittel { font-size: 13.5px; }
 .modul-tittel { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; color: var(--text); }
 /* vim-bryter + modus-badge */
 .fb-vim { border: 1px solid var(--border); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; padding: 3px 8px; border-radius: 7px; cursor: pointer; }
@@ -2323,17 +2325,16 @@ sub { font-size: 0.75em; }
 
 /* Kirkeåret: samle header (Kirkeåret-merke + dag + knapper), sticky
    med samme høyde som modulhoveden i gudstjeneste-visningen. */
-.ka-header {
+/* Kirkearet bruker den gjenbrukbare ModulTopp-komponenten (.modul-topp);
+ * kun modulspesifikke tillegg her */
+#kirkeaar-modul .modul-topp {
 	position: sticky; top: 0; z-index: 30;
-	display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-	gap: 10px 18px; padding: 16px 24px 0; margin-bottom: 12px;
-	transition: padding 0.18s ease;
+	background: transparent; /* samme som hovedmodulen nr den ikke er klebet */
 }
-.ka-header-merke { flex: none; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: 0.2px; color: var(--text); transition: font-size 0.18s ease; }
 .ka-header-dag { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .ka-header-dag .ka-tittel { margin: 0; font-size: 17px; }
 .ka-header-dag .ka-kirkeaar { margin: 0; }
-.ka-header .ka-valgt-handlinger { flex: none; margin: 0; }
+#kirkeaar-modul .modul-topp .ka-valgt-handlinger { flex: none; margin: 0; }
 .ka-hoved { max-width: 700px; margin: 0 auto; text-align: left; }
 .ka-hoved::-webkit-scrollbar { width: 8px; }
 /* **4** typografistruktur: seksjonstitler strre + jevn rytme */
@@ -2348,19 +2349,12 @@ sub { font-size: 0.75em; }
 [data-theme='dark'] .ka-prikk { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
 
 /* Kirkearet: fullbredde-header i spalten; transient scrollbar;
-   sticky-samb eksisterer allerede i .ka-header. */
+   sticky-samb sprang fra .ka-header, nv via ModulTopp-komponent. */
 .ka-spalt::-webkit-scrollbar-thumb { background: transparent; }
 .ka-spalt.triller::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-.ka-header { margin: 0; width: 100%; }
+#kirkeaar-modul .modul-topp { width: 100%; }
 .ka-header-dag .ka-kirkeaar { transition: opacity 0.16s ease; }
-.ka-header.klistret {
-	padding: 8px 24px;
-	background: color-mix(in srgb, var(--panel) 88%, transparent);
-	backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-	box-shadow: 0 1px 0 var(--border);
-}
-.ka-header.klistret .ka-header-merke,
-.ka-header.klistret .ka-tittel { font-size: 13.5px; }
-.ka-header.klistret .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+
+#kirkeaar-modul .modul-topp.klebet .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
 #toc-side .ka-liste { scrollbar-width: none; }
 #toc-side .ka-liste::-webkit-scrollbar { display: none; }

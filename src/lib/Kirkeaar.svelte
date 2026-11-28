@@ -1,6 +1,7 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { onMount } from 'svelte';
+		import ModulTopp from '$lib/ModulTopp.svelte';
+import { onMount } from 'svelte';
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { lesForbFiler } from '$lib/forb-filer.js';
@@ -434,22 +435,22 @@
 			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
 	<div class="ka-spalt" bind:this={spaltEl} onscroll={sporHeader}>
-		<div class="ka-header" class:klistret={headerLinje}>
-			<span class="ka-header-merke">Kirkeåret</span>
-			{#if valgtDag}
-			<div class="ka-header-dag">
-					<h3 class="ka-tittel">{valgtDag.name}</h3>
-					<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
+		<ModulTopp tittel="Kirkeåret" klebet={headerLinje}>
+			{#snippet children()}
+				<div class="ka-header-dag">
+					{#if valgtDag}
+						<h3 class="ka-tittel">{valgtDag.name}</h3>
+						<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
+					{/if}
 				</div>
-			{/if}
-			<div class="ka-valgt-handlinger">
-				{#if app.forbModul}
-				<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
-				{/if}
-				<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
-			</div>
-		</div>
-
+				<div class="ka-valgt-handlinger">
+					{#if app.forbModul}
+					<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
+					{/if}
+					<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
+				</div>
+			{/snippet}
+		</ModulTopp>
 
 		{#if mellomDager.length > 1}
 			<div class="ka-mellom">
