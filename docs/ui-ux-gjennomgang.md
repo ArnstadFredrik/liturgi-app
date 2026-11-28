@@ -176,8 +176,14 @@ Regel er notert i AGENTS.md («Gjenbrukbare komponenter»).
 
 1. **v0.0.6-release**: versjonbump + tag `v0.0.6` + push (starter
    release.yml, Homebrew-tap, Pages). Krever din godkjenning.
-2. **Handbok-bilder ferdigstilles** (punkt over) når du har 10 min med
-   Liturgi i forgrunnen.
-3. **Editor-småpoeng** (instruksjonsfelt i redigering, charwise v+w,
+2. **Editor-småpoeng** (instruksjonsfelt i redigering, charwise v+w,
    Vim → kommandopalett, seksjonsskille): trenger presisering av omfang
    før implementering.
+
+### Fullført i punkt 2-runden (2026-11-28)
+
+- **Lys tema er standard** (store: `theme: 'light'`): enhetstest
+  `tema.test.mjs` låser det (133/133) — commit `b94e0ee`.
+- **Handbok-bilder ferdig**: alle 11 skjermbilder tatt på nytt i lyst
+  tema mot installert app med test-db (unike hasjer, webp q82) —
+  commit `feae686`. Handbok-HTML regenerert (`npm run handbok`).
