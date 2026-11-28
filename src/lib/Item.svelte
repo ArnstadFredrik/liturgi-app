@@ -413,7 +413,9 @@
 		{/if}
 	</div>
 	<div class="item-body">
-		{#if (app.current?.visInstr ?? true) && it.instr !== '' && it.instr != null}
+		{#if it.instr !== '' && it.instr != null}
+			<!-- instruksjonsfeltet følger leddet, ikke globalbryteren -->
+
 			<div class="instr-wrap">
 				<span class="item-eyebrow">instr</span>
 				<EditableText bind:value={it.instr} kind="instr" />
