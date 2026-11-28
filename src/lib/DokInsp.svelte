@@ -147,7 +147,7 @@
 	</div>
 </div>
 
-{#if delGruppeStats.length}
+{#if app.kind === 'template' && delGruppeStats.length}
 	<hr class="side-skiller insp-skiller" />
 	<div class="insp-gruppe">
 		<div class="sidehead">Del-grupper</div>

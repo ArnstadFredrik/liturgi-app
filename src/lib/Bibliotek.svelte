@@ -205,8 +205,11 @@ function grupperEtterLedd(rader) {
 			organiseres i mapper og tagger, og røres ikke av «Regenerer biblioteket».
 		</p>
 		<div class="biblio-sok">
+			<div class="biblio-sok-felt">
 			<input bind:value={q} oninput={sok} placeholder='Søk, f.eks. «forbønn» eller «sanctus» …' spellcheck="false" />
-			<button class="biblio-type-btn" class:paa={visEtterType} onclick={() => { visEtterType = !visEtterType; }} title="Grupper leddene etter type (Kyrie, Gloria, bønn, prefasjon …)">{@html mdi('tag-outline', 14)} Etter type</button>
+			{#if q}<button class="biblio-sok-tom" title="Nullstill søket" onclick={() => { q = ''; sok(); }}>{@html mdi('close', 14)}</button>{/if}
+			</div>
+			<button class="biblio-type-btn" class:paa={visEtterType} onclick={() => { visEtterType = !visEtterType; }} title="Grupper leddene etter type (Kyrie, Gloria, bønn, prefasjon …)">{@html mdi('tag-outline', 14)} Etter type{#if visEtterType} <span class="biblio-antall">({alleRader.length})</span>{/if}</button>
 			<button onclick={nyttLedd}>{@html mdi('plus')} Nytt ledd</button>
 			{#if isElectron}
 				<input type="file" accept=".json,application/json" style="display:none" bind:this={fileInp} onchange={onImportFil} />
@@ -305,7 +308,10 @@ function grupperEtterLedd(rader) {
 					{/each}
 				{/if}
 				{#if !filtrerteBruker.length && !originaletreff.length}
-					<p class="maler-ingress">{q ? 'Ingen treff.' : 'Ingen egne ledd ennå — bruk «+ Nytt ledd».'}</p>
+					<div class="biblio-tom-cta">
+						<p class="maler-ingress">{q ? 'Ingen treff på dette søket.' : 'Ingen egne ledd ennå — start her.'}</p>
+						{#if !q}<button class="primary" onclick={nyttLedd}>{@html mdi('plus')} Nytt ledd</button>{/if}
+					</div>
 				{/if}				{/if}
 			</div>
 

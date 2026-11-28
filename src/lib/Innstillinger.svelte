@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { regenererBibliotek } from '$lib/fileio.svelte.js';
-	import { valgModal } from '$lib/modal.svelte.js';
+	import { valgModal, confirmBox } from '$lib/modal.svelte.js';
 	import { app } from '$lib/store.svelte.js';
 	import { mdi } from '$lib/mdi.js';
 	import { lesForbFiler, normaliserForbFiler } from '$lib/forb-filer.js';
@@ -401,7 +401,7 @@ function settForbModul(v) {
 							«Hent ledd». Det bygges automatisk — regenerer om noe ikke virker.
 						</div>
 					</div>
-					<button class="inn-handling" onclick={byggPåNytt} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer'}</button>
+					<button class="inn-handling inn-fare" onclick={() => confirmBox('Regenerer biblioteket', 'Bygger opp bibliotekindeksen på nytt fra originalmalene. Ditt eget innhold berøres ikke.', () => byggPåNytt())} disabled={jobber}>{jobber ? 'Bygger …' : 'Regenerer'}</button>
 				</div>
 				<div class="inn-rad">
 					<div class="inn-rad-tekst">
@@ -452,7 +452,7 @@ function settForbModul(v) {
 						</div>
 						{#if salmeStatusTekst}<div class="inn-rad-beskriv">{salmeStatusTekst}</div>{/if}
 					</div>
-					<button class="inn-handling" onclick={salmeLoggUt} disabled={salmeJobber}>
+					<button class="inn-handling inn-fare" onclick={() => confirmBox('Logg ut', 'Logger deg ut av ' + salmeUser + ' på gudstjeneste.no? Du må logge inn igjen for å hente nye salmetekster.', () => salmeLoggUt())} disabled={salmeJobber}>
 						{salmeJobber ? 'Logger ut …' : 'Logg ut'}
 					</button>
 				</div>

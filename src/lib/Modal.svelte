@@ -1,7 +1,9 @@
 <script>
 	import { app, applyKirkeaar, finnSkriftlesningSeksjon } from '$lib/store.svelte.js';
+	import { untrack } from 'svelte';
 	import { erMalFavoritt, malAlternativer, secAlternativer } from '$lib/store.svelte.js';
 	import { closeModal, showModal, confirmBox, kirkeaarListeModal, adminAltsModal, bibSokModal, chooseOneModal, valgModal, velgTeksterModal, skriftBokstav,	maalformModal, delerTabellModal, malType } from '$lib/modal.svelte.js';
+	import { Dialog, DialogBackdrop, DialogContent, DialogTitle } from '@ui-sdk/svelte/dialog';
 	import DelerTabell from '$lib/DelerTabell.svelte';
 	import FilterDropdown from '$lib/FilterDropdown.svelte';
 	import { valgLeddStandard } from '$lib/deler-logikk.js';
@@ -792,20 +794,26 @@
 		if (e.key === 'Enter') ok();
 		if (e.key === 'Escape') closeModal();
 	}
-	// Escape lukker modalen uansett hvor fokuset er (globalt — ikke bare i
-	// tekstfeltene med onKey); Enter forblir lokalt for input-feltene
-	$effect(() => {
-		if (!m) return;
-		const h = (e) => { if (e.key === 'Escape') closeModal(); };
-		window.addEventListener('keydown', h);
-		return () => window.removeEventListener('keydown', h);
-	});
+	// Escape håndteres av ui-sdk Dialog (globalt); Enter forblir lokalt for input-feltene
+	// Dialogen er kontrollert: mount = pen (komponenten remountes pr visning
+	// via {#key} i +page.svelte). Utenfor-klikk avvises: bakgrunnsklikk skal
+	// ikke kaste bort midt-i-en-flyt skjemaer.
+	let apen = $state(true);
 </script>
 
 {#if m}
-	<div id="modal-back">
-		<div id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' || m.type === 'delerTabell' || m.type === 'newService' ? 'bred' : ''} role="dialog">
-			<h3>{m.title}</h3>
+<Dialog bind:open={apen} onOpenChange={(o, d) => {
+	if (!o) {
+		if (d?.reason === 'outside-press') { d.cancel(); return; }
+		untrack(() => closeModal());
+	}
+}}>
+	<DialogBackdrop />		<DialogContent id="modal" class={m.type === 'chooseOne' || m.type === 'bib' || m.type === 'velgTekster' || m.type === 'delerTabell' || m.type === 'newService' ? 'bred' : ''}>
+			<DialogTitle>
+				{#snippet render({ props })}
+					<h3 {...props}>{m.title}</h3>
+				{/snippet}
+			</DialogTitle>
 			{#if m.type === 'confirm'}
 				<p>{m.message}</p>
 			{:else if m.type === 'prompt'}
@@ -1280,6 +1288,6 @@
 					</button>
 				{/if}
 			</div>
-		</div>
-	</div>
+		</DialogContent>
+</Dialog>
 {/if}

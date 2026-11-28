@@ -105,7 +105,7 @@ export function lukkModal(onLagre, onForkast) {
 }
 
 export function newServiceModal(ok, forhåndsvalgtType = 'gudstjeneste') {
-	showModal({ type: 'newService', ok, forhåndsvalgtType });
+	showModal({ type: 'newService', title: 'Ny gudstjeneste', ok, forhåndsvalgtType });
 }
 
 export function chooseSectionsModal(titles, ok) {

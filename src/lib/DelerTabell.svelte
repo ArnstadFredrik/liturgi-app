@@ -2,12 +2,15 @@
 	/** DelerTabell — DELT komponent for alternativ-/variasjons-modulen:
 	 *  brukes både som undermodul-side (Alternativer) og som innhold i
 	 *  «Deler …»-modalen. Samme komponent = samme uttrykk begge steder. */
-	import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
+	import SlettKnap from '$lib/SlettKnap.svelte';
+import { app, markDirty, secAlternativer } from '$lib/store.svelte.js';
 import { erStyrt } from '$lib/deler-logikk.js';
 import { erOriginalMal } from '$lib/fileio.svelte.js';
 
 	let { mal, visMalFelt = false } = $props();
 	import { mdi } from '$lib/mdi.js';
+	import Chevron from '$lib/Chevron.svelte';
+	import DraHandel from '$lib/DraHandel.svelte';
 	import { malType, malFormFor, målformLabel, kanBrukes } from '$lib/maltyper.js';
 	import { confirmBox, maalformModal } from '$lib/modal.svelte.js';
 
@@ -196,10 +199,9 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			{#each mal?.sections ?? [] as sec, si (si)}
 				<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor} class:deler-dragging={dragSi === si}
 					ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
-					<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
-						ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>
+					<DraHandel onstart={(e) => startDragRad(e, si)} aktiv={dragSi !== null} title="Dra for å endre rekkefølge" />
 					<span class="m-deler-navn">
-					<button type="button" class="m-deler-ekspander" title={apenSek === si ? 'Skjul leddene' : 'Vis leddene'} onclick={() => { apenSek = apenSek === si ? null : si; }}>{@html mdi(apenSek === si ? 'chevron-down' : 'chevron-right', 14)}</button>
+					<Chevron apen={apenSek === si} onclick={() => { apenSek = apenSek === si ? null : si; }} title={apenSek === si ? 'Skjul leddene' : 'Vis leddene'} />
 					<span class="m-deler-navn-tekst">{sec.title}</span>
 					{#if erStyrt(sec)}<span class="m-deler-styrt" title="Hoveddelen styres av alternativ/variasjon — alle leddene følger med sammen med den">{@html mdi('subdirectory-arrow-right', 13)}</span>{/if}
 				</span>
@@ -326,7 +328,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			<div>
 				<p class="m-deler-adm-tittel">Alternativer</p>
 				{#each alternativer as t (t)}
-					<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)}>{@html mdi('delete-outline', 14)}</button></div>
+					<div class="m-deler-adm-rad"><span>{t[0].toUpperCase() + t.slice(1)}</span><SlettKnap klasse="m-dg-slett" title="Slett alternativet (fjernes fra alle deler)" onclick={() => slettKatalog('alternativer', t)} /></div>
 				{/each}
 				{#if !alternativer.length}<p class="muted">Ingen alternativer ennå.</p>{/if}
 				<div class="m-dg-ny"><input placeholder="Nytt alternativ" bind:value={katNyAlt} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('alternativer', katNyAlt); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('alternativer', katNyAlt)}>Legg til</button></div>
@@ -334,7 +336,7 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			<div>
 				<p class="m-deler-adm-tittel">Variasjoner (del-grupper)</p>
 				{#each variasjoner as v (v)}
-					<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><button type="button" class="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)}>{@html mdi('delete-outline', 14)}</button></div>
+					<div class="m-deler-adm-rad"><span>{v[0].toUpperCase() + v.slice(1)}</span><SlettKnap klasse="m-dg-slett" title="Slett variasjonen (fjernes fra alle deler)" onclick={() => slettKatalog('variasjoner', v)} /></div>
 				{/each}
 				{#if !variasjoner.length}<p class="muted">Ingen variasjoner ennå.</p>{/if}
 				<div class="m-dg-ny"><input placeholder="Ny variasjon, f.eks. Bisettelse" bind:value={katNyVar} onkeydown={(e) => { if (e.key === 'Enter') { leggTilKatalog('variasjoner', katNyVar); e.preventDefault(); } }} /><button onclick={() => leggTilKatalog('variasjoner', katNyVar)}>Legg til</button></div>

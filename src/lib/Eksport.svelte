@@ -1,11 +1,13 @@
 <script>
 	import { app, markDirty } from '$lib/store.svelte.js';
+	import { Toggle } from '@ui-sdk/svelte/toggle';
 	import { saveCurrent, saveCurrentToFile } from '$lib/fileio.svelte.js';
 	import { exportWord, exportPptx, buildPdfBase64, byggSlidePlan, byggPdfSider, nlDate, safeName, roleSegments, splitChunks, delPptSider, delPptSegs, flytAvsnitt, stripNotat, lysbildeTallFor } from '$lib/export.js';
 	import { lookupKirkeaar } from '$lib/kirkeaar.js';
 	import { prompt } from '$lib/modal.svelte.js';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { litHtml, leddTekst, salmeTekst } from '$lib/lit.js';
+	import IkonKnapp from '$lib/IkonKnapp.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -305,7 +307,21 @@
 	// menylinje/kontekstmeny: «Vis navn» og «Hovedtitler» (print-profilene)
 	/** Lagre-meny: ett punkt for lagring (og .limal-kopi for maler) — holder
 	 *  verktøylinjen kompakt i stedet for to fulle knapper. */
-	function lagreMeny(e) {
+		/* Nivå 1-3 i eksport-planen: Lagre flyttes til panelet, Sideoppsett/Typografi
+	 * blir dropdowns med status-chip. dropApen: 'side' | 'typo' | null. */
+	let dropApen = $state(null);
+	function stengDrops(e) {
+		if (!dropApen) return;
+		if (e.target.closest?.('.eks-drop')) return;
+		dropApen = null;
+	}
+	function veksleDrop(d) { dropApen = dropApen === d ? null : d; }
+	const sideChip = $derived(
+		(getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5') + ' · ' + getInnst('kolonner', 1) + ' kol · '
+		+ (getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal') === 'smal' ? 'Smal' : getInnst('marger') === 'bred' ? 'Bred' : 'Normal')
+	);
+	const typoChip = $derived('Aa ' + ptVerdi('hoveddel', 11) + ' / ' + ptVerdi('ledd', 11) + ' / ' + ptVerdi('tekst', 10));
+function lagreMeny(e) {
 		const r = e.currentTarget.getBoundingClientRect();
 		const punkter = [{ label: 'Lagre', action: () => saveCurrent() }];
 		if (app.kind === 'template') punkter.push({ label: 'Lagre mal-fil (.limal)', action: () => saveCurrentToFile() });
@@ -398,7 +414,8 @@
 	/** Portal: flytt panel-noden inn i høyre sidemeny (#toc-side) mens eksportvisningen er åpen. */
 	function portal(node, target) {
 		const host = document.querySelector(target);
-		host?.appendChild(node);
+		// prepend: Profiler/Format/handlinger vises fr AVSNITT-listen (arbeidsflyten)
+		host?.prepend(node);
 		return { destroy() { node.remove(); } };
 	}
 
@@ -1219,6 +1236,7 @@
 		window.scrollTo(0, 0);
 	});
 </script>
+<svelte:window onclick={stengDrops} />
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
 
@@ -1231,6 +1249,7 @@
 		<div class="eks-baand">
 			<button class="eks-flere" title="Flere valg" onclick={(e) => eksMeny(e.clientX, e.clientY)}>{@html mdi('tune', 14)} Valg {@html mdi('chevron-down', 12)}</button>
 			{#if aktiv === 'Skjerm'}
+			<span class="eks-gruppe-tittel">Tekst, tittel og justering</span>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
 					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(getInnst('tekstSkala', 1) * 38)} onchange={(e) => { setInnst('tekstSkala', +e.currentTarget.value / 38); }} /></label>
@@ -1242,59 +1261,57 @@
 					</select></div>
 				</div>
 			</div>
+			<span class="eks-gruppe-tittel">Slide-innstillinger</span>
 			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onclick={() => { setInnst('leddtitler', !getInnst('leddtitler', false)); }}>{@html mdi('format-title', 14)} Leddtitler</button>
+					<Toggle class="eks-toggle" pressed={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onPressedChange={(v) => setInnst('leddtitler', v)}>{@html mdi('format-title', 14)} Leddtitler</Toggle>
 					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 						<option value="av">Ingen</option>
 						<option value="alle">Alle</option>
 						<option value="smart">Smart</option>
 					</select></div>
-					<button class="eks-toggle" class:paa={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onclick={() => { setInnst('visTittel', !getInnst('visTittel', true)); }}>{@html mdi('presentation', 14)} Tittelslide</button>
-					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onclick={() => { setInnst('instr', !getInnst('instr', true)); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
-					<button class="eks-toggle" class:paa={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onclick={() => { setInnst('lysBakgrunn', !getInnst('lysBakgrunn', false)); }}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</button>
-					<button class="eks-toggle" class:paa={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onclick={() => { visNotater = !visNotater; }}>{@html mdi('script-text-outline', 14)} Notater</button>
+					<Toggle class="eks-toggle" pressed={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onPressedChange={(v) => setInnst('visTittel', v)}>{@html mdi('presentation', 14)} Tittelslide</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onPressedChange={(v) => { setInnst('instr', v); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onPressedChange={(v) => setInnst('lysBakgrunn', v)}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</Toggle>
+					<Toggle class="eks-toggle" pressed={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onPressedChange={(v) => (visNotater = v)}>{@html mdi('script-text-outline', 14)} Notater</Toggle>
 					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
 				</div>
 			</div>
 			{:else}
-			<div class="eks-baand-gruppe">
-				<div class="eks-felt"><span>Format</span><select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
-					<option value="A4">A4</option>
-					<option value="A5">A5</option>
-				</select></div>
-				<div class="eks-felt"><span>Kolonner</span><select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}>
-					<option value="1">1 kolonne</option>
-					<option value="2">2 kolonner</option>
-				</select></div>
-				<div class="eks-felt"><span>Marger</span><select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF">
-					<option value="bred">Bred marg</option>
-					<option value="normal">Normal marg</option>
-					<option value="smal">Smal marg</option>
-				</select></div>
-				<div class="eks-felt"><span>Avstand</span><select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft før/etter ledd i visning, Word og PDF">
-					<option value="tett">Tett</option>
-					<option value="normal">Normal</option>
-					<option value="luft">Luftig</option>
-				</select></div>
-				<button class="eks-lagre eks-verktoy-lagre" title="Lagre" onclick={(e) => lagreMeny(e)}>{@html mdi('download')} Lagre {@html mdi('chevron-down', 12)}</button>
-			</div>
-			<div class="eks-baand-gruppe eks-ekstra">
-				<div class="eks-baand-rad">
-					<label class="eks-felt eks-chk-pt"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
-					<label class="eks-felt eks-chk-pt"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
-					<label class="eks-felt eks-chk-pt"><span>Tekst</span><input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></label>
-					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>↺</button>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Sideoppsett: format, kolonner, marger og luft" onclick={() => veksleDrop('side')}>
+					{@html mdi('page-layout-sidebar-right', 14)} Sideoppsett <span class="eks-chip">{sideChip}</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'side'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><span>Format</span><select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}><option value="A4">A4</option><option value="A5">A5</option></select></div>
+					<div class="eks-drop-rad"><span>Kolonner</span><select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}><option value="1">1 kolonne</option><option value="2">2 kolonner</option></select></div>
+					<div class="eks-drop-rad"><span>Marger</span><select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF"><option value="bred">Bred marg</option><option value="normal">Normal marg</option><option value="smal">Smal marg</option></select></div>
+					<div class="eks-drop-rad"><span>Avstand</span><select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft får/etter ledd i visning, Word og PDF"><option value="tett">Tett</option><option value="normal">Normal</option><option value="luft">Luftig</option></select></div>
 				</div>
+				{/if}
+			</div>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Typografi: skriftstørrelser per nivå" onclick={() => veksleDrop('typo')}>
+					{@html mdi('format-bold', 14)} Typografi <span class="eks-chip">{typoChip}</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'typo'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></div>
+					<div class="eks-drop-rad"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></div>
+					<div class="eks-drop-rad"><span>Tekst</span><input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></div>
+					<button type="button" class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>{@html mdi('refresh', 13)} Tilbakestill</button>
+				</div>
+				{/if}
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
-					<button class="eks-toggle" class:paa={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onclick={() => setInnst('tittel', !getInnst('tittel', true))}>{@html mdi('tag-outline', 14)} Vis navn</button>
-					<button class="eks-toggle" class:paa={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onclick={() => setInnst('visAvsnittstitler', !getInnst('visAvsnittstitler', true))}>{@html mdi('format-header-2', 14)} Hovedtitler</button>
-					<button class="eks-toggle" class:paa={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onclick={() => { setInnst('instr', !getInnst('instr', true)); }}>{@html mdi('text', 14)} Instruksjoner</button>
-					<button class="eks-toggle" class:paa={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onclick={() => setInnst('salmeinfo', !getInnst('salmeinfo', true))}>{@html mdi('copyright', 14)} Salmeinfo</button>
-					<button class="eks-toggle" class:paa={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onclick={() => setInnst('korteTitler', !getInnst('korteTitler', false))}>{@html mdi('format-title', 14)} Korte titler</button>
+					<Toggle class="eks-toggle" pressed={getInnst('tittel', true)} title="Gudstjenestenavn og dato med i eksporten" onPressedChange={(v) => setInnst('tittel', v)}>{@html mdi('tag-outline', 14)} Vis navn</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('visAvsnittstitler', true)} title="Hoveddel-overskriftene («Forberedelse», «Hoveddel» …) med i eksporten" onPressedChange={(v) => setInnst('visAvsnittstitler', v)}>{@html mdi('format-header-2', 14)} Hovedtitler</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med i Word/PDF-eksporten. Menighetsprogrammet har aldri instruksjoner." onPressedChange={(v) => setInnst('instr', v)}>{@html mdi('text', 14)} Instruksjoner</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle>
+					<Toggle class="eks-toggle" pressed={getInnst('korteTitler', false)} title="Korte titler: salmene vises som kun nummer og tittel, uten leddets navn (som «Inngangssalme:»). Først og fremst for plass i 2-kolonne-visning." onPressedChange={(v) => setInnst('korteTitler', v)}>{@html mdi('format-title', 14)} Korte titler</Toggle>
 				</div>
 			</div>
 			{/if}
@@ -1476,9 +1493,9 @@
 					{/each}
 					</div>
 					<div class="ppt-flyt-zoom">
-					<button class="ikon-btn" title="Zoom ut" onclick={() => pptZoomTil(pptZoom - 0.15)}>−</button>
+					<IkonKnapp label="Zoom ut" onclick={() => pptZoomTil(pptZoom - 0.15)}>−</IkonKnapp>
 					<span>{Math.round(pptZoom * 100)} %</span>
-					<button class="ikon-btn" title="Zoom inn" onclick={() => pptZoomTil(pptZoom + 0.15)}>+</button>
+					<IkonKnapp label="Zoom inn" onclick={() => pptZoomTil(pptZoom + 0.15)}>+</IkonKnapp>
 					</div>
 								</div>
 							{:else}
@@ -1510,9 +1527,9 @@
 					</div>
 				{/if}
 				<div class="eks-flyt-zoom">
-					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
+					<IkonKnapp label="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</IkonKnapp>
 					<span>{Math.round(zoomNivå * 100)} %</span>
-					<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
+					<IkonKnapp label="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</IkonKnapp>
 				</div>
 			</div>
 			{/if}
@@ -1536,11 +1553,12 @@
 			</div>
 
 			<div class="biblio-kort">
-				<div class="biblio-kort-hode"><span class="sidehead">Eksportformat</span></div>
+				<div class="biblio-kort-hode"><span class="sidehead">Format</span></div>
 				<div class="eksport-innst-gruppe">
 					<label class="eksport-chk"><input type="checkbox" checked={formater.word} onchange={(e) => settFormater('word', e.currentTarget.checked)} /> Word (.docx)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pdf} onchange={(e) => settFormater('pdf', e.currentTarget.checked)} /> PDF (til filsystemet)</label>
 					<label class="eksport-chk"><input type="checkbox" checked={formater.pptx} onchange={(e) => settFormater('pptx', e.currentTarget.checked)} /> PowerPoint (skjerm)</label>
+					<label class="eksport-chk" title="Slideplanen som manus (Word/PDF) - følger Eksportår-knappen"><input type="checkbox" checked={getInnst('lysManus', false)} onchange={(e) => setInnst('lysManus', e.currentTarget.checked)} /> Lysbildemanus</label>
 					{#if formater.pptx}
 						<label class="eksport-chk"><span>Blanke sider </span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
 							<option value="av">Ingen</option>
@@ -1548,7 +1566,7 @@
 							<option value="smart">Smart</option>
 						</select></label>
 					{/if}
-					<button class="wide eksport-standard-btn" title="Lagre formatvalgene som app-standard" onclick={lagreStandardFormater}>Sett som standard</button>
+					<button class="wide link-btn" title="Lagre formatvalgene som app-standard (blir med i nye gudstjenester)" onclick={lagreStandardFormater}>Sett som standard</button>
 				</div>
 			</div>
 			<div class="biblio-kort">
@@ -1557,6 +1575,7 @@
 						{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
 					</button>
 					<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+					<button class="eks-lagre" title="Lagre dokumentet (.liturgi) og mal-kopien" onclick={(e) => lagreMeny(e)}>{@html mdi('download', 14)} Lagre {@html mdi('chevron-down', 12)}</button>
 				</div>
 			</div>
 		</aside>

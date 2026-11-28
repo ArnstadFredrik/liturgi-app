@@ -1,6 +1,7 @@
 <script>
 	import Sidebar from '$lib/Sidebar.svelte';
 	import Modulfaner from '$lib/Modulfaner.svelte';
+	import ModulTopp from '$lib/ModulTopp.svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { app, veksleSidebar, veksleToc, loadStore, huskFane, dokNoekkel } from '$lib/store.svelte.js';
@@ -30,6 +31,17 @@
 	}
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
 	import Forberedelse from '$lib/Forberedelse.svelte';
+
+	/** P5/840: i sm vinduer gr sidemenyen til uttrekk og starter lukket;
+	 *  brukeren kan pne den samme knappen (veksleSidebar). */
+	let smalVindu = $state(false);
+	$effect(() => {
+		const mq = window.matchMedia('(max-width: 840px)');
+		const synk = () => { smalVindu = mq.matches; if (mq.matches && app.sidebarSkjult !== true) app.sidebarSkjult = true; };
+		synk();
+		mq.addEventListener('change', synk);
+		return () => mq.removeEventListener('change', synk);
+	});
 	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';
@@ -236,10 +248,7 @@
 	<Sidebar />
 	<main id="main" bind:this={mainEl}>
 		{#if modul}
-			<header class="modul-topp">
-				<span class="modul-tittel">{modul.tittel}</span>
-				<Modulfaner faner={modul.faner} aktiv={modul.aktiv} />
-			</header>
+			<ModulTopp tittel={modul.tittel} faner={modul.faner} aktiv={modul.aktiv} />
 		{/if}
 		{#if app.visning === 'eksport' && app.current}
 			<Eksport />
@@ -313,17 +322,6 @@
 		{/if}
 		{#if app.current}
 			<DokInsp />
-		{/if}
-		{#if app.visning === 'eksport' && app.current}
-			<hr class="side-skiller" />
-			<div class="toc-avsnitt">
-				<div class="sidehead">Eksport</div>
-				<label class="lys-manus-valg" title="Genererer et lysbildemanus (medarbeiderutvalg) med lysbildenummer i venstre marg sammen med PowerPoint-eksporten. Lagres per profil (Skjerm).">
-					<input type="checkbox" checked={app.current?.eksportInnst?.Skjerm?.lysManus ?? false}
-						onchange={(e) => { app.current.eksportInnst = { ...(app.current.eksportInnst ?? {}), Skjerm: { ...(app.current.eksportInnst?.Skjerm ?? {}), lysManus: e.currentTarget.checked } }; }} />
-					Lysbildemanus
-				</label>
-			</div>
 		{/if}
 	</aside>
 </div>

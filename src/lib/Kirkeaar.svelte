@@ -1,5 +1,7 @@
 <script>
-	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
+		import ModulTopp from '$lib/ModulTopp.svelte';
+import { onMount } from 'svelte';
 	import church from 'church-year';
 	import { lookupKirkeaar, hentTekster, lesTeksterCache, forbRekkeForDag } from '$lib/kirkeaar.js';
 	import { lesForbFiler } from '$lib/forb-filer.js';
@@ -30,6 +32,7 @@
 	let online = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 	let visMerkedager = $state(true); // innstilling — persistent i liturgi.db (nøkkel 'kirkeaarMerkedager')
 	let sok = $state(''); // fritekst: navn ELLER dato (åååå-mm-dd, dd.mm, dd/mm)
+	let simulerHenting = $state(false);
 	let alleKirkeaarsDager = $state([]); // hele kirkeåret + neste (til søk og høyrepanel)
 
 	const lesninger = [
@@ -42,6 +45,24 @@
 	const FARGE_HEX = { purple: '#7b4d96', white: '#f2efe6', red: '#c0392b', green: '#4e7a3c' };
 	function fargeHex(code) {
 		return FARGE_HEX[(code || '').toLowerCase()] ?? null;
+	}
+
+	/** Sesongsnavn for period-kodene fra church-year (til kalendergrupperingen). */
+	const SESONG_NAVN = {
+		advent: 'Advent',
+		christmas: 'Jul',
+		epiphany: 'Åpenbaringstiden',
+		lent: 'Fastetiden',
+		easter: 'Påsketiden',
+		pentacost: 'Pinsetiden',
+		trinity: 'Den trefoldige tid',
+		commemorative: 'Merkedager'
+	};
+
+	/** Kort ukedag (kort navn) for listene — ISO-datoen folk m lese selv. */
+	function ukedag(iso) {
+		try { return new Date(iso + 'T12:00:00').toLocaleDateString('nb-NO', { weekday: 'short' }); }
+		catch { return ''; }
 	}
 
 	/** Neste søndag (i dag medregnet helt til dagen er passert). */
@@ -86,6 +107,13 @@
 
 	/** Side-TOC: delene på hovedsiden (Dagens bønn + lesningene) for rask navigering
 	 *  når tekstene er lastet og siden må scrolles. Offline er alt på én side — ingen TOC. */
+	/** N-knappen: velg frste kommende kirkeårsdag (i dag hvis den er en).
+	 * I dag alene er ubrukelig de fleste dager: søndager og merkedager har egne dager. */
+	function gaTilNaa() {
+		const d = alleKirkeaarsDager.find((x) => x.date >= iDag) ?? null;
+		if (d) hentDag(d);
+	}
+
 	function seksjoner() {
 		if (!online || !valgtDag) return [];
 		const s = [];
@@ -104,7 +132,7 @@
 		// vent ett øyeblikk så Svelte har rendret eventuell utfoldet tekst, måle med
 		// getBoundingClientRect (uavhengig av offsetParent)
 		setTimeout(() => {
-			const hoved = document.querySelector('.ka-hoved');
+			const hoved = document.querySelector('.ka-spalt');
 			const el = hoved?.querySelector(`[data-seksjon="${nokkel}"]`);
 			if (!hoved || !el) return;
 			const delta = el.getBoundingClientRect().top - hoved.getBoundingClientRect().top + hoved.scrollTop;
@@ -147,6 +175,13 @@
 			...churchYearFiltered(church_startYear(soendag), iDag, '9999-12-31', visMerkedager),
 			...churchYearFiltered(church_startYear(soendag) + 1, '2000-01-01', '9999-12-31', visMerkedager)
 		].sort((a, b) => a.date.localeCompare(b.date));
+		// markr: frste dag i hver ny sesong (til sejonsgrensen i listen)
+		let forrige = '';
+		for (const d of alle) {
+			// merkedager inngår i sesongen de ligger i: bryter ikke sesonggrensen
+			d.startSesong = d.period !== 'commemorative' && d.period !== forrige;
+			if (d.period !== 'commemorative') forrige = d.period;
+		}
 		if (!iDag) { panelDager = alle; return; }
 		if (alle.some((d) => d.date === iDag)) { panelDager = alle; return; }
 		// sett inn markør før første dag ETTER i dag
@@ -155,8 +190,6 @@
 		panelDager = idx === -1 ? [...alle, markor] : [...alle.slice(0, idx), markor, ...alle.slice(idx)];
 	}
 
-	/** Utfoldede lesninger (nøkkles per dag i hentTeksterBakgrunn). */
-	let aapne = $state({ L1: false, L2: false, E: false });
 
 	/** Hent bibeltekstene for en dag I BAKGRUNNEN — dato/navn/farge/bønn/referanser vises umiddelbart.
 	 *  Tekstene ligger BAK folden — brukeren åpner dem via lesnings-overskriften. */
@@ -165,9 +198,14 @@
 		const id = dag.date + dag.name; // anrop-identitet: rask klikking i sekvens
 		valgtTekster = null;
 		valgtHenter = true;
-		aapne = { L1: false, L2: false, E: false };
 		let t = null;
 		if (online) {
+			if (simulerHenting) {
+				// dev: vis overgangen — overskriftsvisningen i 2,6 s fr teksten kommer
+				simulerHenting = false;
+				await new Promise((r) => setTimeout(r, 2600));
+				if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return;
+			}
 			try { t = await hentTekster(dag.day, await lesTeksterCache(), dag.series); } catch { t = null; }
 		}
 		if (!valgtDag || (valgtDag.date + valgtDag.name) !== id) return; // brukeren valgte en annen dag
@@ -274,6 +312,17 @@
 	}
 	/** Åpne prekenforberedelse-mappen i Finder. Ved valgt dag åpnes mappen
  *  for aktuell kirkeårsdag hvis den finnes (ellers åremappen/rotmappen). */
+	/** Portaler dagsoversikten inn i den innfødte høyre sidemenyen (#toc-side). */
+	function portal(node, target) {
+		document.querySelector(target)?.appendChild(node);
+		return { destroy() { node.remove(); } };
+	}
+
+	$effect(() => {
+		app.portalToc = true; // vis høyre sidemeny mens modulen er åpen
+		return () => { app.portalToc = false; };
+	});
+
 	async function apneForbMappe() {
 		if (!isElectron) return;
 		const r = await window.liturgi.dbGet('prekenforberedelseMappe');
@@ -365,59 +414,34 @@
 	function undertittel(dag) {
 		const deler = [dag.date];
 		if (dag.color) deler.push(dag.color);
-		if (dag.series) deler.push(dag.series);
+		if (dag.series) deler.push('Tekstrekke ' + dag.series);
 		return deler.join(' · ');
 	}
 </script>
 
 <div id="kirkeaar-modul" oncontextmenu={(e) => { e.preventDefault(); openContextMenu(e.clientX, e.clientY, [
 			{ label: 'Prekenforberedelse', action: () => prekenforberedelse(), disabled: !valgtDag },
-			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() }
+			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() },
+			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
-	<div class="ka-hoved">
-	{#if app.tekstCache.gaar}
-		<div class="tekstcache-indikator" role="status">
-			<span class="tekstcache-spinner" aria-hidden="true"></span>
-			<span>Cacher bibeltekster: {app.tekstCache.fase} — {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
-			<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
-		</div>
-	{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
-		<div class="tekstcache-indikator tekstcache-ferdig" role="status">Bibeltekstene for kirkeåret er cachet ({app.tekstCache.totalt} dager)</div>
-	{/if}
-		<div class="ka-topp">
-			<h2>Kirkeåret</h2>
-			<span class="ka-nett" class:off={!online}>{online ? 'Online — bibeltekster hentes fra bibel.no' : 'Offline — viser kun referanser'}</span>
-			{#if app.forbModul}
-				<button class="ka-forberedelse" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>
-					{@html mdi('pencil', 14)} Prekenforberedelse
-				</button>
-			{/if}
-			<button class="ka-forberedelse" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>
-				{@html mdi('folder-open-outline', 14)} Åpne mappe
-			</button>
-		</div>
-
-		<div class="ka-sok">
-			<input
-				type="search"
-				bind:value={sok}
-				placeholder="Søk etter kirkeårsdag eller dato (f.eks. «jul», «24.12», «2026-12-24») …"
-				spellcheck="false"
-			/>
-			{#if sok.trim() && sokTreffe.length}
-				<div class="ka-sok-treff">
-					{#each sokTreffe as dag (dag.date + dag.name)}
-						<button class="ka-treff" class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
-							<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
-							<span class="ka-treff-dato">{dag.date}</span>
-							<span class="ka-treff-navn">{dag.name}</span>
-						</button>
-					{/each}
+		<ModulTopp tittel="Kirkeåret">
+			{#snippet children()}
+				<div class="ka-header-dag">
+					{#if valgtDag}
+						<h3 class="ka-tittel">{valgtDag.name}</h3>
+						<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
+					{/if}
 				</div>
-			{:else if sok.trim()}
-				<p class="ka-muted">Ingen kirkeårsdager treffet «{sok}».</p>
-			{/if}
-		</div>
+				<div class="ka-valgt-handlinger">
+					{#if app.forbModul}
+					<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
+					{/if}
+					<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
+				</div>
+			{/snippet}
+		</ModulTopp>
+	<div class="ka-kropp">
+		<div class="ka-hoved">
 
 		{#if mellomDager.length > 1}
 			<div class="ka-mellom">
@@ -425,7 +449,7 @@
 				{#each mellomDager as dag (dag.date + dag.name)}
 					<button class="ka-dag" class:erSoendag={dag.erSoendag} class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
 						<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
-						<span class="ka-dag-dato">{dag.date}</span>
+						<span class="ka-dag-dato">{dag.date} · {ukedag(dag.date)}</span>
 						<span class="ka-dag-navn">{dag.name}</span>
 					</button>
 				{/each}
@@ -434,35 +458,22 @@
 
 		{#if valgtDag}
 			<div class="ka-valgt">
-				<h3 class="ka-tittel">{valgtDag.name}</h3>
-				<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
 				{#if valgtDag.prayer}
 					<h4 data-seksjon="boenn">Dagens bønn</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
 				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
-					<h4>Bibeltekster</h4>
-					<div class="ka-lesninger">
-						{#each lesninger as L}
+					<h4 class="ka-tekstoverskrift">Bibeltekster{#if valgtHenter}<span class="ka-spinner" aria-label="Henter tekster" role="status"></span>{/if}</h4>
+					<div class="ka-artikkel">
+						{#each lesninger as L (L.key)}
 							{#if valgtDag[L.key]}
+								{@const tekst = valgtTekster?.[L.key]}
 								<div class="ka-lesning-item" data-seksjon={L.key}>
-									<button
-										type="button"
-										class="ka-lesning"
-										class:klar={!!valgtTekster?.[L.key]}
-										onclick={() => { if (valgtTekster?.[L.key]) aapne = { ...aapne, [L.key]: !aapne[L.key] }; }}
-										aria-expanded={aapne[L.key]}
-										title={valgtTekster?.[L.key] ? 'Vis/skjul teksten' : (valgtHenter ? 'Henter teksten …' : 'Ingen tekst' + (online ? '' : ' (offline)'))}
-									>
-										<span class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</span>
-										{#if valgtHenter && !valgtTekster?.[L.key]}
-											<span class="ka-spinner" aria-hidden="true"></span>
-										{:else if valgtTekster?.[L.key]}
-											<span class="ka-chevron" class:aapen={aapne[L.key]} aria-hidden="true">▾</span>
-										{/if}
-									</button>
-									{#if aapne[L.key] && valgtTekster?.[L.key]}
-										<div class="lit-text ka-lesning-tekst">{@html visTekst(valgtDag[L.key], valgtTekster[L.key])}</div>
+									<h5 class="ka-lesning-navn">{L.tittel} · {valgtDag[L.key]}</h5>
+									{#if tekst}
+										<div class="lit-text ka-lesning-tekst" in:slide={{ duration: 220 }}>{@html visTekst(valgtDag[L.key], tekst)}</div>
+									{:else if !valgtHenter}
+										<p class="ka-muted ka-ingen-tekst">Ingen tekst{online ? '' : ' (offline)'}</p>
 									{/if}
 								</div>
 							{/if}
@@ -473,11 +484,12 @@
 		{:else}
 			<p class="ka-muted">Fant ingen kirkeårsdag.</p>
 		{/if}
-	</div>
+		</div>
 
-	<aside class="ka-panel">
+	<aside class="ka-panel" use:portal={'#toc-side'}>
 		<div class="ka-panel-topp">
 			<h3>Kirkeåret</h3>
+			<button type="button" class="ka-idag-knapp" title="Gå til dags dato" onclick={gaTilNaa}>Nå</button>
 			<button type="button" class="avpaa" role="checkbox" aria-checked={visMerkedager} title="Inkluder merkedager" onclick={() => lagreInnstilling(!visMerkedager)}>
 				<span class="avpaa-tekst">Merkedager</span>
 				<span class="avpaa-bryter" aria-hidden="true"><span class="avpaa-klump"></span></span>
@@ -493,13 +505,39 @@
 				{/each}
 			</nav>
 		{/if}
+		<div class="ka-sok">
+			<input
+		type="search"
+		bind:value={sok}
+		placeholder="Søk etter kirkeårsdag eller dato (f.eks. «jul», «24.12», «2026-12-24») …"
+		spellcheck="false"
+			/>
+			{#if sok.trim() && sokTreffe.length}
+		<div class="ka-sok-treff">
+			{#each sokTreffe as dag (dag.date + dag.name)}
+				<button class="ka-treff" class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
+					<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
+					<span class="ka-treff-dato">{dag.date}</span>
+					<span class="ka-treff-navn">{dag.name}</span>
+				</button>
+			{/each}
+		</div>
+			{:else if sok.trim()}
+		<p class="ka-muted">Ingen kirkeårsdager treffet «{sok}».</p>
+			{/if}
+		</div>
+
 		<div class="ka-liste">
 			{#each panelDager as dag (dag.iDagMarkor ? 'i-dag-' + dag.date : dag.date + dag.name)}
 				{#if dag.iDagMarkor}
 					<div class="ka-i-dag-markor"><span>I dag · {dag.date}</span></div>
 				{:else}
+					{#if dag.startSesong}
+					<div class="ka-sesong">{SESONG_NAVN[dag.period] ?? ''}</div>
+					{/if}
 					<button
 						class="ka-liste-dag"
+						title="Liturgisk farge: {dag.color || dag.colorCode || 'ukjent'}"
 						class:i-dag={dag.date === iDag}
 						class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name}
 						onclick={() => hentDag(dag)}
@@ -507,11 +545,21 @@
 						<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
 						<span class="ka-liste-tekst">
 							<span class="ka-liste-navn">{dag.name}</span>
-							<span class="ka-liste-dato">{dag.date}</span>
+							<span class="ka-liste-dato">{dag.date} · {ukedag(dag.date)}</span>
 						</span>
 					</button>
 				{/if}
 			{/each}
+			<div class="ka-cache-status" role="status">
+			{#if app.tekstCache.gaar}
+				<span>Henter tekster {app.tekstCache.ferdig}/{app.tekstCache.totalt}</span>
+				<progress max={app.tekstCache.totalt} value={app.tekstCache.ferdig}></progress>
+			{:else if app.tekstCache.totalt > 0 && app.tekstCache.ferdig >= app.tekstCache.totalt}
+				<span class="ka-cache-info">Mellomlager: {app.tekstCache.totalt} dager</span>
+				<button class="ka-cache-oppdater" title="Henter det som mangler i mellomlageret" onclick={() => startTekstCacheBakgrunn()}>Oppdater</button>
+			{/if}
 		</div>
+	</div>
 	</aside>
+	</div>
 </div>

@@ -1,4 +1,5 @@
 <script>
+	import SlettKnap from '$lib/SlettKnap.svelte';
 	import { app, openService, deleteService, sortedServices, createService, toggleTheme, syncDirty, hentFane, dokNoekkel } from '$lib/store.svelte.js';
 	import { newServiceModal, valgModal, confirmBox } from '$lib/modal.svelte.js';
 	import { openFileToStore, openServiceFile, refreshRecentServices, loadTemplatesFromDisk, lukkRedigering } from '$lib/fileio.svelte.js';
@@ -7,6 +8,17 @@
 
 	const isElectron = typeof window !== 'undefined' && !!window.liturgi?.isElectron;
 	const MAX_RECENT = 5;
+	/** Global nettstatus — gjelder hele appen, ikke enkeltmoduler. */
+	let online = $state(true);
+
+	$effect(() => {
+		online = navigator.onLine;
+		const opp = () => (online = navigator.onLine);
+		window.addEventListener('online', opp);
+		window.addEventListener('offline', opp);
+		return () => { window.removeEventListener('online', opp); window.removeEventListener('offline', opp); };
+	});
+	import { onMount } from 'svelte';
 
 	/** Undertittel: dato + kirkeårsdag. Tjenesteobjekt (kirkeaar = objekt) eller
 	 *  recent-rad fra databasen (kirkeaar = ren streng). */
@@ -28,7 +40,8 @@
 		}
 	});
 
-	const recent = $derived(app.recentServices.slice(0, MAX_RECENT));
+	// «Sist brukt» viser ikke filer som allerede er i åpne gudstjenester (ingen duplikater).
+	const recent = $derived(app.recentServices.filter((s) => !app.åpneTjenester.some((x) => x.path === s.path)).slice(0, MAX_RECENT));
 	const åpne = $derived(app.åpneTjenester);
 
 	/** Vis navnet fra objektet (følger omdøping). */
@@ -106,7 +119,7 @@
 	}
 </script>
 
-<aside id="sidebar">
+<aside id="sidebar" onclick={(e) => { if (window.innerWidth <= 840 && e.target.closest("button, .nm, li, label")) app.sidebarSkjult = true; }}>
 	<h1>Liturgi</h1>
 	<button class="wide" onclick={newService}>{@html mdi('church')} Ny gudstjeneste</button>
 	<hr class="side-skiller" />
@@ -174,9 +187,7 @@
 							<span class="nm-t">{s.name}</span>
 							{#each underLinjer(s) as linje}<span class="under">{linje}</span>{/each}
 						</span>
-						<button class="fjern" title="Slett" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))}>
-							{@html mdi('delete-outline', 14)}
-						</button>
+						<SlettKnap klasse="fjern" onclick={() => confirmBox('Slett', `Slette «${s.name}»?`, () => deleteService(s.id))} />
 					</li>
 				{/each}
 			{/if}
@@ -217,5 +228,9 @@
 		<button class="wide" onclick={() => toggleTheme()} title={app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}>
 			{@html mdi('theme-light-dark')} {app.theme === 'dark' ? 'Lyst utseende' : 'Mørkt utseende'}
 		</button>
+		<div class="nett-status" title={online ? 'Online: bibeltekster og salmer hentes fra nettet' : 'Offline: viser det som ligger i mellomlageret'}>
+		<span class="nett-dot" class:off={!online} aria-hidden="true"></span>
+		{online ? 'Online' : 'Offline'}
 	</div>
+</div>
 </aside>

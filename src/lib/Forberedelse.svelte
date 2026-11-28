@@ -1,6 +1,7 @@
 <script>
 	import { app as appStore, veksleVim } from '$lib/store.svelte.js';
 	import { valgModal } from '$lib/modal.svelte.js';
+	import IkonKnapp from '$lib/IkonKnapp.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import EditableText from './EditableText.svelte';
 	import { uthev } from '$lib/markdown-uthev.js';
@@ -311,7 +312,7 @@
 			<aside class="fb-tre" use:portal={'#toc-side'}>
 				<div class="fb-tre-hode">
 					<span class="sidehead">Prosjekter</span>
-					<button class="ikon-btn" title="Oppdater mappen" onclick={lastTre}>{@html mdi('refresh', 15)}</button>
+					<IkonKnapp label="Oppdater mappen" ikon="refresh" />
 				</div>
 				{#if !entries.length}
 					<div class="fb-tom">
