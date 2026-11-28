@@ -174,8 +174,8 @@ Regel er notert i AGENTS.md («Gjenbrukbare komponenter»).
 
 ### Til bekreftelse (krever deg)
 
-1. **v0.0.6-release**: versjonbump + tag `v0.0.6` + push (starter
-   release.yml, Homebrew-tap, Pages). Krever din godkjenning.
+1. **v0.0.6-release**: publisert 2026-11-28 (tag `v0.0.6` på main,
+   release.yml bygger mac/win/linux + Homebrew-tap + Pages).
 2. **Editor-småpoeng** (instruksjonsfelt i redigering, charwise v+w,
    Vim → kommandopalett, seksjonsskille): trenger presisering av omfang
    før implementering.
