@@ -30,6 +30,17 @@
 	}
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
 	import Forberedelse from '$lib/Forberedelse.svelte';
+
+	/** P5/840: i sm vinduer gr sidemenyen til uttrekk og starter lukket;
+	 *  brukeren kan pne den samme knappen (veksleSidebar). */
+	let smalVindu = $state(false);
+	$effect(() => {
+		const mq = window.matchMedia('(max-width: 840px)');
+		const synk = () => { smalVindu = mq.matches; if (mq.matches && app.sidebarSkjult !== true) app.sidebarSkjult = true; };
+		synk();
+		mq.addEventListener('change', synk);
+		return () => mq.removeEventListener('change', synk);
+	});
 	import KirkeaarCache from '$lib/KirkeaarCache.svelte';
 	import DokInsp from '$lib/DokInsp.svelte';
 	import Modal from '$lib/Modal.svelte';

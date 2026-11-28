@@ -118,7 +118,7 @@
 	}
 </script>
 
-<aside id="sidebar">
+<aside id="sidebar" onclick={(e) => { if (window.innerWidth <= 840 && e.target.closest("button, .nm, li, label")) app.sidebarSkjult = true; }}>
 	<h1>Liturgi</h1>
 	<button class="wide" onclick={newService}>{@html mdi('church')} Ny gudstjeneste</button>
 	<hr class="side-skiller" />

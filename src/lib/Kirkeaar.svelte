@@ -116,7 +116,7 @@
 	function seksjoner() {
 		if (!online || !valgtDag) return [];
 		const s = [];
-		if (valgtDag.prayer) s.push({ nokkel: 'boenn', navn: 'Bønn for dagens dato' });
+		if (valgtDag.prayer) s.push({ nokkel: 'boenn', navn: 'Dagens bønn' });
 		for (const L of lesninger) {
 			if (valgtDag[L.key]) s.push({ nokkel: L.key, navn: L.tittel + ' · ' + valgtDag[L.key] });
 		}
@@ -413,7 +413,7 @@
 	function undertittel(dag) {
 		const deler = [dag.date];
 		if (dag.color) deler.push(dag.color);
-		if (dag.series) deler.push(dag.series);
+		if (dag.series) deler.push('Tekstrekke ' + dag.series);
 		return deler.join(' · ');
 	}
 </script>
@@ -428,27 +428,6 @@
 			<h2>Kirkeåret</h2>
 		</div>
 
-		<div class="ka-sok">
-			<input
-				type="search"
-				bind:value={sok}
-				placeholder="Søk etter kirkeårsdag eller dato (f.eks. «jul», «24.12», «2026-12-24») …"
-				spellcheck="false"
-			/>
-			{#if sok.trim() && sokTreffe.length}
-				<div class="ka-sok-treff">
-					{#each sokTreffe as dag (dag.date + dag.name)}
-						<button class="ka-treff" class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
-							<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
-							<span class="ka-treff-dato">{dag.date}</span>
-							<span class="ka-treff-navn">{dag.name}</span>
-						</button>
-					{/each}
-				</div>
-			{:else if sok.trim()}
-				<p class="ka-muted">Ingen kirkeårsdager treffet «{sok}».</p>
-			{/if}
-		</div>
 
 		{#if mellomDager.length > 1}
 			<div class="ka-mellom">
@@ -474,12 +453,12 @@
 					<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
 				</div>
 				{#if valgtDag.prayer}
-					<h4 data-seksjon="boenn">Bønn for {valgtDag ? valgtDag.date : ''}</h4>
+					<h4 data-seksjon="boenn">Dagens bønn</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
 				{/if}
 				{#if valgtDag.L1 || valgtDag.L2 || valgtDag.E}
 					<h4 class="ka-tekstoverskrift">Bibeltekster{#if valgtHenter}<span class="ka-spinner" aria-label="Henter tekster" role="status"></span>{/if}</h4>
-					<div class="ka-lesninger">
+					<div class="ka-artikkel">
 						{#each lesninger as L (L.key)}
 							{#if valgtDag[L.key]}
 								{@const tekst = valgtTekster?.[L.key]}
@@ -520,6 +499,28 @@
 				{/each}
 			</nav>
 		{/if}
+		<div class="ka-sok">
+			<input
+		type="search"
+		bind:value={sok}
+		placeholder="Søk etter kirkeårsdag eller dato (f.eks. «jul», «24.12», «2026-12-24») …"
+		spellcheck="false"
+			/>
+			{#if sok.trim() && sokTreffe.length}
+		<div class="ka-sok-treff">
+			{#each sokTreffe as dag (dag.date + dag.name)}
+				<button class="ka-treff" class:valgt={valgtDag?.date === dag.date && valgtDag?.name === dag.name} onclick={() => hentDag(dag)}>
+					<span class="ka-prikk" style={fargeHex(dag.colorCode) ? `background:${fargeHex(dag.colorCode)}` : ''} aria-hidden="true"></span>
+					<span class="ka-treff-dato">{dag.date}</span>
+					<span class="ka-treff-navn">{dag.name}</span>
+				</button>
+			{/each}
+		</div>
+			{:else if sok.trim()}
+		<p class="ka-muted">Ingen kirkeårsdager treffet «{sok}».</p>
+			{/if}
+		</div>
+
 		<div class="ka-liste">
 			{#each panelDager as dag (dag.iDagMarkor ? 'i-dag-' + dag.date : dag.date + dag.name)}
 				{#if dag.iDagMarkor}
