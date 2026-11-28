@@ -1761,14 +1761,12 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* Kirkeåret-modulen */
 #app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
 #kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: 1000px; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
-.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
-.ka-hoved::-webkit-scrollbar { width: 8px; }
-.ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-.ka-topp { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.ka-topp h2 { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; }
+.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-.ka-sok { margin: 12px 12px; position: relative; }t-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+
 .ka-nett { font-size: 12px; color: var(--muted); }
 .ka-nett.off { color: #c0392b; }
-.ka-sok { margin: 16px 0 8px; position: relative; ; margin: 2px 12px 10px; }
+.ka-sok { margin: 12px 12px; position: relative; }
 .ka-sok input { width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
 .ka-sok-treff { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); max-height: 320px; overflow-y: auto; margin-top: 4px; }
 .ka-treff { display: flex; gap: 10px; align-items: baseline; width: 100%; text-align: left; background: transparent; border: none; padding: 8px 12px; cursor: pointer; color: var(--text); font-size: 14px; }
@@ -2318,3 +2316,32 @@ sub { font-size: 0.75em; }
 .ovr-led { border-top: 1px dashed var(--sidebar-line); padding: 2px 8px 2px 2px; }
 
 .ovr-tabell-hode { display: grid; grid-template-columns: 22px 1fr auto auto 30px; padding: 6px 10px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); background: var(--panel); border-bottom: 1px solid var(--border); }
+
+/* Kirkeåret: samle header (Kirkeåret-merke + dag + knapper), sticky
+   med samme høyde som modulhoveden i gudstjeneste-visningen. */
+.ka-header {
+	position: sticky; top: 0; z-index: 6;
+	display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+	padding: 10px 6px 10px;
+	background: color-mix(in srgb, var(--panel) 92%, transparent);
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--border);
+	margin-bottom: 16px;
+}
+.ka-header-merke { flex: none; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-weight: 800; font-size: 15px; color: var(--text); letter-spacing: 0.3px; }
+.ka-header-dag { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ka-header-dag .ka-tittel { margin: 0; font-size: 17px; }
+.ka-header-dag .ka-kirkeaar { margin: 0; }
+.ka-header .ka-valgt-handlinger { flex: none; margin: 0; }
+.ka-hoved { max-width: 700px; margin: 0 auto; text-align: left; }
+.ka-hoved::-webkit-scrollbar { width: 8px; }
+/* **4** typografistruktur: seksjonstitler strre + jevn rytme */
+.ka-valgt h4 { font-size: 13px; letter-spacing: 1px; margin: 22px 0 8px; }
+.ka-valgt h5.ka-lesning-navn { font-size: 16px; font-weight: 700; margin: 18px 0 6px; color: var(--text); }
+.ka-valgt h5.ka-lesning-navn .ka-ref { color: var(--muted); font-weight: 400; }
+/* **2** bltekst: bort med venstrepadding (samme venstrejustering som resten) */
+.ka-lesning-tekst { padding: 0 0 4px; font-size: 16px; line-height: 1.7; }
+.ka-bnn { font-size: 16px; line-height: 1.75; }
+/* **5** liturgisk hvit prikk synlig p lys kant */
+.ka-prikk { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22); }
+[data-theme='dark'] .ka-prikk { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }

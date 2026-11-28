@@ -424,8 +424,22 @@
 			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
 	<div class="ka-hoved">
-		<div class="ka-topp">
-			<h2>Kirkeåret</h2>
+		<div class="ka-header">
+			<span class="ka-header-merke">Kirkeåret</span>
+			{#if valgtDag}
+				<div class="ka-header-dag">
+					<h3 class="ka-tittel">{valgtDag.name}</h3>
+					<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
+				</div>
+			{:else}
+				<h3 class="ka-tittel">Ingen kirkeårsdag valgt</h3>
+			{/if}
+			<div class="ka-valgt-handlinger">
+				{#if app.forbModul}
+				<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag?.name ?? 'valgt dag'}" onclick={prekenforberedelse} disabled={!valgtDag}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
+				{/if}
+				<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
+			</div>
 		</div>
 
 
@@ -444,14 +458,6 @@
 
 		{#if valgtDag}
 			<div class="ka-valgt">
-				<h3 class="ka-tittel">{valgtDag.name}</h3>
-				<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
-				<div class="ka-valgt-handlinger">
-					{#if app.forbModul}
-					<button class="ka-handling" title="Opprett prekenforberedelse for {valgtDag.name}" onclick={prekenforberedelse}>{@html mdi('pencil', 14)} Prekenforberedelse</button>
-					{/if}
-					<button class="ka-handling" title="Åpne prekenforberedelse-mappen i Finder" onclick={apneForbMappe} disabled={!app.forbModul}>{@html mdi('folder-open-outline', 14)} Åpne mappe</button>
-				</div>
 				{#if valgtDag.prayer}
 					<h4 data-seksjon="boenn">Dagens bønn</h4>
 					<div class="lit-text ka-bønn">{@html litHtml(valgtDag.prayer)}</div>
