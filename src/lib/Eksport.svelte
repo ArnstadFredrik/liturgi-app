@@ -320,7 +320,16 @@
 		(getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5') + ' · ' + getInnst('kolonner', 1) + ' kol · '
 		+ (getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal') === 'smal' ? 'Smal' : getInnst('marger') === 'bred' ? 'Bred' : 'Normal')
 	);
-	const typoChip = $derived('Aa ' + ptVerdi('hoveddel', 11) + ' / ' + ptVerdi('ledd', 11) + ' / ' + ptVerdi('tekst', 10));
+		const visningTell = $derived(
+		['leddtitler', 'visTittel', 'instr', 'salmeinfo', 'lysBakgrunn']
+			.map((k) => getInnst(k, k === 'leddtitler' || k === 'lysBakgrunn' ? false : true)).filter(Boolean).length
+		+ (visNotater ? 1 : 0)
+	);
+	const typoChipSkjerm = $derived(
+		Math.round(getInnst('tekstSkala', 1) * 38) + ' / ' + Math.round(getInnst('tittelSkala', 1) * 40)
+		+ ' · ' + (getInnst('justering', 'center') === 'left' ? 'Venstre' : getInnst('justering') === 'right' ? 'Høyre' : 'Sentrert')
+	);
+const typoChip = $derived('Aa ' + ptVerdi('hoveddel', 11) + ' / ' + ptVerdi('ledd', 11) + ' / ' + ptVerdi('tekst', 10));
 function lagreMeny(e) {
 		const r = e.currentTarget.getBoundingClientRect();
 		const punkter = [{ label: 'Lagre', action: () => saveCurrent() }];
@@ -1249,35 +1258,39 @@ function lagreMeny(e) {
 		<div class="eks-baand">
 			<button class="eks-flere" title="Flere valg" onclick={(e) => eksMeny(e.clientX, e.clientY)}>{@html mdi('tune', 14)} Valg {@html mdi('chevron-down', 12)}</button>
 			{#if aktiv === 'Skjerm'}
-			<span class="eks-gruppe-tittel">Tekst, tittel og justering</span>
-			<div class="eks-baand-gruppe">
-				<div class="eks-baand-rad">
-					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(getInnst('tekstSkala', 1) * 38)} onchange={(e) => { setInnst('tekstSkala', +e.currentTarget.value / 38); }} /></label>
-					<label class="eks-felt eks-chk-pt" title="Tittelstørrelse på tittelsliden (pt)"><span>Tittel</span><input type="number" min="20" max="90" step="any" value={Math.round(getInnst('tittelSkala', 1) * 40)} onchange={(e) => { setInnst('tittelSkala', +e.currentTarget.value / 40); }} /></label>
-					<div class="eks-felt" title="Tekstjustering på slidene"><span>Justering</span><select value={getInnst('justering', 'center')} onchange={(e) => { setInnst('justering', e.currentTarget.value); }}>
-						<option value="left">Venstrejustert</option>
-						<option value="center">Sentrert</option>
-						<option value="right">Høyrejustert</option>
-					</select></div>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Typografi: skriftstørrelse på slidene og tittelsliden, og tekstjustering" onclick={() => veksleDrop('skermo')}>
+					{@html mdi('format-bold', 14)} Typografi <span class="eks-chip">{typoChipSkjerm}</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'skermo'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><span>Tekst (pt)</span><input type="number" min="12" max="60" step="any" value={Math.round(getInnst('tekstSkala', 1) * 38)} onchange={(e) => { setInnst('tekstSkala', +e.currentTarget.value / 38); }} /></div>
+					<div class="eks-drop-rad"><span>Tittel (pt)</span><input type="number" min="20" max="90" step="any" value={Math.round(getInnst('tittelSkala', 1) * 40)} onchange={(e) => { setInnst('tittelSkala', +e.currentTarget.value / 40); }} /></div>
+					<div class="eks-drop-rad"><span>Justering</span><select value={getInnst('justering', 'center')} onchange={(e) => { setInnst('justering', e.currentTarget.value); }}><option value="left">Venstrejustert</option><option value="center">Sentrert</option><option value="right">Høyrejustert</option></select></div>
 				</div>
+				{/if}
 			</div>
-			<span class="eks-gruppe-tittel">Slide-innstillinger</span>
-			<div class="eks-baand-gruppe eks-ekstra">
-				<div class="eks-baand-rad">
-					<Toggle class="eks-toggle" pressed={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onPressedChange={(v) => setInnst('leddtitler', v)}>{@html mdi('format-title', 14)} Leddtitler</Toggle>
-					<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
-						<option value="av">Ingen</option>
-						<option value="alle">Alle</option>
-						<option value="smart">Smart</option>
-					</select></div>
-					<Toggle class="eks-toggle" pressed={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onPressedChange={(v) => setInnst('visTittel', v)}>{@html mdi('presentation', 14)} Tittelslide</Toggle>
-					<Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onPressedChange={(v) => { setInnst('instr', v); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</Toggle>
-					<Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle>
-					<Toggle class="eks-toggle" pressed={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onPressedChange={(v) => setInnst('lysBakgrunn', v)}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</Toggle>
-					<Toggle class="eks-toggle" pressed={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onPressedChange={(v) => (visNotater = v)}>{@html mdi('script-text-outline', 14)} Notater</Toggle>
-					<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Visning: hva som vises på slidene" onclick={() => veksleDrop('skermvis')}>
+					{@html mdi('presentation', 14)} Visning <span class="eks-chip">Visning ({visningTell})</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'skermvis'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onPressedChange={(v) => setInnst('leddtitler', v)}>{@html mdi('format-title', 14)} Leddtitler</Toggle></div>
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={getInnst('visTittel', true)} title="Tittelslide med navn og dato" onPressedChange={(v) => setInnst('visTittel', v)}>{@html mdi('presentation', 14)} Tittelslide</Toggle></div>
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={getInnst('instr', true)} title="Instruksjonene (rød kursiv) med på slidene" onPressedChange={(v) => { setInnst('instr', v); pptVersjon++; }}>{@html mdi('text', 14)} Instruksjoner</Toggle></div>
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={getInnst('salmeinfo', true)} title="Salmeinfo (tekst/melodi/oversettelse og ©-linjer fra salmedatabasen) med i eksporten. Gjelder alle profiler." onPressedChange={(v) => setInnst('salmeinfo', v)}>{@html mdi('copyright', 14)} Salmeinfo</Toggle></div>
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={getInnst('lysBakgrunn', false)} title="Lys bakgrunn på slidene (standard mørk)" onPressedChange={(v) => setInnst('lysBakgrunn', v)}>{@html mdi('theme-light-dark', 14)} Lys bakgrunn</Toggle></div>
+					<div class="eks-drop-rad"><Toggle class="eks-toggle" pressed={visNotater} title="Notatvisning: notatfelt ved siden av hver slide (notatet følger med til PowerPoint)" onPressedChange={(v) => (visNotater = v)}>{@html mdi('script-text-outline', 14)} Notater</Toggle></div>
 				</div>
+				{/if}
 			</div>
+			<div class="eks-felt" title="Blanke sider mellom leddene: Alle = mellom alle ledd, Smart = kun der ledd som ikke er med i presentasjonen ligger mellom viste ledd"><span>Blanke</span><select value={getInnst('tomSlide', 'av')} onchange={(e) => settTomSlideModus(e.currentTarget.value)}>
+				<option value="av">Ingen</option>
+				<option value="alle">Alle</option>
+				<option value="smart">Smart</option>
+			</select></div>
+			<button class="wide eks-ppt-ekstra" title="Legg til en ekstra side med egen tittel og innhold" onclick={leggTilPptSide}>{@html mdi('plus', 13)} Ekstra side</button>
 			{:else}
 			<div class="eks-drop">
 				<button class="eks-flere" title="Sideoppsett: format, kolonner, marger og luft" onclick={() => veksleDrop('side')}>
