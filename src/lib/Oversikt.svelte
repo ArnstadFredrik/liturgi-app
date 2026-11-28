@@ -7,6 +7,8 @@
 	import { instantiate } from '$lib/store.svelte.js';
 	import { hentDelerModal, confirmBox } from '$lib/modal.svelte.js';
 	import { mdi } from '$lib/mdi.js';
+	import Chevron from '$lib/Chevron.svelte';
+	import DraHandel from '$lib/DraHandel.svelte';
 
 	let apenSet = $state(new Set()); // per-hoveddel chevron
 	let alleApne = $state(false);
@@ -331,11 +333,10 @@ function leddTekst(it) {
 					class:drag-target-etter={overSeksjon === si && !overSeksjonFor && dragSeksjon !== null}
 					ondragover={(e) => { if (dragLed) dragOverSeksjonLed(e, si); else dragOverSeksjon(e, si); }}
 					ondrop={(e) => { if (dragLed) droppLedPaaSeksjon(e, si); else droppSeksjon(e, si); }}>
-					<span class="m-deler-drag ovr-drag" class:aktiv={dragSeksjon !== null} draggable="true"
-						ondragstart={(e) => startDragSeksjon(e, si)} ondragend={nullstillDrag}
-						title="Dra for å endre rekkefølge på hoveddelen">{@html mdi('drag-vertical', 14)}</span>
+					<DraHandel onstart={(e) => startDragSeksjon(e, si)} onend={nullstillDrag} aktiv={dragSeksjon !== null}
+						klasse="m-deler-drag ovr-drag" title="Dra for å endre rekkefølge på hoveddelen" />
 					<span class="m-deler-navn">
-						<button type="button" class="m-deler-ekspander" title={erApen(si) ? 'Skjul leddene' : 'Vis leddene'} onclick={() => veksleSek(si)}>{@html mdi(erApen(si) ? 'chevron-down' : 'chevron-right', 14)}</button>
+					<Chevron apen={erApen(si)} onclick={() => veksleSek(si)} title={erApen(si) ? 'Skjul leddene' : 'Vis leddene'} />
 						<span class="m-deler-navn-tekst ovr-navn" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 							onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{sec.title}</span>
 						{#if sec.__lenket}<span class="ovr-lenket" title="Koblet til malen — innholdet fornyes ved åpning">{@html mdi('link-variant', 11)} lenket</span>{/if}
@@ -355,9 +356,8 @@ function leddTekst(it) {
 							class:drag-target-etter={overLed && overLed.sec === si && overLed.idx === ii && !overLedFor}
 							ondragover={(e) => dragOverLed(e, si, ii)}
 							ondrop={(e) => droppLed(e, si, ii)}>
-							<span class="m-deler-drag ovr-drag ovr-ledd-drag" class:aktiv={!!dragLed} draggable="true"
-								ondragstart={(e) => startDragLed(e, si, ii)} ondragend={nullstillDrag}
-								title="Dra for å flytte leddet">{@html mdi('drag-vertical', 13)}</span>
+							<DraHandel onstart={(e) => startDragLed(e, si, ii)} onend={nullstillDrag} aktiv={!!dragLed}
+								klasse="m-deler-drag ovr-drag ovr-ledd-drag" storrelse={13} title="Dra for å flytte leddet" />
 							<span class="m-deler-navn m-deler-ledd-navn">
 								<span class="m-deler-navn-tekst ovr-led-tekst" onclick={() => tilRedigering(si)} role="button" tabindex="0"
 									onkeydown={(e) => { if (e.key === 'Enter') tilRedigering(si); }}>{leddTekst(it)}</span>

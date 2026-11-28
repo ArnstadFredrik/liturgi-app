@@ -53,9 +53,11 @@ UI-språk er norsk (bokmål). Versjon i `package.json`; release via tag → DMG/
 - `src/lib/*.svelte` — modulene (Editor, Eksport, Oversikt, Salmer,
   Innstillinger, Kirkeaar, Forberedelse …); sidefelt/TOC i
   `src/routes/+page.svelte`.
-- **Gjenbrukbare komponenter**: nr to eller flere moduler trenger samme
-  UI-del, trekk den ut i en komponent i `src/lib/` (fx `ModulTopp.svelte`
-  for module-headere, `Modulfaner.svelte` for faner, `Modal.svelte` for
+- **Gjenbrukbare komponenter**: når to eller flere moduler trenger samme
+  UI-del, trekk den ut i en komponent i `src/lib/` (f.eks. `ModulTopp.svelte`
+  for modul-headere, `Modulfaner.svelte` for faner, `Modal.svelte` for
+  dialoger, `Chevron.svelte` for veksleknapper, `DraHandel.svelte` for
+  dra-håndtak). Ikke dupliser markup/stil mellom moduler – send det som
   dialoger). Ikke dupliser markup/stil mellom moduler — send det som
   varierer inn som props/snippets, og behold modulspesifikke detaljer
   i modulens eget scope (`#modulnavn …`) i `app.css`.

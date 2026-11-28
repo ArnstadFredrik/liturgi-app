@@ -137,3 +137,24 @@ Tre bruddpunkter i app.css:
 - Electron: `minWidth` 900  620 px, sø vinduet kan bli spisst av andre apper
 - Verifisert med CDP-simulering av narrow-regler på Eksport/Bibliotek/
   Innstillinger/Kirkeåret (skudd i ui-shots10)
+
+---
+
+## Komponent-/strukturrunde (påbegynt 2026-11-28)
+
+Mål: hver UI-del bygges én gang; modulspesifikke detaljer i modulens eget
+scope i `app.css`. Fremgangsmåte: grep etter dupliserte mønstre, trekk ut
+komponent med props/snippets, behold de eksisterende CSS-klassene (visuell
+endring = null).
+
+| Komponent | Status | Erstatninger |
+|---|---|---|
+| `ModulTopp.svelte` (modul-header, sticky/klebet) | levert | `+page.svelte`, Kirkeaar |
+| `Chevron.svelte` (vis/skjul-knapp) | levert | DelerTabell, Oversikt |
+| `DraHandel.svelte` (dra-håndtak) | levert | DelerTabell, Oversikt |
+| confirmBox | ferdig fra fr (modal.svelte.js sentral) | 8 moduler |
+| `SlettKnap.svelte` (ikon+slett-bekreftelse) | neste | 7 filer med `delete-outline` |
+| `IkonKnapp.svelte` (ikonknapp med aria-label) | vurderes | Eksport, Forberedelse m.fl. |
+| PanelHode (sidepanel-topper: toc-avsnitt / ka-panel-topp) | ikke startet | +page, Kirkeaar |
+
+Regel er notert i AGENTS.md («Gjenbrukbare komponenter»).

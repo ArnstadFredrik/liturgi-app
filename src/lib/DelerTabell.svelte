@@ -8,6 +8,8 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 
 	let { mal, visMalFelt = false } = $props();
 	import { mdi } from '$lib/mdi.js';
+	import Chevron from '$lib/Chevron.svelte';
+	import DraHandel from '$lib/DraHandel.svelte';
 	import { malType, malFormFor, målformLabel, kanBrukes } from '$lib/maltyper.js';
 	import { confirmBox, maalformModal } from '$lib/modal.svelte.js';
 
@@ -196,10 +198,9 @@ import { erOriginalMal } from '$lib/fileio.svelte.js';
 			{#each mal?.sections ?? [] as sec, si (si)}
 				<div class="m-deler-rad" class:drag-target={dragOverSi === si && dragFor} class:drag-target-etter={dragOverSi === si && !dragFor} class:deler-dragging={dragSi === si}
 					ondragover={(e) => dragOverRad(e, si)} ondrop={(e) => droppRad(e, si)} ondragend={() => { dragSi = null; dragOverSi = null; }}>
-					<span class="m-deler-drag" class:aktiv={dragSi !== null} draggable="true"
-						ondragstart={(e) => startDragRad(e, si)} title="Dra for å endre rekkefølge">{@html mdi('drag-vertical', 14)}</span>
+					<DraHandel onstart={(e) => startDragRad(e, si)} aktiv={dragSi !== null} title="Dra for å endre rekkefølge" />
 					<span class="m-deler-navn">
-					<button type="button" class="m-deler-ekspander" title={apenSek === si ? 'Skjul leddene' : 'Vis leddene'} onclick={() => { apenSek = apenSek === si ? null : si; }}>{@html mdi(apenSek === si ? 'chevron-down' : 'chevron-right', 14)}</button>
+					<Chevron apen={apenSek === si} onclick={() => { apenSek = apenSek === si ? null : si; }} title={apenSek === si ? 'Skjul leddene' : 'Vis leddene'} />
 					<span class="m-deler-navn-tekst">{sec.title}</span>
 					{#if erStyrt(sec)}<span class="m-deler-styrt" title="Hoveddelen styres av alternativ/variasjon — alle leddene følger med sammen med den">{@html mdi('subdirectory-arrow-right', 13)}</span>{/if}
 				</span>
