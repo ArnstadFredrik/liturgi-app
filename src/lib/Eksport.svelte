@@ -7,6 +7,7 @@
 	import { prompt } from '$lib/modal.svelte.js';
 	import { openContextMenu } from '$lib/contextmenu.svelte.js';
 	import { litHtml, leddTekst, salmeTekst } from '$lib/lit.js';
+	import IkonKnapp from '$lib/IkonKnapp.svelte';
 	import { mdi } from '$lib/mdi.js';
 	import { toast } from 'svelte-sonner';
 
@@ -1478,9 +1479,9 @@
 					{/each}
 					</div>
 					<div class="ppt-flyt-zoom">
-					<button class="ikon-btn" title="Zoom ut" onclick={() => pptZoomTil(pptZoom - 0.15)}>−</button>
+					<IkonKnapp label="Zoom ut" onclick={() => pptZoomTil(pptZoom - 0.15)}>−</IkonKnapp>
 					<span>{Math.round(pptZoom * 100)} %</span>
-					<button class="ikon-btn" title="Zoom inn" onclick={() => pptZoomTil(pptZoom + 0.15)}>+</button>
+					<IkonKnapp label="Zoom inn" onclick={() => pptZoomTil(pptZoom + 0.15)}>+</IkonKnapp>
 					</div>
 								</div>
 							{:else}
@@ -1512,9 +1513,9 @@
 					</div>
 				{/if}
 				<div class="eks-flyt-zoom">
-					<button class="ikon-btn" title="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</button>
+					<IkonKnapp label="Zoom ut" onclick={() => zoom(Math.max(0.5, zoomNivå - 0.15))}>−</IkonKnapp>
 					<span>{Math.round(zoomNivå * 100)} %</span>
-					<button class="ikon-btn" title="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</button>
+					<IkonKnapp label="Zoom inn" onclick={() => zoom(Math.min(2, zoomNivå + 0.15))}>+</IkonKnapp>
 				</div>
 			</div>
 			{/if}

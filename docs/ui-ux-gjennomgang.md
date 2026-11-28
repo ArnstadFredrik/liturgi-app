@@ -154,7 +154,7 @@ endring = null).
 | `DraHandel.svelte` (dra-håndtak) | levert | DelerTabell, Oversikt |
 | confirmBox | ferdig fra fr (modal.svelte.js sentral) | 8 moduler |
 | `SlettKnap.svelte` (søppelbøtte-ikonknapp) | levert | DelerTabell, Editor, Oversikt, Sidebar |
-| `IkonKnapp.svelte` (ikonknapp med aria-label) | vurderes | Eksport, Forberedelse m.fl. |
-| PanelHode (sidepanel-topper: toc-avsnitt / ka-panel-topp) | ikke startet | +page, Kirkeaar |
+| `IkonKnapp.svelte` (ikonknapp med aria-label) | levert | Eksport (4 zoom), Forberedelse (oppdater) |
+| PanelHode (sidepanel-topper) | avsla (for får felles knutepunkter) | panelstila beholdes i sine scopes |
 
 Regel er notert i AGENTS.md («Gjenbrukbare komponenter»).
