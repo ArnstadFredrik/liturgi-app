@@ -19,7 +19,7 @@ export const app = $state({
 	dirty: false,
 	showInstr: true,
 	showRoles: true,
-	theme: 'dark', // 'light' | 'dark'
+	theme: 'light', // light | dark   lys er standard
 	contextMenu: null, // {x, y, items: [{label, action, danger?} | 'sep']}
 	recentServices: [], // Electron: siste gudstjenestefiler på disk
 	servicesDir: '', // Electron: stien til tjenestemappen
