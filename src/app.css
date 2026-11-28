@@ -1761,7 +1761,8 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* Kirkeåret-modulen */
 #app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
 #kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: 1000px; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
-.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-.ka-sok { margin: 12px 12px; position: relative; }t-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
+.ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 
 .ka-nett { font-size: 12px; color: var(--muted); }
