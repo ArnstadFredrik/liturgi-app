@@ -1249,6 +1249,7 @@ function lagreMeny(e) {
 		<div class="eks-baand">
 			<button class="eks-flere" title="Flere valg" onclick={(e) => eksMeny(e.clientX, e.clientY)}>{@html mdi('tune', 14)} Valg {@html mdi('chevron-down', 12)}</button>
 			{#if aktiv === 'Skjerm'}
+			<span class="eks-gruppe-tittel">Tekst, tittel og justering</span>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
 					<label class="eks-felt eks-chk-pt" title="Skriftstørrelse på slidene (pt)"><span>Tekst</span><input type="number" min="12" max="60" step="any" value={Math.round(getInnst('tekstSkala', 1) * 38)} onchange={(e) => { setInnst('tekstSkala', +e.currentTarget.value / 38); }} /></label>
@@ -1260,6 +1261,7 @@ function lagreMeny(e) {
 					</select></div>
 				</div>
 			</div>
+			<span class="eks-gruppe-tittel">Slide-innstillinger</span>
 			<div class="eks-baand-gruppe eks-ekstra">
 				<div class="eks-baand-rad">
 					<Toggle class="eks-toggle" pressed={getInnst('leddtitler', false)} title="Leddtitler med på slidene (standard uten)" onPressedChange={(v) => setInnst('leddtitler', v)}>{@html mdi('format-title', 14)} Leddtitler</Toggle>

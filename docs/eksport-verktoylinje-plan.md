@@ -1,4 +1,4 @@
-# Eksport-verktøylinjene — plan for rydding (forslag)
+# Eksport-verktøylinjene — plan for rydding (UTFØRT 2026-11-28)
 
 Status: gjennomgang av alle verktøylinjene i eksport-modulen og et forslag til
 organisering. Dagens én horisontal rad med alt i seg er rotete på små skjermer
@@ -42,3 +42,11 @@ og blander forestillinger.
 3. Nivå 4 (skjerm) sist siden den berører Skjerm-profilens verktøy.
 
 Estimert arbeid: nivå 1–2 i én økt; nivå 3 moderat; nivå 4 størst.
+
+## Avslutning
+
+Alle fire nivåene er levert på `ui-sdk` (commit `698ed2f` nivå 1–3,
+`45a8d5f` nivå 4). Skjerm-profilens kontroller forblir synlige (gruppes
+med undergruppetitler) fordi forhåndsvisninga demes allerede lever til
+høyre-panelet; planens «egne forhåndsvisninger»-punkt ikke lenger
+nødvendig.
