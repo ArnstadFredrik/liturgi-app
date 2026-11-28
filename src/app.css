@@ -1761,7 +1761,10 @@ svg.sf-ikon { vertical-align: -0.35em; }
 /* Kirkeåret-modulen */
 #app:has(#kirkeaar-modul) #main { overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
 #kirkeaar-modul { display: flex; gap: 18px; align-items: stretch; max-width: 1000px; width: 100%; margin: 0 auto; padding: 24px 20px 20px; flex: 1; min-height: 0; box-sizing: border-box; }
-.ka-hoved { flex: 1 1 auto; min-width: 0; max-width: 720px; overflow-y: auto; padding-right: 6px; }
+.ka-spalt { flex: 1 1 auto; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; }
+#kirkeaar-modul .ka-spalt > .ka-mellom,
+#kirkeaar-modul .ka-spalt > .ka-valgt { max-width: 700px; width: 100%; margin-left: auto; margin-right: auto; }
+/* skrultbar hidde blir synlig synlig mens det skrolles (transient) */
 .ka-hoved::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 
@@ -2338,7 +2341,7 @@ sub { font-size: 0.75em; }
 .ka-hoved::-webkit-scrollbar { width: 8px; }
 /* **4** typografistruktur: seksjonstitler strre + jevn rytme */
 .ka-valgt h4 { font-size: 13px; letter-spacing: 1px; margin: 22px 0 8px; }
-.ka-valgt h5.ka-lesning-navn { font-size: 16px; font-weight: 700; margin: 18px 0 6px; color: var(--text); }
+.ka-valgt h5.ka-lesning-navn { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; font-size: 14.5px; font-weight: 600; letter-spacing: 0.2px; color: var(--text); margin: 18px 0 6px; }
 .ka-valgt h5.ka-lesning-navn .ka-ref { color: var(--muted); font-weight: 400; }
 /* **2** bltekst: bort med venstrepadding (samme venstrejustering som resten) */
 .ka-lesning-tekst { padding: 0 0 4px; font-size: 16px; line-height: 1.7; }
@@ -2346,3 +2349,14 @@ sub { font-size: 0.75em; }
 /* **5** liturgisk hvit prikk synlig p lys kant */
 .ka-prikk { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22); }
 [data-theme='dark'] .ka-prikk { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); }
+
+/* Kirkearet: fullbredde-header i spalten; transient scrollbar;
+   sticky-samb eksisterer allerede i .ka-header. */
+.ka-spalt::-webkit-scrollbar-thumb { background: transparent; }
+.ka-spalt.triller::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.ka-header { margin: 0; width: 100%; }
+.ka-header-dag .ka-kirkeaar { transition: opacity 0.16s ease; }
+.ka-header.klistret { padding: 6px 6px; box-shadow: var(--shadow); }
+.ka-header.klistret .ka-kirkeaar { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+#toc-side .ka-liste { scrollbar-width: none; }
+#toc-side .ka-liste::-webkit-scrollbar { display: none; }

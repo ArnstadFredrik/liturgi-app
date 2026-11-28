@@ -31,7 +31,17 @@
 	let online = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 	let visMerkedager = $state(true); // innstilling — persistent i liturgi.db (nøkkel 'kirkeaarMerkedager')
 	let sok = $state(''); // fritekst: navn ELLER dato (åååå-mm-dd, dd.mm, dd/mm)
-	let simulerHenting = $state(false); // dev: viser overgangen bibelref -> tekster
+	let simulerHenting = $state(false);
+	let spaltEl = $state(null); // rullespalten i hovedspalten (headerens forlder)
+	let headerLinje = $state(false); // sticky-versjonen: to linjer -> n
+	let skrullTimer = null;
+	function sporHeader() {
+		if (!spaltEl) return;
+		headerLinje = spaltEl.scrollTop > 90;
+		spaltEl.classList.add('triller');
+		clearTimeout(skrullTimer);
+		skrullTimer = setTimeout(() => spaltEl?.classList.remove('triller'), 750);
+	}
 	let alleKirkeaarsDager = $state([]); // hele kirkeåret + neste (til søk og høyrepanel)
 
 	const lesninger = [
@@ -131,7 +141,7 @@
 		// vent ett øyeblikk så Svelte har rendret eventuell utfoldet tekst, måle med
 		// getBoundingClientRect (uavhengig av offsetParent)
 		setTimeout(() => {
-			const hoved = document.querySelector('.ka-hoved');
+			const hoved = document.querySelector('.ka-spalt');
 			const el = hoved?.querySelector(`[data-seksjon="${nokkel}"]`);
 			if (!hoved || !el) return;
 			const delta = el.getBoundingClientRect().top - hoved.getBoundingClientRect().top + hoved.scrollTop;
@@ -423,16 +433,14 @@
 			{ label: 'Åpne prekenforberedelse-mappe', action: () => apneForbMappe() },
 			...(__DEV_MODE__ ? [{ label: 'Simuler henting (dev)', action: () => { simulerHenting = true; if (valgtDag) hentTeksterBakgrunn(valgtDag); } }] : []),
 		]); }}>
-	<div class="ka-hoved">
-		<div class="ka-header">
+	<div class="ka-spalt" bind:this={spaltEl} onscroll={sporHeader}>
+		<div class="ka-header" class:klistret={headerLinje}>
 			<span class="ka-header-merke">Kirkeåret</span>
 			{#if valgtDag}
-				<div class="ka-header-dag">
+			<div class="ka-header-dag">
 					<h3 class="ka-tittel">{valgtDag.name}</h3>
 					<p class="ka-kirkeaar">{undertittel(valgtDag)}</p>
 				</div>
-			{:else}
-				<h3 class="ka-tittel">Ingen kirkeårsdag valgt</h3>
 			{/if}
 			<div class="ka-valgt-handlinger">
 				{#if app.forbModul}
