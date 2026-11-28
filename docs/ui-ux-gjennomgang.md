@@ -158,3 +158,26 @@ endring = null).
 | PanelHode (sidepanel-topper) | avsla (for får felles knutepunkter) | panelstila beholdes i sine scopes |
 
 Regel er notert i AGENTS.md («Gjenbrukbare komponenter»).
+
+### Status etter autonom runde 2026-11-28
+
+- Komponentrunden er fullført: ModulTopp, Chevron, DraHandel, SlettKnap,
+  IkonKnapp levert og verifisert; PanelHode avslått (for få felles
+  knutepunkter). main er merget fra ui-sdk (commit `ede41c6`).
+- Eksport-verktøylinjen: alle fire nivåene levert (se
+  `docs/eksport-verktoylinje-plan.md`).
+- Handbok-skjermbilder: påbegynt men IKKE ferdig — skjermbilder tatt mot
+  installert app blir identiske/lossen når vinduet ikke er aktivt
+  (rendering-pause bak andre vinduer). Må tas med Liturgi-vinduet i
+  forgrunnen (mørkt tema, 11 bilder i `docs/bilder/`). Ikke commit-et;
+  endelige webp-filer gjenopprettes med `git checkout -- docs/bilder`.
+
+### Til bekreftelse (krever deg)
+
+1. **v0.0.6-release**: versjonbump + tag `v0.0.6` + push (starter
+   release.yml, Homebrew-tap, Pages). Krever din godkjenning.
+2. **Handbok-bilder ferdigstilles** (punkt over) når du har 10 min med
+   Liturgi i forgrunnen.
+3. **Editor-småpoeng** (instruksjonsfelt i redigering, charwise v+w,
+   Vim → kommandopalett, seksjonsskille): trenger presisering av omfang
+   før implementering.
