@@ -307,7 +307,21 @@
 	// menylinje/kontekstmeny: «Vis navn» og «Hovedtitler» (print-profilene)
 	/** Lagre-meny: ett punkt for lagring (og .limal-kopi for maler) — holder
 	 *  verktøylinjen kompakt i stedet for to fulle knapper. */
-	function lagreMeny(e) {
+		/* Nivå 1-3 i eksport-planen: Lagre flyttes til panelet, Sideoppsett/Typografi
+	 * blir dropdowns med status-chip. dropApen: 'side' | 'typo' | null. */
+	let dropApen = $state(null);
+	function stengDrops(e) {
+		if (!dropApen) return;
+		if (e.target.closest?.('.eks-drop')) return;
+		dropApen = null;
+	}
+	function veksleDrop(d) { dropApen = dropApen === d ? null : d; }
+	const sideChip = $derived(
+		(getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5') + ' · ' + getInnst('kolonner', 1) + ' kol · '
+		+ (getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal') === 'smal' ? 'Smal' : getInnst('marger') === 'bred' ? 'Bred' : 'Normal')
+	);
+	const typoChip = $derived('Aa ' + ptVerdi('hoveddel', 11) + ' / ' + ptVerdi('ledd', 11) + ' / ' + ptVerdi('tekst', 10));
+function lagreMeny(e) {
 		const r = e.currentTarget.getBoundingClientRect();
 		const punkter = [{ label: 'Lagre', action: () => saveCurrent() }];
 		if (app.kind === 'template') punkter.push({ label: 'Lagre mal-fil (.limal)', action: () => saveCurrentToFile() });
@@ -1222,6 +1236,7 @@
 		window.scrollTo(0, 0);
 	});
 </script>
+<svelte:window onclick={stengDrops} />
 
 <div id="eksport-side" oncontextmenu={(e) => { if (e.target.closest('.eksport-rad, .ppt-side')) return; e.preventDefault(); eksMeny(e.clientX, e.clientY); }}>
 
@@ -1262,34 +1277,31 @@
 				</div>
 			</div>
 			{:else}
-			<div class="eks-baand-gruppe">
-				<div class="eks-felt"><span>Format</span><select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}>
-					<option value="A4">A4</option>
-					<option value="A5">A5</option>
-				</select></div>
-				<div class="eks-felt"><span>Kolonner</span><select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}>
-					<option value="1">1 kolonne</option>
-					<option value="2">2 kolonner</option>
-				</select></div>
-				<div class="eks-felt"><span>Marger</span><select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF">
-					<option value="bred">Bred marg</option>
-					<option value="normal">Normal marg</option>
-					<option value="smal">Smal marg</option>
-				</select></div>
-				<div class="eks-felt"><span>Avstand</span><select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft før/etter ledd i visning, Word og PDF">
-					<option value="tett">Tett</option>
-					<option value="normal">Normal</option>
-					<option value="luft">Luftig</option>
-				</select></div>
-				<button class="eks-lagre eks-verktoy-lagre" title="Lagre" onclick={(e) => lagreMeny(e)}>{@html mdi('download')} Lagre {@html mdi('chevron-down', 12)}</button>
-			</div>
-			<div class="eks-baand-gruppe eks-ekstra">
-				<div class="eks-baand-rad">
-					<label class="eks-felt eks-chk-pt"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></label>
-					<label class="eks-felt eks-chk-pt"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></label>
-					<label class="eks-felt eks-chk-pt"><span>Tekst</span><input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></label>
-					<button class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>↺</button>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Sideoppsett: format, kolonner, marger og luft" onclick={() => veksleDrop('side')}>
+					{@html mdi('page-layout-sidebar-right', 14)} Sideoppsett <span class="eks-chip">{sideChip}</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'side'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><span>Format</span><select value={getInnst('storrelse', 'A5') === 'A4' ? 'A4' : 'A5'} onchange={(e) => setInnst('storrelse', e.currentTarget.value)}><option value="A4">A4</option><option value="A5">A5</option></select></div>
+					<div class="eks-drop-rad"><span>Kolonner</span><select value={String(getInnst('kolonner', 1))} onchange={(e) => setInnst('kolonner', +e.currentTarget.value)}><option value="1">1 kolonne</option><option value="2">2 kolonner</option></select></div>
+					<div class="eks-drop-rad"><span>Marger</span><select value={getInnst('marger', aktiv === 'Menighet' ? 'smal' : 'normal')} onchange={(e) => setInnst('marger', e.currentTarget.value)} title="Marger i Word/PDF"><option value="bred">Bred marg</option><option value="normal">Normal marg</option><option value="smal">Smal marg</option></select></div>
+					<div class="eks-drop-rad"><span>Avstand</span><select value={getInnst('avstand', 'normal')} onchange={(e) => setInnst('avstand', e.currentTarget.value)} title="Luft får/etter ledd i visning, Word og PDF"><option value="tett">Tett</option><option value="normal">Normal</option><option value="luft">Luftig</option></select></div>
 				</div>
+				{/if}
+			</div>
+			<div class="eks-drop">
+				<button class="eks-flere" title="Typografi: skriftstørrelser per nivå" onclick={() => veksleDrop('typo')}>
+					{@html mdi('format-bold', 14)} Typografi <span class="eks-chip">{typoChip}</span> {@html mdi('chevron-down', 12)}
+				</button>
+				{#if dropApen === 'typo'}
+				<div class="eks-drop-meny" role="menu">
+					<div class="eks-drop-rad"><span>Hoveddel</span><input type="number" min="6" max="20" step="any" value={ptVerdi('hoveddel', 11)} onchange={(e) => settPt('hoveddel', e.currentTarget.value, 11)} /></div>
+					<div class="eks-drop-rad"><span>Ledd</span><input type="number" min="6" max="20" step="any" value={ptVerdi('ledd', 11)} onchange={(e) => settPt('ledd', e.currentTarget.value, 11)} /></div>
+					<div class="eks-drop-rad"><span>Tekst</span><input type="number" min="6" max="20" step="any" value={ptVerdi('tekst', 10)} onchange={(e) => settPt('tekst', e.currentTarget.value, 10)} /></div>
+					<button type="button" class="wide eks-tilbakestill" title="Tilbakestill fontstørrelsene (11 / 11 / 10 pt)" onclick={nullstillSkrift}>{@html mdi('refresh', 13)} Tilbakestill</button>
+				</div>
+				{/if}
 			</div>
 			<div class="eks-baand-gruppe">
 				<div class="eks-baand-rad">
@@ -1561,6 +1573,7 @@
 						{eksporterer ? 'Eksporterer …' : 'Eksportér alle profilene'}
 					</button>
 					<button onclick={eksporterKunAktiv} disabled={eksporterer}>Eksportér kun «{aktiv}»</button>
+					<button class="eks-lagre" title="Lagre dokumentet (.liturgi) og mal-kopien" onclick={(e) => lagreMeny(e)}>{@html mdi('download', 14)} Lagre {@html mdi('chevron-down', 12)}</button>
 				</div>
 			</div>
 		</aside>
