@@ -4,16 +4,17 @@ Mål: erstatte EditableText (egen contenteditable + lit.js-render) med CM6
 som editor over hele appen, og bygge alle liturgiske markeringer som
 CM6-decorations/widgets slik at WYSIWYG-prinsippet bevares: visning = eksport.
 
-## Utgangspunkt (nov 2026)
+## Utgangspunkt (nov 2026, oppdatert)
 
-- EditableText.svelte (1102 linjer) er dagens WYSIWYG-komponent:
-  visning = eksport (samme lit.js-motor), klikk-til-rediger via
-  contenteditable, 10 tekstartrede felter i Item.svelte + Modal/Bibliotek.
-- Cm6Kilde.svelte (eksperiment, branch cm6-eksperiment): CM6 i
-  kilde-modus i prekenforberedelse, replit codemirror-vim, merker som
-  dekorasjoner. Ekte-tastaturtest av :w gjenstår.
-- Egen vim.js (586 linjer) brukes fortsatt i EditableText og
-  Forberedelse (riktekst/hybrid).
+- EditableText.svelte er dagens WYSIWYG-komponent: visning = eksport
+  (samme lit.js-motor), klikk-til-rediger via contenteditable.
+- Egen vim.js og alle vim-valg er fjernet fra main (commit 2712849):
+  appen har i dag INGEN vim. CM6-vim (@replit/codemirror-vim) er
+  dermed den eneste vim-motoren videre.
+- Prekenforberedelse-redigeringsmodulen er nå dev-modul
+  (app.devModus + __DEV_MODE__ lazy-import i +page.svelte): koden
+  (med Cm6Kilde/CM6) lastes aldri i pakkede utgaver. Alt CM6 ligger i
+  dev-modus videre.
 
 ## Widget-katalog (markering for markering)
 
@@ -79,10 +80,10 @@ block-widget.
 - Merker skal ikke lekke ut i eksporten (profilvalgene: instruksjoner
   skjules i Menighet, med-kolonne i Skjerm osv.).
 
-### Fase 5 - Vim: en motor
-- Når CM6 sitter overalt: pensjoner vim.js (behold blokkmarkør- og
-  instr-felt-tillegget som CM6-tillegg).
-- Kolon-tast i normal-modus åpner kommandopaletten (1c-design).
+### Fase 5 - Vim: ferdig i komponenten (CM6-vim)
+- @replit/codemirror-vim er nå den eneste vim-motoren (vim.js er pensjonert på main).
+- Statusfarge/blokkmårk harmoniseres: ån CSS-klasse for norm/ins/vis.
+- ':' i normal-modus åpner Kommandopalett.apenMed(":") (1c-designet).
 
 ### Fase 6 - Avslutning
 - EditableText pensjoneres.
@@ -94,13 +95,23 @@ block-widget.
 |---|---|
 | Widgets avviker fra lit.js (eksporten må være lik) | Fase 1/3-enhetstest: dekorasjons-output = litHtml-output |
 | 10+ redigeringsfelter i Item.svelte | A/B-bryter + felt-for-felt-rullering (Fase 3) |
-| Vim-paritet (blokkmarkør, instr-felt) | vim.js beholdes til fase 5; tilleggene re-implementeres som CM6-tillegg |
-| Opplevelse: redigeringsatferd endres | A/B-bryter (Fase 3) + kan rulles tilbake til til EditableText |
+| Vim-paritet (blokkmarkør, instr-felt) | vim.js er pensjonert; blokkmarkør re-lages som CM6-tillegg når LitCm kommer |
+| Opplevelse: redigeringsatferd endres | A/B-bryter (Fase 3) + kan rulles tilbake til EditableText |
 | Ytelse i store dokumenter | Viewport-begrensede dekorasjoner; måling i Fase 0 |
+
+Parallelt arbeid: gudstjenesteredigering (brukerkrav nov 2026)
+
+- Gudstjenesteredigering med CM6 bygges som en PARALLELL modul
+  (LitCm.svelte), aldri ved å bytte ut EditableText i feltene.
+- Tilgjengeliggjøres som ENTEN et alternativ i Innstillinger
+  (dev-modul: skjules i pakkede utgaver med samme .skjult-teknikk)
+  ELLER en egen dev-modul i sidemenyen (som Malverktøy).
+- Skifte skjer først når LitCm har paritet med EditableText
+  (alle merker, alle 10 felter, eksport-likhet) og er tatt i bruk.
 
 ## Beslutningspunkter for brukeren
 
 1. Fase 0 godkjennes etter ekte-tastaturtesten av cm6-eksperiment.
-2. Fase 3: A/B-bryteren (når LitCm er klar) gås til bruker for
-   vurdering før Item.svelte konverteres felt for felt.
-3. Fase 5: pensjoner vim.js eller beholde den som parallell motor.
+2. Fase 3: valget Innstillinger-alternativ vs. egen dev-modul for
+   LitCm (gudstjenesteredigering) foretas først når omfanget er
+   synbart; ingenting fjernes fra EditableText før paritet.

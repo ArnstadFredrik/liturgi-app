@@ -30,7 +30,6 @@
 		}
 	}
 	import Kirkeaar from '$lib/Kirkeaar.svelte';
-	import Forberedelse from '$lib/Forberedelse.svelte';
 
 	/** P5/840: i sm vinduer gr sidemenyen til uttrekk og starter lukket;
 	 *  brukeren kan pne den samme knappen (veksleSidebar). */
@@ -57,11 +56,14 @@
 
 	// DEV: hent dev-tilstand fra main (isPackaged) — styrer dev-verktøyene (Malverktøy)
 	let Malverktoy = $state(null); // lastes bare inn i dev-bygg (__DEV_MODE__)
+	let Forberedelse = $state(null); // dev-modul: prekenforberedelse-redigering (med Cm6Kilde/CM6)
 	let Diff = $state(null); // sammenlign .limal-filer side om side (les-kun modul)
 	if (__DEV_MODE__ && typeof window !== 'undefined') {
 		if (window.liturgi?.devTilstand) {
 			window.liturgi.devTilstand().then((t) => { app.devModus = !!t?.devModus; });
 		}
+		// Forberedelse er også dev-modul
+		import('$lib/Forberedelse.svelte').then((m) => { Forberedelse = m.default; });
 		import('$lib/Malverktoy.svelte').then((m) => { Malverktoy = m.default; });
 		import('$lib/Diff.svelte').then((m) => { Diff = m.default; });
 	}
@@ -274,7 +276,7 @@
 			<Eksport />
 		{:else if app.visning === 'kirkeaar'}
 			<Kirkeaar />
-		{:else if app.visning === 'forberedelse' && app.devModus}
+		{:else if app.visning === 'forberedelse' && app.devModus && Forberedelse}
 			<Forberedelse />
 		{:else if app.visning === 'innstillinger'}
 			<Innstillinger />
